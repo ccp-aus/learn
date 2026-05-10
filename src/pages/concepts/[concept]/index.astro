@@ -9,9 +9,9 @@ import { Clock, ArrowRight, Lock } from "lucide-react";
 export async function getStaticPaths() {
   const vendors = await getCollection("vendors");
   return vendors
-    .filter((v) => v.data.kind !== "concept")
+    .filter((v) => v.data.kind === "concept")
     .map((v) => ({
-      params: { vendor: v.data.slug },
+      params: { concept: v.data.slug },
       props: { vendor: v },
     }));
 }
@@ -27,7 +27,6 @@ const courses = allCourses
   })
   .sort((a, b) => a.data.level.localeCompare(b.data.level));
 
-/** Non-draft lesson slugs for a course — what counts toward completion. */
 function publishableLessonSlugs(course: (typeof courses)[number]): string[] {
   return course.data.lessons.filter((slug) => {
     const l = allLessons.find(
@@ -56,7 +55,7 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
     <Breadcrumb
       items={[
         { href: "/", label: "Home" },
-        { href: "/vendors/", label: "Vendors" },
+        { href: "/concepts/", label: "Concepts" },
         { label: vendor.data.name },
       ]}
     />
@@ -77,18 +76,6 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
           {vendor.data.summary}
         </p>
       </div>
-      {
-        vendor.data.website && (
-          <a
-            href={vendor.data.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-muted-foreground hover:text-primary"
-          >
-            Vendor website ↗
-          </a>
-        )
-      }
     </header>
 
     <div class="grid gap-5 md:grid-cols-3">
@@ -146,7 +133,7 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
                         <>
                           {i > 0 && ", "}
                           <a
-                            href={`/vendors/${vendor.data.slug}/${p.split("-").pop()}/`}
+                            href={`/concepts/${vendor.data.slug}/${p.split("-").pop()}/`}
                             class="text-primary hover:underline"
                           >
                             {levelLabel[(p.split("-").pop() ?? "l1") as "l1" | "l2" | "l3"]}
@@ -157,7 +144,7 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
                   )}
                   {c.data.status === "live" && (
                     <a
-                      href={`/vendors/${vendor.data.slug}/${level}/`}
+                      href={`/concepts/${vendor.data.slug}/${level}/`}
                       class="group mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
                       data-astro-prefetch
                     >

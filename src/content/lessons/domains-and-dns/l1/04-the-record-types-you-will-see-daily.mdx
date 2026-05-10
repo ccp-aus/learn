@@ -1,0 +1,115 @@
+---
+slug: 04-the-record-types-you-will-see-daily
+vendor: domains-and-dns
+level: l1
+title: The record types you'll see every shift
+summary: A, AAAA, CNAME, TXT, MX, and NS — what each one does, the format, and the ticket symptom each one creates when it's wrong.
+estimatedMinutes: 9
+order: 4
+topics: [records, fundamentals]
+updated: 2026-05-10
+---
+
+A DNS record is one row in a zone file. It has a **name**, a **type**, a **TTL**, and a **value**. Six types cover almost every ticket you'll see in the first year.
+
+## At a glance
+
+| Type | What it answers | Example value | Symptom when wrong |
+|---|---|---|---|
+| **A** | "What's the IPv4 for this name?" | `203.0.113.42` | Web isn't loading |
+| **AAAA** | "What's the IPv6 for this name?" | `2001:db8::1` | IPv6-only clients can't reach the site |
+| **CNAME** | "This name is an alias for that name" | `shop.example.com → example-shop.shop-platform.example` | Subdomain points nowhere; alias chain broken |
+| **TXT** | "Plain text attached to this name" | `"v=spf1 include:spf.protection.outlook.com -all"` | Email rejected as spam; service verification fails |
+| **MX** | "Where does mail for this domain go?" | `10 example-com.mail.protection.outlook.com` | Inbound email bounces; mail loops |
+| **NS** | "Who is authoritative for this name?" | `ns1.cloudflare.com` | Whole domain disappears or routes to wrong host |
+
+The other 30+ record types in the standards are real, but you'll meet them rarely (SRV in lesson 5 of this course's L2; CAA, DNSSEC records, and PTR in L3).
+
+## The five you have to recognise on sight
+
+### A and AAAA: a name to an IP
+
+`A` records map a hostname to an **IPv4** address. `AAAA` does the same for **IPv6**. Many domains have both for the same name; the client's network and OS pick which to use. When you see a customer's website up on one connection and not another, the IPv6 path is the first thing to test.
+
+```
+example.com.   3600   IN   A      203.0.113.42
+example.com.   3600   IN   AAAA   2001:db8::1
+www.example.com.   3600   IN   A   203.0.113.42
+```
+
+Each row has the name, TTL, class (`IN` for internet, you'll see this everywhere), the type, and the value. Most panel UIs hide `IN` and let you fill in the other four.
+
+### CNAME: an alias to another name
+
+A `CNAME` record says "this name is the same as that name; go look it up there". Common when a customer points a subdomain at a third-party platform.
+
+```
+shop.example.com.   3600   IN   CNAME   example-shop.shop-platform.example.
+careers.example.com.   3600   IN   CNAME   jobs.recruiter.example.
+```
+
+A CNAME does not carry an IP. The resolver follows the alias to whatever the target resolves to. **CNAMEs cannot coexist with most other records on the same name**, and they cannot legally sit at the **apex** of a zone (covered in L3 lesson 4). Use them for subdomains pointed at a vendor's hostname.
+
+### TXT: plain text for verification and email auth
+
+A `TXT` record carries arbitrary text. Two uses dominate:
+
+- **Service verification.** "Add this TXT record so we know you control the domain." Microsoft, Google, Atlassian, Slack — almost every SaaS does this during onboarding.
+- **Email authentication.** SPF, DKIM, and DMARC are all stored in TXT-shaped records (with the L2 nuance that DKIM uses a CNAME-or-TXT pair). L2 lesson 4 covers them.
+
+```
+example.com.   3600   IN   TXT   "v=spf1 include:spf.protection.outlook.com -all"
+example.com.   3600   IN   TXT   "MS=ms12345678"
+```
+
+A name can have many TXT records. Adding one does not remove the others. *Replacing* an SPF record by deleting and re-creating is one of the easiest ways to lose a verification record by accident.
+
+### MX: where mail goes
+
+`MX` records say "to deliver mail addressed `something@example.com`, connect to these mail servers in this priority order".
+
+```
+example.com.   3600   IN   MX   0   example-com.mail.protection.outlook.com.
+```
+
+The `0` is the **priority**. Lower numbers are tried first. A Microsoft 365 tenant publishes one MX with priority `0`. Google Workspace publishes five MX records with priorities `1, 5, 5, 10, 10`.
+
+When a customer says "my email isn't arriving", the MX record is the first place to look. If it points at the wrong service, mail goes to the wrong server. If it's missing, mail is rejected.
+
+### NS: who's authoritative for this zone
+
+`NS` records list the **authoritative nameservers** for a zone. You met them in lesson 3 as the registrar's "delegation". The same names appear inside the zone too:
+
+```
+example.com.   86400   IN   NS   ns1.cloudflare.com.
+example.com.   86400   IN   NS   ns2.cloudflare.com.
+```
+
+You'll occasionally edit NS records at a *subdomain* level to delegate that subdomain to a different DNS host. For a Beginner-course tech, the apex NS records are managed at the registrar (where the delegation actually counts), not in the zone file.
+
+## A worked ticket: Able Moose Accounting
+
+Able Moose's bookkeeper opens a ticket: *"I'm trying to set up our new project management tool. It says 'add this CNAME to your DNS' but I have no idea what that means or where it goes."*
+
+<StepThrough client:load>
+<Step title="Read what the vendor actually wants">
+The setup wizard says: *"Create a CNAME record with name `pm` pointing to `app-12345.vendor.example`."* That's `pm.example.com` becoming an alias for the vendor's host.
+</Step>
+<Step title="Confirm where DNS is hosted">
+`nslookup -type=ns example.com` shows Cloudflare. Cloudflare panel is where the record gets added.
+</Step>
+<Step title="Add the CNAME">
+In Cloudflare, add a record:
+- Type: `CNAME`
+- Name: `pm` (panel auto-appends `.example.com`)
+- Target: `app-12345.vendor.example`
+- TTL: Auto
+
+Save.
+</Step>
+<Step title="Verify">
+`nslookup pm.example.com` should return the IP that `app-12345.vendor.example` resolves to. The vendor's wizard should detect the record within a few minutes.
+</Step>
+</StepThrough>
+
+<Checkpoint slug="domains-and-dns-l1-checkpoint-records" client:visible />

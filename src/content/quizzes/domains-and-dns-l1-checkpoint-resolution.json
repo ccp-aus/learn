@@ -1,0 +1,32 @@
+{
+  "slug": "domains-and-dns-l1-checkpoint-resolution",
+  "course": "domains-and-dns-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, DNS resolution",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-resolution-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user types example.com into their browser. Which step happens last?",
+      "choices": [
+        "The recursive resolver asks the .com TLD nameservers who is authoritative for example.com",
+        "The recursive resolver asks the authoritative nameservers for the IP address",
+        "The browser opens a TCP connection to the IP address that came back",
+        "The user's device sends the question to its configured recursive resolver"
+      ],
+      "correct": 2,
+      "explanation": "DNS only resolves the name to an IP. The browser opens the TCP connection only after the IP is returned. This is why a domain can resolve perfectly while the website is still down (the IP is reachable to DNS but not to your TCP connection)."
+    },
+    {
+      "id": "ck-resolution-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "When you change a DNS record, every resolver on the internet sees the new value within seconds.",
+      "correct": false,
+      "explanation": "Resolvers cache answers for the TTL of the record. Until each resolver's cache expires, it serves the old value. 'DNS propagation' is really 'caches expiring at different rates'."
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+---
+slug: 05-verification-and-srv-records
+vendor: domains-and-dns
+level: l2
+title: "Verification TXT and SRV: the records onboarding wizards demand"
+summary: How TXT verification flows work across vendors, what an SRV record looks like, and the autodiscover pattern Microsoft and Google both rely on.
+estimatedMinutes: 9
+order: 5
+topics: [verification, srv, autodiscover]
+updated: 2026-05-10
+---
+
+Half of new-customer onboarding is a series of vendor wizards that say "prove you own this domain by adding this DNS record". The other half is service-discovery records that let clients find a service automatically. Two patterns cover both: the **TXT-verification challenge** and the **SRV record**.
+
+## The TXT-verification pattern
+
+Every SaaS that connects to a custom domain needs to know the customer actually owns it. The most common verification is a TXT record: the vendor generates a unique random string, asks you to publish it at a specific name, then queries DNS for it.
+
+| Vendor | Record name | Value pattern |
+|---|---|---|
+| Microsoft 365 | `@` (apex) | `MS=ms12345678` |
+| Google Workspace | `@` (apex) | `google-site-verification=...` |
+| Atlassian | `@` (apex) | `atlassian-domain-verification=...` |
+| Slack Enterprise | `_slack` (subdomain) | `slack-domain-verification=...` |
+| Mailchimp | various | `mailchimp:auth-id=...` |
+| Webhook services | `_<vendor>` | random token |
+
+The pattern: a token uniquely tied to the customer's account at the vendor. Adding it proves the person who controls DNS also controls the account. Once verified, the token can usually be removed, but most MSP runbooks recommend leaving it in place: removing it later might break re-verification, and verification TXT records cost almost nothing.
+
+<Callout type="info" title="Why these records pile up">
+Over the years a customer's apex TXT records collect: M365 verification, Google verification (from a previous trial), an analytics provider, three SPF entries from old senders, a verification for a service nobody uses anymore. **Don't delete unknown TXT records** without checking. The "unknown" verification might be the one keeping a service the customer cares about authenticated. Document and ask before pruning.
+</Callout>
+
+## TXT records have no length restrictions, but DNS does
+
+A single TXT record string is limited to **255 bytes per string segment**. Records longer than that are split across multiple quoted strings concatenated by the resolver:
+
+```
+example.com.   3600   IN   TXT   "v=DKIM1; k=rsa; p=MIGfMA0G..." "...rest-of-the-key..."
+```
+
+Most provider panels handle this transparently. A few don't, and you'll hit a "value too long" error. The fix is to manually break the value into 255-byte chunks at the panel; the resolver concatenates them on read.
+
+## SRV records: services with port numbers
+
+An SRV record points clients at a *service* on a *host* on a *port* with a *priority* and *weight*. The format:
+
+```
+_service._protocol.<domain>.   TTL   IN   SRV   <priority> <weight> <port> <target>
+```
+
+A worked example for Microsoft Skype/Teams legacy auto-discovery:
+
+```
+_sip._tls.example.com.   3600   IN   SRV   100 1 443 sipdir.online.lync.com.
+```
+
+| Field | Value | Meaning |
+|---|---|---|
+| `_service._protocol` | `_sip._tls` | "Find a SIP server using TLS" |
+| Priority | `100` | Try the lowest-priority record first |
+| Weight | `1` | If priorities tie, distribute by weight |
+| Port | `443` | Connect to this port on the target |
+| Target | `sipdir.online.lync.com.` | Hostname to connect to (then resolve normally) |
+
+Most MSPs touch SRV records in three contexts:
+
+| Context | Records |
+|---|---|
+| Microsoft 365 / older Teams | `_sip._tls`, `_sipfederationtls._tcp` |
+| Outlook autodiscover (legacy) | `_autodiscover._tcp` |
+| Matrix / XMPP / IRC client discovery | `_matrix._tcp` and friends; rare in MSP work |
+
+You'll add SRV records following a vendor's exact instructions, not from memory. The format trips people up: many panels split priority/weight/port into separate fields rather than asking for one combined string. **Read the panel labels carefully**; don't guess.
+
+## Autodiscover: the special case worth knowing
+
+When Outlook is asked to set up a mailbox at `sarah@example.com`, it walks a defined sequence to find the right server:
+
+1. Look for `https://autodiscover.example.com/autodiscover/autodiscover.xml`
+2. If that fails, look up the SRV record `_autodiscover._tcp.example.com`
+3. If that fails, prompt the user
+
+Path 1 is what M365 wants you to set up by adding a CNAME `autodiscover.example.com → autodiscover.outlook.com`. Path 2 is the older fallback for environments that need it. Many tenants set up just path 1 and that's enough for modern Outlook; path 2 is added when older clients or domain-joined laptops need to find Exchange Online via the SRV record.
+
+If users complain *"Outlook is asking for the server name when I add my account"*, the autodiscover record is missing or misconfigured.
+
+## A worked ticket: Able Moose Accounting
+
+Able Moose's HR manager opens a ticket: *"the new team scheduling app says it can't verify our domain. I added the record they told me, but it still says 'verification failed'."*
+
+<StepThrough client:load>
+<Step title="See exactly what the vendor wants">
+The setup wizard shows: *"add a TXT record at `_schedulink.example.com` with the value `schedulink-verify=abc123def456`."* Note the underscore-prefixed name; this is on a *subdomain*, not the apex.
+</Step>
+<Step title="Check what was actually added">
+Look in the customer's DNS panel (Cloudflare). HR added a TXT at `@` (apex) with the value, not at `_schedulink`. Different name, so the wizard doesn't see it.
+</Step>
+<Step title="Fix the record name">
+Add a new TXT at `_schedulink` with the value. Leave the apex one in place for now (will clean up later, no harm). Save.
+</Step>
+<Step title="Verify resolution before clicking 'verify' in the wizard">
+On your machine: `nslookup -type=txt _schedulink.example.com`. The expected value comes back. *Now* click the Verify button in the wizard.
+</Step>
+<Step title="Document for the runbook">
+Add to the customer's runbook: "Schedulink verification TXT lives at `_schedulink.example.com`. Don't delete." Future-you who finds it in a year will remember why.
+</Step>
+</StepThrough>
+
+You've finished the Intermediate course. You can drive the M365 and Cloudflare DNS panels, you understand SPF / DKIM / DMARC as a system, and verification and SRV records are no longer mystery records you copy-paste. The Advanced course is about the changes that *don't* go to plan, the migrations and the bad change requests.

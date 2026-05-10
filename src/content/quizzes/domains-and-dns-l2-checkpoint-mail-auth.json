@@ -1,0 +1,39 @@
+{
+  "slug": "domains-and-dns-l2-checkpoint-mail-auth",
+  "course": "domains-and-dns-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, SPF / DKIM / DMARC",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-mailauth-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which DMARC policy values are valid? (Select all that apply.)",
+      "choices": [
+        "p=none",
+        "p=quarantine",
+        "p=reject",
+        "p=allow",
+        "p=block"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "DMARC defines exactly three policy values: none (report only), quarantine (deliver to spam), and reject. 'allow' and 'block' are not in the spec."
+    },
+    {
+      "id": "ck-mailauth-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer's DMARC is at p=none. They're not seeing spoofing rejected. What's the next move?",
+      "choices": [
+        "Move directly to p=reject",
+        "Confirm SPF and DKIM are passing for legitimate senders, then move to p=quarantine, watch reports, then move to p=reject",
+        "Switch to p=block to enforce DMARC",
+        "Add ~all to the SPF record to enable enforcement"
+      ],
+      "correct": 1,
+      "explanation": "p=none is the report-only stage. To actually enforce, you need quarantine (then reject), but only after verifying every legitimate sender passes alignment. Moving to reject without checking reports breaks legitimate mail."
+    }
+  ]
+}

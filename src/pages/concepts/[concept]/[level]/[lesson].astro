@@ -13,9 +13,6 @@ import {
   Hotspot,
 } from "@/components/learning/AnnotatedScreenshot";
 import { StepThrough, Step } from "@/components/learning/StepThrough";
-// Step is referenced through MDX scope via the auto-import plugin; we expose
-// it on the components map below so MDX can resolve it consistently in builds
-// where local-import resolution is bypassed.
 import { DecisionTree } from "@/components/learning/DecisionTree";
 import { Checkpoint } from "@/components/learning/Checkpoint";
 import { LessonProgress } from "@/components/learning/LessonProgress";
@@ -35,10 +32,10 @@ export async function getStaticPaths() {
       const vendorSlug = typeof ref === "string" ? ref : ref?.id;
       return { l, vendorSlug };
     })
-    .filter(({ vendorSlug }) => vendorSlug && !conceptSlugs.has(vendorSlug))
+    .filter(({ vendorSlug }) => vendorSlug && conceptSlugs.has(vendorSlug))
     .map(({ l, vendorSlug }) => ({
       params: {
-        vendor: vendorSlug!,
+        concept: vendorSlug!,
         level: l.data.level,
         lesson: l.data.slug,
       },
@@ -47,7 +44,7 @@ export async function getStaticPaths() {
 }
 
 const { lesson, courses } = Astro.props;
-const { vendor: vendorParam, level } = Astro.params;
+const { concept: vendorParam, level } = Astro.params;
 
 const vendors = await getCollection("vendors");
 const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
@@ -109,10 +106,10 @@ const levelLabel: Record<string, string> = {
     <Breadcrumb
       items={[
         { href: "/", label: "Home" },
-        { href: "/vendors/", label: "Vendors" },
-        { href: `/vendors/${vendor.data.slug}/`, label: vendor.data.name },
+        { href: "/concepts/", label: "Concepts" },
+        { href: `/concepts/${vendor.data.slug}/`, label: vendor.data.name },
         {
-          href: `/vendors/${vendor.data.slug}/${level}/`,
+          href: `/concepts/${vendor.data.slug}/${level}/`,
           label: levelLabel[level],
         },
         { label: lesson.data.title },
@@ -153,9 +150,9 @@ const levelLabel: Record<string, string> = {
       level={level}
       nextHref={
         next
-          ? `/vendors/${vendor.data.slug}/${level}/${(next as any).data.slug}/`
+          ? `/concepts/${vendor.data.slug}/${level}/${(next as any).data.slug}/`
           : isLast && finalQuizSlug
-            ? `/vendors/${vendor.data.slug}/${level}/quiz/`
+            ? `/concepts/${vendor.data.slug}/${level}/quiz/`
             : null
       }
       nextLabel={
@@ -170,7 +167,7 @@ const levelLabel: Record<string, string> = {
     >
       {prev && (
         <a
-          href={`/vendors/${vendor.data.slug}/${level}/${(prev as any).data.slug}/`}
+          href={`/concepts/${vendor.data.slug}/${level}/${(prev as any).data.slug}/`}
           class="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40"
           data-astro-prefetch
         >
@@ -187,7 +184,7 @@ const levelLabel: Record<string, string> = {
       )}
       {next ? (
         <a
-          href={`/vendors/${vendor.data.slug}/${level}/${(next as any).data.slug}/`}
+          href={`/concepts/${vendor.data.slug}/${level}/${(next as any).data.slug}/`}
           class="group ml-auto flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 sm:ml-0 sm:justify-end"
           data-astro-prefetch
         >
@@ -204,7 +201,7 @@ const levelLabel: Record<string, string> = {
       ) : (
         finalQuizSlug && (
           <a
-            href={`/vendors/${vendor.data.slug}/${level}/quiz/`}
+            href={`/concepts/${vendor.data.slug}/${level}/quiz/`}
             class="group ml-auto flex items-center gap-3 rounded-lg border border-primary/40 bg-primary/5 p-4 transition-colors hover:border-primary hover:bg-primary/10 sm:ml-0 sm:justify-end"
             data-astro-prefetch
           >

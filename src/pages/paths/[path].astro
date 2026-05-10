@@ -65,7 +65,7 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
         return (
           <li>
             <a
-              href={`/vendors/${v.data.slug}/${c.data.level}/`}
+              href={`${v.data.kind === "concept" ? "/concepts/" : "/vendors/"}${v.data.slug}/${c.data.level}/`}
               class="group flex items-center gap-4 rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/40"
               data-astro-prefetch
             >
