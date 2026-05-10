@@ -1,0 +1,38 @@
+{
+  "slug": "domains-and-dns-l1-checkpoint-registration",
+  "course": "domains-and-dns-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, registration & contacts",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-registration-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which contact role is the legal owner of the domain?",
+      "choices": [
+        "Administrative contact",
+        "Registrant contact",
+        "Technical contact",
+        "Billing contact"
+      ],
+      "correct": 1,
+      "explanation": "The registrant is the legal entity named on the domain lease. The other roles are operational. If you're inheriting a customer and the registrant still shows the previous IT provider, the customer does not really control the domain yet — that's your first ticket."
+    },
+    {
+      "id": "ck-registration-2",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Why is it useful to run a WHOIS / RDAP lookup before starting work on a customer's domain?",
+      "choices": [
+        "To pay the registrar's bill",
+        "To confirm the customer is the registrant and to see who runs the nameservers",
+        "To enable DNSSEC",
+        "To set up the customer's email"
+      ],
+      "correct": 1,
+      "explanation": "WHOIS / RDAP shows the registrar, the registrant contacts, the expiry date, and the current NS delegation, all without logging in to anything. It's the cheapest sanity check that a customer actually controls the domain you're about to work on."
+    }
+  ]
+}

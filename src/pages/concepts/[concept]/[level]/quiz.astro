@@ -18,15 +18,15 @@ export async function getStaticPaths() {
       const vendorSlug = typeof ref === "string" ? ref : ref?.id;
       return { c, vendorSlug };
     })
-    .filter(({ vendorSlug }) => vendorSlug && !conceptSlugs.has(vendorSlug))
+    .filter(({ vendorSlug }) => vendorSlug && conceptSlugs.has(vendorSlug))
     .map(({ c, vendorSlug }) => ({
-      params: { vendor: vendorSlug!, level: c.data.level },
+      params: { concept: vendorSlug!, level: c.data.level },
       props: { course: c },
     }));
 }
 
 const { course } = Astro.props;
-const { vendor: vendorParam, level } = Astro.params;
+const { concept: vendorParam, level } = Astro.params;
 
 const vendors = await getCollection("vendors");
 const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
@@ -46,10 +46,10 @@ const levelLabel: Record<string, string> = {
     <Breadcrumb
       items={[
         { href: "/", label: "Home" },
-        { href: "/vendors/", label: "Vendors" },
-        { href: `/vendors/${vendor.data.slug}/`, label: vendor.data.name },
+        { href: "/concepts/", label: "Concepts" },
+        { href: `/concepts/${vendor.data.slug}/`, label: vendor.data.name },
         {
-          href: `/vendors/${vendor.data.slug}/${level}/`,
+          href: `/concepts/${vendor.data.slug}/${level}/`,
           label: levelLabel[level],
         },
         { label: "Final quiz" },

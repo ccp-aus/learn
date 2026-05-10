@@ -1,0 +1,38 @@
+{
+  "slug": "domains-and-dns-l1-checkpoint-records",
+  "course": "domains-and-dns-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, record types",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-records-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer says 'inbound email is bouncing'. Which record do you check first?",
+      "choices": [
+        "The CNAME for www",
+        "The MX records on the domain",
+        "The A record at the apex",
+        "The NS records at the apex"
+      ],
+      "correct": 1,
+      "explanation": "MX records control where mail for the domain is delivered. If they point at the wrong service or are missing, inbound mail bounces. The A and CNAME records control web traffic and are independent of mail flow."
+    },
+    {
+      "id": "ck-records-2",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT a valid use for a TXT record?",
+      "choices": [
+        "Service ownership verification (e.g. M365, Google)",
+        "Storing an SPF policy for the domain",
+        "Pointing a subdomain at a third-party host's hostname",
+        "Storing a DMARC policy at _dmarc.<domain>"
+      ],
+      "correct": 2,
+      "explanation": "Pointing a subdomain at a third-party hostname is what a CNAME does. TXT records carry plain text and are widely used for verification, SPF, DKIM, and DMARC, but they don't direct traffic anywhere."
+    }
+  ]
+}

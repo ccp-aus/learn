@@ -17,17 +17,17 @@ export async function getStaticPaths() {
     .map((c) => {
       const ref = c.data.vendor;
       const vendorSlug = typeof ref === "string" ? ref : ref?.id;
-      return { vendorSlug, c };
+      return { c, vendorSlug };
     })
-    .filter(({ vendorSlug }) => vendorSlug && !conceptSlugs.has(vendorSlug))
-    .map(({ vendorSlug, c }) => ({
-      params: { vendor: vendorSlug!, level: c.data.level },
+    .filter(({ vendorSlug }) => vendorSlug && conceptSlugs.has(vendorSlug))
+    .map(({ c, vendorSlug }) => ({
+      params: { concept: vendorSlug!, level: c.data.level },
       props: { course: c },
     }));
 }
 
 const { course } = Astro.props;
-const { vendor: vendorParam, level } = Astro.params;
+const { concept: vendorParam, level } = Astro.params;
 
 const vendors = await getCollection("vendors");
 const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
@@ -65,8 +65,8 @@ const levelLabel: Record<string, string> = {
     <Breadcrumb
       items={[
         { href: "/", label: "Home" },
-        { href: "/vendors/", label: "Vendors" },
-        { href: `/vendors/${vendor.data.slug}/`, label: vendor.data.name },
+        { href: "/concepts/", label: "Concepts" },
+        { href: `/concepts/${vendor.data.slug}/`, label: vendor.data.name },
         { label: levelLabel[level] },
       ]}
     />
@@ -123,7 +123,7 @@ const levelLabel: Record<string, string> = {
               return (
                 <li>
                   <a
-                    href={`/vendors/${vSlug}/${p.data.level}/`}
+                    href={`/concepts/${vSlug}/${p.data.level}/`}
                     class="text-primary hover:underline"
                     data-astro-prefetch
                   >
@@ -152,7 +152,7 @@ const levelLabel: Record<string, string> = {
             .map((l, i) => (
               <li>
                 <a
-                  href={`/vendors/${vendor.data.slug}/${level}/${l.data.slug}/`}
+                  href={`/concepts/${vendor.data.slug}/${level}/${l.data.slug}/`}
                   class="group flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:bg-card/70"
                   data-astro-prefetch
                 >
@@ -184,7 +184,7 @@ const levelLabel: Record<string, string> = {
           {course.data.quiz && (
             <li>
               <a
-                href={`/vendors/${vendor.data.slug}/${level}/quiz/`}
+                href={`/concepts/${vendor.data.slug}/${level}/quiz/`}
                 class="group flex items-center gap-4 rounded-lg border border-primary/30 bg-primary/5 p-4 transition-all hover:border-primary hover:bg-primary/10"
                 data-astro-prefetch
               >

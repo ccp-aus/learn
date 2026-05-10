@@ -1,0 +1,39 @@
+{
+  "slug": "domains-and-dns-l3-checkpoint-security",
+  "course": "domains-and-dns-l3",
+  "kind": "checkpoint",
+  "title": "Quick check, DNS security",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-security-1",
+      "type": "multi",
+      "difficulty": "hard",
+      "prompt": "Which controls together defend against the domain hijack chain? (Select all that apply.)",
+      "choices": [
+        "MFA on the registrar account",
+        "Transfer lock (clientTransferProhibited) at the registrar",
+        "DNSSEC signing at the DNS host plus DS record at the registrar",
+        "CAA records limiting which CAs can issue certs",
+        "Disabling DMARC entirely"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Each layer covers a different attacker step: MFA stops account takeover, transfer lock stops registrar transfer, DNSSEC stops in-transit answer tampering, CAA stops rogue cert issuance. Disabling DMARC weakens defence; it's not a hijack control."
+    },
+    {
+      "id": "ck-security-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "DNSSEC was enabled at the DNS host but the customer's domain still doesn't validate. What's the most likely missing step?",
+      "choices": [
+        "DNSSEC needs DMARC at p=reject first",
+        "The DS record was not published at the registrar to link the chain",
+        "DNSSEC requires CAA records to be set",
+        "DNSSEC only works on .com domains"
+      ],
+      "correct": 1,
+      "explanation": "DNSSEC has two halves: signing at the DNS host, and the DS record in the parent zone (set at the registrar). Without the DS record, validating resolvers can't verify the signature chain and treat the answers as unsigned."
+    }
+  ]
+}

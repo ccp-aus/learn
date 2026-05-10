@@ -10,7 +10,14 @@ const oklch = z
   .string()
   .regex(/^oklch\(/i, "accent must be a valid oklch() string");
 
-/** Vendors — one JSON file per vendor under src/content/vendors/ */
+/** Vendors — one JSON file per vendor under src/content/vendors/.
+ *
+ * `kind` distinguishes vendor-product tracks ("vendor") from vendor-neutral
+ * concept tracks ("concept", e.g. Domains & DNS, TLS, identity protocols).
+ * Concept entries reuse the same routing under /vendors/<slug>/ but the
+ * listing pages group them separately, and authoring rules differ
+ * (no "problem this product solves" opener for concepts).
+ */
 const vendors = defineCollection({
   loader: glob({ pattern: "**/*.json", base: "./src/content/vendors" }),
   schema: z.object({
@@ -21,6 +28,7 @@ const vendors = defineCollection({
     accent: oklch.default("oklch(0.78 0.17 215)"),
     logo: z.string().optional(),
     website: z.url().optional(),
+    kind: z.enum(["vendor", "concept"]).default("vendor"),
     status: z.enum(["live", "planned", "draft"]).default("planned"),
     order: z.number().int().default(100),
   }),
