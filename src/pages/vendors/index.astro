@@ -1,0 +1,117 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+
+const vendors = (await getCollection("vendors")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const courses = await getCollection("courses");
+
+function vendorLevels(vendorSlug: string) {
+  const vc = courses.filter((c) => {
+    const ref = c.data.vendor;
+    const slug = typeof ref === "string" ? ref : ref?.id;
+    return slug === vendorSlug && c.data.status === "live";
+  });
+  return new Set(vc.map((c) => c.data.level));
+}
+
+const levelLabel: Record<"l1" | "l2" | "l3", string> = {
+  l1: "Beginner",
+  l2: "Intermediate",
+  l3: "Advanced",
+};
+---
+
+<BaseLayout
+  title="Vendors"
+  description="Browse training by vendor product. Each vendor has Beginner, Intermediate, and Advanced courses."
+>
+  <div class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-8">
+    <Breadcrumb items={[{ href: "/", label: "Home" }, { label: "Vendors" }]} />
+
+    <header class="mt-6 mb-10">
+      <h1 class="text-4xl font-semibold tracking-tight">Vendors</h1>
+      <p class="mt-3 max-w-2xl text-muted-foreground text-lg">
+        Pick a product. Each vendor has three layered courses — Beginner,
+        Intermediate, Advanced — so you can start where you are.
+      </p>
+    </header>
+
+    {
+      vendors.every((v) => v.data.status !== "live") && (
+        <aside
+          role="note"
+          class="mb-8 flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-5 text-sm sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <div class="font-semibold tracking-tight text-foreground">
+              Course content is in production.
+            </div>
+            <p class="mt-1 text-muted-foreground">
+              Each vendor track ships when its content has been verified
+              against real product docs. Pick the products on your stack
+              now and we'll notify you when they go live.
+            </p>
+          </div>
+          <a
+            href="/curate/"
+            class="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Curate your stack →
+          </a>
+        </aside>
+      )
+    }
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        vendors.map((v) => {
+          const live = vendorLevels(v.data.slug);
+          return (
+            <a
+              href={`/vendors/${v.data.slug}/`}
+              class="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+              data-astro-prefetch
+              data-curate-vendor={v.data.slug}
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div
+                  class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold"
+                  style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                >
+                  {v.data.name[0]}
+                </div>
+                <Badge
+                  variant={v.data.status === "live" ? "success" : "outline"}
+                  className="text-[10px] uppercase tracking-widest"
+                >
+                  {v.data.status === "live" ? "Live" : "Planned"}
+                </Badge>
+              </div>
+              <h2 class="mt-4 text-lg font-semibold tracking-tight group-hover:text-primary">
+                {v.data.name}
+              </h2>
+              <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+              <p class="mt-3 text-sm text-foreground/80 line-clamp-3">
+                {v.data.summary}
+              </p>
+              <div class="mt-5 flex flex-wrap gap-1.5">
+                {(["l1", "l2", "l3"] as const).map((lvl) => (
+                  <Badge
+                    variant={live.has(lvl) ? lvl : "outline"}
+                    className="text-[10px] uppercase tracking-widest"
+                  >
+                    {levelLabel[lvl]} {live.has(lvl) ? "✓" : "—"}
+                  </Badge>
+                ))}
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</BaseLayout>

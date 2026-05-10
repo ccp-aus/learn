@@ -1,0 +1,10 @@
+{
+  "slug": "halopsa",
+  "name": "HaloPSA",
+  "tagline": "PSA, ITIL ticketing, and contracts.",
+  "summary": "HaloPSA is a modern PSA platform popular with mid-market MSPs. Ticketing, time, contracts, projects, assets, billing, and a deeply customizable workflow engine. Heavily used across UK/EU/AU MSPs as the Autotask/ConnectWise alternative.",
+  "accent": "oklch(0.74 0.16 320)",
+  "website": "https://halopsa.com/",
+  "status": "planned",
+  "order": 30
+}

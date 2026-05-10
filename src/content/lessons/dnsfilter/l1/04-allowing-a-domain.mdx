@@ -1,0 +1,111 @@
+---
+slug: 04-allowing-a-domain
+vendor: dnsfilter
+level: l1
+title: Allowing a single domain, scope, format, and the note field
+summary: Add a properly-scoped Allow list entry to the right policy in the right organisation, with the note field filled in so the next tech knows why it exists.
+estimatedMinutes: 6
+order: 4
+topics: [allowlist, policy]
+updated: 2026-05-08
+---
+
+When the query log triage comes back as "false positive, narrow scope," the fix is an Allow list entry. DNSFilter has two places to put it: per-policy Allow lists, or organisation-wide Universal lists. Pick the narrowest scope that fits the request.
+
+## Where Allow lists live
+
+In the console, per-policy Allow and Block lists live behind tabs inside a Filtering Policy; Universal lists live at the org level under Settings.
+
+<AnnotatedScreenshot
+  src="/img/dnsfilter/allow-list-management.png"
+  alt="DNSFilter Allow List management view with tabs for Settings, Categories, Threats, AppAware, Privacy, Allow List, Block List, and Labs. The Allow List tab is active. The toolbar shows ADD TO LIST and BULK UPLOAD buttons. Existing entries are listed with Domain and Note columns."
+  caption="The Allow List tab is the only one that applies the writes you're about to make. ADD TO LIST is the helpdesk move; BULK UPLOAD is for migrations."
+>
+  <Hotspot client:load x={8} y={6} label="1" title="Settings tabs" purpose="Frontline techs jump here to add a domain after a triage call.">
+    Universal Allow / Block lives at the org level; per-policy lists live under Filtering Policies. Both fall under Settings.
+  </Hotspot>
+  <Hotspot client:load x={50} y={6} label="2" title="Allow tab active" purpose="Confirms you're editing Allow, not Block, before pasting domains.">
+    The active tab is the only one applying writes. A wrong-tab paste is the most common helpdesk mistake.
+  </Hotspot>
+  <Hotspot client:load x={88} y={18} label="3" title="ADD TO LIST" purpose="The only action you'll touch from a ticket.">
+    Adds one FQDN with a Note. The Note is the field future-you reads to figure out why this entry exists.
+  </Hotspot>
+  <Hotspot client:load x={88} y={35} label="4" title="BULK UPLOAD" purpose="Onboarding from another tool, not per-ticket.">
+    Bulk and CSV are migration moves. Per-ticket additions go through ADD TO LIST so the Note field stays populated.
+  </Hotspot>
+  <Hotspot client:load x={30} y={60} label="5" title="Note column" purpose="Lets the next tech see why a domain is allowed.">
+    Without a Note, every quarterly review becomes a guessing game. Convention: ticket-id, owner, date.
+  </Hotspot>
+  <Hotspot client:load x={55} y={60} label="6" title="Domain column" purpose="Decides what subdomains the entry covers.">
+    Allowlist the exact FQDN you saw blocked. Apex-vs-subdomain matching is policy-design territory.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The cardinal rule, straight from DNSFilter's documentation: **Allow lists always win.** If a domain appears on the Universal Allow list for the organisation, or on the Allow list of any policy that applies to a query, no category block, threat feed, or block-list entry can override it. That's why scope discipline matters so much, a Universal Allow opens the door for everyone in the org.
+
+## The format
+
+Entries are Fully Qualified Domain Names (FQDN). Format examples:
+
+- `cdn.supplier.example`, exact subdomain only.
+- `supplier.example`, apex. Apex-vs-subdomain matching is covered in the policy-design lesson; for frontline work, allowlist the exact FQDN you saw blocked.
+
+The size caps are different depending on which list you're touching:
+
+| List type | Cap | When to use |
+|---|---|---|
+| Per-policy Allow / Block list | Thousands of entries (check the Policies dashboard for the live cap) | Day-to-day frontline ticket fixes. Scope is exactly the policy you're editing. |
+| Universal Allow / Block list | Up to **1,000 domains** | Org-wide rules only. Smaller cap is deliberate. Universal isn't for ticket churn. |
+
+There are three ways to add entries: one at a time (and you can attach a note inline), bulk paste, or upload. For frontline work, single-domain ticket fix, always use the one-at-a-time path so the note ships with the entry.
+
+## The four mistakes that cost frontline techs
+
+| Mistake | What goes wrong | What to do instead |
+|---|---|---|
+| Adding to the wrong organisation | The customer raising the ticket isn't the customer where you made the change. They're still blocked; some other tenant now has an entry they didn't ask for. | Verify the org name in the dashboard header before clicking Add. |
+| Picking Universal when policy-specific would do | One customer's request becomes a permanent global hole for that MSP. | Default to the Allow list of the specific policy. Use Universal only when the MSP genuinely wants every customer to inherit the entry. |
+| Apex when subdomain would do | `supplier.example` may inadvertently allow risky subdomains the threat feed actually wanted to block. | Allow the exact FQDN the user needs. If they need more, they'll come back with another ticket, and that's correct behaviour. |
+| Empty note field | In six months nobody knows why the entry exists. The cleanup turns into a guessing game. | Note pattern: `<ticket-id>, <who asked>, <why>`. Future-you will thank you. |
+
+<Callout type="warn" title="When you should NOT allowlist on the frontline">
+If the verdict was Malware, Phishing, Botnet, or Cryptomining, the answer is never an Allow entry, even if the user insists. Escalate. The same goes for any request that crosses customer scope (e.g. "make this work for everyone"). The escalation tier owns those calls.
+</Callout>
+
+## A worked ticket: Able Moose Accounting
+
+Sarah's supplier portal at `quotes.supplier-northwind.example` is blocked under Newly Registered Domain. Sarah confirms her supplier rebranded last week. The MSP confirms the supplier is real.
+
+<StepThrough client:load>
+  <Step title="Confirm the org">
+    Header reads "Able Moose Accounting." Good.
+  </Step>
+  <Step
+    title="Open the policy in scope"
+    image="https://help.dnsfilter.com/hc/article_attachments/43581286140947"
+    imageAlt="DNSFilter Allow List management view: tabs for Settings, Categories, Threats, AppAware, Privacy, Block List, and Labs. The Allow List tab is active, listing existing entries with edit/delete actions."
+  >
+    Sarah is on the "AMA. Standard" policy. Open its Allow list.
+  </Step>
+  <Step
+    title="Add the FQDN with a note"
+    image="https://help.dnsfilter.com/hc/article_attachments/32082118468371"
+    imageAlt="Inline action menu in the DNS Query Log offering 'Add / Remove to Allow List', 'Add / Remove to Block List', and 'Add / Remove to AppAware' for a queried domain."
+  >
+    Entry: `quotes.supplier-northwind.example`. Note: `TKT-4821. Sarah Lee, finance, supplier rebrand, NRD false positive, valid as of 2026-05-08.`
+  </Step>
+  <Step title="Verify">
+    From a test device on Sarah's Site (or from her own machine after a flush), re-query the domain. Allowed. Update the ticket with the verdict from the query log and close.
+  </Step>
+</StepThrough>
+
+<Checkpoint slug="dnsfilter-l1-checkpoint-allowlist" client:load />
+
+## What this is NOT
+
+- **An Allow entry isn't a recategorisation.** It fixes *this* customer's policy only. DNSFilter's category data still shows the domain as Newly Registered. To fix it everywhere, submit the domain via the Domain Report Tool.
+- **It isn't the right fix for systemic blocks.** If a customer is allowlisting twenty domains in one category, the answer is a policy change (covered in the Intermediate course), not more entries.
+
+<Callout type="info" title="Sources">
+[Allow and Block Lists](https://help.dnsfilter.com/hc/en-us/articles/1500008111381-Allow-and-Block-Lists), [Create a Universal Allow or Block List](https://help.dnsfilter.com/hc/en-us/articles/9951319882387-Create-a-Universal-Allow-or-Block-List), [Filtering Policy priorities hierarchy](https://help.dnsfilter.com/hc/en-us/articles/1500010706042-Filtering-Policy-priorities-hierarchy), [Domain Report Tool](https://help.dnsfilter.com/hc/en-us/articles/1500008108562-domain-lookup).
+</Callout>

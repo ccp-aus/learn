@@ -1,0 +1,108 @@
+---
+import "@/styles/globals.css";
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import { getCollection } from "astro:content";
+import Header from "@/components/site/Header.astro";
+import Footer from "@/components/site/Footer.astro";
+import { CurationFilter } from "@/components/curate/CurationFilter";
+import { ApplyCurationDialog } from "@/components/curate/ApplyCurationDialog";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = "learn.msp.au — Free training for MSP technicians",
+  description = "Free, opinionated training for MSP technicians. Beginner, Intermediate, and Advanced courses on the products you actually use every day.",
+  ogImage = "/og.png",
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const fullTitle = title.includes("learn.msp.au")
+  ? title
+  : `${title} · learn.msp.au`;
+
+/* Glossary map for <Term> hovercards — small JSON, included on every page. */
+const glossaryEntries = await getCollection("glossary");
+const glossaryMap: Record<string, { term: string; short: string }> =
+  Object.fromEntries(
+    glossaryEntries.map((g) => [
+      g.data.slug,
+      { term: g.data.term, short: g.data.short },
+    ]),
+  );
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c1116" />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+
+    <Font cssVariable="--font-geist" preload />
+    <Font cssVariable="--font-geist-mono" preload />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {/* Apply persisted theme before paint to avoid FOUC */}
+    <script is:inline>
+      (() => {
+        try {
+          const t = localStorage.getItem("learnmsp:theme") ?? "dark";
+          const sys = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const dark = t === "dark" || (t === "system" && sys);
+          document.documentElement.classList.toggle("dark", dark);
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch {
+          /* localStorage unavailable */
+        }
+      })();
+    </script>
+
+    <ClientRouter />
+
+    {/* Cloudflare Web Analytics — token injected at deploy time, no PII, no cookies. */}
+    {
+      import.meta.env.PUBLIC_CF_BEACON_TOKEN && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_BEACON_TOKEN}"}`}
+        />
+      )
+    }
+  </head>
+  <body class="min-h-screen flex flex-col bg-background text-foreground antialiased">
+    <script
+      id="glossary-data"
+      type="application/json"
+      set:html={JSON.stringify(glossaryMap)}
+    />
+    <CurationFilter client:only="react" />
+    <ApplyCurationDialog client:only="react" />
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

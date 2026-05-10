@@ -1,0 +1,33 @@
+{
+  "slug": "printix-l2-checkpoint-delegation",
+  "course": "printix-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, delegation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-delegation-site-mgr-scope",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these can a Site manager do? (Select all that apply.)",
+      "choices": [
+        "Discover and add printers on networks belonging to their managed sites",
+        "Add and remove groups for site-managed print queues",
+        "Change the customer's Authentication settings",
+        "View History for site-managed printers and computers",
+        "Manage the customer's Subscription / billing"
+      ],
+      "correct": [0, 1, 3],
+      "explanation": "Site managers operate within their managed sites: printers, queues, groups for queues, history. They cannot touch tenant-wide Authentication, Subscription, or Settings (Settings is read-only with Analytics excluded)."
+    },
+    {
+      "id": "ck-delegation-elevation",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A Site manager can promote themselves to System manager when they need full access during an emergency.",
+      "correct": false,
+      "explanation": "Role escalation is done by an existing System manager via User properties. Self-promotion isn't supported and shouldn't be."
+    }
+  ]
+}

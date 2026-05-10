@@ -1,0 +1,32 @@
+{
+  "slug": "printix-l2-checkpoint-sites",
+  "course": "printix-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, Sites and Networks",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-sites-belongs-to",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "In Printix, which of these statements about the Site / Network model is correct?",
+      "choices": [
+        "A Network can belong to multiple Sites for redundancy",
+        "A Network belongs to exactly one Site, and printers belong to the Site of their Network",
+        "Sites are obsolete and only Networks are used",
+        "A Folder can only contain one Site"
+      ],
+      "correct": 1,
+      "explanation": "The model is one-to-one: a Network belongs to one Site; printers inherit the Site from their Network. Folders are containers for grouping Sites geographically."
+    },
+    {
+      "id": "ck-sites-folder-depth",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Site folder hierarchies in Printix can go up to four levels deep.",
+      "correct": true,
+      "explanation": "Folders can be nested up to four levels, useful for region / country / city / building structures in larger customers. Most SMB customers stay flat."
+    }
+  ]
+}

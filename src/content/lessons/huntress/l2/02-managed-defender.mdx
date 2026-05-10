@@ -1,0 +1,95 @@
+---
+slug: 02-managed-defender
+vendor: huntress
+level: l2
+title: Huntress as a Defender management plane
+summary: Recommended Defaults vs partner overrides, the Defender status mapping, the policy-compliance model, and what Huntress can and can't do about Tamper Protection.
+estimatedMinutes: 9
+order: 2
+topics: [managed-av, defender]
+updated: 2026-05-09
+---
+
+The Managed Antivirus module is Huntress's plane for configuring, watching, and reporting on Microsoft Defender Antivirus across the customer estate. The exclusion-design lesson covered *what to exclude* and *where to scope it*. This lesson is the layer above: how policies inherit, how Defender's actual status maps to the Huntress dashboard, and where the limits sit.
+
+## Defender status, what each colour means
+
+The Managed AV dashboard shows each Windows endpoint's Defender state. The mapping per the Managed Antivirus interface article:
+
+| Status | What's happening on the endpoint |
+|---|---|
+| **Protected** (green) | Defender enabled, all engines on, no open infections. |
+| **Unhealthy** (orange) | Defender enabled but a problem: not all engines on, signatures out of date, or Defender is disabled. |
+| **Not Protected** (red) | Windows version not supported by Managed AV, or Defender is disabled / not active. May still be protected by a third-party AV; this status is *Defender* status only. |
+
+A Not Protected endpoint that's running a third-party AV is the customer's deliberate choice. Don't push to flip Defender on without checking; the third-party AV will fight Defender and you'll inherit two rounds of false positives.
+
+## Antivirus Policy Compliance, a separate column
+
+Compliance is "is this endpoint matching the Huntress policy?", different from Defender status:
+
+- **Compliant.** Endpoint matches Huntress policy.
+- **Audit.** Defender present but in Audit Mode, Huntress is reporting only.
+- **Unmanaged.** Third-party AV present and Defender disabled. Huntress isn't managing this one.
+- **Incompatible.** OS version isn't supported by Managed AV.
+
+A healthy MSP fleet looks like Protected + Compliant for most rows, with Audit on customers being onboarded and Unmanaged on the ones with third-party AV.
+
+## Recommended Defaults, the Account-level lever
+
+Huntress publishes a set of Recommended Default Settings, applied at the Account level when Enforce Mode is on. Per the Recommended Default Settings article, examples of where Huntress diverges from the Microsoft default:
+
+- **Catch-up scans for quick scans:** Huntress default is Enabled (Microsoft default is Disabled). If a machine was offline during its scheduled scan, the catch-up scan runs once it's back online.
+- **Cloud Delivered Protection** and **Automatic Sample Submissions:** both Enabled. The first lets Defender pull threat intel; the second submits suspicious files to Microsoft MAPS.
+- **PUA Blocking:** Audit (rather than Disabled). PUA = Potentially Unwanted Application. Audit logs detection without blocking, useful before the partner decides to enforce.
+
+The override hierarchy: Huntress Recommended Default at Account level, optionally overridden at Organization level, optionally overridden again at Endpoint level. Each more-specific scope wins where they conflict.
+
+## Why "Use System Default" disappears under Recommended Defaults
+
+Before Recommended Defaults, "Use System Default" meant "leave whatever Defender installed with in place." That's brittle, the system default depends on Windows version, install path, and group policy already in play. Recommended Defaults replaces "Use System Default" at the Account level with an explicit Huntress-recommended value. If the partner already had an override, that override is preserved.
+
+In Audit Mode, none of this writes to endpoints. The platform records what's there.
+
+## What Huntress can't manage on Defender
+
+Tamper Protection is the load-bearing one. Per the Managed Antivirus interface article, Huntress *reports* Tamper Protection status from the endpoint but does not *manage* it. The vendor-documented management path is local to the endpoint (Settings > Windows Security). Customers running Intune or the Microsoft 365 Defender portal can drive the setting from those Microsoft surfaces because that is a Microsoft capability of those products, not a Huntress integration.
+
+| Where the customer runs it | How they set Tamper Protection | What Huntress does |
+|---|---|---|
+| **Local endpoint** | Settings > Windows Security > Virus & threat protection settings. The vendor-documented path. | Reads and reports the resulting state in the Managed AV dashboard. |
+| **Intune / Endpoint Manager** | Endpoint security > Antivirus > Windows Security experience. A Microsoft Intune capability. | Reads and reports the resulting state. |
+| **Microsoft 365 Defender portal** | The portal's Tamper Protection toggle, where the customer's M365 Defender licensing supports it. A Microsoft capability of that product. | Reads and reports the resulting state. |
+
+A practical pattern: Tamper Protection lives in Intune for Microsoft 365 Business Premium customers (where Intune is included). Customers without Intune get Tamper Protection enabled via the M365 Defender portal where their licensing supports it, or per-machine in Settings during onboarding. Huntress reports the result back to the dashboard either way; it does not push the setting.
+
+## A worked redesign: Able Moose Accounting (mid-market)
+
+Able Moose's old setup had Audit Mode on for all 120 staff because that's how the previous MSP left it. The Managed AV dashboard shows mostly Audit + Protected, with three Unhealthy and two Not Protected. The redesign:
+
+<StepThrough client:load>
+<Step title="Audit before Enforce">
+Spend a week in Audit. Note the existing exclusions, the existing scan schedule, and the Unhealthy / Not Protected hosts. The Unhealthy three were a stalled signature update; the Not Protected two were running a third-party AV the customer's old IT person installed for a developer machine.
+</Step>
+<Step title="Decide the exception list before the cutover">
+The two third-party-AV machines stay on the third-party AV. Carve them into an Organization that's pinned to a policy that doesn't enforce Defender management. The other 118 will run Defender.
+</Step>
+<Step title="Cut to Enforce Mode at the Account level for the 118">
+Account-level Enforce; Recommended Defaults inherited; Organization-level overrides only where Able Moose has documented requirements.
+</Step>
+<Step title="Watch the dashboard for a week post-cut">
+Compliance flipping from Audit to Compliant on the 118 is the success signal. New Unhealthy endpoints get triaged; Defender service stopped is usually a re-image without the agent reapplied or a third-party AV that came back.
+</Step>
+</StepThrough>
+
+<Checkpoint slug="huntress-l2-checkpoint-defender" client:load />
+
+## What this is NOT
+
+- **Not a separate AV product.** Managed AV manages Microsoft Defender, the AV built into Windows 10/11 and Server. There's no Huntress-branded AV engine to install; the agent is the management layer.
+- **Not a substitute for the customer's licensing.** Defender for Endpoint Plan 1 / Plan 2 features (advanced hunting, full EDR capabilities) require Microsoft licensing the customer has separately. Managed AV operates within the Defender Antivirus surface, not the broader Defender for Endpoint product.
+- **Not how you manage Defender for Server, mobile, or non-Windows.** The Managed AV surface is Windows-focused. Linux Defender, Android Defender, iOS, those are managed in Microsoft's own Defender portal.
+
+<Callout type="info" title="Sources">
+[Managed Antivirus Interface and Basic Settings](https://support.huntress.io/hc/en-us/articles/4404005198867-Managed-Antivirus-Interface-and-Basic-Settings), [Microsoft Defender Recommended Default Settings](https://support.huntress.io/hc/en-us/articles/4404012729747-Microsoft-Defender-Recommended-Default-Settings), [Exclusions for Managed Microsoft Defender Antivirus](https://support.huntress.io/hc/en-us/articles/4404005108371-Exclusions-for-Managed-Microsoft-Defender-Antivirus).
+</Callout>

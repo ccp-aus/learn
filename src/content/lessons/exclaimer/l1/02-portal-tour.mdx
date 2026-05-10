@@ -1,0 +1,95 @@
+---
+slug: 02-portal-tour
+vendor: exclaimer
+level: l1
+title: Tour of the Exclaimer portal
+summary: The five surfaces a frontline tech actually opens, the menu sidebar, the cogwheel Settings menu, the question-mark Help menu, the initials Account menu, and the Subscriptions portal.
+estimatedMinutes: 7
+order: 2
+topics: [console, navigation]
+updated: 2026-05-09
+---
+
+Exclaimer's portal organises everything around the **menu sidebar** on the left for day-to-day work, the **header bar** for account-level switches, and modal screens for each feature. Knowing which menu owns which feature shaves minutes off every ticket.
+
+## The five surfaces
+
+```mermaid
+flowchart LR
+    H[Header bar] --> C[Cogwheel<br/>Settings]
+    H --> Q[Question mark<br/>Help]
+    H --> I[Initials<br/>Account]
+    M[Menu sidebar] --> S[Signatures]
+    M --> ST[Signatures Tester]
+    M --> A[Analytics]
+    M --> CA[Campaigns / Disclaimers]
+    M --> MB[Meeting Branding]
+    C --> SM[Sender Management,<br/>Mail Flow, Brand Kits,<br/>Integrations]
+    Q --> D[Diagnostic Logs,<br/>Message Capture,<br/>Support Ticket]
+    I --> SU[Subscriptions,<br/>Audit Log,<br/>Account]
+```
+
+The home page is a dashboard with shortcuts and an onboarding checklist that disappears once a subscription is live. Everything else lives behind one of the four entry points above.
+
+## Menu sidebar, the day-to-day work
+
+| Item | What lives here |
+|---|---|
+| Signatures | The All Signatures tab plus folders, the editor, and per-signature rules |
+| Signatures Tester | The simulator for both server-side and client-side deployment |
+| Analytics | Engagement, Signature Usage, Feedback, and Social Feeds dashboards (Pro plan) |
+| Campaigns | Banner-image promos with start and end dates (Standard and Pro) |
+| Disclaimers | Plain-text legal disclaimers appended after signatures (Standard and Pro) |
+| Meeting Branding | Nametag overlays and backgrounds for Teams, Zoom, and Google Meet (Pro) |
+
+If the lesson it's about hasn't loaded for you yet, the sidebar is where you start.
+
+## Cogwheel, Settings
+
+The cogwheel icon on the header bar opens the Settings menu. The frontline-relevant entries:
+
+- **Sender Management.** User sync, Microsoft 365 / Google Workspace connection, the User Details Editor.
+- **Mail Flow.** The "Connect to Microsoft 365" wizard, exchange connector setup, the test-group switch.
+- **Brand Kits.** The shared fonts, colours, logos, icons, banners, meeting backgrounds, and disclaimer text used by signatures.
+- **Integrations.** LinkedIn, Facebook, Salesforce, HubSpot connectors (Pro plan).
+
+Settings is for configuration. If you're investigating a "why isn't my signature applying" ticket, you'll usually open Settings to confirm the customer's mail flow and sync state before opening the signature itself. The Exclaimer Settings page describes what *should* be in Exchange Online; the actual transport rules and connectors live in the Microsoft 365 admin centre, and on a tricky mail-flow ticket you'll have both consoles open.
+
+## Question mark, Help
+
+The question-mark icon opens a Help menu, and this is where the diagnostics live:
+
+- **Diagnostics** opens the Diagnostic Logs search; covered in the Advanced course's troubleshooting lesson.
+- **Message Capture** records diagnostic data on a sample of messages between a chosen sender and recipient; also covered in Advanced.
+- **Signatures Tester** has a shortcut here, the same tool the sidebar links to.
+- **Raise a support ticket** opens the Technical Support form.
+
+## Initials icon, Account
+
+The initials icon (top-right) opens an Account menu with subscription-level controls:
+
+- **Account** opens the user's profile, password, and authentication settings.
+- **Change Subscription** is the switcher when the logged-in user has access to more than one Exclaimer subscription, vital for MSP staff. The Subscriptions portal at portal.exclaimer.com is also reachable from here.
+- **Audit Log** (Pro plan) downloads a CSV of user sign-ins with the role each user signed in as (Admin, Editor, or both); covered in the Advanced governance lesson.
+
+## A worked ticket: Able Moose Accounting
+
+Sarah at Able Moose Accounting opens a ticket: *"My signature changed overnight, but my colleague's hasn't. Why?"*
+
+<StepThrough client:load>
+  <Step title="Confirm you're in the right subscription">
+    Top-right initials menu, Change Subscription, pick Able Moose. Every change you make from here on is in their tenant only.
+  </Step>
+  <Step title="Open the signature">
+    Sidebar, Signatures, locate the signature applied to Sarah's role. The card shows whether it's server-side, client-side, or both.
+  </Step>
+  <Step title="Check who was signed in around the change">
+    Initials menu, Audit Log, download the CSV. The log shows which users signed in and which role they held (Admin, Editor, or both); it doesn't itemise individual edits. Cross-reference the timestamps with the change-control record in the PSA ticket. If a redesign shipped and Sarah's colleague's mailbox just hasn't synced yet, the ticket is "wait for sync"; if no documented change matches, escalate to the Diagnostic Logs (Advanced course) for the per-message rule trace.
+  </Step>
+</StepThrough>
+
+<Checkpoint slug="exclaimer-l1-checkpoint-portal" client:load />
+
+<Callout type="info" title="Sources">
+[Home page](https://support.exclaimer.com/hc/en-gb/articles/360050567952-Home-page), [Welcome to the Exclaimer Online Guide](https://support.exclaimer.com/hc/en-gb/articles/360050643051-Welcome-to-the-Exclaimer-Online-Guide), [Exclaimer Account tab](https://support.exclaimer.com/hc/en-gb/articles/360019993618-Exclaimer-Account-tab), [Manage your subscription](https://support.exclaimer.com/hc/en-gb/articles/360019111298-Manage-your-subscription), [Audit Log](https://support.exclaimer.com/hc/en-gb/articles/15555615448093-Audit-Log).
+</Callout>

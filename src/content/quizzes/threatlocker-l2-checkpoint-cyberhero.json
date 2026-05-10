@@ -1,0 +1,25 @@
+{
+  "slug": "threatlocker-l2-checkpoint-cyberhero",
+  "course": "threatlocker-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, Cyber Hero workflow",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-cyberhero-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these stay with the MSP even when the customer subscribes to Cyber Hero? (Select all that apply.)",
+      "choices": [
+        "Routine end-user approval requests",
+        "Policy design and structure",
+        "Customer-specific judgement calls",
+        "Incident triage when a request looks like a real attack",
+        "Decisions about adding new applications to the customer's standard allowlist"
+      ],
+      "correct": [1, 2, 3, 4],
+      "explanation": "Cyber Hero handles routine transactional approvals. Everything that requires customer-specific knowledge, policy design judgement, or incident-response context stays with the MSP."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+---
+slug: 02-portal-tour
+vendor: threatlocker
+level: l1
+title: Tour of the ThreatLocker Portal
+summary: The four console areas a helpdesk technician opens every shift, plus how to switch organisation context safely.
+estimatedMinutes: 6
+order: 2
+topics: [portal, navigation]
+updated: 2026-05-09
+draft: false
+---
+
+The ThreatLocker Portal is where every helpdesk action happens. The same sidebar appears whether you're in a customer's organisation or in your MSP-level parent org. Tenant context determines what you're acting on; the sidebar layout doesn't change.
+
+## The sidebar, where shifts start
+
+The sidebar is the same in every customer's tenant. Tenant context decides what the surfaces show; the layout doesn't move.
+
+<AnnotatedScreenshot
+  src="/img/threatlocker/portal-sidebar.png"
+  alt="ThreatLocker Portal sidebar showing Response Center, Unified Audit, Health Center, Custom Reports, Modules, Devices, Community, Users, Integrations, Organizations, Mutual Action Plan, Billing"
+  caption="Three of these get opened every shift. The rest are situational. Anything you do at the helpdesk starts from one of the top four."
+  aspect="1238/588"
+>
+  <Hotspot client:load x={19} y={7} label="1" title="Response Center" purpose="Where every shift starts.">
+    Pending approval requests for the org you're scoped to. The badge counts Pending only (status integer 1); approved, rejected, and self-approved requests live elsewhere. Most ThreatLocker tickets begin and end on this page.
+  </Hotspot>
+  <Hotspot client:load x={19} y={15} label="2" title="Unified Audit" purpose="What actually happened on an endpoint.">
+    Time-stamped log of every Permit, Deny, and Ringfenced action across thirteen action types: execute, install, network, registry, read, write, move, delete, baseline, powershell, elevate, configuration, dns. The page you open when something got blocked but no request landed.
+  </Hotspot>
+  <Hotspot client:load x={19} y={23} label="3" title="Health Center" purpose="Fleet rollup before a change window.">
+    Agent and endpoint posture across the org. Open before a customer's change window to confirm everyone's checked in recently and on the agent version you expect.
+  </Hotspot>
+  <Hotspot client:load x={19} y={38} label="4" title="Modules" purpose="Per-module configuration surfaces.">
+    Application Control, Storage Control, Network Control, Elevation, Detect, Configuration Manager. Each one lights up only if the customer's plan SKU includes it. Less helpdesk traffic, more policy-design work; mostly the territory of the Intermediate and Advanced courses.
+  </Hotspot>
+  <Hotspot client:load x={19} y={46} label="5" title="Devices" purpose="Per-machine state and policies.">
+    The endpoint inventory: maintenance modes, applied policies, recent activity, agent version. Open when a single endpoint is misbehaving and you need to see what's actually running on it.
+  </Hotspot>
+  <Hotspot client:load x={19} y={76} label="6" title="Organizations" purpose="Tenant switcher.">
+    The customer hierarchy. MSP staff log in at the top; child orgs sit beneath. Switching changes what every other page in the sidebar scopes to. Confirm the org in the page header before approving anything.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## The Response Center is the most-opened page
+
+The Response Center page is the first thing most ThreatLocker techs open after lunch. Pending requests are sorted by Last Updated. Each row shows:
+
+- **Hostname / Username** of the requesting machine
+- **Action Type** (Execute, Elevate, Storage, Network, etc.)
+- **Path** the user attempted
+- **Date** of the request
+- **Comments** the user typed in the tray prompt
+
+Clicking a row opens a side panel with the file's hash, certificate, originating process, requestor email, the customer's organisation name, and the matching-applications search ThreatLocker ran when the request came in. The Approve / Deny buttons live there, alongside Ringfencing options for the resulting policy.
+
+<Callout type="warn" title="Always check the organisation header before approving anything">
+The single costliest mistake at the ThreatLocker helpdesk is approving a request in the wrong customer's tenant. The portal scopes by Organization; the header at the top tells you which one. If you switched orgs in another browser tab and came back to this one, the breadcrumb might be stale. Confirm before clicking Approve.
+</Callout>
+
+## Switching organisations
+
+The Organizations sidebar entry exposes the tenant tree. MSP staff log in at the top-level organisation; child organisations sit beneath it, one per customer. Switching is a click; the sidebar context updates and every page in the portal now scopes to the selected org.
+
+The Response Center has a "Show Child Organizations" toggle that aggregates pending requests across every customer beneath you. That's how you triage at scale; you see one inbox spanning every tenant where you have approval rights, without manually switching org by org.
+
+<Checkpoint slug="threatlocker-l1-checkpoint-portal" client:load />
+
+<Callout type="info" title="Sources">
+[Module options on the Organizations page](https://threatlocker.kb.help/understanding-and-changing-the-module-options-on-the-organizations-page/), [Approval Request count API](https://threatlocker.kb.help/portalapiapprovalrequest/), [Notifications for requests](https://threatlocker.kb.help/notifications-for-requests/).
+</Callout>

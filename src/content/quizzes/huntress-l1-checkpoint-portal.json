@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-l1-checkpoint-portal",
+  "course": "huntress-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, portal navigation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-portal-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "An agent registered against the wrong customer's Organization. What's the documented fix?",
+      "choices": [
+        "Uninstall and reinstall the agent with the correct Organization Key",
+        "Use the Move To button on the Agents page to move the agent",
+        "Edit the Organization Key on the agent record",
+        "Delete the Organization and recreate it with a different name"
+      ],
+      "correct": 1,
+      "explanation": "The Move To button on the Agents page moves selected agents between Organizations without an uninstall/reinstall cycle."
+    },
+    {
+      "id": "ck-portal-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "After an agent registers, the EDR Version (Process Insights) is expected to populate immediately.",
+      "correct": false,
+      "explanation": "The EDR component (Rio) completes about an hour after the base agent install. A blank EDR Version on a freshly-registered agent is expected, not a problem."
+    }
+  ]
+}

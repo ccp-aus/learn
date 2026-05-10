@@ -1,0 +1,96 @@
+---
+slug: 04-reading-the-unified-audit
+vendor: threatlocker
+level: l1
+title: Reading the Unified Audit
+summary: How to use the Unified Audit's filters to answer the two questions the helpdesk asks every shift, what happened on this machine, and was anything denied.
+estimatedMinutes: 7
+order: 4
+topics: [unified-audit, triage]
+updated: 2026-05-09
+draft: false
+---
+
+The Unified Audit is the central log for every ThreatLocker policy match. Where the Response Center shows requests waiting on you, the Unified Audit shows what actually happened: every Permit, every Deny, every Ringfenced action, across every module.
+
+## The two questions you'll ask of it
+
+You'll open the Unified Audit for one of two reasons:
+
+1. **A user reported something blocked, but no request shows up in the Response Center.** This usually means a policy denied silently (no "request access" prompt), or the user dismissed the prompt before it submitted.
+2. **You need to confirm what actually ran on a machine** during a particular hour, after a security event, after a change, or just for due diligence.
+
+Both questions reduce to the same workflow: filter to the right slice of activity, read the rows.
+
+## The filters that matter
+
+The page is a long search-row across the top, then rows of policy decisions below. Set the search row first; never scroll a default load.
+
+<AnnotatedScreenshot
+  src="/img/threatlocker/unified-audit-results.png"
+  alt="Unified Audit page with Start Date and End Date pickers, Action and Action Type dropdowns, Group By, Hostname and Details/Path text fields, a Search button, and a results table with Date/Time, Hostname, Username, Details, Action Type, and Policy Action columns"
+  caption="Set the date window first, the action narrow second, the hostname third, then Search. The default page load is wider than you want."
+  aspect="1768/525"
+>
+  <Hotspot client:load x={10} y={22} label="1" title="Start Date / End Date" purpose="Set this first.">
+    Default opens last 24 hours. Tighten to the window the user reported, plus a few minutes either side. Wider windows return more rows; more rows mean more chance you misread one.
+  </Hotspot>
+  <Hotspot client:load x={29} y={22} label="2" title="Action filter" purpose="Permit / Deny slice.">
+    Set to Any Deny when triaging "what got blocked." Equivalent to the portal's deny-only filter; the API uses action ID 99 for Any Deny.
+  </Hotspot>
+  <Hotspot client:load x={37} y={22} label="3" title="Action Type" purpose="Slice by what kind of action.">
+    The thirteen-item enum: execute, install, network, registry, read, write, move, delete, baseline, powershell, elevate, configuration, dns. The same binary can be permitted to execute and have a denied network call from a ringfence; the right Action Type narrows the read.
+  </Hotspot>
+  <Hotspot client:load x={56} y={22} label="4" title="Hostname" purpose="The exact computer name.">
+    Filtering before Search is faster than scrolling. Get the hostname from the ticket, paste it here.
+  </Hotspot>
+  <Hotspot client:load x={66} y={22} label="5" title="Details / Path" purpose="Free-text path search; wildcards work.">
+    `*dropbox*` matches anywhere the file path, process path, or created-by-process path contains "dropbox". Useful when you don't know the exact path the user attempted.
+  </Hotspot>
+  <Hotspot client:load x={50} y={56} label="6" title="A results row" purpose="What a Permit / Deny / Ringfenced decision looks like.">
+    Each row is one policy decision: timestamp, hostname, username, the file's full path in Details, the Action Type chip, and the Policy Action column. Click a row to see the matching application, hash, signature, and originating process.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+A separate **Remove White Noise** toggle (off-screen on smaller portals; sits inside the page filter panel) hides the well-known white-noise denies that the OS generates constantly (system DLLs the kernel pokes at). It's on by default; turn it off when chasing a never-seen-before binary that the noise filter might be hiding.
+
+## "True" denies versus "simulated" denies
+
+The Unified Audit distinguishes:
+
+- **True denies (red)**: the policy denied and the action did not happen.
+- **Simulated denies (green)**: the action *was* effectively permitted on the endpoint, but it would have been denied if the computer had been in Secured Mode.
+
+Simulated denies are the gold of a Learning Mode rollout. They show you what your future policies *would have* blocked, without anyone yet noticing. Used right, they let you tune ringfences and computer-group policies before you ever flip a customer to Secured.
+
+A request log without a True deny is the smell test for "the user said they got blocked but nothing actually blocked." If you find a Simulated row instead, the customer's machine may still be in a Maintenance / Monitor-only mode and the ringfence isn't enforcing yet.
+
+## A worked ticket: Able Moose Accounting
+
+Sarah at Able Moose Accounting calls: she opened a CSV from her email and got "Excel can't open the file." There's no request in the Response Center.
+
+<StepThrough client:load>
+  <Step title="Filter">
+    Time window = the last 30 minutes. Hostname = ABLE-LT-SARAH. Action type = `read`. Filter: Remove White Noise = on.
+  </Step>
+  <Step title="Read the rows">
+    Two rows match. One Permit for `c:\users\sarah\downloads\quote.csv`. One Ringfenced row showing Excel attempting to read from `\\\\external-fileshare\\partners\\` and being denied by File Ringfencing on the Office (Built-In) policy.
+  </Step>
+  <Step title="Diagnose">
+    Sarah's email had a CSV that linked to a network path she'd never accessed before. The file itself read fine; it was the *external network share* in the linked formula that the Office ringfence blocked. Excel showed a generic error rather than naming the actual block.
+  </Step>
+  <Step title="Right action">
+    Document the finding in the ticket. The ringfence is doing its job; this isn't a misconfiguration. Loop in the customer about whether `\\\\external-fileshare` is a sanctioned partner location. If it is, the fix is in policy design (covered in the Intermediate course), not at the helpdesk.
+  </Step>
+</StepThrough>
+
+<Checkpoint slug="threatlocker-l1-checkpoint-audit" client:load />
+
+## What this is NOT
+
+- **Not a SIEM.** Policy-decision history, not full system event history. Login events, process-creation events, network connections that no policy matched, none of them land here.
+- **Not where approval-request comments live.** Comments stay with the request in the Response Center and on the resulting policy. The Audit shows what happened, not the conversation about it; if you're looking for "why was this approved?" you're on the wrong page.
+
+<Callout type="info" title="Sources">
+[Unified Audit / portalAPI ActionLog](https://threatlocker.kb.help/unified-audit-portalapiactionlog/), [Multiple parameters in a single Unified Audit search](https://threatlocker.kb.help/how-to-use-multiple-parameters-in-a-single-search-field-in-the-unified-audit/).
+</Callout>

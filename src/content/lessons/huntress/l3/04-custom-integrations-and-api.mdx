@@ -1,0 +1,104 @@
+---
+slug: 04-custom-integrations-and-api
+vendor: huntress
+level: l3
+title: Custom integrations against the Huntress API
+summary: The REST API surface, authentication, the Swagger preview, the MCP server for AI assistants, and patterns to build (and patterns not to build) on top.
+estimatedMinutes: 9
+order: 4
+topics: [api, integrations, automation]
+updated: 2026-05-09
+---
+
+The PSA integrations cover most MSPs' needs out of the box. Custom integration is for the cases the built-in set doesn't cover: pulling Huntress data into a customer-facing portal, enriching incidents with internal context, building a cross-Account dashboard above multiple Huntress Accounts, or feeding a SIEM that isn't on the standard list.
+
+## The API at a glance
+
+Per the REST API Overview:
+
+- **Base URL:** `api.huntress.io/v1/`
+- **Authentication:** Basic Auth, Base64-encoded `<api_key>:<api_secret>`
+- **Format:** RESTful, JSON responses
+- **Resources exposed:** Billing Reports, Incident Reports, Organizations, Agents, Summary Reports
+
+API access is restricted to opt-in users; an Account Admin generates the API key from the API Credentials page. The key starts with `hk_` and the secret with `hs_`. Both are needed; together they form the credential for all API calls.
+
+Most inventory and reporting resources are read-oriented: pull data, reconcile it, enrich tickets, and show it in dashboards. Huntress has also released write endpoints for specific escalation and Incident Report response actions, including resolving common escalations and approving, rejecting, or resolving Incident Reports.
+
+Treat those write endpoints as production response controls. They belong behind the same runbook gates as portal actions: the SOC report is understood, the MSP has authority to act, the customer communication path is known, and the PSA ticket records who approved the action.
+
+## The Swagger preview
+
+Per the Test Account-specific API Responses article, Huntress publishes a Swagger UI at `https://api.huntress.io/docs/preview` that authenticates with the same `hk_xxx:hs_yyy` pair. Useful pattern:
+
+- Open Swagger.
+- Paste `hk_xxx:hs_yyy` into the auth box.
+- Try out endpoints to see real shapes against the partner's own data.
+- Once the call shape is right, take it to whatever language / tool you're scripting in.
+
+You can also import the OpenAPI document at `https://api.huntress.io/swagger_doc.json` into Insomnia or Postman for fully-fledged API design work.
+
+## The MCP server, AI-assistant access
+
+Per the Connecting to the Huntress MCP Server article, Huntress publishes an MCP (Model Context Protocol) server at `https://api.huntress.io/v1/mcp`. It exposes the same read-only API surface to AI assistants like Claude Desktop or OpenAI Codex.
+
+Two authentication paths:
+
+| Method | When |
+|---|---|
+| **OAuth** | The MCP client opens a browser to `https://api.huntress.io/v1/mcp/authorize` and the user signs in with API Key as username + API Secret as password. |
+| **Base64 Authorization header** | Pre-encode `hk_xxx:hs_yyy` and pass as `Authorization: Basic <base64>` in the MCP server's headers. |
+
+Important: those credentials are the *API Key and API Secret*, not the user's portal login. Don't try to authenticate the MCP server with the dashboard password; it doesn't accept it. The MCP path is read-only by design.
+
+A typical use case: a senior tech using Claude Code to query "give me a summary of Critical incidents this week across all our customers" without writing SQL or jumping between portal tabs.
+
+The Huntress API is scoped to Huntress data only. It is not a GDAP-style cross-tenant Microsoft Graph surface — ITDR's per-tenant integration grants Huntress the Graph permissions documented in the Intermediate course's ITDR lesson, but the Huntress API itself does not expose Graph data the way Microsoft 365 Lighthouse or CIPP do. Cross-tenant M365 operations belong in those toolchains, not here.
+
+## Patterns worth building
+
+| Pattern | Why |
+|---|---|
+| **Cross-Account aggregation dashboard** for an MSP that holds multiple Huntress Accounts (Reseller setup) | The Huntress portal doesn't aggregate across Accounts; pull each Account's data into a shared store and visualise. |
+| **Customer-facing portal extension** | Surface the customer's own incident counts, agent health, and billable counts in the MSP's existing customer portal. |
+| **PSA enrichment** | When the standard PSA integration sends a ticket, a webhook pulls additional context (customer's recent incident history, agent details) and appends to the ticket. |
+| **Billing reconciliation pipeline** | Monthly Billing Detail Report pulled via API into the MSP's billing system, automated reconciliation against PSA contract counts. |
+| **Ad-hoc SIEM forwarding** for SIEMs Huntress doesn't natively integrate with | Pull incidents and agents periodically; forward the relevant fields to the SIEM. |
+| **Runbook-gated incident action helper** | Present the SOC remediation plan, require human approval, then call the supported Incident Report or Escalation endpoint. |
+
+## Patterns not to build
+
+| Anti-pattern | Why |
+|---|---|
+| **Auto-resolve incidents based on a custom rule** | Resolution implies the SOC's remediation plan was actioned. An automation that resolves without human approval erodes the SOC's working assumption that resolved means resolved. |
+| **Auto-disable accounts based on something other than the SOC's call** | The SOC's account-disable capability is part of the managed service. Bypassing it with custom automation makes the customer experience inconsistent and complicates the SOC's investigation. |
+| **High-volume polling** | API rate limits exist (the docs don't publish them, but they're real). If you need real-time data on every change, talk to your Huntress account manager about supported event-stream paths rather than polling every 30 seconds. |
+| **Caching of the Account Key in client-side code** | The Account Key is a billing-sensitive credential. Same applies to the API Key/Secret pair. Server-side only; rotate on staff changes. |
+
+## A worked custom integration: Able Moose Group's leadership dashboard
+
+Able Moose Group's exec team wants a single view across all 14 sub-firms of "where are we this month: incidents, identities at risk, training status." The Huntress portal shows each Organization, but stitching across 14 is manual.
+
+<StepThrough client:load>
+<Step title="Generate API credentials">
+Account Admin generates an API Key and Secret from the API Credentials page in the Huntress portal. Document them in the MSP's secret store.
+</Step>
+<Step title="Sketch the queries against Swagger">
+Use Swagger preview to confirm the calls: list Organizations, list Incident Reports per Organization (filtered to the last 30 days), Summary Reports.
+</Step>
+<Step title="Build the puller">
+A small server-side job (PowerShell, Python, whatever the MSP standardises on) pulls the Organization list nightly, then per-Organization recent incidents, into the MSP's own data store.
+</Step>
+<Step title="Stitch in the SAT data">
+SAT lives at mycurricula.com under its own admin platform; today, that's a separate pull. Both feeds end up in the same dashboard.
+</Step>
+<Step title="Surface the dashboard">
+Three top-level metrics across all 14 sub-firms: open critical incidents, identity assessment red items, SAT compromise rate trend. Drill-through into per-sub-firm detail. The MSP team uses this on Monday mornings; the exec team gets a screenshot during quarterly business reviews.
+</Step>
+</StepThrough>
+
+<Checkpoint slug="huntress-l3-checkpoint-api" client:load />
+
+<Callout type="info" title="Sources">
+[Huntress REST API Overview](https://support.huntress.io/hc/en-us/articles/4780697192851-Huntress-REST-API-Overview), [APIs for Escalations and Incident Report responses](https://feedback.huntress.io/changelog/apis-for-escalations-and-incident-report-responses-now-available), [Test Account-specific API Responses](https://support.huntress.io/hc/en-us/articles/6858976610835-Test-Account-specific-API-Responses), [Connecting to the Huntress MCP Server](https://support.huntress.io/hc/en-us/articles/50846554117395-Connecting-to-the-Huntress-MCP-Server).
+</Callout>

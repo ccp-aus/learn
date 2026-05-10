@@ -1,0 +1,32 @@
+{
+  "slug": "printix-l3-checkpoint-rollout",
+  "course": "printix-l3",
+  "kind": "checkpoint",
+  "title": "Quick check, Printix Go rollout",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-rollout-test-roles",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "When piloting Printix Go on a printer, you should test sign-in and release with a regular User-role account, not just with the System manager account doing the install.",
+      "correct": true,
+      "explanation": "Roles affect what a user can do at the printer. A System manager will pass tests that fail for a User. Test with the actual roles that will use the device (User, and Guest if applicable)."
+    },
+    {
+      "id": "ck-rollout-vendor-prep",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Why does Printix Go installation often fail at first attempt on a printer that hasn't had per-vendor preparation?",
+      "choices": [
+        "The printer's firmware downloads the Printix Go package incorrectly",
+        "Each vendor has documented prep steps (e.g. set printer password, install card reader, apply licence) that have to happen before Printix Go installs cleanly",
+        "Printix Go requires a full factory reset of the printer",
+        "The printer needs to be physically connected to a Windows computer to register"
+      ],
+      "correct": 1,
+      "explanation": "The 'How to prepare X printer for Printix Go' step in the docs is the most-skipped step in the rollout. Skipping it produces 'Printix Go installation status is Failed' on the Printer's Printix Go tab."
+    }
+  ]
+}

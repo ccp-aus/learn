@@ -1,0 +1,35 @@
+{
+  "slug": "dnsfilter-l2-checkpoint-categories",
+  "course": "dnsfilter-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, categories",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-l2-cat-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of the following belong on the always-block list, no customer conversation needed? (Select all that apply.)",
+      "choices": [
+        "Malware",
+        "Social Networking",
+        "Phishing",
+        "Streaming Media",
+        "Botnet / Command-and-Control",
+        "Cryptomining",
+        "New Domains and Very New Domains"
+      ],
+      "correct": [0, 2, 4, 5],
+      "explanation": "Malware, Phishing, Botnet/C2, and Cryptomining are non-negotiable for any business customer. Social Networking and Streaming Media are customer-conversation categories, they depend on the business. New Domains (last 30 days) and Very New Domains (last 24 hours) are almost-always-block: usually on the baseline, but with allowlist exceptions as supplier domains age in."
+    },
+    {
+      "id": "ck-l2-cat-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If a customer asks for the entire 'Anonymising proxies / VPNs' category to be unblocked because they need a sanctioned VPN, the correct response is to allow the category.",
+      "correct": false,
+      "explanation": "A category-wide unblock is the wrong shape of fix. Allow the specific sanctioned VPN domain on the policy's Allow list and keep the category blocked."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "printix-l2",
+  "vendor": "printix",
+  "level": "l2",
+  "title": "Printix Intermediate, deploying for one customer",
+  "summary": "Designing Sites and Networks, deploying the Printix Client at scale, wiring authentication and Groups, delegating site management, and standing up cost reporting.",
+  "estimatedMinutes": 48,
+  "prereqs": ["printix-l1"],
+  "lessons": [
+    "01-sites-and-networks",
+    "02-driver-delivery",
+    "03-authentication-and-groups",
+    "04-delegated-management",
+    "05-reporting-and-cost"
+  ],
+  "quiz": "printix-l2-final",
+  "status": "live"
+}

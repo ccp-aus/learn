@@ -1,0 +1,218 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { Clock, ArrowLeft, ArrowRight, Trophy } from "lucide-react";
+
+import { Term } from "@/components/learning/Term";
+import { Callout } from "@/components/learning/Callout";
+import { Kbd } from "@/components/learning/Kbd";
+import {
+  AnnotatedScreenshot,
+  Hotspot,
+} from "@/components/learning/AnnotatedScreenshot";
+import { StepThrough, Step } from "@/components/learning/StepThrough";
+// Step is referenced through MDX scope via the auto-import plugin; we expose
+// it on the components map below so MDX can resolve it consistently in builds
+// where local-import resolution is bypassed.
+import { DecisionTree } from "@/components/learning/DecisionTree";
+import { Checkpoint } from "@/components/learning/Checkpoint";
+import { LessonProgress } from "@/components/learning/LessonProgress";
+import MermaidLoader from "@/components/learning/MermaidLoader.astro";
+import DraftBanner from "@/components/learning/DraftBanner.astro";
+
+export async function getStaticPaths() {
+  const lessons = await getCollection("lessons");
+  const courses = await getCollection("courses");
+  return lessons.map((l) => {
+    const ref = l.data.vendor;
+    const vendorSlug = typeof ref === "string" ? ref : ref?.id;
+    return {
+      params: {
+        vendor: vendorSlug,
+        level: l.data.level,
+        lesson: l.data.slug,
+      },
+      props: { lesson: l, courses },
+    };
+  });
+}
+
+const { lesson, courses } = Astro.props;
+const { vendor: vendorParam, level } = Astro.params;
+
+const vendors = await getCollection("vendors");
+const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
+
+const course = courses.find(
+  (c: any) =>
+    (typeof c.data.vendor === "string"
+      ? c.data.vendor
+      : c.data.vendor?.id) === vendor.data.slug && c.data.level === level,
+);
+
+const allLessons = await getCollection("lessons");
+const ordered = course
+  ? course.data.lessons
+      .map((slug: string) =>
+        allLessons.find(
+          (l) =>
+            l.data.slug === slug &&
+            (typeof l.data.vendor === "string"
+              ? l.data.vendor
+              : l.data.vendor?.id) === vendor.data.slug,
+        ),
+      )
+      .filter(Boolean)
+  : [];
+
+const idx = ordered.findIndex((l: any) => l && l.data.slug === lesson.data.slug);
+const prev = idx > 0 ? ordered[idx - 1] : null;
+const next = idx >= 0 && idx + 1 < ordered.length ? ordered[idx + 1] : null;
+const isLast = idx === ordered.length - 1;
+const finalQuizSlug = course?.data.quiz ?? null;
+
+const { Content } = await render(lesson);
+
+const components = {
+  Term,
+  Callout,
+  Kbd,
+  AnnotatedScreenshot,
+  Hotspot,
+  StepThrough,
+  Step,
+  DecisionTree,
+  Checkpoint,
+};
+
+const levelLabel: Record<string, string> = {
+  l1: "Beginner",
+  l2: "Intermediate",
+  l3: "Advanced",
+};
+---
+
+<BaseLayout
+  title={`${lesson.data.title} — ${vendor.data.name} ${levelLabel[level]}`}
+  description={lesson.data.summary}
+>
+  <article class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/vendors/", label: "Vendors" },
+        { href: `/vendors/${vendor.data.slug}/`, label: vendor.data.name },
+        {
+          href: `/vendors/${vendor.data.slug}/${level}/`,
+          label: levelLabel[level],
+        },
+        { label: lesson.data.title },
+      ]}
+    />
+
+    <header class="mt-6 mb-8 border-b border-border pb-6">
+      <div class="mb-3 flex items-center gap-2">
+        <Badge variant={level as "l1" | "l2" | "l3"} className="text-[10px] uppercase tracking-widest">
+          {levelLabel[level]}
+        </Badge>
+        <span class="text-xs text-muted-foreground">
+          Lesson {idx + 1} of {ordered.length}
+        </span>
+        <span class="text-xs text-muted-foreground">·</span>
+        <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock className="h-3 w-3" /> ~{lesson.data.estimatedMinutes} min
+        </span>
+      </div>
+      {lesson.data.draft && <DraftBanner reason={lesson.data.draftReason} />}
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+        {lesson.data.title}
+      </h1>
+      <p class="mt-3 text-lg text-foreground/90 leading-relaxed">
+        {lesson.data.summary}
+      </p>
+    </header>
+
+    <div class="lesson-prose">
+      <Content components={components} />
+    </div>
+
+    <MermaidLoader />
+
+    <LessonProgress
+      lessonSlug={lesson.data.slug}
+      vendor={vendor.data.slug}
+      level={level}
+      nextHref={
+        next
+          ? `/vendors/${vendor.data.slug}/${level}/${(next as any).data.slug}/`
+          : isLast && finalQuizSlug
+            ? `/vendors/${vendor.data.slug}/${level}/quiz/`
+            : null
+      }
+      nextLabel={
+        next ? "Next lesson" : isLast && finalQuizSlug ? "Take the final quiz" : null
+      }
+      client:idle
+    />
+
+    <nav
+      class="mt-8 grid gap-3 sm:grid-cols-2"
+      aria-label="Lesson navigation"
+    >
+      {prev && (
+        <a
+          href={`/vendors/${vendor.data.slug}/${level}/${(prev as any).data.slug}/`}
+          class="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40"
+          data-astro-prefetch
+        >
+          <ArrowLeft className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5 group-hover:text-primary" />
+          <div class="min-w-0">
+            <div class="text-[10px] uppercase tracking-widest text-muted-foreground">
+              Previous
+            </div>
+            <div class="truncate text-sm font-medium group-hover:text-primary">
+              {(prev as any).data.title}
+            </div>
+          </div>
+        </a>
+      )}
+      {next ? (
+        <a
+          href={`/vendors/${vendor.data.slug}/${level}/${(next as any).data.slug}/`}
+          class="group ml-auto flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 sm:ml-0 sm:justify-end"
+          data-astro-prefetch
+        >
+          <div class="min-w-0 text-right">
+            <div class="text-[10px] uppercase tracking-widest text-muted-foreground">
+              Next
+            </div>
+            <div class="truncate text-sm font-medium group-hover:text-primary">
+              {(next as any).data.title}
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+        </a>
+      ) : (
+        finalQuizSlug && (
+          <a
+            href={`/vendors/${vendor.data.slug}/${level}/quiz/`}
+            class="group ml-auto flex items-center gap-3 rounded-lg border border-primary/40 bg-primary/5 p-4 transition-colors hover:border-primary hover:bg-primary/10 sm:ml-0 sm:justify-end"
+            data-astro-prefetch
+          >
+            <div class="min-w-0 text-right">
+              <div class="text-[10px] uppercase tracking-widest text-muted-foreground">
+                You're at the end
+              </div>
+              <div class="truncate text-sm font-medium text-primary">
+                Take the final quiz
+              </div>
+            </div>
+            <Trophy className="h-4 w-4 text-primary" />
+          </a>
+        )
+      )}
+    </nav>
+  </article>
+</BaseLayout>

@@ -1,0 +1,33 @@
+{
+  "slug": "huntress-l2-checkpoint-itdr",
+  "course": "huntress-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, ITDR enablement",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-itdr-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these are prerequisites for the direct M365 ITDR integration? (Select all that apply.)",
+      "choices": [
+        "An admin-level Huntress portal user",
+        "A Microsoft 365 user with Global Administrator role",
+        "Audit logs enabled in Microsoft 365 (Huntress will attempt to enable if disabled)",
+        "At least one active Exchange Online license in the tenant",
+        "The customer's third-party MFA provider's API key"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Admin in Huntress, Global Admin in M365, audit logs on, and an Exchange Online license are the documented prerequisites. Third-party MFA isn't part of the integration; Huntress only reports Microsoft MFA via Authenticator as Enabled."
+    },
+    {
+      "id": "ck-itdr-2",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "Huntress ITDR will retroactively detect malicious logins that happened before the integration was enabled.",
+      "correct": false,
+      "explanation": "Per the FAQ, ITDR detects existing malicious inbox rules but does not detect historical malicious logins. The detection set is forward-looking from integration time."
+    }
+  ]
+}

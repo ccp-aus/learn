@@ -1,0 +1,26 @@
+{
+  "slug": "printix-l2-checkpoint-auth",
+  "course": "printix-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, authentication and groups",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-auth-global-admin",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "Enabling Microsoft Entra group sync in Printix requires an account with the Global Administrator role in the customer's Microsoft Entra ID.",
+      "correct": true,
+      "explanation": "Documented prerequisite for synchronising groups. A non-Global-Admin account will hit the 'Could not verify group synchronization' error."
+    },
+    {
+      "id": "ck-auth-nested-groups",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "If a customer's Microsoft Entra group contains other groups (nested membership), Printix flattens those nested groups during sync.",
+      "correct": false,
+      "explanation": "Printix's documentation says nested groups are not supported. Only direct members of the synced group are picked up. Customers using nested-group structures need to flatten them or use the leaf groups directly."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "slug": "dnsfilter-l2-checkpoint-rollout",
+  "course": "dnsfilter-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, phased rollout",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-l2-rollout-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which change should you NOT phase through one device first?",
+      "choices": [
+        "Adding a new vertical-overlay block for Streaming Media",
+        "Pushing an emergency Block-list entry in response to a phishing campaign in flight",
+        "Tightening the Newly Registered Domain block",
+        "Changing block-page logo and notice email"
+      ],
+      "correct": 1,
+      "explanation": "Emergency threat blocks during an active campaign are the one case where the cost equation is reversed, a missed legitimate site is a ticket; a clicked phishing link is an incident. Push immediately."
+    },
+    {
+      "id": "ck-l2-rollout-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "DNSFilter's 'Policy Audit Log' is a category-level enforcement mode that logs traffic without blocking it.",
+      "correct": false,
+      "explanation": "The Policy Audit Log is a record of changes to policies, who changed what, when. It is not a log-only enforcement mode. There is no documented DNSFilter feature that applies a category in audit-only mode."
+    }
+  ]
+}

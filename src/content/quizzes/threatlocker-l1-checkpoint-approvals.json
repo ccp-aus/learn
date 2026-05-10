@@ -1,0 +1,37 @@
+{
+  "slug": "threatlocker-l1-checkpoint-approvals",
+  "course": "threatlocker-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, approval triage",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-approvals-1",
+      "type": "order",
+      "difficulty": "easy",
+      "prompt": "Put the four triage questions in the correct order.",
+      "items": [
+        "What file was requested?",
+        "Should this actually run on this device?",
+        "What scope does the policy need?",
+        "What's the right action?"
+      ],
+      "explanation": "Identify the file, judge whether it should run, decide how broadly to scope the resulting policy, then pick approve / approve-with-ringfence / deny / escalate."
+    },
+    {
+      "id": "ck-approvals-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An end user requests a tool only they need for a one-off project. The matching application panel shows a clean built-in match. What scope is most appropriate for the resulting policy?",
+      "choices": [
+        "Entire organisation",
+        "Computer group",
+        "Single computer",
+        "Single computer, application only"
+      ],
+      "correct": 3,
+      "explanation": "One user, one device, one app, one project. Single-computer-application-only is the narrowest scope and the most defensible. Wider scopes give the permit to endpoints that don't need it."
+    }
+  ]
+}

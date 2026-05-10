@@ -1,0 +1,18 @@
+{
+  "slug": "dnsfilter-l2",
+  "vendor": "dnsfilter",
+  "level": "l2",
+  "title": "DNSFilter Intermediate, operational design",
+  "summary": "Designing policies, categories, block-page UX, site onboarding, and phased rollouts for a single customer, the Beginner-graduate's next layer.",
+  "estimatedMinutes": 45,
+  "prereqs": ["dnsfilter-l1"],
+  "lessons": [
+    "01-baseline-and-override",
+    "02-categories-that-matter",
+    "03-block-page-ux",
+    "04-onboarding-a-site",
+    "05-phased-rollout"
+  ],
+  "quiz": "dnsfilter-l2-final",
+  "status": "live"
+}

@@ -1,0 +1,87 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+
+export async function getStaticPaths() {
+  const terms = await getCollection("glossary");
+  return terms.map((entry) => ({
+    params: { term: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+// Resolve related entries to actual term display labels
+const all = await getCollection("glossary");
+const related = entry.data.related
+  .map((slug: string) => all.find((g) => g.data.slug === slug))
+  .filter(Boolean) as typeof all;
+---
+
+<BaseLayout
+  title={`${entry.data.term} — Glossary`}
+  description={entry.data.short}
+>
+  <article class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/glossary/", label: "Glossary" },
+        { label: entry.data.term },
+      ]}
+    />
+
+    <header class="mt-6 mb-8 border-b border-border pb-8">
+      <div class="flex flex-wrap gap-2 mb-3">
+        {
+          entry.data.tags.map((t: string) => (
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              {t}
+            </Badge>
+          ))
+        }
+      </div>
+      <h1 class="text-4xl font-semibold tracking-tight">{entry.data.term}</h1>
+      {
+        entry.data.aliases.length > 0 && (
+          <p class="mt-2 text-sm text-muted-foreground">
+            Also known as: {entry.data.aliases.join(", ")}
+          </p>
+        )
+      }
+      <p class="mt-4 text-lg text-foreground/90 leading-relaxed">
+        {entry.data.short}
+      </p>
+    </header>
+
+    <div class="lesson-prose">
+      <Content />
+    </div>
+
+    {
+      related.length > 0 && (
+        <aside class="mt-12 border-t border-border pt-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+            Related
+          </h2>
+          <ul class="flex flex-wrap gap-2">
+            {related.map((r) => (
+              <li>
+                <a
+                  href={`/glossary/${r.data.slug}/`}
+                  class="inline-flex items-center rounded-md border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
+                >
+                  {r.data.term}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )
+    }
+  </article>
+</BaseLayout>

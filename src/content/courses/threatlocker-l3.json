@@ -1,0 +1,19 @@
+{
+  "slug": "threatlocker-l3",
+  "vendor": "threatlocker",
+  "level": "l3",
+  "title": "ThreatLocker at scale",
+  "summary": "Multi-tenant operations, baseline templating, custom Cyber Hero workflows, Network Control + Detect at scale, audit evidence, and endpoint / customer offboarding.",
+  "estimatedMinutes": 63,
+  "prereqs": ["threatlocker-l2"],
+  "lessons": [
+    "01-organisation-hierarchy-and-groups",
+    "02-baseline-template-governance",
+    "03-cyber-hero-workflow-customisation",
+    "04-network-control-and-detect-at-scale",
+    "05-audit-and-compliance",
+    "06-endpoint-and-customer-offboarding"
+  ],
+  "quiz": "threatlocker-l3-final",
+  "status": "live"
+}

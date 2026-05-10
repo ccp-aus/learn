@@ -1,0 +1,82 @@
+---
+slug: 04-creating-a-signature
+vendor: exclaimer
+level: l1
+title: Creating and assigning a signature
+summary: The Signature Designer canvas, dragging a Personal Fields element, picking who the signature applies to via the Senders tab, and previewing for a real user.
+estimatedMinutes: 8
+order: 4
+topics: [signature-designer, fields, senders]
+updated: 2026-05-09
+---
+
+A signature in Exclaimer is a template that pulls user-specific data from the synced directory and renders it once per outbound email. The Signature Designer is where the template is built; the Senders tab is where you decide which mailboxes it applies to.
+
+## The Designer at a glance
+
+```mermaid
+flowchart LR
+    T[Toolbox<br/>Text & Fields, Social Media,<br/>Legal & Compliance, Tables,<br/>Images & Icons, Calendars,<br/>QR codes, Feedback]
+    C[Canvas<br/>The signature design]
+    P[Properties<br/>Per-element editor]
+    PR[Preview<br/>Render with a real user's data]
+    BK[Brand Kit<br/>Active fonts, colors, images]
+    T --> C
+    C --> P
+    C --> PR
+    BK --> C
+```
+
+Five surfaces inside the Designer: a Toolbox of element types, the canvas where the design lives, a Properties pane on the right for the selected element, a Preview pane for how it'll render, and a Brand Kit drop-down at the top for which brand assets the signature inherits.
+
+## The fields you'll use most often
+
+The Toolbox's **Text & Fields** section has four element types that pull user data from Microsoft Entra ID or Google Directory:
+
+| Element | What it adds |
+|---|---|
+| Personal Fields | Display name, job title, company name (defaults; up to 10 fields) |
+| Contact Fields | Telephone, fax, mobile, email, website (defaults; up to 10) |
+| Address Fields | Street, city, state, zip, country (defaults; up to 10) |
+| All Fields | Any of the above plus the rest of the directory schema |
+
+Each field is rendered per-user from the directory at send time, so `{JobTitle}` comes out as Sarah's actual job title for Sarah's emails and the bookkeeper's actual title for theirs. To use a field inline inside a Text element, type `{` while editing and pick from the dropdown.
+
+## A worked ticket: Able Moose Accounting
+
+The customer's office manager calls: *"We've added two new starters; can you add them to the standard signature?"*
+
+<StepThrough client:load>
+  <Step title="Confirm the directory has them">
+    Settings, Sender Management, Sync Status. If the new users haven't synced yet, the signature won't render correctly because the field placeholders pull from Entra. Either wait for the next scheduled sync or trigger one manually.
+  </Step>
+  <Step title="Open the existing signature template">
+    Sidebar, Signatures, find the Able Moose template, select Edit Design. You probably don't need to change the design itself, just verify the Senders tab.
+  </Step>
+  <Step title="Set the Senders rule">
+    Manage Rules, Senders tab. If the rule is "Everyone in my organisation", the new starters are already covered, save and you're done. If it's "Specific senders or groups" and uses a mail-enabled security group from Entra, the same applies once the new starters are added to that group.
+  </Step>
+  <Step title="Preview for the new user">
+    Back in the Designer, type the new starter's email into the Preview search bar. The preview renders the template with that user's directory data. If a field is blank, it's because the directory record is missing that field, the User Details Editor is the right place to fix that without touching the directory itself.
+    {/* TODO: capture screenshot of the Designer Preview pane with sender search bar */}
+  </Step>
+</StepThrough>
+
+<Callout type="info" title="Senders is OR, not AND">
+The Senders tab combines all configured rules with OR. If you add a group AND specify individual addresses, anyone in either set gets the signature. To exclude users, use the Exceptions tab. Exceptions is on Standard and Pro plans only; Starter customers won't see the tab. The fuller design pattern around Exceptions is covered in the Intermediate course.
+</Callout>
+
+<Checkpoint slug="exclaimer-l1-checkpoint-fields" client:load />
+
+## Plan limits worth knowing
+
+The customer's plan controls how many signatures can exist at once:
+
+- **Starter**, one signature template.
+- **Standard** and **Pro**, unlimited signatures.
+
+If a Starter customer asks for "another signature for the marketing team", the answer involves a plan upgrade, not just a Designer move. The "Increase your limit" link inside the All Signatures tab is the documented escalation path.
+
+<Callout type="info" title="Sources">
+[Signature Designer](https://support.exclaimer.com/hc/en-gb/articles/360052425951-Signature-Designer), [How to add personal details to your signature template](https://support.exclaimer.com/hc/en-gb/articles/31062708712093-How-to-add-personal-details-to-your-signature-template), [Working with the Personal Fields signature element](https://support.exclaimer.com/hc/en-gb/articles/360050339472-Working-with-the-Personal-Fields-signature-element), [Signature Senders](https://support.exclaimer.com/hc/en-gb/articles/360050338932-Signature-Senders), [Signature template limits](https://support.exclaimer.com/hc/en-gb/articles/9692092108701-Signature-template-limits).
+</Callout>

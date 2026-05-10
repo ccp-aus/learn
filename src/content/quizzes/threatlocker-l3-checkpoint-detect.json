@@ -1,0 +1,32 @@
+{
+  "slug": "threatlocker-l3-checkpoint-detect",
+  "course": "threatlocker-l3",
+  "kind": "checkpoint",
+  "title": "Quick check, Detect rule design",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-detect-1",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "A Detect rule that fires on every single occurrence of a denied execution is a good rule because it catches all instances.",
+      "correct": false,
+      "explanation": "Without an Occurrences threshold or severity tiering, single-event rules drown the on-call rotation in noise. A single denied nmap execution might be a tech doing ops; the same denial 50 times in 10 minutes is the signal worth paging on."
+    },
+    {
+      "id": "ck-detect-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "What's the most useful artefact for designing a new Detect rule?",
+      "choices": [
+        "A list of recent CVEs",
+        "Real Unified Audit data grouped by relevant fields",
+        "The vendor's marketing playbook",
+        "An LLM-generated list of conditions"
+      ],
+      "correct": 1,
+      "explanation": "Rules built from real audit data tend to fire on real anomalies. Rules built from imagination fire on legitimate edge cases and miss the actual patterns the customer's environment exhibits."
+    }
+  ]
+}

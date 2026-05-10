@@ -1,0 +1,32 @@
+{
+  "slug": "threatlocker-l1-checkpoint-portal",
+  "course": "threatlocker-l1",
+  "kind": "checkpoint",
+  "title": "Quick check, the portal",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-portal-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user reports a block, but you don't see a request in the Response Center. Where do you look next?",
+      "choices": [
+        "The Modules page",
+        "The Unified Audit",
+        "The Organizations page",
+        "The Health Center"
+      ],
+      "correct": 1,
+      "explanation": "The Unified Audit logs every Permit, Deny, and Ringfenced action across modules. The Response Center only shows requests waiting on you; if no request was generated, the Audit is where the policy match landed."
+    },
+    {
+      "id": "ck-portal-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Before clicking Approve on a request, you should confirm the organisation in the portal header matches the customer the request belongs to.",
+      "correct": true,
+      "explanation": "Approving in the wrong tenant is the costliest helpdesk mistake on this product. The header is the canonical check; tab-switching can land you in a different org than you expect."
+    }
+  ]
+}

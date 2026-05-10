@@ -1,0 +1,10 @@
+{
+  "slug": "dnsfilter",
+  "name": "DNSFilter",
+  "tagline": "Protective DNS for managed networks.",
+  "summary": "DNSFilter is a cloud-delivered protective DNS resolver that blocks malicious and policy-violating domains before any TCP connection is attempted. MSPs use it to enforce category and threat-based filtering across many tenants from one console, with a roaming client to keep coverage on when users leave the office network.",
+  "accent": "oklch(0.78 0.17 215)",
+  "website": "https://www.dnsfilter.com/",
+  "status": "live",
+  "order": 10
+}

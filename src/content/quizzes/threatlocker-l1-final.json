@@ -1,0 +1,214 @@
+{
+  "slug": "threatlocker-l1-final",
+  "course": "threatlocker-l1",
+  "kind": "final",
+  "title": "ThreatLocker helpdesk fundamentals, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-fund-default-deny",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "What is the core decision ThreatLocker's Application Control makes when a user attempts to run a binary?",
+      "choices": [
+        "Does this binary's signature match a known-bad sample?",
+        "Has this binary been observed exhibiting malicious behaviour?",
+        "Is this binary on the customer's allowlist?",
+        "Is this binary signed by a Microsoft certificate?"
+      ],
+      "correct": 2,
+      "explanation": "ThreatLocker is a default-deny allowlisting product. The decision is whether the binary is explicitly permitted, not whether it's recognised as malicious. That's how it stops never-before-seen ransomware."
+    },
+    {
+      "id": "q-fund-edr-relationship",
+      "type": "tf",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "ThreatLocker is an EDR product and replaces the customer's existing EDR or antivirus.",
+      "correct": false,
+      "explanation": "ThreatLocker is a policy engine that prevents execution of unapproved binaries and constrains what approved apps can do. It runs alongside EDR / AV; the two pull different levers and are complementary, not substitutes."
+    },
+    {
+      "id": "q-fund-ringfencing",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "medium",
+      "prompt": "Word is on a customer's allowlist. The user opens a malicious .docx that tries to spawn PowerShell. What stops the attack?",
+      "choices": [
+        "Application Control denies Word",
+        "A Ringfence on Word denies the spawn of PowerShell",
+        "ThreatLocker Detect raises an alert and remediates",
+        "The DNS resolver refuses to resolve the C2 domain"
+      ],
+      "correct": 1,
+      "explanation": "Application Control permitted Word; the policy's Ringfence is what blocks Word from spawning PowerShell. Allowlisting decides what runs; ringfencing decides what running apps can do."
+    },
+    {
+      "id": "q-portal-response-center",
+      "type": "mcq",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "Which portal area is where pending end-user approval requests live?",
+      "choices": [
+        "Health Center",
+        "Unified Audit",
+        "Response Center",
+        "Modules"
+      ],
+      "correct": 2,
+      "explanation": "The Response Center is the queue of pending approval requests. The Unified Audit logs what already happened; the Health Center shows agent and endpoint status."
+    },
+    {
+      "id": "q-portal-tenant-check",
+      "type": "tf",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "MSP staff should confirm the organisation in the portal header before approving any request for a customer.",
+      "correct": true,
+      "explanation": "Approving in the wrong tenant is the costliest mistake at the ThreatLocker helpdesk. The portal header is the canonical check, and tab-switching can land you in a different org than you expect."
+    },
+    {
+      "id": "q-approvals-built-in-match",
+      "type": "tf",
+      "topic": "approvals",
+      "difficulty": "medium",
+      "prompt": "If a request matches a ThreatLocker built-in application, you can safely approve it without further checks.",
+      "correct": false,
+      "explanation": "A common DLL or system file may match into multiple unrelated built-ins. Approving a built-in via a request effectively permits the entire built-in. Confirm the requested file is genuinely part of that application before approving."
+    },
+    {
+      "id": "q-approvals-scope",
+      "type": "mcq",
+      "topic": "approvals",
+      "difficulty": "medium",
+      "prompt": "When you approve a request, what's the default principle for choosing the scope of the resulting policy?",
+      "choices": [
+        "Use 'Entire organisation' so the customer doesn't see this request again",
+        "Use the narrowest scope that solves the user's actual problem",
+        "Always use 'Computer group'",
+        "Match the scope to the requestor's access level"
+      ],
+      "correct": 1,
+      "explanation": "Narrow first. Wider scopes mean the permit lives on more endpoints, which means a future compromise on any of them inherits the permit. Widen only when the customer explicitly needs it fleet-wide."
+    },
+    {
+      "id": "q-approvals-suspicious",
+      "type": "multi",
+      "topic": "approvals",
+      "difficulty": "medium",
+      "prompt": "Which of these signals on a request should slow you down before approving? (Select all that apply.)",
+      "choices": [
+        "File path is c:\\users\\*\\downloads\\setup.exe with no certificate",
+        "File matches a built-in for a vendor the customer uses",
+        "Originating process is chrome.exe",
+        "Hash already on the customer's deny list",
+        "Requestor email doesn't match a real user account"
+      ],
+      "correct": [0, 3, 4],
+      "explanation": "Unsigned downloads, hashes on the deny list, and bogus requestor emails are all yellow-or-red flags. A signed match for a vendor the customer uses, with chrome.exe as the originating process for a fresh download, is consistent with normal activity."
+    },
+    {
+      "id": "q-audit-action-types",
+      "type": "multi",
+      "topic": "unified-audit",
+      "difficulty": "medium",
+      "prompt": "Which of these are valid Action Type filters in the Unified Audit? (Select all that apply.)",
+      "choices": [
+        "execute",
+        "network",
+        "elevate",
+        "scream",
+        "registry"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Documented Action Types include execute, install, network, registry, read, write, move, delete, baseline, powershell, elevate, configuration, dns. 'scream' isn't a thing."
+    },
+    {
+      "id": "q-audit-noise-filter",
+      "type": "tf",
+      "topic": "unified-audit",
+      "difficulty": "easy",
+      "prompt": "The Remove White Noise filter strips well-known white-noise denies from the Unified Audit so the signal is easier to find.",
+      "correct": true,
+      "explanation": "The noise filter exists because the kernel pokes at common DLLs constantly. Without it, real denies are hidden in a wash of expected noise."
+    },
+    {
+      "id": "q-learning-mode-types",
+      "type": "mcq",
+      "topic": "learning-mode",
+      "difficulty": "medium",
+      "prompt": "A customer has clean role-based computer groups (Finance, Sales, Engineering) and people in each group share most software. Which Learning Mode flavour is most appropriate?",
+      "choices": [
+        "Automatic Computer",
+        "Automatic Group",
+        "Automatic System",
+        "Tamper Protection Disabled"
+      ],
+      "correct": 1,
+      "explanation": "Automatic Group creates new policies at the computer-group level, which is the right granularity when group members run the same software. Automatic Computer makes per-machine policies; Automatic System is drivers and Windows files only."
+    },
+    {
+      "id": "q-learning-cutover-readiness",
+      "type": "multi",
+      "topic": "learning-mode",
+      "difficulty": "hard",
+      "prompt": "Which of these are signs that a customer is NOT yet ready to flip from Learning Mode to Secured Mode? (Select all that apply.)",
+      "choices": [
+        "New applications are still appearing in Learning every day",
+        "Power users have been through their normal weekly routine",
+        "The Unified Audit shows many green Simulated denies on Office and browsers",
+        "A subset of seasonal staff hasn't logged in during the Learning window",
+        "The application list looks complete to the customer's office manager"
+      ],
+      "correct": [0, 2, 3],
+      "explanation": "Steady creation rate, lots of would-be-blocked Simulated denies, and dark-spot users mean the allowlist isn't representative yet. Completed routines and a customer-confirmed application list are 'ready' signals."
+    },
+    {
+      "id": "q-learning-default-deny-naming",
+      "type": "mcq",
+      "topic": "learning-mode",
+      "difficulty": "medium",
+      "prompt": "A customer has been in Learning Mode for two weeks and the application list is still empty. What's the first thing to check?",
+      "choices": [
+        "Whether the agent is actually checking in (Health Center)",
+        "Whether the customer's Default Deny policy is named in the format the automatic-creation logic looks for",
+        "Whether Learning Mode was scheduled with the correct end date",
+        "Whether the customer's plan SKU includes Application Control"
+      ],
+      "correct": 1,
+      "explanation": "Vendor docs flag the Default Deny naming requirement as the most common Learning-Mode failure: if the catch-all Default policy has been renamed and no longer matches the expected pattern, automatic creation produces nothing even when everything else is configured. Check the policy name first."
+    },
+    {
+      "id": "q-learning-deny-count-signal",
+      "type": "mcq",
+      "topic": "learning-mode",
+      "difficulty": "medium",
+      "prompt": "Why does the Simulated-deny count in the Unified Audit matter when judging cutover readiness?",
+      "choices": [
+        "Each Simulated deny is a billing event the customer is charged for",
+        "It tells you how loud the Response Center will be on day one if you flip Secured now",
+        "The agent stops Learning automatically once the count crosses a threshold",
+        "Simulated denies indicate a configuration error that should block any cutover"
+      ],
+      "correct": 1,
+      "explanation": "Simulated denies are the green-coloured rows where Secured Mode would have blocked the action. The count in the Learning window is the future post-cutover noise: a flood of Simulated denies on Office or browsers means the ringfences need tuning before you cut over, or the Response Center will be unmanageable on day one."
+    },
+    {
+      "id": "q-learning-pre-cutover-discipline",
+      "type": "mcq",
+      "topic": "learning-mode",
+      "difficulty": "hard",
+      "prompt": "During the pre-cutover review you find an old remote-access utility in the learned application list. Nobody at the customer remembers installing it or has a business reason to keep it. What's the right action?",
+      "choices": [
+        "Leave the permit in place; uninstalling and re-permitting is double work",
+        "Remove the permit so the next launch attempt default-denies",
+        "Uninstall the software, then remove the permit so the next launch attempt default-denies",
+        "Move the permit to a Computer-Group level so it only affects one machine"
+      ],
+      "correct": 2,
+      "explanation": "The discipline is uninstall-then-remove. Uninstalling without removing the permit leaves a stale allowlist entry that an attacker could later reuse. Removing the permit without uninstalling means the user gets denied next time and you get a ticket. Do both, in order, so the app is gone and the permit is gone."
+    }
+  ]
+}

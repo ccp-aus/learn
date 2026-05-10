@@ -1,0 +1,128 @@
+---
+slug: 04-onboarding-a-site
+vendor: dnsfilter
+level: l2
+title: Onboarding a Network Site without breaking the customer
+summary: A pre-flight decision tree, the right deployment shape (network forwarding, Roaming Client, hybrid), and the encrypted-DNS gotchas that trip up first-time site rollouts.
+estimatedMinutes: 10
+order: 4
+topics: [deployment, sites, network]
+updated: 2026-05-08
+---
+
+The Beginner course covered using a Network Site that already exists. Intermediate owns *creating* one, and that means a small set of decisions that, made wrongly, generate weeks of intermittent tickets. Get them right at onboarding and the customer barely notices the rollout.
+
+## The pre-flight decision tree
+
+<DecisionTree client:load
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Where do users work?", choices: [
+      { label: "In-office on a known network", next: "office" },
+      { label: "Mostly remote on uncontrolled networks", next: "remote" },
+      { label: "Hybrid, office plus remote / home", next: "hybrid" },
+    ]},
+    { type: "question", id: "office", prompt: "Does the egress IP change?", choices: [
+      { label: "Static IP", next: "static" },
+      { label: "Dynamic / residential", next: "ddns" },
+    ]},
+    { type: "outcome", id: "static", label: "Network Site by IP", tone: "success",
+      body: "Add a Network Site identified by the office's static public IP. If they have multiple WAN links or failovers, add each as an additional IP on the same Site. Configure DNS forwarding at the firewall or router to point at the DNSFilter anycast IPs covered in the Beginner course." },
+    { type: "outcome", id: "ddns", label: "Network Site by Dynamic DNS", tone: "info",
+      body: "Set up a DDNS hostname (e.g. via No-IP or the customer's router's built-in DDNS) and register that hostname as the Site identifier. DNSFilter automatically rechecks the DDNS record on a regular interval, so changes propagate without manual intervention." },
+    { type: "outcome", id: "remote", label: "Roaming Client only", tone: "success",
+      body: "No Network Site needed. Deploy the Roaming Client to every device, with a policy assigned per device or per user. This is the \"everyone works from home\" pattern." },
+    { type: "outcome", id: "hybrid", label: "Network Site + Roaming Client", tone: "warn",
+      body: "Add the Site for in-office coverage and deploy the Roaming Client to all laptops. The Site's policy applies whenever the device queries from the recognised network; the Roaming Client takes over off-network. DNSFilter exposes a per-Site VPN-compatibility toggle that disables the Roaming Client on networks where conflicting VPN agents are detected; network-detection auto-disable behaviour is documented separately and varies by mode." },
+  ]}
+/>
+
+## Which policy wins: the environment-priority hierarchy
+
+When a query arrives, DNSFilter walks an attribute hierarchy to decide which policy applies. Most-specific wins:
+
+1. **Users**, the user identity from the Users feature.
+2. **Collections**, a User Collection the user belongs to.
+3. **LAN Subnets**, internal subnet matched within a Site.
+4. **Roaming Clients**, the agent on the device.
+5. **Relays**, a configured Relay node.
+6. **Sites**, the Network Site the query egressed from.
+
+In practice, that means a user-level policy for the CFO overrules everything below; a Roaming Client policy on a laptop applies when the laptop is off-network and a User-level policy hasn't been set; a Site policy is the network-wide default. Design with this in mind, not against it.
+
+## The four-step rollout
+
+<StepThrough client:load>
+  <Step
+    title="Create the Site (and any companion Roaming Clients)"
+    image="/img/dnsfilter/add-site-form.png"
+    imageAlt="DNSFilter Add Site form fields: name, description, Filtering Policy, Filtering Schedule, identifier IPs."
+  >
+    Add the Site with the right IPs / subnet / DDNS hostname. Assign a Filtering Policy at the same time, never leave a Site policy-less, even temporarily. For Roaming Client devices, push the agent via your RMM or AD/Entra deployment.
+  </Step>
+  <Step
+    title="If the customer is on a residential connection, use DDNS"
+    image="/img/dnsfilter/add-site-ddns.png"
+    imageAlt="Add Site form populated with a Dynamic DNS hostname mydnsname.dyndns.net as the Site identifier."
+  >
+    The decision tree above branches between static IP and DDNS. For dynamic-IP customers, register a DDNS hostname (No-IP, the customer's router DDNS, etc.) and put it in the Site's identifier field. DNSFilter rechecks the record automatically.
+  </Step>
+  <Step
+    title="Test on one device first"
+    image="/img/dnsfilter/debug-page.png"
+    imageAlt="debug.dnsfilter.com page rendered through DNSFilter, listing each category and confirming the resolver path."
+  >
+    DNSFilter explicitly recommends configuring DNS Forwarding on one computer first to test the policy and check for conflicts. Browse to `debug.dnsfilter.com`; the page confirms the resolver path and shows the active categories.
+  </Step>
+  <Step title="Roll out to the rest of the network">
+    Once the single-device test confirms forwarding works, change the firewall or router DNS settings to apply for everyone. Do this in a maintenance window, it's an instant cutover for every device on the network.
+  </Step>
+  <Step
+    title="Watch the Query Log for the next four hours"
+    image="/img/dnsfilter/zero-queries-error.png"
+    imageAlt="DNSFilter Site detail page surfacing a zero-queries indicator for a newly-created Site, the diagnostic that traffic isn't reaching the resolver."
+  >
+    A successful rollout shows a steady stream of queries from the Site. A failed one shows zero. If the Sites view flags zero queries within five minutes, roll back the firewall change and diagnose before re-attempting.
+  </Step>
+</StepThrough>
+
+## The encrypted-DNS gotchas
+
+These are the hidden traps. None of them produce a clean error message, they produce "the customer is suddenly unfiltered and nobody knows why."
+
+| Issue | What's happening | Fix |
+|---|---|---|
+| Browser DNS-over-HTTPS (DoH) | Chrome, Edge, Firefox can resolve via their own DoH endpoint, bypassing the network's DNS. | Block the browsers' DoH endpoints at the firewall, or push a managed-browser policy that disables DoH. DNSFilter also offers DoH-as-DNSFilter for some setups. |
+| iCloud Private Relay (Apple) | Encrypts and tunnels DNS, bypassing DNSFilter on iOS / macOS. | DNSFilter already returns NXDOMAIN for `mask.icloud.com`, `mask-h2.icloud.com`, and `use-application-dns.net`, which disables Private Relay at the resolver. Blocking the same hosts at the firewall is the belt-and-braces step on top of that. |
+| Random apps with hardcoded DoH | Some apps (notably some VPN clients, some games) hit `1.1.1.1` or `8.8.8.8` directly over DoH/DoT. | Firewall rules forcing DNS to DNSFilter; see DNSFilter's "Preventing content filtering circumvention" article. |
+| User changes their device's DNS | A laptop user sets `8.8.8.8` manually. | Block direct outbound DNS at the firewall (only allow DNS to DNSFilter's anycast resolvers). For roaming devices, the Roaming Client handles this by intercepting locally. |
+
+<Callout type="warn" title="The 'we deployed it but nothing's blocked' ticket">
+Nine times out of ten, the cause is one of the above. DNS is happening over a path that doesn't go through DNSFilter. The Query Log will show *no* queries at all (not blocks that didn't happen, but actual silence). That's your diagnostic: zero queries means the resolver isn't being used. Track down the path before debugging policy.
+</Callout>
+
+## The rollback plan
+
+Every site rollout has a back-out path agreed before you start:
+
+1. Firewall / router has the previous DNS forwarding configuration ready to restore.
+2. The MSP knows the customer's emergency contact; the customer knows the MSP's.
+3. If it's a Roaming Client deployment, the uninstall command is documented and tested.
+4. The maintenance-window message to end users includes "if anything's broken, message X."
+
+A rollout you can't roll back is a rollout you shouldn't run. Reassess the deployment every six months too: DNS-hijacking patterns from apps and browsers shift quickly, and what worked at deployment may not be working today.
+
+## Worked rollout: Able Moose Accounting Sydney office
+
+| Step | Detail |
+|---|---|
+| Pre-flight | Static IP from their ISP (`203.0.113.42`), one WAN, FortiGate firewall. Hybrid working, laptops travel home in the evening. |
+| Site setup | New Site `AbleMoose-SYD` with IP `203.0.113.42`; assigned to `AbleMoose-Override-Prod`. |
+| Roaming Client | Pushed via Intune to all laptops, same policy assignment. |
+| Test device | One IT laptop reconfigured manually to use a DNSFilter anycast resolver; `debug.dnsfilter.com` confirms the path; Query Log shows the test queries. |
+| Cutover | Maintenance window 7am Saturday. FortiGate DNS rule changed; observe Query Log for 30 minutes; ticket in PSA confirming success. |
+| Rollback | Old DNS rule saved as a disabled policy on the FortiGate, ready to re-enable in 10 seconds. |
+
+<Callout type="info" title="Sources">
+[Create a Network Site](https://help.dnsfilter.com/hc/en-us/articles/1500008110281-Create-a-Network-Site), [Configure DNS Forwarding on a Network](https://help.dnsfilter.com/hc/en-us/articles/1500008110261-Configure-DNS-Forwarding-on-a-Network), [Use Dynamic DNS hostnames with DNSFilter](https://help.dnsfilter.com/hc/en-us/articles/1500008108122-Set-up-Dynamic-DNS-hostnames-for-DNSFilter-Site), [Test DNS Forwarding connection on a single device](https://help.dnsfilter.com/hc/en-us/articles/1500008110301-Testing-Your-Connection), [Preventing content filtering circumvention](https://help.dnsfilter.com/hc/en-us/articles/1500008113261-Preventing-content-filtering-circumvention), [Block Apple iCloud Private Relay from bypassing DNSFilter](https://help.dnsfilter.com/hc/en-us/articles/14811352360083-Block-Apple-iCloud-Private-Relay-from-bypassing-DNSFilter), [Configure DNS over HTTPS (DoH) with DNSFilter](https://help.dnsfilter.com/hc/en-us/articles/44566141934099-Configure-DNS-over-HTTPS-DoH-with-DNSFilter).
+</Callout>

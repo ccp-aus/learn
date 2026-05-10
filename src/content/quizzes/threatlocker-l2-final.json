@@ -1,0 +1,199 @@
+{
+  "slug": "threatlocker-l2-final",
+  "course": "threatlocker-l2",
+  "kind": "final",
+  "title": "ThreatLocker policy design and rollout, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-policy-scope-default",
+      "type": "mcq",
+      "topic": "policies",
+      "difficulty": "medium",
+      "prompt": "What's the principle for choosing the scope of a new permit policy?",
+      "choices": [
+        "Default to organisation-wide so the customer doesn't see the same request twice",
+        "Default to the narrowest scope that solves the user's problem",
+        "Default to computer group regardless of the request",
+        "Default to global so all customers benefit"
+      ],
+      "correct": 1,
+      "explanation": "Narrow first. Wider scopes give the permit to endpoints that don't need it; a future compromise on any of them inherits the permit. Widen only when the customer needs it broader."
+    },
+    {
+      "id": "q-policy-orderby",
+      "type": "mcq",
+      "topic": "policies",
+      "difficulty": "medium",
+      "prompt": "Where in the orderBy range does a custom Deny rule for a specific risky binary belong, and how is it given priority over existing custom permits?",
+      "choices": [
+        "At a negative orderBy value, since negative numbers always win",
+        "At orderBy 0 with the Active flag set",
+        "In the 100,001+ custom range, placed at a numerically lower value than the existing permits via the Add to Top button",
+        "At orderBy 1,000,000, the same place as Default Deny"
+      ],
+      "correct": 2,
+      "explanation": "Vendor docs are explicit: policies cannot be reordered to a negative number. Built-ins live at 101+, custom at 100,001+ (in 100-step gaps), Default Deny is the floor at 1,000,000. A high-priority custom Deny goes near the top of the custom range; Add to Top in the policy editor places it at a lower (higher priority) orderBy than existing custom rules."
+    },
+    {
+      "id": "q-policy-builtins",
+      "type": "tf",
+      "topic": "policies",
+      "difficulty": "medium",
+      "prompt": "Approving an Approval Request that matched a built-in via a single common DLL effectively permits the entire built-in, not just that DLL.",
+      "correct": true,
+      "explanation": "Documented behaviour. The matching panel can match common DLLs into multiple unrelated built-ins; confirming the requested file is genuinely part of the built-in is essential before clicking Approve."
+    },
+    {
+      "id": "q-policy-rule-types",
+      "type": "multi",
+      "topic": "policies",
+      "difficulty": "medium",
+      "prompt": "Which of these are valid file-rule types for a custom application? (Select all that apply.)",
+      "choices": [
+        "Hash (ThreatLocker hash or SHA256)",
+        "Full Path (with wildcards)",
+        "Process Path",
+        "Installed By (Created By Process)",
+        "Certificate",
+        "DNS hostname"
+      ],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation": "Hash, full path, process path, installed-by, and certificate are documented file-rule types. DNS hostname is not part of application file rules; that's elsewhere in the stack."
+    },
+    {
+      "id": "q-ringfence-levers",
+      "type": "multi",
+      "topic": "ringfencing",
+      "difficulty": "easy",
+      "prompt": "Ringfencing offers four levers. Which are they? (Select all that apply.)",
+      "choices": [
+        "Application (which child processes can be spawned)",
+        "File (which paths can be read or written)",
+        "Network (which destinations can be reached)",
+        "Registry (which keys can be read or modified)",
+        "Encryption (which encryption algorithms are allowed)"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Application, file, network, registry. Encryption isn't a ringfence lever; that's a different feature (encryption-status in Detect)."
+    },
+    {
+      "id": "q-ringfence-monitor-mode",
+      "type": "mcq",
+      "topic": "ringfencing",
+      "difficulty": "medium",
+      "prompt": "A new ringfence on the customer's line-of-business app should be rolled out how?",
+      "choices": [
+        "Straight to Secured to find issues quickly",
+        "Monitor Only first, review Simulated denies, tune, then Secured",
+        "Secured on the IT team's laptops first",
+        "Skip ringfencing for line-of-business apps"
+      ],
+      "correct": 1,
+      "explanation": "Monitor Only generates Simulated denies that show what would have been blocked. Tune the exclusions against real activity, then enforce. Skipping monitor mode is the most common cause of cutover-day incidents."
+    },
+    {
+      "id": "q-ringfence-office-spawn",
+      "type": "mcq",
+      "topic": "ringfencing",
+      "difficulty": "medium",
+      "prompt": "An Office ringfence's most valuable rule is denying spawn of which kind of process?",
+      "choices": [
+        "Browsers",
+        "Interpreters and shells (powershell.exe, cmd.exe, wscript.exe, mshta.exe)",
+        "Other Office apps",
+        "Acrobat Reader"
+      ],
+      "correct": 1,
+      "explanation": "Most macro-and-script ransomware loaders need a shell or scripting engine. Denying Office's ability to spawn powershell, cmd, wscript, mshta, regsvr32 breaks that chain even when the macro itself runs inside Word."
+    },
+    {
+      "id": "q-storage-pattern",
+      "type": "mcq",
+      "topic": "storage-control",
+      "difficulty": "medium",
+      "prompt": "An auditor visits the customer's office once a year with an encrypted USB drive. What's the most defensible Storage Control setup?",
+      "choices": [
+        "Disable Storage Control during the audit week",
+        "Permit USBs globally for all users, all serials",
+        "Default-deny USB for the org; permit a specific USB serial for the named auditor user on the Finance computer group",
+        "Move the auditor to the IT-tools group temporarily"
+      ],
+      "correct": 2,
+      "explanation": "The serial-and-user-and-group exclusion is exactly the lever that justifies Storage Control's slot in the stack. Disabling Storage Control fleet-wide is a regression; group reassignment is a fragile workaround."
+    },
+    {
+      "id": "q-elevation-default",
+      "type": "tf",
+      "topic": "elevation-control",
+      "difficulty": "medium",
+      "prompt": "Silent Elevation should be the default elevation behaviour because it doesn't bother the user.",
+      "correct": false,
+      "explanation": "Silent Elevation hides the privilege change from the user; default to 'notify' so the user is aware when something elevated. Reach for silent only when the use case (e.g. unattended update) is documented and reviewed."
+    },
+    {
+      "id": "q-rollout-phase-order",
+      "type": "order",
+      "topic": "deployment",
+      "difficulty": "medium",
+      "prompt": "Put the rollout phases in the correct sequence.",
+      "items": [
+        "Deploy agent across the fleet",
+        "Learning Mode (2-4 weeks)",
+        "Monitor Only (1 week)",
+        "Pilot Secured (2-3 endpoints)",
+        "Rolling Secured (group by group)",
+        "Steady state"
+      ],
+      "explanation": "The cushion between phases is the point. Each step exists because skipping it caused issues at someone else's customer. Compressing the timeline doesn't compress the surprises."
+    },
+    {
+      "id": "q-rollout-pilot-pick",
+      "type": "multi",
+      "topic": "deployment",
+      "difficulty": "hard",
+      "prompt": "Which of these are good pilot-user criteria? (Select all that apply.)",
+      "choices": [
+        "Patient and reachable; tells you immediately when something blocks",
+        "Runs a representative slice of the customer's software",
+        "Is the most senior executive at the customer",
+        "Is the IT manager who lives in remote tools",
+        "Not on a critical path during the pilot week"
+      ],
+      "correct": [0, 1, 4],
+      "explanation": "The pilot needs a mid-tier representative user, patient and reachable, not on a critical path. The CEO is a worst-case for first-week breakage; the IT manager runs an unrepresentative software set."
+    },
+    {
+      "id": "q-cyber-hero-scope",
+      "type": "multi",
+      "topic": "cyber-hero",
+      "difficulty": "medium",
+      "prompt": "When the customer subscribes to Cyber Hero, which responsibilities stay with the MSP? (Select all that apply.)",
+      "choices": [
+        "Triaging routine end-user approval requests",
+        "Designing the customer's policy structure",
+        "Deciding when a request is genuinely a security incident",
+        "Customer-specific judgement calls about what software is sanctioned",
+        "Quarterly customer reporting and renewal conversations"
+      ],
+      "correct": [1, 2, 3, 4],
+      "explanation": "Cyber Hero handles routine transactional approvals. Policy structure, incident judgement, customer-specific decisions, and the customer relationship stay with the MSP."
+    },
+    {
+      "id": "q-naming-convention",
+      "type": "mcq",
+      "topic": "policies",
+      "difficulty": "easy",
+      "prompt": "Which policy name is the most useful to a future technician scanning the policy list?",
+      "choices": [
+        "QuickBooks",
+        "Permit_Policy_004",
+        "grp-finance-quickbooks-permit-ringfenced",
+        "QB-elevate"
+      ],
+      "correct": 2,
+      "explanation": "The scope-application-purpose convention tells the next reader which scope, which app, and what kind of permit, without opening the policy. Generic numbers and bare app names force everyone to click into the policy to find out."
+    }
+  ]
+}

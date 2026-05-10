@@ -1,0 +1,195 @@
+{
+  "slug": "exclaimer-l3-final",
+  "course": "exclaimer-l3",
+  "kind": "final",
+  "title": "Exclaimer Advanced, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-l3-tenancy-self-contained",
+      "type": "tf",
+      "topic": "multi-tenancy",
+      "difficulty": "easy",
+      "prompt": "Brand Kits, signatures, Disclaimers, and Campaigns live inside one Exclaimer subscription and don't propagate to sibling customer subscriptions through the reseller account.",
+      "correct": true,
+      "explanation": "Each Exclaimer subscription is fully self-contained. Cross-subscription propagation isn't a feature; cross-customer consistency is a discipline driven by the MSP's own runbooks."
+    },
+    {
+      "id": "q-l3-roles",
+      "type": "multi",
+      "topic": "rbac",
+      "difficulty": "medium",
+      "prompt": "Which of these are valid Exclaimer subscription roles? (Select all that apply.)",
+      "choices": [
+        "Owner",
+        "Admin",
+        "Editor",
+        "Designer",
+        "Auditor",
+        "Sub-Org Super Admin"
+      ],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation": "Exclaimer's full role model has eight roles: Owner, Admin, Editor, Designer, Analytics, Auditor, User Manager, and Finance. The five listed in the choices above (Owner, Admin, Editor, Designer, Auditor) are all valid; Analytics, User Manager, and Finance are also real but aren't tested here. 'Sub-Org Super Admin' is a DNSFilter concept; Exclaimer doesn't use a sub-org hierarchy."
+    },
+    {
+      "id": "q-l3-owner-only",
+      "type": "multi",
+      "topic": "rbac",
+      "difficulty": "hard",
+      "prompt": "Which actions can ONLY the Owner role perform? (Select all that apply.)",
+      "choices": [
+        "Accept terms and conditions",
+        "Manage payment options",
+        "Remove integrations",
+        "Cancel the subscription",
+        "Edit a signature template"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Admin has 'unrestricted access except' for four role-table items, accepting terms, managing payment, removing integrations, and deleting users. Cancellation is Owner-only too, separately gated by the Manage screen rather than the role table, so all four answers above are correct. Editing a signature is well within Editor and Designer scope."
+    },
+    {
+      "id": "q-l3-anti-patterns",
+      "type": "multi",
+      "topic": "governance",
+      "difficulty": "medium",
+      "prompt": "Which of the following are governance anti-patterns? (Select all that apply.)",
+      "choices": [
+        "Per-tech accounts with documented role assignments",
+        "A single shared 'msp-admin@' login used by all techs",
+        "Owner role assigned to a personal account of someone who later left the MSP, no documented handover",
+        "Auditor role given to the customer's external compliance auditor",
+        "Marketing lead given Designer plus Editor for the marketing folder"
+      ],
+      "correct": [1, 2],
+      "explanation": "Shared logins destroy the Audit Log's usefulness. Forever-Owner with no handover is a hostage scenario. The other patterns are sensible."
+    },
+    {
+      "id": "q-l3-analytics-prereq",
+      "type": "tf",
+      "topic": "analytics",
+      "difficulty": "medium",
+      "prompt": "Engagement and Signature Usage analytics depend on server-side mail flow being configured for the customer.",
+      "correct": true,
+      "explanation": "Both dashboards are populated from emails that pass through Exclaimer's servers. Without server-side configured, the data isn't collected. A Pro-plan customer running client-side-only is paying for analytics they can't see."
+    },
+    {
+      "id": "q-l3-feedback-leaderboard",
+      "type": "mcq",
+      "topic": "analytics",
+      "difficulty": "hard",
+      "prompt": "The Feedback Analytics Leaderboard sorts senders by their 'Temperature' score. How is Temperature calculated?",
+      "choices": [
+        "The sender's average click-through rate on signature links",
+        "The weighted sum of CSAT ratings (Red/Yellow/Green/Gold) divided by total responses",
+        "The sender's NPS score directly",
+        "Total responses received in the date range"
+      ],
+      "correct": 1,
+      "explanation": "Temperature assigns each rating a value (Red 0, Yellow 33.333, Green 66.666, Gold 99.999), sums them, and divides by total responses. It's a weighted-average mood score."
+    },
+    {
+      "id": "q-l3-salesforce-sync",
+      "type": "mcq",
+      "topic": "integrations",
+      "difficulty": "medium",
+      "prompt": "A salesperson adds a contact to a Salesforce list at 11 AM and expects the renewal-banner signature to apply on emails sent that afternoon. What's the correct expectation?",
+      "choices": [
+        "It applies immediately because Exclaimer reads Salesforce in real time",
+        "It applies after the next overnight sync at 3 AM local time",
+        "It applies after a manual sync triggered from the Integrations screen",
+        "It never applies until the salesperson logs out and back in"
+      ],
+      "correct": 1,
+      "explanation": "Salesforce Lists synchronise immediately on initial connection, then daily at 3 AM local time. Mid-day list changes don't propagate until overnight sync. Set the customer's expectations accordingly."
+    },
+    {
+      "id": "q-l3-integrations-plan",
+      "type": "tf",
+      "topic": "integrations",
+      "difficulty": "easy",
+      "prompt": "The Integrations menu (Salesforce, HubSpot, LinkedIn, Facebook) is available on all plan tiers including Starter.",
+      "correct": false,
+      "explanation": "Integrations are a Pro-plan feature. Standard and Starter customers who want CRM-driven recipient targeting need a plan upgrade conversation."
+    },
+    {
+      "id": "q-l3-tester-vs-logs",
+      "type": "mcq",
+      "topic": "troubleshooting",
+      "difficulty": "medium",
+      "prompt": "What's the key difference between the Signatures Tester and the Diagnostic Logs?",
+      "choices": [
+        "Tester is for server-side, Diagnostic Logs are for client-side",
+        "Tester simulates rule evaluation; Diagnostic Logs record what actually happened on real sends",
+        "Tester is real-time; Diagnostic Logs run on a daily schedule",
+        "Tester requires Pro plan; Diagnostic Logs are available on all plans"
+      ],
+      "correct": 1,
+      "explanation": "Tester is a simulator. Diagnostic Logs record real send-time evaluations and are searchable for the past 7 days. The escalation chain runs Tester first, then Logs when real mail still misbehaves."
+    },
+    {
+      "id": "q-l3-message-capture-prereq",
+      "type": "tf",
+      "topic": "troubleshooting",
+      "difficulty": "medium",
+      "prompt": "Message Capture works even when the customer's mail flow is misconfigured and emails aren't reaching Exclaimer.",
+      "correct": false,
+      "explanation": "Message Capture only records emails that route through Exclaimer. If the transport rule is disabled or the connector is broken, nothing reaches Exclaimer and nothing gets captured. Confirm mail flow is active before enabling Capture."
+    },
+    {
+      "id": "q-l3-disclaimer-authority",
+      "type": "mcq",
+      "topic": "governance",
+      "difficulty": "hard",
+      "prompt": "An MSP designer notices a typo in a customer's regulatory disclaimer text. What's the correct response?",
+      "choices": [
+        "Fix the typo immediately to get the right text out the door",
+        "Escalate to the customer's compliance lead for written authorisation before changing the text",
+        "Open a Support ticket with Exclaimer to fix it",
+        "Wait until the next quarterly review"
+      ],
+      "correct": 1,
+      "explanation": "Regulatory disclaimer text is the customer's compliance posture. Even a typo correction is a question for the legal authority who drafted it. The MSP implements faithfully; the customer authorises changes in writing for the audit trail."
+    },
+    {
+      "id": "q-l3-meeting-branding-platforms",
+      "type": "multi",
+      "topic": "meeting-branding",
+      "difficulty": "medium",
+      "prompt": "On which platforms does Exclaimer's Meeting Branding deliver branded nametag overlays and backgrounds? (Select all that apply.)",
+      "choices": [
+        "Microsoft Teams",
+        "Google Meet",
+        "Zoom",
+        "Slack Huddles",
+        "Cisco Webex"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Meeting Branding supports Teams, Google Meet, and Zoom. Slack Huddles and Webex aren't documented integrations."
+    },
+    {
+      "id": "q-l3-audit-log-scope",
+      "type": "tf",
+      "topic": "governance",
+      "difficulty": "medium",
+      "prompt": "The Exclaimer Audit Log records every signature edit with a timestamp and the editor's identity.",
+      "correct": false,
+      "explanation": "The Audit Log records user sign-ins with the role they signed in as (Admin, Editor, or both). It doesn't itemise individual signature edits. Per-change attribution requires the team's own change-control process plus the Diagnostic Logs to locate when a signature actually started behaving differently."
+    },
+    {
+      "id": "q-l3-offboarding-mail-flow",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "hard",
+      "prompt": "A customer cancels Exclaimer server-side signatures. What proves the technical exit worked before billing closure?",
+      "choices": [
+        "The subscription Owner clicked Cancel",
+        "The Signatures Tester no longer shows a matching signature",
+        "Real internal and external test mail no longer routes through Exclaimer and no signature is applied",
+        "The MSP removed one portal user from User Management"
+      ],
+      "correct": 2,
+      "explanation": "Subscription cancellation and portal user removal do not prove mail flow stopped. Real mail tests and header inspection prove the Exchange or Google routing path no longer goes through Exclaimer."
+    }
+  ]
+}

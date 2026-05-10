@@ -1,0 +1,35 @@
+---
+import { ChevronRight } from "lucide-react";
+
+interface Crumb {
+  href?: string;
+  label: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="text-xs text-muted-foreground">
+  <ol class="flex flex-wrap items-center gap-1">
+    {
+      items.map((c, i) => (
+        <li class="flex items-center gap-1">
+          {c.href && i < items.length - 1 ? (
+            <a href={c.href} class="hover:text-foreground transition-colors">
+              {c.label}
+            </a>
+          ) : (
+            <span class="text-foreground/80">{c.label}</span>
+          )}
+          {i < items.length - 1 && (
+            <ChevronRight className="h-3 w-3 opacity-50" />
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

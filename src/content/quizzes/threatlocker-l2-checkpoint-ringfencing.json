@@ -1,0 +1,39 @@
+{
+  "slug": "threatlocker-l2-checkpoint-ringfencing",
+  "course": "threatlocker-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, ringfencing",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ringfencing-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "You designed a new ringfence for a customer's line-of-business app. What's the safe rollout pattern?",
+      "choices": [
+        "Apply it Secured immediately so you find issues quickly",
+        "Apply it Monitor Only for 1-2 weeks, review Simulated denies, tune, then Secured",
+        "Apply it to the IT team's machines first",
+        "Skip ringfencing on line-of-business apps"
+      ],
+      "correct": 1,
+      "explanation": "Monitor Only logs would-be-blocks without enforcing. The Simulated deny rows tell you which exclusions are needed. Skipping this step is how teams accidentally block a quarterly business workflow."
+    },
+    {
+      "id": "ck-ringfencing-2",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these are levers a ThreatLocker ringfence exposes? (Select all that apply.)",
+      "choices": [
+        "Application (which child processes can be spawned)",
+        "File (which paths can be read or written)",
+        "Network (which destinations can be reached)",
+        "Registry (which keys can be read or modified)",
+        "DNS (which hostnames can be resolved)"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "The four levers are application, file, network, and registry. DNS-level filtering isn't part of ringfencing; that's a different stack-slot (DNSFilter or similar)."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "slug": "dnsfilter-l3",
+  "vendor": "dnsfilter",
+  "level": "l3",
+  "title": "DNSFilter Advanced, scale and governance",
+  "summary": "Multi-tenant operations, scaled reporting, OIDC SSO, MSP-stack integrations, Query Log investigation, and clean offboarding across customers.",
+  "estimatedMinutes": 60,
+  "prereqs": ["dnsfilter-l2"],
+  "lessons": [
+    "01-multi-tenant-architecture",
+    "02-reporting-at-scale",
+    "03-sso-and-identity",
+    "04-integrations",
+    "05-incident-investigation",
+    "06-offboarding-and-cleanup"
+  ],
+  "quiz": "dnsfilter-l3-final",
+  "status": "live"
+}

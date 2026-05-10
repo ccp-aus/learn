@@ -1,0 +1,32 @@
+---
+import { TriangleAlert } from "lucide-react";
+
+interface Props {
+  reason?: string;
+}
+
+const { reason } = Astro.props;
+---
+
+<aside
+  role="note"
+  class="my-6 flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm"
+>
+  <TriangleAlert className="h-5 w-5 shrink-0 text-amber-500 mt-0.5" />
+  <div class="space-y-1">
+    <div class="font-semibold tracking-tight text-amber-300">
+      Draft &mdash; awaiting review
+    </div>
+    <p class="text-foreground/85 leading-relaxed">
+      This lesson was generated from vendor documentation and has not yet been
+      verified by a human reviewer. Treat the content as provisional and
+      cross-check anything operationally important against the vendor's own
+      docs.
+    </p>
+    {reason && (
+      <p class="text-xs text-muted-foreground">
+        Reviewer note: {reason}
+      </p>
+    )}
+  </div>
+</aside>

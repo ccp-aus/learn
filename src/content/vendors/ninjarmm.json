@@ -1,0 +1,10 @@
+{
+  "slug": "ninjarmm",
+  "name": "NinjaOne",
+  "tagline": "RMM, patch, scripting, remote control.",
+  "summary": "NinjaOne (formerly NinjaRMM) is a cloud-native RMM platform widely adopted across SMB-focused MSPs. Agent-based monitoring, patch automation, scripting, remote control, and a clean per-organization model that scales from one tech to a full team.",
+  "accent": "oklch(0.78 0.18 145)",
+  "website": "https://www.ninjaone.com/",
+  "status": "planned",
+  "order": 20
+}

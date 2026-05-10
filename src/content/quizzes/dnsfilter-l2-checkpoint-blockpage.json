@@ -1,0 +1,26 @@
+{
+  "slug": "dnsfilter-l2-checkpoint-blockpage",
+  "course": "dnsfilter-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, block page reality",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-l2-bp-1",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "When DNSFilter blocks a query for an HTTPS site, the user always sees the customised hosted block page.",
+      "correct": false,
+      "explanation": "For HTTPS, the browser tries to negotiate TLS with the IP DNSFilter returns. Because the block-page server can't present a valid certificate for the user's intended domain, most modern browsers show a TLS error instead of the block page. This is intrinsic to DNS filtering."
+    },
+    {
+      "id": "ck-l2-bp-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "DNSFilter's hosted block page still supports a Bypass Password feature in 2026.",
+      "correct": false,
+      "explanation": "DNSFilter removed the Bypass Password feature in late 2024 because it lifted every category and threat block for the entire browser session. The supported paths now are Allow-list entries and the block page's embedded notice form."
+    }
+  ]
+}

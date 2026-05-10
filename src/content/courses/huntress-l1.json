@@ -1,0 +1,19 @@
+{
+  "slug": "huntress-l1",
+  "vendor": "huntress",
+  "level": "l1",
+  "title": "Huntress helpdesk fundamentals",
+  "summary": "The mental model and console moves a new helpdesk hire needs to triage Huntress portal alerts, install agents, read an incident report, work through the everyday low-risk noise, and decide what the SOC wants from them.",
+  "estimatedMinutes": 49,
+  "prereqs": [],
+  "lessons": [
+    "01-what-huntress-is",
+    "02-portal-tour",
+    "03-reading-an-investigation",
+    "04-installing-the-agent",
+    "05-when-to-escalate",
+    "06-triaging-low-risk-reports"
+  ],
+  "quiz": "huntress-l1-final",
+  "status": "live"
+}

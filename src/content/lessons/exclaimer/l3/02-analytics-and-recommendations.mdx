@@ -1,0 +1,90 @@
+---
+slug: 02-analytics-and-recommendations
+vendor: exclaimer
+level: l3
+title: Analytics, turning dashboards into recommendations
+summary: Reading the four analytics dashboards (Engagement, Usage, Feedback, Social Feeds), what server-side routing buys you in data terms, and the conversation patterns that turn analytics into customer recommendations.
+estimatedMinutes: 11
+order: 2
+topics: [analytics, engagement, recommendations]
+updated: 2026-05-09
+---
+
+Exclaimer ships four analytics dashboards on the Pro plan. Most MSP customers never look at them. The Advanced-level move is to read the dashboards on the customer's behalf and bring back actionable recommendations, the renewal conversation that justifies the Pro tier.
+
+## The four dashboards at a glance
+
+| Dashboard | What it answers | Data prerequisite |
+|---|---|---|
+| Engagement | Did recipients click links inside signatures? Which links? Which signatures get the most clicks? | Server-side routing required (analytics are collected from emails passing through Exclaimer); URLs are click-tracked via Exclaimer's redirect |
+| Signature Usage | How many emails were sent? What share had a signature applied? Which template was applied? | Server-side routing required |
+| Feedback | If signatures include the Feedback element (CSAT or NPS), what ratings and comments came back? Which senders score highest? | Pro plan, signatures with the Feedback element enabled |
+| Social Feeds | If the customer has connected Facebook or LinkedIn social feeds and added them to signatures, which posts get clicked? | Pro plan, configured social feed integration |
+
+All four are Pro-plan only and depend on server-side routing for full data. Customers on client-side-only get partial Engagement (the analytics call-out: client-side analytics also require server-side configuration to collect the click-tracking data).
+
+## How the Feedback Temperature score is calculated
+
+The Feedback dashboard's Leaderboard ranks senders by a single weighted-average score called **Temperature**. It rolls up the four CSAT ratings into one number per sender so the customer's CS lead can spot outliers without reading every comment.
+
+Each rating contributes a value:
+
+- Red (very unsatisfied): **0**
+- Yellow (unsatisfied): **33.333**
+- Green (satisfied): **66.666**
+- Gold star (very satisfied): **99.999**
+
+Temperature is the sum of those values across every response divided by the total number of responses. A sender with two Greens and one Gold score sits at `(66.666 + 66.666 + 99.999) / 3 = 77.777`. The leaderboard sorts highest-to-lowest by default; the "named outliers" the QBR cares about live at the bottom and the recognised performers at the top.
+
+A practical reading: anyone scoring under 33 is getting a noticeable share of Red and Yellow responses; that's a coaching conversation, not a tooling fix. The Temperature score on its own doesn't say *why*; it tells you which sender's responses to read first.
+
+## How click tracking actually works
+
+Exclaimer rewrites every hyperlink in the signature to route through its click-tracking service before redirecting to the original URL. The rewritten URL has a regional code prefix (e.g. `eu`, `us`) reflecting where the customer's data is hosted. Three implications:
+
+- The customer's recipient sees the rewritten link briefly during page load, then the redirect resolves. For most users this is invisible; some link-preview tools show the rewritten URL.
+- The destination's server-side log shows a referrer from Exclaimer's tracking domain, not from the original sender's mail client.
+- A recipient mail client that strips trackers (some privacy-focused clients do) will fail the click rather than reaching the destination. That's worth knowing during a "links don't work" ticket.
+
+## A worked recommendation: Able Moose Group
+
+Able Moose Group, the canonical enterprise customer, has been on Pro for six months. The MSP runs the analytics review for the quarterly business review:
+
+<StepThrough client:load>
+  <Step title="Open Engagement, last 30 days, External only">
+    The dashboard shows total signatures sent, total clicks, click-through percentage, and the per-signature breakdown. Identify the signatures with the highest click-through. The 'Sales-Team-Q2' signature has roughly 4x the click-through of the catch-all corporate signature, mostly through the meeting-booking calendar element.
+    {/* TODO: capture screenshot of the Engagement dashboard with date range and per-signature breakdown */}
+  </Step>
+  <Step title="Open Signature Usage, same window">
+    Signature Usage shows the volume side. The 'Marketing-Quarterly-Q2-2026' signature applies on 18% of outbound emails. Together with Engagement's click-through, that's the sales pipeline impact metric.
+  </Step>
+  <Step title="Open Feedback if Feedback elements are deployed">
+    If the customer's customer-success team's signatures include a CSAT element, the Feedback dashboard's Leaderboard ranks senders by their Temperature score (the sum-divided-by-responses calculation above). Use this to surface customer-success-staff who are getting noticeably negative feedback so the customer's CS lead can intervene.
+    {/* TODO: capture screenshot of the Feedback Reporting tab showing the donut charts and Leaderboard */}
+  </Step>
+  <Step title="Make a recommendation">
+    Write up two specific recommendations for the QBR: (a) extend the meeting-booking calendar element to the support team's signature; (b) the catch-all signature has stagnant click-through, propose a refresh tied to the next brand cycle. Include the dashboard screenshots, the dates, the percentages.
+  </Step>
+</StepThrough>
+
+The mistake at this level is reciting numbers. The win is naming the change the customer should make and tying it to dashboard evidence.
+
+## What server-side routing buys you in data terms
+
+| Data | Server-side configured | Client-side only |
+|---|---|---|
+| Total emails sent | Yes (every email passes through Exclaimer) | No (Exclaimer doesn't see the sent message) |
+| Clicks on signature links | Yes (URL rewriting) | Yes when client-side analytics works (still requires server-side configured to collect) |
+| Signature applied to which percentage of mail | Yes | No (no view of mail not tagged with Add-in) |
+| Recipient email addresses in Feedback Analytics | Outlook Add-in only (server-side does not capture) | Yes (Outlook Add-in) |
+
+The summary: the customer needs server-side configured to get the analytics they're paying for at the Pro tier. A customer who's Pro-plan-but-client-side-only is paying for features they can't see; flag this in the next renewal conversation.
+
+## What this is NOT
+
+- **Not real-time reporting.** Engagement, Usage, and Feedback dashboards refresh on their own cadence (Feedback's Reporting tab refreshes every 30 seconds; Engagement and Usage are not real-time). Don't promise the customer live dashboards; the data lags by minutes for high-traffic events and longer for low-traffic ones.
+- **Not a marketing-attribution system.** Click-through-rate from a signature link tells you the link was clicked; it doesn't tell you what the recipient did next on the destination site. Tie Exclaimer's click data to the customer's web analytics (UTM parameters in the destination URL, supported in Campaigns) for the full picture.
+
+<Callout type="info" title="Sources">
+[Engagement Analytics](https://support.exclaimer.com/hc/en-gb/articles/4768738773021-Engagement-Analytics), [Signature Usage Analytics](https://support.exclaimer.com/hc/en-gb/articles/4757727251997-Signature-Usage-Analytics), [Feedback Analytics](https://support.exclaimer.com/hc/en-gb/articles/4731501153437-Feedback-Analytics), [Social Feeds Analytics](https://support.exclaimer.com/hc/en-gb/articles/13875435957277-Social-Feeds-Analytics).
+</Callout>

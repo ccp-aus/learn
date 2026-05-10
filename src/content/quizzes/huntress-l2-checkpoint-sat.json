@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-l2-checkpoint-sat",
+  "course": "huntress-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, SAT campaigns",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-sat-1",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A first-time SAT phishing campaign should be launched without first allowlisting Huntress's phishing IPs and domains in the customer's email security.",
+      "correct": false,
+      "explanation": "Without allowlisting in M365's anti-spam policies (and any third-party email security), simulations are quarantined or blocked. The campaign produces unusable metrics."
+    },
+    {
+      "id": "ck-sat-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which SAT chart most directly demonstrates the value of repeated training over time?",
+      "choices": [
+        "Campaign-by-campaign Compromise Rate",
+        "Compromise Rate by Attempt (bucketed by which attempt number a learner is on)",
+        "Active Learners count",
+        "Episode Completion percentage"
+      ],
+      "correct": 1,
+      "explanation": "Compromise Rate by Attempt buckets learners by attempt number rather than calendar time, so it shows the trend that repeated training is intended to drive: lower compromise rate as learners cycle through more attempts."
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Sparkles, Map, BookOpen, ShieldCheck } from "lucide-react";
+
+const vendors = (await getCollection("vendors")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const paths = await getCollection("paths");
+---
+
+<BaseLayout>
+  <section class="relative overflow-hidden border-b border-border/60">
+    <div
+      class="pointer-events-none absolute inset-0 -z-10"
+      aria-hidden="true"
+    >
+      <div
+        class="absolute -top-32 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
+        style="background: radial-gradient(closest-side, oklch(0.78 0.17 215 / 0.6), transparent 70%);"
+      >
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-20 md:py-28">
+      <Badge variant="outline" className="mb-5 inline-flex gap-1.5 text-[11px]">
+        <Sparkles className="h-3 w-3 text-primary" />
+        Free & open. No accounts.
+      </Badge>
+      <h1 class="text-4xl font-semibold tracking-[-0.025em] sm:text-6xl max-w-3xl">
+        The critical training path for{" "}
+        <span class="text-primary">MSP technicians.</span>
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-muted-foreground">
+        Get from new-hire to confident on the products you actually use every
+        day &mdash; DNSFilter, NinjaOne, HaloPSA, CIPP, Printix, Exclaimer.
+        Three layered tiers per vendor: Beginner, Intermediate, Advanced.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a
+          href="/vendors/"
+          class="group inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
+          data-astro-prefetch
+        >
+          Browse vendors
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </a>
+        <a
+          href="/paths/"
+          class="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+          data-astro-prefetch
+        >
+          <Map className="h-4 w-4" /> Pick a learning path
+        </a>
+      </div>
+
+      <ul class="mt-12 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
+        <li class="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          No logins, no tracking, no fluff.
+        </li>
+        <li class="flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-primary" />
+          Layered courses with no repetition.
+        </li>
+        <li class="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Inline quizzes that teach on wrong answers.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-16">
+    <div class="mb-8 flex items-end justify-between">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">Vendors</h2>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Pick a product. Start at Beginner if you're new; jump in higher if
+          you've been around the block.
+        </p>
+      </div>
+      <a
+        href="/vendors/"
+        class="text-sm text-primary hover:underline"
+        data-astro-prefetch
+      >
+        See all →
+      </a>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        vendors.slice(0, 6).map((v) => (
+          <a
+            href={`/vendors/${v.data.slug}/`}
+            class="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+            data-astro-prefetch
+            data-curate-vendor={v.data.slug}
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-md text-sm font-semibold"
+                style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+              >
+                {v.data.name[0]}
+              </div>
+              <Badge
+                variant={v.data.status === "live" ? "success" : "outline"}
+                className="text-[10px] uppercase tracking-widest"
+              >
+                {v.data.status === "live" ? "Live" : "Planned"}
+              </Badge>
+            </div>
+            <h3 class="mt-4 font-semibold tracking-tight group-hover:text-primary">
+              {v.data.name}
+            </h3>
+            <p class="mt-1 text-sm text-muted-foreground line-clamp-2">
+              {v.data.tagline}
+            </p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    paths.length > 0 && (
+      <section class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 pb-20">
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold tracking-tight">Learning paths</h2>
+          <p class="mt-1 text-sm text-muted-foreground">
+            Curated cross-vendor sequences for common roles.
+          </p>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          {paths.slice(0, 4).map((p) => (
+            <a
+              href={`/paths/${p.data.slug}/`}
+              class="group block rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/40"
+              data-astro-prefetch
+            >
+              <div class="flex items-baseline justify-between">
+                <h3 class="font-semibold tracking-tight group-hover:text-primary">
+                  {p.data.title}
+                </h3>
+                <span class="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {p.data.courses.length} courses
+                </span>
+              </div>
+              <p class="mt-2 text-sm text-muted-foreground line-clamp-3">
+                {p.data.summary}
+              </p>
+              <div class="mt-3 text-xs text-muted-foreground">
+                For: {p.data.audience}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

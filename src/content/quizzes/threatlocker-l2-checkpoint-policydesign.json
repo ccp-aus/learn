@@ -1,0 +1,24 @@
+{
+  "slug": "threatlocker-l2-checkpoint-policydesign",
+  "course": "threatlocker-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, policy structure",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-policydesign-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A custom application defined entirely with hash-only file rules works well at first, then breaks every time the vendor ships an update. Why?",
+      "choices": [
+        "Hashes expire after 30 days",
+        "Hash rules don't survive across binary updates; new build, new hash",
+        "Hash rules are evaluated last",
+        "ThreatLocker auto-disables hash-only rules"
+      ],
+      "correct": 1,
+      "explanation": "Any binary change produces a new hash. Hash-only rules look airtight initially but become a maintenance load. Combining certificate plus full-path with a directory wildcard ages much better."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+---
+slug: 03-sender-management-and-mail-flow
+vendor: exclaimer
+level: l2
+title: Sender Management and the deployment-path choice
+summary: User sync scope, the User Details Editor, sent-items update, alias and send-on-behalf options, and the deployment-path decision matrix that drives all of these.
+estimatedMinutes: 9
+order: 3
+topics: [sender-management, deployment, sync]
+updated: 2026-05-09
+---
+
+The Beginner course introduced server-side and client-side as two ways Exclaimer reaches the user's mail. Intermediate is where you decide which path each customer needs and configure the sender-side controls that go with it.
+
+## The path-decision matrix
+
+| Customer requirement | Server-side | Client-side (Outlook Add-in) | Combined |
+|---|---|---|---|
+| Signatures on iOS or Android | Yes | No | Yes (server-side covers mobile) |
+| Signatures on Outlook Web | Yes | Yes (New Outlook only) | Yes |
+| User sees the signature before clicking send | No | Yes | Yes |
+| User can choose between multiple available signatures while composing | No | Yes (Add-in) | Yes |
+| Prevent users editing or deleting signatures | Yes | No | Server-side enforcement |
+| Plain-text emails preserve plain-text signature | No (auto-converts to HTML) | Yes | Mixed |
+| Required for analytics (Engagement, Usage) | Yes (data only collected on server-side) | Partial (client-side analytics requires server-side too) | Yes |
+
+Read the matrix as a forced ranking. Customers who want previews before send, plus mobile coverage, plus analytics, end up combined. Customers who only care about consistency and analytics can be server-side-only. Pure client-side is rare in practice.
+
+## What sender management actually controls
+
+Settings, Sender Management, four panels that matter:
+
+- **Connect to Microsoft 365 / Connect to Google Workspace.** The directory sync. Either Full (all mailboxes) or Limited (one mail-enabled security group). Switching from Full to Limited removes user data outside the group.
+- **Sync Status and triggers.** Editor-or-above can trigger a sync; only Admin/Owner can change the sync scope.
+- **User Details Editor.** A separate URL where end users edit their own contact fields. Available on Standard and Pro plans (Standard allows two custom fields; Pro allows the full set). The user signs in with their Microsoft 365 or Google account; the admin controls which sections and fields are editable.
+- **Mail Flow.** The Connect to Microsoft 365 wizard, the test-group switch (process all email vs only a named mail-enabled group), and the Exchange On-Premises options for hybrid customers.
+
+## A worked decision: Northwind Logistics (mid-market)
+
+Northwind is a 240-person warehouse and logistics operator. Drivers use Outlook on iPad in the cab; warehouse staff use Outlook Web; office staff use Outlook for Windows. The customer's compliance lead requires a specific legal disclaimer on every external email, no exceptions, no end-user override.
+
+<StepThrough client:load>
+  <Step title="Pick the deployment path">
+    Mobile coverage and "no end-user override" force server-side. Outlook for Windows would benefit from the Add-in's preview, but the no-override requirement makes the combined-but-server-side-wins pattern simpler to govern. Path: server-side only.
+    {/* TODO: capture screenshot of the Connect to M365 wizard panel */}
+  </Step>
+  <Step title="Decide sync scope">
+    Full sync. Limited sync would mean every new mail-enabled security group needs a sync update; Northwind reorganises too often for that to be a low-friction choice.
+    {/* TODO: capture screenshot of the sync-scope radio (Full vs Limited) */}
+  </Step>
+  <Step title="Configure mail flow for everyone">
+    Connect to Microsoft 365 wizard, "Send all email to Exclaimer", not the test-group option. This is post-pilot; pilots use the test-group switch.
+    {/* TODO: capture screenshot of the Test Group switch and 'Send all email to Exclaimer' panel */}
+  </Step>
+  <Step title="User Details Editor for self-serve fields">
+    Pro plan, so all fields available. Enable the Mobile, Pronouns, and a custom Vehicle Reg field for drivers; leave Display Name and Job Title locked to HR. Document this decision in the runbook so a future tech doesn't broaden the scope by accident.
+    {/* TODO: capture screenshot of Sender Management → User Details Editor field-visibility settings */}
+  </Step>
+</StepThrough>
+
+<Callout type="info" title="Google Workspace client-side has a 10,000-character signature ceiling">
+For customers on Google Workspace deploying client-side, the rendered signature plus any disclaimer text must stay under 10,000 characters. Server-side has no equivalent ceiling because the signature is added after Google's own compose limits. If a Google customer's brand template plus regulatory disclaimer is genuinely long, push them to server-side or trim the template.
+</Callout>
+
+<Checkpoint slug="exclaimer-l2-checkpoint-deployment" client:load />
+
+## The trap: Send on Behalf and Send As
+
+Customers with shared mailboxes (e.g. info@, sales@) hit a fork:
+
+- **Send on Behalf permissions** in Microsoft 365 mean the message header says "Sarah on behalf of sales@". Exclaimer's Send-on-Behalf setting (cogwheel, Mail Flow, Send on Behalf) is **server-side only**. Tick it and the recipient sees the shared-mailbox signature; leave it unticked and they see Sarah's personal signature. Either choice is the portal's call, not the mail client's.
+- **Send As permissions** mean the header says "sales@" with no on-behalf wording. Server-side cannot pick the shared-mailbox signature for a Send-As email; the documented path for shared-mailbox Send-As signatures is **client-side via the Outlook Add-in**, where the user explicitly switches to the shared-mailbox identity in compose.
+
+Server-side-only customers who rely on Send-As shared mailboxes will see the sender's personal signature, not the shared-mailbox one. That's a design conversation at deployment time, not a config click after the tickets land.
+
+<Callout type="info" title="Shared-mailbox signatures need an extra licence">
+Configuration FAQ note: when Send on Behalf is enabled, or when the message is sent with Send-As permissions, the shared mailbox's signature applies and Exclaimer counts the shared mailbox as an additional licensed user. Plan-tier impact, not a config click.
+</Callout>
+
+<Callout type="info" title="Connector GA is not the same as GDAP">
+Microsoft 365's Granular Delegated Admin Privileges are how MSP staff reach the customer's tenant from their own. Exclaimer's connector wizard authenticates as a Global Administrator *inside* the customer's tenant; that's a separate authentication path from the MSP's GDAP relationship. Both can coexist and neither replaces the other; if a customer revokes GDAP, the connector keeps working because it doesn't depend on the MSP-side delegation at all.
+</Callout>
+
+<Callout type="info" title="Sources">
+[Difference in features between Client-Side and Server-Side signatures](https://support.exclaimer.com/hc/en-gb/articles/9132428396445-Difference-in-features-between-Client-Side-and-Server-Side-signatures), [Information on using client-side and server-side signatures together in one subscription](https://support.exclaimer.com/hc/en-gb/articles/11904697489181-Information-on-using-client-side-and-server-side-signatures-together-in-one-subscription), [How to configure client-side signatures after the initial onboarding](https://support.exclaimer.com/hc/en-gb/articles/17191814311581-How-to-configure-client-side-signatures-after-the-initial-onboarding), [Manage section and field visibility for the User Details Editor](https://support.exclaimer.com/hc/en-gb/articles/4405050957329-Manage-section-and-field-visibility-for-the-User-Details-Editor).
+</Callout>

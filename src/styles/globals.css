@@ -1,0 +1,411 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Fonts come from Astro's Fonts API (see astro.config.mjs).
+ * The CSS variables --font-geist and --font-geist-mono are injected by
+ * the <Font /> component in BaseLayout.astro and exposed to all pages. */
+
+/* shadcn/ui dark variant — class-based, so we can manually toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ----- Design tokens (light + dark) -----
+ * OKLCH palette. Single accent: electric cyan.
+ * Naming follows shadcn/ui conventions so primitives drop in cleanly.
+ */
+:root {
+  --radius: 0.625rem;
+
+  /* Warm off-white (#f5f4f0) instead of pure white. Easier on the eyes for
+   * long reads, and stops mermaid diagrams from blending into a stark page. */
+  --background: #f5f4f0;
+  --foreground: oklch(0.18 0.01 260);
+
+  --card: #fcfbf7;
+  --card-foreground: oklch(0.18 0.01 260);
+
+  --popover: #fcfbf7;
+  --popover-foreground: oklch(0.18 0.01 260);
+
+  --primary: oklch(0.7 0.18 220);            /* electric cyan */
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: #ecebe5;
+  --secondary-foreground: oklch(0.22 0.01 260);
+
+  --muted: #ecebe5;
+  --muted-foreground: oklch(0.5 0.01 260);
+
+  --accent: oklch(0.94 0.02 220);
+  --accent-foreground: oklch(0.22 0.01 260);
+
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: #e2e0d8;
+  --input: #e8e6df;
+  --ring: oklch(0.7 0.18 220 / 0.55);
+
+  --success: oklch(0.7 0.18 145);
+  --warning: oklch(0.78 0.16 75);
+  --info: oklch(0.72 0.14 235);
+}
+
+.dark {
+  --background: oklch(0.14 0.01 260);
+  --foreground: oklch(0.96 0.005 260);
+
+  --card: oklch(0.17 0.012 260);
+  --card-foreground: oklch(0.96 0.005 260);
+
+  --popover: oklch(0.17 0.012 260);
+  --popover-foreground: oklch(0.96 0.005 260);
+
+  --primary: oklch(0.78 0.17 215);           /* brighter cyan against dark */
+  --primary-foreground: oklch(0.14 0.01 260);
+
+  --secondary: oklch(0.22 0.012 260);
+  --secondary-foreground: oklch(0.96 0.005 260);
+
+  --muted: oklch(0.22 0.012 260);
+  --muted-foreground: oklch(0.66 0.01 260);
+
+  --accent: oklch(0.24 0.02 220);
+  --accent-foreground: oklch(0.96 0.005 260);
+
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.27 0.012 260);
+  --input: oklch(0.25 0.012 260);
+  --ring: oklch(0.78 0.17 215 / 0.6);
+
+  --success: oklch(0.74 0.17 145);
+  --warning: oklch(0.82 0.16 75);
+  --info: oklch(0.76 0.14 235);
+}
+
+/* ----- Tailwind v4 theme: inline tokens so utilities like bg-primary work ----- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  --container-2xl: 84rem;
+}
+
+/* ----- Base layer ----- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: dark light;
+    scrollbar-gutter: stable;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* Better focus ring everywhere */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Selection */
+  ::selection {
+    background: oklch(0.78 0.17 215 / 0.32);
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  code, pre, kbd, samp {
+    font-family: var(--font-mono);
+  }
+}
+
+/* ----- View Transitions polish (Astro <ClientRouter />) ----- */
+@layer base {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+
+/* ----- Mermaid: blend with theme ----- */
+.mermaid svg {
+  background: transparent !important;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ----- Prose tweaks for lesson body (we don't pull @tailwindcss/typography to keep bundle small) ----- */
+.lesson-prose {
+  --prose-body: var(--foreground);
+  --prose-heading: var(--foreground);
+  --prose-link: var(--primary);
+  --prose-border: var(--border);
+
+  color: var(--prose-body);
+  line-height: 1.7;
+  font-size: 1.0625rem;
+}
+
+.lesson-prose > * + * { margin-top: 1.25em; }
+.lesson-prose h2 { font-size: 1.65rem; margin-top: 2.5em; margin-bottom: 0.5em; line-height: 1.2; }
+.lesson-prose h3 { font-size: 1.275rem; margin-top: 2em; margin-bottom: 0.4em; line-height: 1.3; }
+.lesson-prose h4 { font-size: 1.075rem; margin-top: 1.5em; margin-bottom: 0.3em; }
+.lesson-prose p  { color: var(--prose-body); }
+.lesson-prose a  { color: var(--prose-link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.lesson-prose a:hover { text-decoration-thickness: 2px; }
+.lesson-prose ul, .lesson-prose ol { padding-left: 1.4em; }
+.lesson-prose ul { list-style: disc; }
+.lesson-prose ol { list-style: decimal; }
+.lesson-prose li + li { margin-top: 0.4em; }
+.lesson-prose blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1em;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.lesson-prose code:not(pre code) {
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+.lesson-prose pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1em 1.1em;
+  overflow-x: auto;
+  font-size: 0.92em;
+  line-height: 1.55;
+}
+.lesson-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2.5em 0;
+}
+.lesson-prose img {
+  max-width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.lesson-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  margin: 1.5em 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: block;
+  overflow-x: auto;
+}
+.lesson-prose thead {
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+}
+.lesson-prose thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  padding: 0.7em 0.85em;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.lesson-prose tbody td {
+  padding: 0.65em 0.85em;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.55;
+}
+.lesson-prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+.lesson-prose tbody tr:nth-child(even) {
+  background: color-mix(in oklab, var(--muted) 30%, transparent);
+}
+.lesson-prose tbody tr:hover {
+  background: color-mix(in oklab, var(--primary) 6%, transparent);
+}
+.lesson-prose th code,
+.lesson-prose td code {
+  white-space: nowrap;
+}
+
+/* ----- StepThrough vertical thread -----
+ * Astro dev wraps slotted children in `<astro-slot>`, which would
+ * disrupt the connector rail's <li> targeting. `display: contents`
+ * promotes the slotted cards to direct children of the <ol>.
+ */
+.step-through-thread > astro-slot {
+  display: contents;
+}
+
+/* StepThrough card states.
+ * - data-hidden=true: not yet revealed. display:none; takes no space.
+ * - data-completed=true: previously revealed; bubble shows a check, body
+ *     dims slightly so the eye lands on the current step.
+ * - data-current=true: the most recently revealed step; bubble pulses
+ *     once on entry, body sits at full contrast.
+ *
+ * Reveal animation: when the parent flips data-hidden=false, the card
+ * slides in from below + fades. CSS uses @starting-style + the
+ * transition-behavior:allow-discrete trick so the display:none → block
+ * change can be tweened.
+ */
+.step-card {
+  /* steady state */
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 360ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 360ms cubic-bezier(0.32, 0.72, 0, 1),
+    filter 200ms ease,
+    display 360ms allow-discrete;
+}
+.step-card[data-hidden="true"] {
+  display: none;
+}
+/* Reveal animation: applied when the card transitions from display:none
+ * (or first paint) into the visible state. */
+@starting-style {
+  .step-card[data-hidden="false"] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+/* Past-step dimming. Title stays readable; body dims so the current step
+ * reads as "where you are now". */
+.step-card[data-completed="true"] {
+  filter: saturate(0.85) opacity(0.78);
+}
+/* Current-step bubble: stronger ring + colour, with a one-shot pulse on
+ * the transition into "current". */
+.step-card[data-current="true"]::before {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 6px 20px -8px color-mix(in oklab, var(--primary) 40%, transparent);
+  animation: step-bubble-pulse 700ms ease-out;
+}
+/* Completed bubble: filled with a soft accent, content swapped to a check.
+ * The Step.tsx counter content rule is overridden here so the bubble
+ * renders the SVG instead of the step number. */
+.step-card[data-completed="true"]::before {
+  content: "" !important;
+  background: color-mix(in oklab, var(--primary) 12%, var(--card));
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+/* Card body wrapper: subtle hover lift on the current step so it feels
+ * like the active surface. Other cards are quiet. */
+.step-card[data-current="true"] > div:last-child {
+  background: color-mix(in oklab, var(--primary) 4%, var(--card));
+  border-radius: calc(var(--radius) * 0.6);
+  padding: 0.75rem 0.875rem;
+  margin: -0.25rem -0.25rem -0.25rem 0;
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--primary) 14%, transparent);
+}
+/* Continue-button entrance + pulse to draw attention without pestering. */
+.step-through footer button {
+  animation: step-continue-in 280ms ease-out;
+}
+.step-through footer button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 60%, transparent);
+  animation: step-continue-attention 2.6s ease-out 1.4s 1;
+  pointer-events: none;
+}
+.step-through footer button {
+  position: relative;
+  overflow: hidden;
+}
+@keyframes step-bubble-pulse {
+  0% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 0%, transparent); }
+  50% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--primary) 26%, transparent); }
+  100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent), 0 6px 20px -8px color-mix(in oklab, var(--primary) 40%, transparent); }
+}
+@keyframes step-continue-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes step-continue-attention {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 50%, transparent); }
+  60% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .step-card,
+  .step-card[data-current="true"]::before,
+  .step-through footer button,
+  .step-through footer button::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

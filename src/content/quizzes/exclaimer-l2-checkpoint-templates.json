@@ -1,0 +1,24 @@
+{
+  "slug": "exclaimer-l2-checkpoint-templates",
+  "course": "exclaimer-l2",
+  "kind": "checkpoint",
+  "title": "Quick check, custom attributes",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-templates-attribute",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer has a 'professional certification' string that the standard Microsoft 365 schema doesn't carry. Where do you store it so signatures can render it without a per-user template?",
+      "choices": [
+        "Hardcode it into a variant of the signature template, one per user",
+        "Use one of the Microsoft 365 Additional Attributes (extension attributes) and reference it as a field in the template",
+        "Put it into the Brand Kit's disclaimer text",
+        "Add it as a Senders rule on each user"
+      ],
+      "correct": 1,
+      "explanation": "Additional Attributes (or Google Custom Attributes for Workspace) extend the directory schema for off-schema data. The Fields elements expose them like standard fields, so one template renders correctly per user."
+    }
+  ]
+}

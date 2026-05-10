@@ -1,0 +1,87 @@
+---
+slug: 04-secure-release-basics
+vendor: printix
+level: l1
+title: Secure release and pull-printing basics
+summary: How Print Later, Print Anywhere, and the Printix App combine to hold confidential jobs on the user's computer until they walk to a printer and authenticate.
+estimatedMinutes: 7
+order: 4
+topics: [secure-release, printix-app]
+updated: 2026-05-09
+---
+
+Secure release is the feature that gets a customer over the line on Printix. It is the answer to "I'd love to stop my payroll printouts piling up at the printer." Holding the job and only releasing on demand is the lever, and Printix exposes it through two print methods plus the Printix App.
+
+## What gets held, and how
+
+The vendor's own diagram for Print Later anchors the moving parts: the laptop, the held job, the phone or printer the user authenticates at, and the printer that finally prints.
+
+<AnnotatedScreenshot
+  src="/img/printix/figure-print-later.png"
+  alt="Printix Print Later flowchart from vendor docs, showing a laptop submitting a job, the job being held, a phone or printer triggering release, and the printer outputting the page"
+  caption="Direct print goes straight to the printer. Print Later and Print Anywhere hold the job until the user authenticates, either via the Printix App on a phone or at the Printix Go touchscreen."
+>
+  <Hotspot client:load x={12} y={50} label="1" title="Laptop submits the job" purpose="Where the encrypted job is buffered.">
+    The Printix Client stores the job locally, encrypted, until release. Default behaviour; cloud storage is the override.
+  </Hotspot>
+  <Hotspot client:load x={38} y={50} label="2" title="Job is held" purpose="Nothing prints until the user authenticates.">
+    Print Later jobs sit on the laptop. Print Anywhere jobs sit the same way but the user picks the release printer at the device.
+  </Hotspot>
+  <Hotspot client:load x={62} y={50} label="3" title="User authenticates" purpose="Phone, browser, or Printix Go terminal.">
+    The Printix App on a phone, in a browser, or the Go touchscreen on a supported MFP. All three resolve to "this user has authenticated, release the job."
+  </Hotspot>
+  <Hotspot client:load x={88} y={50} label="4" title="Printer prints" purpose="Output happens only after authentication.">
+    The page comes out at the printer the user is standing at. No more "whose printout is this?" pile.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+Three jobs go through three paths:
+
+- **Direct print.** The default. The job is sent to the selected printer immediately. No hold, no release. Best for non-confidential prints where the user is already standing at the device.
+- **Print Later, to a specific printer.** The user prints to a particular print queue. The job sits encrypted on their computer until they release it from the Printix App. Documents print at that specific printer with the matching driver, which means finishing options (stapling, hole-punch, paper tray) work correctly.
+- **Printix Anywhere.** The user prints to a virtual queue. They can release the job at any Printix-managed printer the customer has enabled for Printix Anywhere. Trade-off: if the release printer doesn't support PDF natively, Printix processes the job with a universal driver, so very specific finishing options can be lost.
+
+The Printix documentation puts it bluntly: <cite>"Wait until you arrive at the printer, then release the documents using your phone."</cite> That's pull-printing in one sentence.
+
+## How a user releases a job
+
+Three release paths, depending on what the customer enabled:
+
+| Path | What the user does | Customer prerequisites |
+|---|---|---|
+| **Printix App on phone (mobile)** | Open the app, tap the printer (or scan its QR code), select documents, release | Printix App installed; user signed in |
+| **Printix App in a browser** | Open `customer.printix.net` on phone, tablet, or computer; same flow | Always available, no install |
+| **Printix Go on the printer's touchscreen** | Walk up, swipe a card or enter ID code + PIN, select documents, release | Printix Go installed on that specific MFP |
+
+Printix Go is a touchscreen app you install on supported MFPs. It removes the phone-required step. The Advanced course's third lesson is the Printix Go rollout playbook; the Beginner-course scope is "be able to recognise that the customer has it, or doesn't." Don't confuse it with the Printix App: the App releases jobs from a phone or browser, Printix Go is the printer-side terminal. A customer can have one, both, or neither.
+
+<Callout type="warn" title="The 'computer offline' gotcha">
+By default, Print Later jobs are stored on the user's computer. If the user closes the laptop and walks to the printer, the job can't be released because the source computer is offline. The fix is the customer's own cloud storage (Azure Blob Storage or Google Cloud Storage) so jobs survive. If a user's tickets are routinely "I released but it didn't print," check whether cloud storage is configured.
+</Callout>
+
+## A worked ticket: Riverbend Legal
+
+Riverbend Legal, the small law firm that lives on confidentiality, opens a ticket: *"I released a court filing from my phone but it never printed."*
+
+<StepThrough client:load>
+  <Step title="Confirm what the user did">
+    Ask exactly which app, which printer, and what time. The Printix App on iOS, releasing a job called "Smith vs Smith filing" to the reception MFP at 14:32. Print method was Print Later.
+  </Step>
+  <Step title="Check the user's Printix App History">
+    The user opens History in the Printix App. Documents printed in the last 30 days are listed there. <cite>"Until a document is deleted, it appears with its document name."</cite> The job shows as released but no successful print confirmation.
+
+    <img src="/img/printix/web-app-history.png" alt="Printix App History page in a browser, listing recent printed documents with finished status, printer name, and location" style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #e2e8f0", marginTop: "0.75rem" }} />
+  </Step>
+  <Step title="Find the user's computer in the Administrator">
+    Menu, Computers. The lawyer's MacBook last reported online at 12:40 and is currently Offline. They closed the laptop after submitting the job, walked to the printer, and the source machine wasn't reachable.
+  </Step>
+  <Step title="Resolve">
+    The job is stranded. Have the user reopen their laptop on the office network, then re-release. For the chronic case, escalate to the customer's account team to enable Azure Blob Storage so future Print Later jobs aren't tied to the computer being awake.
+  </Step>
+</StepThrough>
+
+<Checkpoint slug="printix-l1-checkpoint-secure-release" client:load />
+
+<Callout type="info" title="Sources">
+[Print with Printix](https://docshield.tungstenautomation.com/Printix/en_US/help/admin/Printix_admin/t_printing.html), [Why subscribe to Printix? (Print Later benefits)](https://docshield.tungstenautomation.com/Printix/en_US/help/admin/Printix_admin/c_faq_benefits_of_print_later.html), [Printix App](https://docshield.tungstenautomation.com/Printix/en_US/help/admin/Printix_admin/c_app.html), [How Printix works](https://docshield.tungstenautomation.com/Printix/en_US/help/admin/Printix_admin/c_how_it_works.html), [History - Print](https://docshield.tungstenautomation.com/Printix/en_US/help/user/Printix_user/c_app_history.html).
+</Callout>

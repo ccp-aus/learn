@@ -1,0 +1,163 @@
+{
+  "slug": "printix-l2-final",
+  "course": "printix-l2",
+  "kind": "final",
+  "title": "Printix Intermediate, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-sites-design",
+      "type": "mcq",
+      "topic": "sites",
+      "difficulty": "medium",
+      "prompt": "A customer has one office with both a wired LAN (192.168.10.0/24) and Wi-Fi (192.168.20.0/24). The two segments can route to each other and to the printers. What's the cleanest design?",
+      "choices": [
+        "Two Sites, one for the LAN and one for Wi-Fi",
+        "One Site with two Networks, one per gateway",
+        "One Site with one Network spanning both gateways",
+        "Skip Sites entirely and use only the default"
+      ],
+      "correct": 1,
+      "explanation": "Sites group Networks logically, and a Network is identified by gateway IP and MAC. Two distinct gateways means two Networks; one office means one Site. Splitting into two Sites duplicates Site manager and group attachments unnecessarily."
+    },
+    {
+      "id": "q-sites-zero-trust",
+      "type": "tf",
+      "topic": "sites",
+      "difficulty": "medium",
+      "prompt": "Customers with zero-trust networks can use Printix without any specific configuration; the Printix Client figures it out automatically.",
+      "correct": false,
+      "explanation": "Zero-trust networks need explicit configuration so the Printix Client can determine its Site. The Implementation checklist asks 'Zero trust networks: Yes/No' as a planning question, and there are documented zero-trust setup steps."
+    },
+    {
+      "id": "q-drivers-store-fallback",
+      "type": "mcq",
+      "topic": "drivers",
+      "difficulty": "medium",
+      "prompt": "If no model-specific print driver is available in the customer's driver store for a printer, what does Printix do by default?",
+      "choices": [
+        "Refuses to add the queue and emits an error",
+        "Falls back to a vendor universal driver from the supported OEM list (HP, Canon, Konica Minolta, Kyocera, Lexmark, Ricoh, and others)",
+        "Generates a synthetic driver from the printer's MIB tree",
+        "Uses Microsoft's basic IPP class driver"
+      ],
+      "correct": 1,
+      "explanation": "Printix maintains a set of vendor universal drivers as fallbacks when no model-specific driver exists. Check the Drivers page in Administrator for the live list in a given tenant rather than memorising a fixed enumeration."
+    },
+    {
+      "id": "q-drivers-decommission-window",
+      "type": "tf",
+      "topic": "drivers",
+      "difficulty": "medium",
+      "prompt": "Printix's documented print-server decommissioning advice is to take the server fully offline immediately once printers are registered in Printix.",
+      "correct": false,
+      "explanation": "The recommended path is unplug-but-don't-decommission for about a week, watch for complaints, and only fully decommission if nobody surfaces a problem."
+    },
+    {
+      "id": "q-auth-global-admin-needed",
+      "type": "tf",
+      "topic": "authentication",
+      "difficulty": "medium",
+      "prompt": "Enabling Microsoft Entra group synchronisation in Printix requires the consenting account to hold the Global Administrator role.",
+      "correct": true,
+      "explanation": "Documented Printix requirement. A User Administrator or other lower role hits the 'Could not verify group synchronization' error."
+    },
+    {
+      "id": "q-auth-nested",
+      "type": "mcq",
+      "topic": "authentication",
+      "difficulty": "medium",
+      "prompt": "A customer's Microsoft Entra group 'All Sydney' contains two child groups, 'Sydney Reception' and 'Sydney Sales'. The MSP attaches 'All Sydney' to a print queue's Exclusive access. Which users can use the queue?",
+      "choices": [
+        "All members of 'Sydney Reception' and 'Sydney Sales', via the nested membership",
+        "Direct members of 'All Sydney' only; nested groups are not supported",
+        "All users in Microsoft Entra ID; nesting widens the scope",
+        "Nobody, because Printix rejects groups containing other groups"
+      ],
+      "correct": 1,
+      "explanation": "Printix doesn't traverse nested groups. Only direct members of 'All Sydney' get access. Customers either flatten the nesting or attach the leaf groups directly."
+    },
+    {
+      "id": "q-auth-group-uses",
+      "type": "multi",
+      "topic": "authentication",
+      "difficulty": "medium",
+      "prompt": "Which of these are valid uses of Microsoft Entra groups attached to print queues in Printix? (Select all that apply.)",
+      "choices": [
+        "Add print queue automatically when a member signs in",
+        "Exclusive access to limit who can use the queue",
+        "Site manager group for delegated administration",
+        "Workflow access for a Capture workflow",
+        "Configuring Microsoft Entra Conditional Access policies"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "All four (auto-add, exclusive access, site manager, workflow) are documented Printix uses of groups. Conditional Access is a Microsoft Entra concept, not a Printix one."
+    },
+    {
+      "id": "q-delegation-no-billing",
+      "type": "mcq",
+      "topic": "delegation",
+      "difficulty": "medium",
+      "prompt": "Local IT at a customer's branch office wants to add a printer when one breaks, without raising a ticket with the MSP. What's the documented Printix way to enable that?",
+      "choices": [
+        "Share the System manager account credentials",
+        "Create a Microsoft Entra group for the local IT, and attach it as a Site manager group on that branch's Site",
+        "Give them Owner role on the tenant",
+        "Have them register a separate Printix Home for that branch"
+      ],
+      "correct": 1,
+      "explanation": "The Site manager role exists for exactly this scope. The local IT signs in with their own account, sees only their Site, and can add / modify / delete printers and queues on that Site."
+    },
+    {
+      "id": "q-delegation-cant-do",
+      "type": "multi",
+      "topic": "delegation",
+      "difficulty": "hard",
+      "prompt": "Which of these can a Site manager NOT do? (Select all that apply.)",
+      "choices": [
+        "Modify the customer's Authentication settings",
+        "Manage the customer's Subscription / billing",
+        "See or change other Sites",
+        "Discover printers on networks belonging to their managed sites",
+        "Modify the tenant-wide Drivers store"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Site managers can do everything inside their managed Sites (including discover-printers there) but cannot touch tenant-wide Authentication, Subscription, or the Drivers store, and cannot see or change other Sites."
+    },
+    {
+      "id": "q-reporting-dashboard-counters",
+      "type": "multi",
+      "topic": "reporting",
+      "difficulty": "medium",
+      "prompt": "Which of these are statistics shown on the Administrator Dashboard? (Select all that apply.)",
+      "choices": [
+        "Print activity (pages over the period)",
+        "Save-O-Meter (uncollected percentage)",
+        "Printed in black (mono ratio)",
+        "Printed 2-sided (duplex ratio)",
+        "Average queue wait time per printer"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "The Dashboard surfaces those four counters plus Secure print percentage. Average queue wait time isn't a Printix Dashboard statistic."
+    },
+    {
+      "id": "q-reporting-pbi-license",
+      "type": "tf",
+      "topic": "reporting",
+      "difficulty": "easy",
+      "prompt": "A Power BI Pro licence is required to publish the Printix Power BI report to the Power BI online service for shared access.",
+      "correct": true,
+      "explanation": "Power BI Desktop alone (free) is enough to use the report on one workstation. Publishing to Power BI service for shared / web access requires Pro."
+    },
+    {
+      "id": "q-reporting-cost-estimate",
+      "type": "tf",
+      "topic": "reporting",
+      "difficulty": "medium",
+      "prompt": "The cost figures in the Printix Power BI report are a finance-grade ledger that should be used directly for invoicing customers.",
+      "correct": false,
+      "explanation": "Printix's own documentation calls it an estimate based on configurable per-page costs. It's good for chargeback and trend-watching, not for tax-grade finance."
+    }
+  ]
+}

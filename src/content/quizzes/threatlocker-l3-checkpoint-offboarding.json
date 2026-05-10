@@ -1,0 +1,34 @@
+{
+  "slug": "threatlocker-l3-checkpoint-offboarding",
+  "course": "threatlocker-l3",
+  "kind": "checkpoint",
+  "title": "Quick check, ThreatLocker offboarding",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-threatlocker-tamper",
+      "type": "mcq",
+      "topic": "tamper-protection",
+      "difficulty": "medium",
+      "prompt": "A customer-approved endpoint removal is ready, but ThreatLocker Tamper Protection is enabled. What comes before uninstall?",
+      "choices": [
+        "Disable Tamper Protection for the target computer through a planned maintenance action",
+        "Delete the device row from the portal",
+        "Stop the ThreatLocker service from Services.msc",
+        "Remove all policies assigned to the computer group"
+      ],
+      "correct": 0,
+      "explanation": "ThreatLocker cannot be stopped or uninstalled while Tamper Protection is enabled. Disable it through the planned maintenance path before running the uninstall method."
+    },
+    {
+      "id": "ck-threatlocker-evidence-first",
+      "type": "tf",
+      "topic": "audit",
+      "difficulty": "medium",
+      "prompt": "For customer offboarding, export Unified Audit and System Audit evidence before uninstalling agents and retiring policies.",
+      "correct": true,
+      "explanation": "Evidence is easiest to collect while the control and its audit trail are intact. Export first, then remove agents, policies, notifications, and integrations."
+    }
+  ]
+}
