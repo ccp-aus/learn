@@ -1,6 +1,6 @@
 {
-  "slug": "dnsfilter-l3-checkpoint-offboarding",
-  "course": "dnsfilter-l3",
+  "slug": "dnsfilter-multi-tenant-ops-checkpoint-offboarding",
+  "course": "dnsfilter-multi-tenant-ops",
   "kind": "checkpoint",
   "title": "Quick check, DNSFilter offboarding",
   "drawCount": 0,

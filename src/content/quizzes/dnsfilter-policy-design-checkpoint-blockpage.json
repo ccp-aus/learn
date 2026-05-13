@@ -1,6 +1,6 @@
 {
-  "slug": "dnsfilter-l2-checkpoint-blockpage",
-  "course": "dnsfilter-l2",
+  "slug": "dnsfilter-policy-design-checkpoint-blockpage",
+  "course": "dnsfilter-policy-design",
   "kind": "checkpoint",
   "title": "Quick check, block page reality",
   "drawCount": 0,

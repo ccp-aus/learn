@@ -1,8 +1,9 @@
 {
-  "slug": "dnsfilter-l1",
+  "slug": "dnsfilter-helpdesk-fundamentals",
   "vendor": "dnsfilter",
   "level": "l1",
-  "title": "DNSFilter Beginner, helpdesk fundamentals",
+  "title": "DNSFilter, helpdesk fundamentals",
+  "shortTitle": "DNSFilter helpdesk",
   "summary": "The five mental models and console moves a new helpdesk hire needs to triage DNSFilter tickets confidently, from the query log to the Roaming Client.",
   "estimatedMinutes": 35,
   "prereqs": [],
@@ -13,6 +14,6 @@
     "04-allowing-a-domain",
     "05-roaming-client"
   ],
-  "quiz": "dnsfilter-l1-final",
+  "quiz": "dnsfilter-helpdesk-fundamentals-final",
   "status": "live"
 }

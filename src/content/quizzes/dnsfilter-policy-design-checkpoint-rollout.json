@@ -1,6 +1,6 @@
 {
-  "slug": "dnsfilter-l2-checkpoint-rollout",
-  "course": "dnsfilter-l2",
+  "slug": "dnsfilter-policy-design-checkpoint-rollout",
+  "course": "dnsfilter-policy-design",
   "kind": "checkpoint",
   "title": "Quick check, phased rollout",
   "drawCount": 0,

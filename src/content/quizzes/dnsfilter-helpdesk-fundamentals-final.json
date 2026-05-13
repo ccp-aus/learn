@@ -1,8 +1,8 @@
 {
-  "slug": "dnsfilter-l1-final",
-  "course": "dnsfilter-l1",
+  "slug": "dnsfilter-helpdesk-fundamentals-final",
+  "course": "dnsfilter-helpdesk-fundamentals",
   "kind": "final",
-  "title": "DNSFilter Beginner, final check",
+  "title": "DNSFilter helpdesk fundamentals, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

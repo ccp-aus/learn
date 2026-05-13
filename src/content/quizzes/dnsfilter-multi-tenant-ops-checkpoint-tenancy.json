@@ -1,6 +1,6 @@
 {
-  "slug": "dnsfilter-l3-checkpoint-tenancy",
-  "course": "dnsfilter-l3",
+  "slug": "dnsfilter-multi-tenant-ops-checkpoint-tenancy",
+  "course": "dnsfilter-multi-tenant-ops",
   "kind": "checkpoint",
   "title": "Quick check, tenancy and RBAC",
   "drawCount": 0,

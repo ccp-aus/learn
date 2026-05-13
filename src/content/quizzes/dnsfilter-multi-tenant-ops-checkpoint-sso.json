@@ -1,6 +1,6 @@
 {
-  "slug": "dnsfilter-l3-checkpoint-sso",
-  "course": "dnsfilter-l3",
+  "slug": "dnsfilter-multi-tenant-ops-checkpoint-sso",
+  "course": "dnsfilter-multi-tenant-ops",
   "kind": "checkpoint",
   "title": "Quick check. SSO and identity",
   "drawCount": 0,
