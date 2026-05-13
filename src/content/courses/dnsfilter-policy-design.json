@@ -1,0 +1,19 @@
+{
+  "slug": "dnsfilter-policy-design",
+  "vendor": "dnsfilter",
+  "level": "l2",
+  "title": "DNSFilter, policy design and rollout",
+  "shortTitle": "DNSFilter policies",
+  "summary": "Designing policies, categories, block-page UX, site onboarding, and phased rollouts for a single customer.",
+  "estimatedMinutes": 45,
+  "prereqs": ["dnsfilter-helpdesk-fundamentals"],
+  "lessons": [
+    "01-baseline-and-override",
+    "02-categories-that-matter",
+    "03-block-page-ux",
+    "04-onboarding-a-site",
+    "05-phased-rollout"
+  ],
+  "quiz": "dnsfilter-policy-design-final",
+  "status": "live"
+}

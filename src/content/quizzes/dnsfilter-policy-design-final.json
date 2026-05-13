@@ -1,8 +1,8 @@
 {
-  "slug": "dnsfilter-l2-final",
-  "course": "dnsfilter-l2",
+  "slug": "dnsfilter-policy-design-final",
+  "course": "dnsfilter-policy-design",
   "kind": "final",
-  "title": "DNSFilter Intermediate, final check",
+  "title": "DNSFilter policy design, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

@@ -1,8 +1,8 @@
 {
-  "slug": "dnsfilter-l3-final",
-  "course": "dnsfilter-l3",
+  "slug": "dnsfilter-multi-tenant-ops-final",
+  "course": "dnsfilter-multi-tenant-ops",
   "kind": "final",
-  "title": "DNSFilter Advanced, final check",
+  "title": "DNSFilter at scale, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [
