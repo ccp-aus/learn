@@ -48,13 +48,11 @@ Northwind is a 240-person warehouse and logistics operator. Drivers use Outlook 
     Full sync. Limited sync would mean every new mail-enabled security group needs a sync update; Northwind reorganises too often for that to be a low-friction choice.
     {/* TODO: capture screenshot of the sync-scope radio (Full vs Limited) */}
   </Step>
-  <Step title="Configure mail flow for everyone">
-    Connect to Microsoft 365 wizard, "Send all email to Exclaimer", not the test-group option. This is post-pilot; pilots use the test-group switch.
-    {/* TODO: capture screenshot of the Test Group switch and 'Send all email to Exclaimer' panel */}
+  <Step title="Configure mail flow for everyone" image="/img/exclaimer/connect-to-365-test-group.png" imageAlt="Settings, Mail Flow, Connect to Microsoft 365. 'Send all email to Exclaimer' is ticked, the Test Group Name field is empty, a one-time code is shown, and the Connect button is highlighted">
+    Settings, Mail Flow, Connect to Microsoft 365. Tick **Send all email to Exclaimer** and leave **Test Group Name** empty — this is post-pilot, so we're not scoping to a subset. Pilots untick that and name the mail-enabled security group. Click **Connect**.
   </Step>
-  <Step title="User Details Editor for self-serve fields">
-    Pro plan, so all fields available. Enable the Mobile, Pronouns, and a custom Vehicle Reg field for drivers; leave Display Name and Job Title locked to HR. Document this decision in the runbook so a future tech doesn't broaden the scope by accident.
-    {/* TODO: capture screenshot of Sender Management → User Details Editor field-visibility settings */}
+  <Step title="User Details Editor for self-serve fields" image="/img/exclaimer/ude-settings-details.png" imageAlt="The User Details Editor settings page showing the 'Define vCard QR Card Details' checkboxes (all ticked) and 'Define User Editable Contact Details' checkboxes (mostly empty)">
+    Settings, Sender Management, User Details Editor. Tick only the fields you want end-users to self-edit under **Define User Editable Contact Details** — Mobile, the User Defined 1/2 slots for Pronouns and Vehicle Reg. Leave Display Name and Job Title unticked so HR remains the source of truth. Document this decision in the runbook so a future tech doesn't broaden the scope by accident.
   </Step>
 </StepThrough>
 
