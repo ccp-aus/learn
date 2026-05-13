@@ -1,8 +1,8 @@
 {
-  "slug": "exclaimer-l2-final",
-  "course": "exclaimer-l2",
+  "slug": "exclaimer-deployment-final",
+  "course": "exclaimer-deployment",
   "kind": "final",
-  "title": "Exclaimer Intermediate, final check",
+  "title": "Exclaimer deployment, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

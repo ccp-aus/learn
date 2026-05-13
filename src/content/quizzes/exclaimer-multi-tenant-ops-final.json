@@ -1,8 +1,8 @@
 {
-  "slug": "exclaimer-l3-final",
-  "course": "exclaimer-l3",
+  "slug": "exclaimer-multi-tenant-ops-final",
+  "course": "exclaimer-multi-tenant-ops",
   "kind": "final",
-  "title": "Exclaimer Advanced, final check",
+  "title": "Exclaimer at scale, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

@@ -72,13 +72,11 @@ Riverbend's compliance lead requires:
 Two different jobs, two different objects:
 
 <StepThrough client:load>
-  <Step title="Branded regulatory disclosure">
-    Brand Kit, set the Disclaimer text with the regulatory language. Drop the Disclaimer signature element into the solicitor signature template. The text inherits the Kit's fonts and colours and renders inside the signature on every solicitor email.
-    {/* TODO: capture screenshot of the Brand Kit Disclaimer asset editor */}
+  <Step title="Branded regulatory disclosure" image="/img/exclaimer/brand-kit-disclaimer.png" imageAlt="The Disclaimer asset section of a Brand Kit, with a multi-line Disclaimer Text field and a 5000-character counter">
+    Settings, Brand Kits, open the kit, **Disclaimer** asset. Paste the regulatory language into **Disclaimer Text** (up to 5000 characters). Save. Now drop the **Disclaimer** signature element into the solicitor signature template — the text inherits the Kit's fonts and colours and renders inside the signature on every solicitor email.
   </Step>
-  <Step title="Plain-text confidentiality footer for everyone external">
-    Sidebar, Disclaimers, Create Disclaimer. Plain text under 5000 characters, recipient type set to External Only. Save. Disclaimer applies after every signature on every external email, regardless of which signature applied.
-    {/* TODO: capture screenshot of the Disclaimers list screen with the Create button */}
+  <Step title="Plain-text confidentiality footer for everyone external" image="/img/exclaimer/disclaimers-screen.png" imageAlt="The Disclaimers list screen with one Sample Disclaimer showing Senders 'Everyone', status Live, Always Active, Any Recipient, and a Create Disclaimer button in the top-right">
+    Sidebar, **Disclaimers**, **Create Disclaimer** (top right). Plain text under 5000 characters, recipient type set to External Only. Save. The Disclaimer applies after every signature on every external email, regardless of which signature matched. Different object from the Brand Kit Disclaimer asset above: this one is standalone and template-independent.
   </Step>
   <Step title="Test a four-row matrix">
     Solicitor to external. Solicitor to internal. Paralegal to external. Standard staff to external. The Tester confirms which signature applies and (for server-side) shows that the standalone Disclaimer is appended on the external cases.

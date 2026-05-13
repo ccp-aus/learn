@@ -1,11 +1,12 @@
 {
-  "slug": "exclaimer-l3",
+  "slug": "exclaimer-multi-tenant-ops",
   "vendor": "exclaimer",
   "level": "l3",
-  "title": "Exclaimer Advanced, scale and governance",
+  "title": "Exclaimer, scale and governance",
+  "shortTitle": "Exclaimer at scale",
   "summary": "Multi-tenant signature operations, analytics-driven recommendations, integrations, advanced troubleshooting, governance, and offboarding without mail-flow residue.",
   "estimatedMinutes": 63,
-  "prereqs": ["exclaimer-l2"],
+  "prereqs": ["exclaimer-deployment"],
   "lessons": [
     "01-multi-tenant-operations",
     "02-analytics-and-recommendations",
@@ -14,6 +15,6 @@
     "05-governance-and-compliance",
     "06-offboarding-and-mail-flow-cleanup"
   ],
-  "quiz": "exclaimer-l3-final",
+  "quiz": "exclaimer-multi-tenant-ops-final",
   "status": "live"
 }

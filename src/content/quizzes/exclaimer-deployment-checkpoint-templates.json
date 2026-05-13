@@ -1,6 +1,6 @@
 {
-  "slug": "exclaimer-l2-checkpoint-templates",
-  "course": "exclaimer-l2",
+  "slug": "exclaimer-deployment-checkpoint-templates",
+  "course": "exclaimer-deployment",
   "kind": "checkpoint",
   "title": "Quick check, custom attributes",
   "drawCount": 0,
