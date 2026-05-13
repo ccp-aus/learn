@@ -1,6 +1,6 @@
 {
-  "slug": "huntress-l1-checkpoint-low-risk-reports",
-  "course": "huntress-l1",
+  "slug": "huntress-incident-triage-checkpoint-low-risk-reports",
+  "course": "huntress-incident-triage",
   "kind": "checkpoint",
   "title": "Quick check, low-risk triage",
   "drawCount": 0,

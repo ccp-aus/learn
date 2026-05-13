@@ -1,6 +1,6 @@
 {
-  "slug": "huntress-l1-checkpoint-agent",
-  "course": "huntress-l1",
+  "slug": "huntress-incident-triage-checkpoint-agent",
+  "course": "huntress-incident-triage",
   "kind": "checkpoint",
   "title": "Quick check, agent install",
   "drawCount": 0,

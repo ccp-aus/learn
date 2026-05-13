@@ -1,6 +1,6 @@
 {
-  "slug": "huntress-l3-checkpoint-tenancy",
-  "course": "huntress-l3",
+  "slug": "huntress-platform-ops-checkpoint-tenancy",
+  "course": "huntress-platform-ops",
   "kind": "checkpoint",
   "title": "Quick check, multi-tenant architecture",
   "drawCount": 0,

@@ -1,8 +1,8 @@
 {
-  "slug": "huntress-l1-final",
-  "course": "huntress-l1",
+  "slug": "huntress-incident-triage-final",
+  "course": "huntress-incident-triage",
   "kind": "final",
-  "title": "Huntress helpdesk fundamentals, final check",
+  "title": "Huntress incident triage, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [
