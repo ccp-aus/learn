@@ -1,8 +1,8 @@
 {
-  "slug": "domains-and-dns-l2-final",
-  "course": "domains-and-dns-l2",
+  "slug": "domains-and-dns-day-to-day-final",
+  "course": "domains-and-dns-day-to-day",
   "kind": "final",
-  "title": "Domains & DNS Intermediate: final check",
+  "title": "Domains & DNS, day-to-day: final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

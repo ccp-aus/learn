@@ -1,6 +1,6 @@
 {
-  "slug": "domains-and-dns-l2-checkpoint-mail-auth",
-  "course": "domains-and-dns-l2",
+  "slug": "domains-and-dns-day-to-day-checkpoint-mail-auth",
+  "course": "domains-and-dns-day-to-day",
   "kind": "checkpoint",
   "title": "Quick check, SPF / DKIM / DMARC",
   "drawCount": 0,

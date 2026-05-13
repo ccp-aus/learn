@@ -1,6 +1,6 @@
 {
-  "slug": "domains-and-dns-l3-checkpoint-cutover",
-  "course": "domains-and-dns-l3",
+  "slug": "domains-and-dns-migrations-and-security-checkpoint-cutover",
+  "course": "domains-and-dns-migrations-and-security",
   "kind": "checkpoint",
   "title": "Quick check, change-impact playbook",
   "drawCount": 0,

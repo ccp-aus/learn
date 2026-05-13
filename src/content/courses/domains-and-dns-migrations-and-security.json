@@ -1,11 +1,12 @@
 {
-  "slug": "domains-and-dns-l3",
+  "slug": "domains-and-dns-migrations-and-security",
   "vendor": "domains-and-dns",
   "level": "l3",
-  "title": "Domains & DNS Advanced, migrations, security, and bad change requests",
+  "title": "Domains & DNS, migrations, security, and bad change requests",
+  "shortTitle": "DNS migrations",
   "summary": "Diagnose before you touch: web-host migration playbooks, registrar transfers, apex-record traps, DNSSEC and CAA, and the change-request patterns that look harmless but break mail or hosting.",
   "estimatedMinutes": 55,
-  "prereqs": ["domains-and-dns-l2"],
+  "prereqs": ["domains-and-dns-day-to-day"],
   "lessons": [
     "01-diagnose-before-you-touch",
     "02-web-host-migration-playbook",
@@ -13,6 +14,6 @@
     "04-apex-records-and-cname-traps",
     "05-dns-security-and-hijack-risks"
   ],
-  "quiz": "domains-and-dns-l3-final",
+  "quiz": "domains-and-dns-migrations-and-security-final",
   "status": "live"
 }
