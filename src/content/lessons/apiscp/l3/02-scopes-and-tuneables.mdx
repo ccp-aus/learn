@@ -37,6 +37,10 @@ The legacy mental model from cPanel-land is "edit /etc/apiscp.conf with vim". Th
 
 This is the most important sentence in the lesson: **hand-editing config.ini is wrong, even though it works for the next 60 seconds**. Use Scopes.
 
+<Callout type="info" title="The Bootstrapper is an Ansible playbook bundle">
+ApisCP's installer is a bundle of Ansible playbooks. The same bundle is the *integrity check*: re-running it with `upcp -sb` walks every task, finds drift between desired state (from Scopes) and actual state, and only touches what differs. An MSP that hand-edits a config file and then runs `upcp -sb` will find the edit gone, because the playbook re-rendered the file from the Scope-defined source of truth.
+</Callout>
+
 ## Common scopes the admin actually touches
 
 | Scope | What it controls | Default |

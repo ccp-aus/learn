@@ -2,15 +2,15 @@
 slug: 06-backups-billing-and-resellers
 vendor: apiscp
 level: l3
-title: Backups, billing integration, resellers
-summary: The three governance threads the MSP wires alongside ApisCP. Bacula and Duplicity as the supported backup clients (with the file-system paths backups must include); the billing integrations (Blesta, WHMCS, HostBill, Clientexec, WISECP); and the reseller hierarchy enabled by the billing-invoice / parent_invoice model.
+title: Backups, billing integration, sub-account grouping
+summary: The three governance threads the MSP wires alongside ApisCP. Bacula and Duplicity as the supported backup clients (with the file-system paths backups must include); the billing integrations (Blesta, WHMCS, HostBill, Clientexec, WISECP); and the sub-account grouping enabled by the billing-invoice / parent_invoice model, the closest thing ApisCP exposes to a reseller hierarchy.
 estimatedMinutes: 9
 order: 6
 topics: [backups, billing, resellers]
 updated: 2026-05-13
 ---
 
-Three things sit alongside ApisCP rather than inside it: off-server backups, billing software, and the reseller model. Each has the same shape: ApisCP exposes the data and the hooks; an external system uses them. This lesson covers the contracts so you can pick the right tool and wire it cleanly.
+Three things sit alongside ApisCP rather than inside it: off-server backups, billing software, and reseller-like sub-account grouping. Each has the same shape: ApisCP exposes the data and the hooks; an external system (or the billing integration) uses them. This lesson covers the contracts so you can pick the right tool and wire it cleanly.
 
 ## Backups, the contract
 
@@ -35,10 +35,10 @@ For an account to be fully restorable, the backup must include:
 | `/var/lib/mysql/mysql-grants*` | MySQL grants |
 | `/var/lib/pgsql/*/backups` | PostgreSQL grants |
 
-Note: the database files themselves (`/var/lib/mysql`, `/var/lib/pgsql`) are *not* on this list. Direct file backups of live databases produce inconsistent snapshots. ApisCP runs nightly cron jobs (`backup_dbs.php`) that take logical exports to `/home/virtual/site*/var/lib/mysql/backup/` and the PostgreSQL equivalent; *those* exports are what the backup tool should pick up.
+Note: the database files themselves (`/var/lib/mysql`, `/var/lib/pgsql`) are *not* on this list. Direct file backups of live databases produce inconsistent snapshots. ApisCP ships a logical-export job (`/usr/local/apnscp/bin/scripts/backup_dbs.php`) that writes dump files into each account's shadow tree; the anacron schedule for it is controlled by the `backups.automatic-database-exports` Scope. The shadow paths above (`/home/virtual/site*/shadow`) include those exports; the backup tool picks them up as part of the account data.
 
 ```bash
-# Disable nightly cron exports (if your backup tool does its own)
+# Disable the anacron job (if your backup tool runs its own logical export)
 cpcmd scope:set backups.automatic-database-exports false
 
 # Manually run the export
@@ -62,7 +62,7 @@ ApisCP doesn't have a "restore from off-server backup" button. The restore is op
 
 1. Bacula (or Duplicity) restores the relevant filesystem paths.
 2. ApisCP's account-detection scan picks up the restored account on the next Bootstrapper run, or `cpcmd admin:rediscover` forces it.
-3. Logical database exports restore via `mysql < dump.sql` and `pg_restore` (the panel can also run these via the Restore from Backup flow once the file is in `mysql_backups/`).
+3. Logical database exports restore via `mysql < dump.sql` and `pg_restore`. The panel can also run these via the account's database manager once the dump file is back inside the account's shadow tree.
 4. Confirm the account is functional via Login-As before declaring the restore done.
 
 Pre-stage this in a runbook. The middle of a customer outage is not the time to figure out the path.
@@ -113,13 +113,13 @@ Register the surrogate, restart apnscpd, and ApisCP starts using your customer-s
 
 For the API-driven side (billing system pushing into ApisCP), you write the calls in the billing system's plugin language. The pattern is: authenticate as admin via the SOAP API, call `admin:add-site` (or whatever's needed), check the return value. The Beacon client from the cpcmd lesson is one way to script this from outside the server.
 
-## Reseller hierarchy via billing-invoice
+## Sub-account grouping via billing-invoice
 
-ApisCP's stated design: "There is no intention to provide reseller support directly in apnscp. This is the domain of billing software." But the platform exposes the *primitives* a billing system needs to model resellers:
+ApisCP has no native reseller feature. Apis Networks' stated design: "There is no intention to provide reseller support directly in apnscp. This is the domain of billing software." What the platform *does* expose are the primitives a billing system uses to model reseller-shaped groups:
 
 - **Master account**: an account with `billing,invoice=<master-id>`.
 - **Subordinate accounts**: accounts with `billing,parent_invoice=<master-id>`.
-- **SSO from master to subordinate**: the master's admin user can use `admin:hijack` (Login-As) into any subordinate they own.
+- **One-way SSO**: a master's admin user can `admin:hijack` (Login-As) into any subordinate they own. Lateral SSO between subordinates and child-to-parent SSO are not allowed.
 
 ```mermaid
 flowchart TD
@@ -132,31 +132,31 @@ flowchart TD
     Master --> Sub3
 ```
 
-The agency-reseller account doesn't host websites itself; it hosts other accounts. The billing system invoices the reseller; the reseller invoices their downstream clients. ApisCP supplies the technical hierarchy (master/subordinate); the billing system tracks the money.
+The agency-reseller account is a grouping handle, not a hosting account in its own right. The billing system invoices the master; the master's owner (a sub-MSP, an agency) invoices their downstream clients out-of-band. ApisCP supplies the grouping and the SSO; the billing system tracks the money and presents the reseller-portal UX (if one exists at all).
 
-This pattern is how an MSP runs a white-label sub-reseller program. Another MSP signs up for an "agency" master account; their customers' sites are subordinate accounts under the reseller's master.
+This is the pattern an MSP uses to run a white-label sub-reseller program. Another MSP signs up for an "agency" master; their customers' sites become subordinate accounts under the master.
 
-## Bulk operations across the reseller group
+## Bulk operations across the sub-account group
 
-The billing-invoice grouping covered in Intermediate Lesson 6 (suspend/edit/delete by invoice) is the bulk lever:
+The billing-invoice grouping is what makes the master a handle for bulk operations. The convenience binaries `EditDomain`, `SuspendDomain`, and `DeleteDomain` accept the invoice as an argument and act on every account that carries it:
 
 ```bash
-# Suspend the entire reseller hierarchy if the reseller goes overdue
+# Suspend the entire group if the reseller goes overdue
 SuspendDomain master-001
 
-# Apply a quota bump across every subordinate of a reseller
+# Apply a quota bump across every subordinate of a master
 EditDomain --filter "billing,parent_invoice=master-001" -c diskquota,quota=20000
 
-# Audit storage across the reseller's clients
+# Audit storage across the master's clients
 cpcmd admin:collect '[siteinfo.domain,diskquota.quota,diskquota.used]' \
   '[billing,parent_invoice:master-001]'
 ```
 
-The single string `master-001` becomes the handle for every operation that targets the reseller's full set of accounts.
+The single string `master-001` becomes the handle for every operation that targets the master's full set of accounts.
 
 ## What this is NOT
 
-- **Not a one-platform answer.** Backups need off-server storage (a different server, S3, tape). Billing needs a separate product. Reseller white-labeling needs branding work in the billing system. ApisCP is the hosting platform; these three are alongside.
+- **Not a one-platform answer.** Backups need off-server storage (a different server, S3, tape). Billing needs a separate product. Reseller-style white-labeling needs branding work in the billing system, because ApisCP itself provides only the grouping primitives. ApisCP is the hosting platform; these three are alongside.
 - **Not a SaaS billing engine.** None of the integrations turn ApisCP into a self-serve signup-and-pay product. The billing system handles signup-and-pay; ApisCP handles the provisioned outcome.
 - **Not free of operational discipline.** A backup runbook, a restore runbook, and a "what if the billing system loses sync with ApisCP" runbook are MSP-side work. ApisCP exposes the surfaces; the MSP writes the procedures.
 

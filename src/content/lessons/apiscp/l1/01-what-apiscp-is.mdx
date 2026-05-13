@@ -30,7 +30,7 @@ For an MSP coming from cPanel, the day-to-day shape of the work feels familiar. 
 | **Licensing** | Per-account tiered subscription | One-time per-server license |
 | **Privilege isolation** | Suexec / CageFS layered on | **Fortification** is the native isolation framework; PHP runs as a separate `apache` user from the account |
 | **Self-maintenance** | Admin runs upgrades, security patches | Bootstrapper is idempotent: re-running the installer repairs drift; **scopes** describe desired state |
-| **Brute-force protection** | cphulkd; admin-tunable | **Rampart** firewall + **Shield** DOS handler + a 3-5-10 lockout rule by default |
+| **Brute-force protection** | cphulkd; admin-tunable | **Anvil** rate-limits panel and API logins; **Rampart** wraps fail2ban jails for service brute-force (mail, FTP, SSH, DB); **Shield** is the DOS handler |
 | **Community size** | Very large; tutorials abound | Smaller; primary docs at `docs.apiscp.com` and `kb.apiscp.com` |
 
 What this means in practice: a tech who only knows the cPanel GUI will find the customer-facing side of ApisCP easy to read. The admin side will feel sparse until you learn that the real lever is `cpcmd` and the Ansible-driven Bootstrapper, not the Nexus app's screens. The Intermediate and Advanced courses cover that side.

@@ -19,7 +19,7 @@ flowchart LR
     UI["Panel UI (PHP)"] --> Backend
     cpcmd["cpcmd (shell)"] --> Backend
     SOAP["SOAP API"] --> Backend
-    Beacon["Beacon (Go)"] --> SOAP
+    Beacon["Beacon (PHP phar)"] --> SOAP
     Backend["ApisCP backend modules<br/>~30 modules, ~2000 functions"]
 ```
 
@@ -119,7 +119,7 @@ For API-driven workflows (a billing system calling ApisCP to set a customer's va
 
 ## Beacon, scripting from off the server
 
-Beacon is a small Go client that calls ApisCP's SOAP API from a remote machine. Useful when scripting from a workstation, a CI runner, or another server.
+Beacon is a small PHP client distributed as a `.phar` (the standard PHP archive format) that calls ApisCP's SOAP API from a remote machine. Useful when scripting from a workstation, a CI runner, or another server. Because it's PHP, the only runtime prerequisite is a PHP 7+ install on the calling host; the repository is at `github.com/apisnetworks/beacon`.
 
 ```bash
 # Set the API key (one-time per Beacon install)
@@ -132,7 +132,7 @@ beacon exec common_get_load
 beacon exec -d ablemoose.example common_get_bandwidth
 ```
 
-The function names use underscore notation (`common_get_load`, not `common:get-load`) but otherwise behave like `cpcmd`. Beacon creates an API key under **Dev > API Keys** inside any account; the key has the same auth scope as the account it was created under.
+The function names use underscore notation (`common_get_load`, not `common:get-load`) but otherwise behave like `cpcmd`. The key Beacon uses is the one a customer (or you, mid-Login-As) issues from **Dev > API Keys** in the panel, introduced in the panel-tour lesson. The key has the same auth scope as the account it was created under.
 
 A clean pattern for an MSP's PSA or RMM: each customer-side automation has its own Beacon key under that customer's account, so the audit log shows which integration made the call.
 

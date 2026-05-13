@@ -48,6 +48,49 @@ flowchart LR
 
 This is the entire mental model. Every screen and every command is some manipulation of this triad.
 
+## The triad in motion
+
+Watch what happens to the triad as you add a secondary user and then take a service away. Each step shows what `cpcmd admin:collect` reads back for the account afterwards.
+
+<StepThrough client:load>
+  <Step title="Starting state: mail on, ssh off, users.max=1">
+    Able Moose's account has mail enabled, terminal access disabled, and a `users` service set to one slot (just the admin user). The `admin:collect` for the relevant fields:
+
+    ```bash
+    cpcmd admin:collect '[siteinfo.domain,mail.enabled,ssh.enabled,users.max]' \
+      '[siteinfo.domain:ablemoose.example]'
+    # {"site42":{"siteinfo":{"domain":"ablemoose.example"},
+    #   "mail":{"enabled":1},"ssh":{"enabled":0},"users":{"max":1}}}
+    ```
+  </Step>
+  <Step title="Add a secondary user (Helen)">
+    Bookkeeper Helen needs her own mailbox login. Bump `users.max` to 3 to leave room, then add the user:
+
+    ```bash
+    EditDomain -c users,max=3 ablemoose.example
+    cpcmd -d ablemoose.example user:add helen 'GeneratedPassword!'
+    ```
+
+    `user:add` creates a real Unix user inside the account; she now counts against `users.max`. `admin:collect` shows the change:
+
+    ```bash
+    cpcmd admin:collect '[users.max]' '[siteinfo.domain:ablemoose.example]'
+    # {"site42":{"users":{"max":3}}}
+    ```
+
+    Helen is a secondary user. She can authenticate to mail (and, if granted, SFTP). The panel is the admin user's surface; secondary users have a reduced view.
+  </Step>
+  <Step title="Disable mail and see what breaks">
+    Suppose the customer moves their mailboxes to Microsoft 365 and asks the MSP to turn off mail on the ApisCP account. One flag:
+
+    ```bash
+    EditDomain -c mail,enabled=0 ablemoose.example
+    ```
+
+    What breaks: inbound mail to `ablemoose.example` stops (Dovecot stops accepting for the domain), the catch-all is gone, IMAP/SMTP submission for Helen's mailbox stops authenticating. What doesn't: the panel, the website, DNS records, databases. The triad's services are independent switches; flipping one doesn't cascade past the service it owns.
+  </Step>
+</StepThrough>
+
 ## The -c flag
 
 `AddDomain` and `EditDomain` use the same flag pattern everywhere: `-c <service>,<parameter>=<value>`. Read it as "configure service `mysql`'s `enabled` parameter to `0`":
