@@ -1,0 +1,39 @@
+{
+  "slug": "yeastar-pse-build-checkpoint-queues",
+  "course": "yeastar-pse-build",
+  "kind": "checkpoint",
+  "title": "Quick check, queue versus ring group",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-queues-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A four-person after-hours support rota wants the on-call engineer to ring first; the backup engineer should start ringing 15 seconds later and stop after another 30 seconds. If nobody answers, the call goes to voicemail. Which configuration fits?",
+      "choices": [
+        "Queue with Linear ring strategy",
+        "Ring group with Custom ring strategy and per-member delay/timeout",
+        "Ring group with Ring Sequentially strategy",
+        "Queue with Skill-Based strategy"
+      ],
+      "correct": 1,
+      "explanation": "Ring group Custom strategy gives per-member Delay (when they start ringing) and Ring Timeout (when they stop). This is the right shape for staggered rotas. A queue would be overkill; Ring Sequentially doesn't support the overlap pattern (member 2 ringing alongside member 1)."
+    },
+    {
+      "id": "ck-queues-2",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of the following are true differences between a queue and a ring group? (Select all that apply.)",
+      "choices": [
+        "Queues support dynamic agents who can log in and out; ring group membership is fixed",
+        "Queues produce wait-time and answered-rate reports; ring groups don't",
+        "Queues support Music on Hold and periodic announcements while callers wait; ring groups don't",
+        "Ring groups support more ring strategies than queues",
+        "Ring groups can have failover destinations; queues can't"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Queues add dynamic agents, reports, and waiting-caller prompts. Both have failover destinations. Queues support more strategies than ring groups (Least Recent, Fewest Calls, Skill-Based, Round Robin Memory), not fewer."
+    }
+  ]
+}

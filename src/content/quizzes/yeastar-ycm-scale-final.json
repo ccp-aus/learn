@@ -1,0 +1,204 @@
+{
+  "slug": "yeastar-ycm-scale-final",
+  "course": "yeastar-ycm-scale",
+  "kind": "final",
+  "title": "YCM at scale: final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-scale-actor-choice-channel",
+      "type": "mcq",
+      "topic": "permissions",
+      "difficulty": "medium",
+      "prompt": "You want to give your internal voice ops engineer the ability to operate the cluster, audit who-did-what, and manage SNMP, but not change MSP branding or the YCM API settings. Which permission profile applies?",
+      "choices": [
+        "Hosting User with a small capacity allocation and Branding granted",
+        "Colleague with Cloud PBX full, Repository full, Alarm full, System tab: Email Server + SNMP + Operation Log read, but no Branding and no API checkbox",
+        "Super Administrator (the role is uncapped, then take away what they shouldn't have)",
+        "Customer record linked to the MSP's pool"
+      ],
+      "correct": 1,
+      "explanation": "Colleague permissions are per-action checkboxes across feature tabs. You enable the specific actions on the System tab you want (Email Server, SNMP, Operation Log) and leave Branding and API unchecked. There is only one Super Administrator account; you do not strip it down, you design profiles for everyone else."
+    },
+    {
+      "id": "q-scale-hosting-user-flag",
+      "type": "tf",
+      "topic": "permissions",
+      "difficulty": "easy",
+      "prompt": "Setting allowSuperiorPasswordlessLogin to Enabled on a Cloud PBX gives your MSP's Super Admin a way to passwordless-login into a customer PBX that is owned by a Hosting User in your channel.",
+      "correct": true,
+      "explanation": "Each link in the Hosting User chain has its own allowSuperiorPasswordlessLogin flag. The MSP's ability to delegate down requires the flag to be Enabled on every link below; if the Hosting User has disabled it on their customer's PBX, you cannot one-click in."
+    },
+    {
+      "id": "q-scale-white-label-import",
+      "type": "mcq",
+      "topic": "branding",
+      "difficulty": "easy",
+      "prompt": "You have already set up YCM branding (logo, colours, email signature) on your portal. You are now configuring PCE White Label for the first time. What's the right starting move?",
+      "choices": [
+        "Re-enter all the same values manually for consistency.",
+        "Use the 'Import White-Label Settings From System Branding Settings' option on the PCE White Label page; YCM populates the PCE template with your YCM brand values, then you tweak the PCE-only fields.",
+        "Copy the database row from one config table to the other via SQL.",
+        "Leave PCE White Label at defaults; it inherits YCM brand automatically."
+      ],
+      "correct": 1,
+      "explanation": "PCE White Label has an explicit Import option that pulls YCM brand values across as defaults. Manual re-entry is error-prone and the two surfaces drift over time. PCE White Label does not auto-inherit from YCM."
+    },
+    {
+      "id": "q-scale-dns-auto-renew",
+      "type": "mcq",
+      "topic": "custom-domain",
+      "difficulty": "medium",
+      "prompt": "Which combination is required for YCM to auto-renew a cluster domain certificate without anyone touching the console?",
+      "choices": [
+        "Manually uploaded wildcard cert + a calendar reminder.",
+        "DNS Provider configured in YCM with valid API credentials + the cluster domain certificate set to 'Apply for a certificate' with 'Automatically refresh the certificate' ticked.",
+        "Static IP on the SBC Server + manual cert upload.",
+        "Let's Encrypt cert + manual ACME DNS-01 challenge through your DNS provider's portal."
+      ],
+      "correct": 1,
+      "explanation": "Auto-renewal requires the DNS Provider credentials configured in YCM and the certificate set to Apply + Auto-refresh. YCM then runs the DNS-01 challenge 7 days before expiry. Manual uploads with calendar reminders work until somebody is on annual leave."
+    },
+    {
+      "id": "q-scale-oauth-flow",
+      "type": "order",
+      "topic": "api",
+      "difficulty": "medium",
+      "prompt": "Put these steps in the correct order for first-time API integration with YCM.",
+      "items": [
+        "Enable YCM API on the System > API page and tick Client IP Restriction",
+        "Copy the Client ID and Client Secret to your secrets manager",
+        "POST to /dm/open_api/oauth/token with grant_type=client_credentials to get an access_token",
+        "Call API endpoints using Authorization: Bearer <access_token>",
+        "Set up a refresh schedule that calls /dm/open_api/oauth/token with grant_type=refresh_token before the 30-minute access token expiry"
+      ],
+      "explanation": "Enable then capture (because the Client Secret is shown only once), restrict source IPs at the same step, then exchange credentials for a token, then use the bearer token on each endpoint call, then refresh before expiry to keep the integration running."
+    },
+    {
+      "id": "q-scale-token-expiry",
+      "type": "mcq",
+      "topic": "api",
+      "difficulty": "easy",
+      "prompt": "What is the access token expiry on the YCM API?",
+      "choices": [
+        "5 minutes",
+        "30 minutes",
+        "1 hour",
+        "24 hours"
+      ],
+      "correct": 1,
+      "explanation": "Access tokens expire after 30 minutes (the response carries expires_in: 1799 seconds). The refresh token expires after 15 days. Plan your refresh cadence around these two windows."
+    },
+    {
+      "id": "q-scale-webhook-events",
+      "type": "multi",
+      "topic": "api",
+      "difficulty": "medium",
+      "prompt": "Which of these are true about YCM webhooks? (Select all that apply.)",
+      "choices": [
+        "Up to 5 webhook subscriptions per YCM tenant",
+        "The X-Signature header is base64-encoded HMAC-SHA256 of the raw body keyed by the per-webhook secret",
+        "If your endpoint does not return 2xx within the configured Timeout, YCM retries according to the Retry Count setting",
+        "Webhooks are delivered over plain HTTP for performance reasons",
+        "Hosting Users automatically receive webhook events for their own sub-tenancy without configuration"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Five subscriptions max, HMAC-SHA256 signature, configurable timeout and retry; all per the docs. Webhooks use HTTPS, not plain HTTP. Hosting Users have to configure their own webhooks; they do not auto-receive yours."
+    },
+    {
+      "id": "q-scale-snmp-version",
+      "type": "tf",
+      "topic": "snmp",
+      "difficulty": "easy",
+      "prompt": "YCM supports SNMPv1 and SNMPv2c for legacy NMS compatibility.",
+      "correct": false,
+      "explanation": "YCM supports SNMPv3 only. v1 and v2c are not supported. SNMPv3 is the version that includes authentication and encryption, which matters for a platform exposed to the internet."
+    },
+    {
+      "id": "q-scale-frp-tunnel",
+      "type": "mcq",
+      "topic": "snmp",
+      "difficulty": "hard",
+      "prompt": "YCM is hosted on a public IP. Your NMS sits behind your office firewall on a private IP. SNMP Get from NMS to YCM works, but SNMP Trap from YCM to NMS does not arrive. What's the documented fix?",
+      "choices": [
+        "Open inbound 162/UDP on the office firewall to the public internet.",
+        "Run FRPS on the YCM machine and FRPC on the NMS machine; FRPC dials out to FRPS opening a tunnel, then set YCM's Trap Receiver IP to 127.0.0.1 so traps tunnel through to the NMS.",
+        "Disable SNMP Trap and rely on SNMP Get polling only.",
+        "Move the NMS to a public IP."
+      ],
+      "correct": 1,
+      "explanation": "Yeastar documents the FRP (Fast Reverse Proxy) tunneling pattern explicitly for this NAT-traversal case. FRPC behind NAT dials out to FRPS on YCM, the tunnel forwards SNMP Trap from 127.0.0.1:162 (on YCM) to the NMS. No inbound firewall rule, no public-IP-on-NMS, no functionality loss."
+    },
+    {
+      "id": "q-scale-archive-eligibility",
+      "type": "mcq",
+      "topic": "archiving",
+      "difficulty": "medium",
+      "prompt": "Which backup files can be sent to a remote archive server (SFTP, S3, GCS, FTP)?",
+      "choices": [
+        "All backup files visible in the Repository, regardless of origin.",
+        "Only backup files generated by YCM backup tasks; backups created on the PBX side or manually uploaded are not eligible for archiving.",
+        "Only backup files from PBXs that have remote management enabled.",
+        "Only backup files from PBXs running firmware 84.21.0.117 or later."
+      ],
+      "correct": 1,
+      "explanation": "The remote archive feature only handles backup files generated by YCM-side backup tasks. PBX-side backups and manually uploaded backups stay in the Repository but cannot be archived; that constraint is explicit in the documentation."
+    },
+    {
+      "id": "q-scale-cluster-cap",
+      "type": "multi",
+      "topic": "cluster",
+      "difficulty": "hard",
+      "prompt": "Per Yeastar's cluster server caps, which of the following are true? (Select all that apply.)",
+      "choices": [
+        "A PBXHub Server hosts up to 100 Cloud PBXs",
+        "A PBXHub Server provides up to 2,000 extensions",
+        "An SBC Proxy Server provides up to 500 peer trunk ports",
+        "An SBC Proxy Server provides up to 5,000 general service ports (SSH / AMI / DB grant)",
+        "1 GiB of recording storage provides 10,000 recording minutes"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "The first four are documented caps. The last is wrong: 1 GiB provides up to 1,000 recording minutes per Yeastar's storage table (a factor of 10 different, the kind of round-number trap a finance reconciliation script needs to get right)."
+    },
+    {
+      "id": "q-scale-operation-log-discipline",
+      "type": "mcq",
+      "topic": "audit",
+      "difficulty": "medium",
+      "prompt": "Which audit practice catches the most platform-shape changes with the least review overhead?",
+      "choices": [
+        "Daily review of every operation log entry.",
+        "Monthly filtered review of high-impact action types only: Resize Capacity, Apply Provisioning Template, Branding edits, API enable, Custom Domain add, Hosting User create / capacity update.",
+        "Quarterly export of the entire log to PDF for the auditor.",
+        "Trusting Yeastar's own log retention without any review."
+      ],
+      "correct": 1,
+      "explanation": "Filtered review on a small action set catches platform-shape changes at a sustainable cadence. Daily review of every entry is unmaintainable; quarterly export with no real scan is taxation theatre. The platform's audit value comes from someone actually looking, but only at the changes that matter."
+    },
+    {
+      "id": "q-scale-recording-one-way",
+      "type": "tf",
+      "topic": "billing",
+      "difficulty": "easy",
+      "prompt": "A Hosting User's allocated recording minutes (totalRecordings) can be reduced through the YCM API to reclaim capacity to the MSP pool.",
+      "correct": false,
+      "explanation": "The Update User Subscription endpoint explicitly forbids reducing totalRecordings. Minutes are paid-for capacity the customer has the right to use through the period; once issued, the only direction is up. Allocate tight and add as needed."
+    },
+    {
+      "id": "q-scale-monthly-pack",
+      "type": "mcq",
+      "topic": "billing",
+      "difficulty": "medium",
+      "prompt": "An MSP customer is on Ultimate Plan (240 transcription plan minutes / month) plus a 500-minute transcription monthly pack. They consumed 600 transcription minutes this month. Per Yeastar's consumption model, where did those minutes come from?",
+      "choices": [
+        "All 600 from the plan-included pool; the pack rolled over.",
+        "240 from plan-included, then 300 of 500 from the monthly pack; pack consumption is 60% with 200 unused (lost at month rollover).",
+        "All 600 from the monthly pack; plan minutes are reserved.",
+        "240 from plan, 500 from the pack, 600 - 240 - 500 = -140, meaning they get a refund."
+      ],
+      "correct": 1,
+      "explanation": "Plan-included minutes draw first (240), monthly pack absorbs the rest (300 of 500), and unused pack minutes do not roll over. The 200 unused pack minutes are lost at month rollover; if this is the pattern, drop the pack size next quarter."
+    }
+  ]
+}

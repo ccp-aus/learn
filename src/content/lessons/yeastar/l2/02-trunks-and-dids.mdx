@@ -1,0 +1,211 @@
+---
+slug: 02-trunks-and-dids
+vendor: yeastar
+level: l2
+title: SIP trunks and DIDs, the carrier side of the PBX
+summary: "Three trunk types (Register, Peer, Account); the codec, DTMF and NAT settings that affect call quality; DID matching modes for routing inbound calls; and DOD for caller-ID-per-extension."
+estimatedMinutes: 11
+order: 2
+topics: [pse, trunks, sip, did, dod, codec]
+updated: 2026-05-13
+---
+
+A trunk is the line between the customer's PBX and the outside world. Get it wrong and nothing works (no inbound, no outbound, or worse, intermittent failures that look like ghosts). Get it right and it disappears into the background, which is the goal. This lesson walks the three trunk types, the dozen settings that actually matter on a SIP trunk, and the four ways PSE can match an inbound DID to a destination.
+
+The protocol theory under all of this (SDP offer/answer, codec negotiation, NAT and symmetric RTP, DTMF transport modes) is in the SIP and RTP in practice course. This lesson is the PSE-side moves that lean on that theory.
+
+## The three trunk types
+
+PSE supports three SIP trunk types. The choice depends on what the carrier (or the other end) gives you to authenticate with.
+
+| Trunk type | Authentication | Use when |
+|---|---|---|
+| **Register Trunk** | Username + password (PBX registers TO the ITSP) | Standard SIP trunk from a carrier with a username and password |
+| **Peer Trunk** | IP-based (no credentials, the ITSP whitelists your PBX's IP) | Carrier-side IP peering, enterprise SIP-to-SIP, no username given |
+| **Account Trunk** | Third-party device registers TO the PBX (PBX is the registrar) | Connecting an analog gateway, a legacy PBX, or another SIP system that needs to register inward |
+
+The first two cover almost every customer-facing SIP trunk. Account Trunk shows up when the customer has an analog gateway in a back room or a parallel system that needs to forward calls into the PBX.
+
+```
+Extension and Trunk → Trunks → Add
+```
+
+In the **Basic** section, you pick a name, set Trunk Status to Enabled, and choose an ITSP Template. If your carrier has been certified by Yeastar (the ITSP partner page lists them), pick the country and ITSP and the technical fields autofill. Otherwise pick General and fill them in by hand.
+
+In **Detailed Configuration**, you pick the trunk type and supply what the carrier gave you:
+
+- **Register Trunk**: Transport (UDP / TCP / TLS / DNS-NAPTR), Hostname/IP, Port, Domain (used in From/To headers; if the carrier didn't say, copy Hostname/IP), Username, Password, Authentication Name (usually the same as Username).
+- **Peer Trunk**: Transport, Hostname/IP, Port, Domain. No credentials, because the carrier authenticates by source IP.
+- **Account Trunk**: Transport, Username, Password, Authentication Name, all of which you make up; the third-party device registers inward with these credentials.
+
+<Callout type="warn" title="TCP, TLS, and the SIP Port toggle">
+The TCP transport option only appears if SIP TCP Port is enabled (PBX Settings → SIP Settings → General). TLS only if TLS is enabled in the same place. If the trunk's Transport dropdown is missing TCP or TLS, that's where to look first; not on the trunk page.
+</Callout>
+
+## The trunk settings that actually matter
+
+The Advanced page on a trunk has dozens of fields. Most can be left at default. Six of them affect real calls in real ways.
+
+### Codecs
+
+PSE supports a long list (u-law, a-law, G.729A, GSM, iLBC, G.722, G.726, SPEEX, ADPCM, Opus, plus video codecs). The default order is `ulaw&alaw&gsm&h264&ilbc&g722&g726&g729`. Two important moves:
+
+- **Match the carrier's preferred codec list.** If they advertise G.711 (u-law / a-law) and G.729, those should be at the top. If you leave the default order and the carrier doesn't support GSM or iLBC, those slots in your offer are dead weight.
+- **Drop codecs the customer's network can't carry.** Opus or G.722 (HD voice) over a saturated 5 Mbps office uplink will sound worse than G.711. Pick the codec the path can carry consistently.
+
+The why-this-matters layer (offer/answer mechanics, codec choice's impact on bandwidth and MOS) sits in the SIP and RTP in practice course. The PSE-side move is to keep the trunk's codec list short, ordered, and aligned with what the carrier actually supports.
+
+### DTMF Mode
+
+DTMF is how phone keypresses ride a SIP call (IVR menus, voicemail PINs, CRM call-routing menus). PSE has four modes:
+
+| Mode | What it does |
+|---|---|
+| `RFC4733` (RFC 2833) | Carries DTMF in RTP as separate packets. **Default. The right answer 90% of the time.** |
+| `Info` | Carries DTMF in SIP INFO messages. Some legacy carriers want this. |
+| `Inband` | Carries DTMF as audio tones in the RTP stream. Lossy under compression (G.729 mangles it). |
+| `Auto` | Negotiate: use RFC 4733 if both sides support it, fall back to Inband. |
+
+If the customer reports "the IVR doesn't recognise key presses" or "voicemail PIN doesn't work", DTMF Mode mismatch is the first place to check. Carrier-side default is usually RFC 4733; if your trunk and theirs disagree, presses get lost.
+
+### NAT and the SDP IP question
+
+When the PBX is behind NAT (most cloud-PBX deployments and on-prem-with-public-IP setups both qualify in different ways), the SDP body in INVITE and 200 OK has to advertise the *publicly reachable* IP for media, not the internal LAN IP. The trunk's "Select which IP address to use in 'Contact'(SIP) and 'Connection'(SDP) fields" setting controls this. Two values:
+
+- `default_settings` — PSE figures it out based on its network config. Works for most deployments where the system has a correct public IP / external host configured.
+- `custom_ip` — you specify the IP that goes into Contact and SDP. Use this when default_settings produces the wrong IP, typically in multi-WAN or weird NAT setups.
+
+The most common one-way-audio root cause is this setting being wrong. The trace shows audio leaving one side, but the other side's SDP advertised an unroutable RFC 1918 address, so RTP packets head to the void.
+
+### P-Early-Media
+
+`P-Early-Media: sendrecv` in the INVITE tells the carrier the PBX is willing to play and receive audio before the call is answered. Some carriers need this for ringback to play to the caller while the PBX rings the destination. Symptoms of mismatch: caller hears silence after dialling, then a hard cut to "hello".
+
+Two related fields: **Support P-Early-Media** (include the header at all) and **Send 183 Message with P-Early-Media Header** (PBX itself sends 183 with the header for inbound calls). Set both if the carrier docs say P-Early-Media is required.
+
+### Force Selected DOD in From Header
+
+When an extension is associated with multiple Direct Outward Dial (DOD) numbers and picks one for an outbound call (via the Linkus dial menu's DOD picker, or feature code `*085*`), PSE has to decide what goes in the SIP `From` header.
+
+By default, PSE uses the trunk's From User Part setting. With **Force Selected DOD in From Header** enabled, the user's DOD pick wins instead. Turn it on when extensions need to present specific outbound caller IDs (the Sales team presenting a sales DID, the Support team presenting a support DID, the executive presenting a personal DID).
+
+DOD itself is configured per-trunk in the Outbound Caller ID tab: list the available outbound caller IDs, then on each extension assign one or more from the list with optional short codes for fast picking.
+
+### Return 302 on External Forward
+
+When PSE forwards an inbound call to an external number (e.g. an extension's Forward-to-mobile rule fires), there are two ways to do it:
+
+- **Bridge mode (default)** — PSE keeps both legs and bridges them. Two trunk channels consumed, all the audio and signalling pass through the PBX.
+- **302 redirect** — PSE returns `302 Moved Temporarily` to the carrier, telling them to call the external number directly. One trunk channel freed, the carrier handles the rest.
+
+302 redirect saves channels and removes a hop, which matters when many users have forward-to-mobile rules. Enable it after confirming the carrier supports the redirect (some don't, or charge differently for it).
+
+## The trunk status icons (read these from CDR)
+
+Trunk list page shows status at a glance. The icons that matter:
+
+| Status | What it means | Likely cause if unexpected |
+|---|---|---|
+| Disabled | You disabled it intentionally | n/a |
+| Unreachable | Carrier hostname not pingable | DNS problem, firewall, carrier outage |
+| Registration failed | OPTIONS or REGISTER got 401 / 403 / etc. | Wrong username, password, or auth name; carrier-side IP block |
+| Registering | OPTIONS / REGISTER in flight | Transient. If stuck for minutes, network problem |
+| Registered | All good | n/a |
+| Unmonitored | Qualify is off | Set Qualify if you want active monitoring |
+| Busy. Maximum channels reached | Concurrent-call cap hit | Either resize the trunk, or this is a legitimate spike |
+
+A trunk in "Registration failed" with 100% certainty isn't passing calls. A trunk in "Registered" can still pass broken calls; status alone doesn't certify call quality.
+
+## Inbound DID routing, four ways
+
+Direct Inward Dialling (DID, also written DDI) is the dialled number that came in over the trunk. The inbound route's job is to match that number and send the call somewhere. PSE has four matching modes:
+
+```
+Call Control → Inbound Routes → Add → DID Pattern → DID Matching Mode
+```
+
+| Mode | When to use | How it looks |
+|---|---|---|
+| **DID Pattern** | One destination for many DIDs. Main number, support hotline, after-hours line. | Pattern: `0398889999`, destination: Reception IVR |
+| **Match DID Pattern to Extensions** | Bulk DID-to-extension where DIDs follow a pattern containing the extension number. | Pattern: `882{{.Ext}}`, destination: Match Selected Extensions |
+| **Match DID Range to Extension Range** | Sequential DID range maps 1:1 to a sequential extension range. | DID range `8823201-8823210`, extension range `1001-1010` |
+| **DID Number to Specific Extension** | Non-sequential DIDs each map to a specific extension. | DID `5501230` → 1000, DID `5361981` → 1001, DID `9875472` → 1002 |
+
+<AnnotatedScreenshot
+  src="/img/yeastar/inbound-did-to-queue-destinations.png"
+  alt="Call Flow Designer canvas showing two inbound routes, each with a different DID pattern routing to a different queue destination"
+  caption="The DID Pattern mode (the most common) sends each matched DID to one chosen destination. Here, two DIDs route to two different queues."
+>
+  <Hotspot client:load x={28} y={50} tone="primary" label="1" title="Inbound route A" purpose="DID 88866608 routes to the Sales queue.">
+    Each inbound route ties one DID pattern to one destination. The Sales queue handles the inbound caller from this DID with whatever ring strategy and agent set the queue is configured with.
+  </Hotspot>
+  <Hotspot client:load x={72} y={50} tone="primary" label="2" title="Inbound route B" purpose="DID 88866609 routes to the Support queue.">
+    Two DIDs, two routes, two destinations. PSE evaluates inbound routes in priority order; both routes here match a single specific number, so order doesn't matter, but it would for wildcard patterns.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The pattern fields support wildcards from a small set:
+
+| Wildcard | Matches |
+|---|---|
+| `X` | Any digit 0-9 |
+| `Z` | Any digit 1-9 |
+| `N` | Any digit 2-9 |
+| `[136-8]` | Any of 1, 3, 6, 7, 8 |
+| `.` | One or more digits |
+| `!` | Zero or more characters |
+
+So `+1NXXNXXXXXX` matches a North American 11-digit number with NANP-valid area and exchange codes; `+61[2378]XXXXXXXX` matches an Australian landline DID.
+
+### Choosing the DID matching mode for the customer
+
+For Able Moose Accounting:
+
+- The main number `+61398889100` rings into the Sydney reception IVR. **DID Pattern** mode, single pattern, single destination.
+- Each Sydney finance desk has a DID that ends in their extension (e.g. `+613988899NN` where `NN` is the extension's last two digits). **Match DID Pattern to Extensions** mode, pattern `+6139888[88]{{.Ext}}` (assuming three-digit extensions starting with 100), destination the Sydney-Finance extension group.
+- Brisbane bought a contiguous block of 25 DIDs that map cleanly to extensions 2001-2025. **Match DID Range to Extension Range** mode.
+- Three named-VIP DIDs (the CFO, the CEO, the head of HR) each ring exactly one person. **DID Number to Specific Extension** mode.
+
+You can have many inbound routes on one trunk; PSE evaluates them top-to-bottom by priority.
+
+## A worked outbound DOD setup: Sales versus Support presenting different numbers
+
+Able Moose's Sydney office has two customer-facing teams: Sales (12 people, want to present `+61398889200`) and Support (8 people, want to present `+61398889300`). Both use the same trunk to the carrier.
+
+```
+Extension and Trunk → Trunks → [the Sydney trunk] → Outbound Caller ID
+```
+
+Add two outbound caller IDs:
+
+| Outbound Caller ID | Short Code | Associated Extensions | Default DOD Label |
+|---|---|---|---|
+| `+61398889200` | `200` | Sales-Sydney extension group | Sales line |
+| `+61398889300` | `300` | Support-Sydney extension group | Support line |
+
+Then on the trunk's Advanced page, enable **Force Selected DOD in From Header**. When a Sales agent dials out, the From header in the SIP INVITE carries `+61398889200`, and that's what the called party sees. When a Support agent dials, it carries `+61398889300`.
+
+Users can override at dial time using the DOD short-code feature codes:
+
+- `*085*200#` — set Sales line as the default DOD for this user.
+- `*085*300*0398123456` — make a single call presenting Support line.
+
+The Linkus client also surfaces DOD picking from the dial menu, which most users will use over feature codes.
+
+## What to check before declaring the trunk working
+
+1. **Trunk shows Registered** in the trunk list (Register or Account; Peer trunks read as Reachable / Unmonitored).
+2. **Inbound test**: an external dialler calls a known DID; the call lands at the configured destination; CDR row appears with the correct Source Trunk and DID/DDI columns.
+3. **Outbound test**: an extension calls an external mobile; the called party answers; the displayed caller ID matches the extension's DOD assignment; the call has clean two-way audio for at least 30 seconds.
+4. **Codec sanity**: pull a SIP trace from one outbound test call. The 200 OK SDP shows a codec both sides agreed on (typically PCMU or PCMA for au-side carriers).
+5. **DTMF sanity**: dial a known IVR (the carrier's own test number, or your other PBX), press a key. The IVR responds. If it doesn't, DTMF Mode mismatch.
+
+If any of these fails, the diagnostics lesson at the end of this course walks the SIP-trace and PCAP path; the SIP and RTP in practice course covers the protocol-side reading.
+
+## What this is NOT
+
+- **Not a guide to choosing a SIP carrier.** Trunk product selection is a procurement question, not a configuration one. Pick a carrier with a Yeastar interop template if you can.
+- **Not the security work for SIP TLS and SRTP.** That's the advanced course's territory, alongside auto-defense rules and rate limits.
+- **Not the QoS conversation.** DSCP marking, jitter buffer settings, and call-quality tuning are covered in the SIP and RTP in practice course (under quality of service) and worked again in the diagnostics lesson here at a PSE-specific level.
+
+Next lesson: inbound routing in detail (time conditions, IVR design, all the destination types).

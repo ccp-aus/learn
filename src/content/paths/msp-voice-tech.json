@@ -1,0 +1,19 @@
+{
+  "slug": "msp-voice-tech",
+  "title": "MSP voice technician",
+  "summary": "Specialise in the voice stack: vendor-neutral SIP and RTP fundamentals, then the Yeastar three-piece operation (YCM portal, PSE PBX, Linkus clients), from triage through multi-tenant scale.",
+  "audience": "MSP tech who'll provision, configure, and support customer Yeastar PBXs end-to-end",
+  "courses": [
+    "voip-fundamentals",
+    "yeastar-foundations",
+    "yeastar-linkus",
+    "yeastar-pse-triage",
+    "yeastar-ycm-triage",
+    "voip-sip-in-practice",
+    "yeastar-pse-build",
+    "yeastar-ycm-provisioning",
+    "voip-deep-diagnostics",
+    "yeastar-pse-advanced",
+    "yeastar-ycm-scale"
+  ]
+}

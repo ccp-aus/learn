@@ -1,0 +1,34 @@
+{
+  "slug": "yeastar-pse-advanced-checkpoint-ha",
+  "course": "yeastar-pse-advanced",
+  "kind": "checkpoint",
+  "title": "Quick check, HA and backups",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ha-vs-dr",
+      "type": "mcq",
+      "topic": "ha",
+      "difficulty": "medium",
+      "prompt": "A customer's two PSE servers are in the same data centre, on the same LAN. They want resilience against the data centre going offline (regional power outage, ISP failure). Hot Standby on its own:",
+      "choices": [
+        "Solves it; the Secondary will take over if the data centre fails",
+        "Doesn't solve it; both servers go down together if the data centre fails. Disaster Recovery via SD-WAN to a second region is the right tool",
+        "Solves it as long as the Secondary is on a different power circuit",
+        "Solves it if you also enable Recording Data Synchronization"
+      ],
+      "correct": 1,
+      "explanation": "Hot Standby is a SAME-LAN feature designed for server-level failure (one machine dies). Same-data-centre = same failure domain for power and connectivity. Cross-region resilience needs Disaster Recovery via SD-WAN PBX Networking, with the Working Server in one region and the Redundancy Server in another."
+    },
+    {
+      "id": "ck-archive-retention",
+      "type": "tf",
+      "topic": "backup",
+      "difficulty": "easy",
+      "prompt": "When you configure an Archive task to S3 with retention by days, the retention clock starts from when the file was created on the PBX.",
+      "correct": false,
+      "explanation": "The retention period is measured from the archive time on the destination, not from the file's creation time on PBX. A backup created in January but only archived in May starts its retention clock in May."
+    }
+  ]
+}

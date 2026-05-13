@@ -1,0 +1,34 @@
+{
+  "slug": "yeastar-pse-advanced-checkpoint-crm",
+  "course": "yeastar-pse-advanced",
+  "kind": "checkpoint",
+  "title": "Quick check, CRM and helpdesk integrations",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-crm-screen-pop",
+      "type": "mcq",
+      "topic": "screen-pop",
+      "difficulty": "easy",
+      "prompt": "A customer says their HubSpot screen-pop isn't firing on inbound calls, even though the contact is correctly identified in Linkus. What's the most likely cause?",
+      "choices": [
+        "Contact sync is broken",
+        "The HubSpot browser-extension hasn't been installed in the user's browser",
+        "The OAuth token has expired",
+        "PSE doesn't support HubSpot screen-pops"
+      ],
+      "correct": 1,
+      "explanation": "Two screen-pops exist: the in-Linkus one (driven by contact sync; this one's working since the contact is identified) and the in-CRM one (requires the CRM-side browser extension). When only the second one fails, the cause is almost always a missing browser extension."
+    },
+    {
+      "id": "ck-crm-custom-template",
+      "type": "tf",
+      "topic": "custom-template",
+      "difficulty": "easy",
+      "prompt": "The Custom CRM Integration Template supports OAuth 2.0 (including Authorization Code with PKCE) and Bearer Token authentication, so it can integrate with most third-party systems that don't have a native PSE connector.",
+      "correct": true,
+      "explanation": "Both OAuth flows (since 83.23.0.23 for PKCE) and Bearer Token (long-lived token with optional auto-refresh) are supported, plus custom request headers for arbitrary header injection. That covers most LOB systems."
+    }
+  ]
+}

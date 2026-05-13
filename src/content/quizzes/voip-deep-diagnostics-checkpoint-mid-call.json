@@ -1,0 +1,38 @@
+{
+  "slug": "voip-deep-diagnostics-checkpoint-mid-call",
+  "course": "voip-deep-diagnostics",
+  "kind": "checkpoint",
+  "title": "Quick check, mid-call failures",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-mid-call-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A call drops at almost exactly 30 minutes every time. The trace shows a BYE with `Reason: SIP;cause=408;text=\"Session timer expired\"`. What's the diagnostic question?",
+      "choices": [
+        "Which codec did the parties negotiate?",
+        "Which side was supposed to send the refresh re-INVITE, and why didn't the refresh reach the other side?",
+        "Was the customer's password rotated recently?",
+        "Did the call use SRTP?"
+      ],
+      "correct": 1,
+      "explanation": "RFC 4028 session-timer expiry means the named refresher didn't send (or its refresh didn't arrive) in time. The investigation is which side was the refresher per the 200 OK's `Session-Expires` header, and whether the refresh INVITE was sent and reached the far side. A stateful middlebox dropping the refresh is the common root cause."
+    },
+    {
+      "id": "ck-mid-call-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "After a customer presses hold and then resume, the SIP re-INVITE with `a=sendrecv` succeeds with 200 OK but the customer reports the far side can't hear them. RTP Streams shows the resumed direction missing. Where do you investigate?",
+      "choices": [
+        "The customer's microphone hardware",
+        "The customer's password digest",
+        "B2BUA media re-bridge behaviour on the resume re-INVITE",
+        "DNS resolution for the registrar"
+      ],
+      "correct": 2,
+      "explanation": "SIP succeeded (200 OK to the resume re-INVITE) but media in one direction didn't restart. B2BUAs bridge media independently from signalling; some implementations fail to re-bridge after hold/resume and the media path stays half-closed. Capture on both sides of the suspected B2BUA confirms whether the issue is the bridge."
+    }
+  ]
+}

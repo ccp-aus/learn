@@ -1,0 +1,208 @@
+{
+  "slug": "yeastar-pse-build-final",
+  "course": "yeastar-pse-build",
+  "kind": "final",
+  "title": "Yeastar PSE configuration: final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-ext-paths",
+      "type": "mcq",
+      "topic": "extensions",
+      "difficulty": "easy",
+      "prompt": "A customer with 60 staff already in their Microsoft 365 tenant is migrating to PSE. They want the fastest path that keeps user records in sync with M365. Which path fits?",
+      "choices": [
+        "Manual single-extension creation, one user at a time",
+        "Bulk CSV import after exporting users from M365",
+        "Microsoft 365 user sync with the Map section configured to keep all five default fields synced",
+        "Bulk CSV import, then enabling M365 SSO after the fact"
+      ],
+      "correct": 2,
+      "explanation": "M365 user sync uses Entra ID as the source of truth and keeps the fields aligned ongoing. Bulk CSV produces PBX-local records that drift from M365 over time. Manual is too slow at this scale. M365 SSO without sync is also possible but doesn't propagate identity changes back to PBX records."
+    },
+    {
+      "id": "q-trunk-types",
+      "type": "mcq",
+      "topic": "trunks",
+      "difficulty": "easy",
+      "prompt": "The customer's ITSP provides a SIP service that authenticates by source IP address (no username or password). Which PSE trunk type fits?",
+      "choices": [
+        "Register Trunk",
+        "Peer Trunk",
+        "Account Trunk",
+        "WebRTC Trunk"
+      ],
+      "correct": 1,
+      "explanation": "Peer Trunk uses IP-based authentication; the ITSP whitelists the PBX's IP. Register Trunk needs username and password (PBX registers to the ITSP). Account Trunk is for a third-party device registering inward to the PBX."
+    },
+    {
+      "id": "q-dtmf-mode",
+      "type": "mcq",
+      "topic": "trunks",
+      "difficulty": "medium",
+      "prompt": "A user reports that pressing keys in the carrier's voicemail IVR does nothing. The call audio is fine. What's the most likely cause?",
+      "choices": [
+        "The codec preference list doesn't include G.711",
+        "DTMF Mode mismatch between the trunk and the carrier (e.g. RFC 4733 vs Inband)",
+        "P-Early-Media is disabled",
+        "Maximum Concurrent Calls on the trunk is too low"
+      ],
+      "correct": 1,
+      "explanation": "DTMF Mode controls how key presses travel. Most carriers default to RFC 4733 (RFC 2833), which carries DTMF in RTP packets. If the trunk is set to Inband and the carrier expects RFC 4733, the presses are inside the audio stream and the IVR can't pick them out cleanly."
+    },
+    {
+      "id": "q-did-matching",
+      "type": "multi",
+      "topic": "inbound-routing",
+      "difficulty": "medium",
+      "prompt": "A customer has 50 sequential DIDs (8821001-8821050) that should each ring the matching extension (1001-1050). Which approaches will work? (Select all that apply.)",
+      "choices": [
+        "DID Matching Mode: DID Pattern, with 50 individual patterns",
+        "DID Matching Mode: Match DID Range to Extension Range, single rule",
+        "DID Matching Mode: Match DID Pattern to Extensions, pattern 882{{.Ext}}",
+        "DID Matching Mode: DID Number to Specific Extension, 50 explicit mappings",
+        "Create 50 separate inbound routes, one per DID"
+      ],
+      "correct": [1, 2, 3],
+      "explanation": "Match DID Range to Extension Range is the cleanest (one rule covers all 50). Match DID Pattern to Extensions with the {{.Ext}} placeholder also works for sequential DIDs. DID Number to Specific Extension works but is verbose. Fifty separate routes works but is even more verbose. The first option (DID Pattern with 50 patterns) is theoretically possible but unmaintainable."
+    },
+    {
+      "id": "q-pattern-wildcards",
+      "type": "mcq",
+      "topic": "inbound-routing",
+      "difficulty": "medium",
+      "prompt": "The pattern +61[2378]XXXXXXXX is used on an inbound route. Which dialled number does it match?",
+      "choices": [
+        "+611988887777 (only 11 digits after the +)",
+        "+61298887777 (matches the 2 area code)",
+        "+61498887777 (4 area code)",
+        "+6129888777 (one digit short)"
+      ],
+      "correct": 1,
+      "explanation": "The pattern requires a leading +61 then one of [2,3,7,8] then exactly 8 more digits (XXXXXXXX). +61298887777 fits: +61, then 2, then 98887777. The 4 area code isn't in the bracket set. The other options have the wrong digit count."
+    },
+    {
+      "id": "q-time-condition",
+      "type": "tf",
+      "topic": "time-conditions",
+      "difficulty": "easy",
+      "prompt": "The PBX's system timezone and the per-route Time Zone field can be set to different values, which is why misrouted calls during business hours often trace back to a timezone disagreement between these two settings.",
+      "correct": true,
+      "explanation": "They are independent. The PBX-wide setting and the per-route setting can disagree, producing surprising routing. Always check both when investigating a 'wrong destination at this time of day' ticket."
+    },
+    {
+      "id": "q-ivr-design",
+      "type": "mcq",
+      "topic": "ivr",
+      "difficulty": "medium",
+      "prompt": "An IVR is being built for a public-facing main number. Which Dial Extensions setting is the safest default?",
+      "choices": [
+        "All Extensions, so callers can reach anyone they need",
+        "Allowed Extensions, with only the published staff directory selected",
+        "Disable, no extension dialling at all from the IVR",
+        "Restricted Extensions, with internal service extensions excluded"
+      ],
+      "correct": 1,
+      "explanation": "Allowed Extensions with the published directory matches the customer's actual intent: callers reach the staff who should be reachable, and nobody else. All Extensions exposes service extensions (intercom, printer) which can be abused. Disable removes a useful feature. Restricted Extensions is a maintenance burden as new internal extensions are added."
+    },
+    {
+      "id": "q-ring-strategy",
+      "type": "mcq",
+      "topic": "queues",
+      "difficulty": "medium",
+      "prompt": "A customer-facing support queue has eight agents of similar skill. The customer wants the workload distributed fairly so that nobody gets every other call. Which ring strategy fits?",
+      "choices": [
+        "Linear",
+        "Ring All",
+        "Least Recent",
+        "Random"
+      ],
+      "correct": 2,
+      "explanation": "Least Recent picks the agent who has been idle longest, which spreads calls evenly. Linear always starts with the first agent in the list (top of list takes all the calls until they're busy). Ring All rings everyone at once. Random is genuinely fair on average but produces uneven load in short windows."
+    },
+    {
+      "id": "q-queue-vs-rg",
+      "type": "order",
+      "topic": "queues",
+      "difficulty": "medium",
+      "prompt": "Put these scenarios in order from 'ring group is the right tool' to 'queue is the right tool'.",
+      "items": [
+        "Three-person reception backline in one office, anyone can pick up, no metrics needed",
+        "After-hours on-call rota with two engineers, second engineer rings 15s after first",
+        "Customer-facing support service with SLA on answer rate; MoH and position announcements expected",
+        "Multi-language customer service with skill-tagged agents and skill-based routing"
+      ],
+      "explanation": "Ring groups fit when membership is fixed and metrics don't matter. Queues fit when wait time, answered rate, and agent skill levels are part of the operational model. Customer-facing services almost always need queues."
+    },
+    {
+      "id": "q-recording-scope",
+      "type": "mcq",
+      "topic": "recording",
+      "difficulty": "medium",
+      "prompt": "The customer wants recordings of Sales queue calls available to the Sales Manager, but NOT to other staff or other managers. Which permission scope on the Sales Manager role fits?",
+      "choices": [
+        "Recording Files: Play; scope = All Extensions",
+        "Recording Files: Play; scope = All other extensions of the same department",
+        "Recording Files: Play + Download + Delete; scope = All Extensions",
+        "Recording Files: Play; scope = Specific Extensions (none selected)"
+      ],
+      "correct": 1,
+      "explanation": "'All other extensions of the same department' scopes the playback to the manager's own department's recordings. All Extensions exposes recordings the Sales Manager shouldn't see. The Specific Extensions with none selected blocks everything. Delete and Download permissions weren't asked for and shouldn't be added."
+    },
+    {
+      "id": "q-recording-retention",
+      "type": "tf",
+      "topic": "recording",
+      "difficulty": "easy",
+      "prompt": "A customer with seven-year recording retention should configure that retention by setting Recordings Preservation Days to 2555 on the PBX's local storage.",
+      "correct": false,
+      "explanation": "Local storage on the PBX won't hold seven years of recordings for any non-trivial customer. The right pattern is short local retention (30-90 days) plus an archive task pushing recordings to S3, SharePoint, or SFTP, with archive-side retention covering the seven-year requirement. Delete-local-after-archiving keeps local storage manageable."
+    },
+    {
+      "id": "q-no-audio",
+      "type": "mcq",
+      "topic": "diagnostics",
+      "difficulty": "hard",
+      "prompt": "An outbound call connects, the customer can hear the called party, but the called party can't hear the customer. SIP trace shows symmetric SDP from both ends with public IPs in the c= lines, codec G.711 agreed. RTP packets leave PBX toward the public IP of the called party. What's the next thing to investigate?",
+      "choices": [
+        "Recompile the trunk codec list to remove G.729",
+        "Check whether the customer's office firewall is rate-limiting outbound UDP packets in the RTP port range",
+        "Switch the trunk's DTMF Mode to Auto",
+        "Increase the trunk's Maximum Concurrent Calls"
+      ],
+      "correct": 1,
+      "explanation": "The signalling and SDP look fine, codec is agreed, RTP is leaving PBX. If audio is one-way at this point, the suspect is the customer's network: firewall or router rate-limiting / dropping the outbound RTP toward the carrier or called endpoint. Not codec (already agreed), not DTMF (separate concern), not concurrent calls (call is connected)."
+    },
+    {
+      "id": "q-pcap-tool",
+      "type": "mcq",
+      "topic": "diagnostics",
+      "difficulty": "medium",
+      "prompt": "The Ethernet Capture Tool in PSE produces what kind of file when you download a capture?",
+      "choices": [
+        "A .pcap file that opens directly in Wireshark",
+        "A .tar archive containing one .pcap file inside",
+        "A .csv file with one row per SIP message",
+        "A .json file with structured call event data"
+      ],
+      "correct": 1,
+      "explanation": "Output is a .tar archive containing one .pcap. Extract first, then open the .pcap in Wireshark. The other formats are wrong; CSV and JSON of SIP data come from other PSE reports, not the packet capture tool."
+    },
+    {
+      "id": "q-status-failed",
+      "type": "mcq",
+      "topic": "diagnostics",
+      "difficulty": "medium",
+      "prompt": "CDR shows a failed outbound call with Last Participant = 'No matching route'. The user dialled 0299998888. What's the cause?",
+      "choices": [
+        "The trunk to the carrier is in Registration Failed status",
+        "The user's extension isn't authorised to use any outbound route that matches the dialled pattern",
+        "The carrier returned 403 Forbidden",
+        "DTMF Mode mismatch dropped the digits the user dialled"
+      ],
+      "correct": 1,
+      "explanation": "'No matching route' means PSE evaluated outbound routes and didn't find one that both matched the dialled pattern AND included this user's extension in its From Extensions list. Often the route exists but the user's extension or group isn't in the allowed list."
+    }
+  ]
+}

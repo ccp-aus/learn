@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-linkus-checkpoint-clients",
+  "course": "yeastar-linkus",
+  "kind": "checkpoint",
+  "title": "Quick check, the three clients",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-clients-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user needs to host a video conference call. Which Linkus client should they use?",
+      "choices": [
+        "Linkus Desktop (Windows or macOS)",
+        "Linkus Web (in a browser)",
+        "Linkus Mobile (iOS or Android)",
+        "Any of the three; they all host video conferences"
+      ],
+      "correct": 1,
+      "explanation": "Video conferencing only hosts in Linkus Web. The Desktop client's video-conferencing button redirects you to the Web client. Mobile doesn't host video conferences at all (though it can join via the browser)."
+    },
+    {
+      "id": "ck-clients-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "The QR code in a Linkus welcome email can be scanned multiple times if the user has to re-install the app.",
+      "correct": false,
+      "explanation": "QR codes (and login links) are single-use. If a user needs to log in again on a new device, the admin needs to send a fresh welcome email, or the user has to log in manually with credentials."
+    }
+  ]
+}

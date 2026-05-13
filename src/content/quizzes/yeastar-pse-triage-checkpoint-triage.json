@@ -1,0 +1,33 @@
+{
+  "slug": "yeastar-pse-triage-checkpoint-triage",
+  "course": "yeastar-pse-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, what to gather",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-triage-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "A user reports 'we connected but I couldn't hear them and they couldn't hear me'. Before escalating, what should you gather from PSE? (Select all that apply.)",
+      "choices": [
+        "The CDR row for the call, confirming Status = ANSWERED and a real Duration",
+        "The MOS / RTCP stats in the call detail (if firmware supports it)",
+        "A SIP trace via Maintenance → Troubleshooting, filtered to the user's extension during the symptom window",
+        "The recording playback (if recording captured the audio at all)",
+        "The user's home address"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "All four data points narrow the cause: CDR confirms the call connected; MOS tells you whether quality was the issue; the SIP trace shows SDP IPs (where the NAT problem usually lives); the recording tells you whether the PBX itself captured audio. Address is irrelevant; data hygiene matters."
+    },
+    {
+      "id": "ck-triage-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If a customer's callflow goes to the wrong destination at certain times of day, a likely cause is a misconfigured timezone on the PBX (PBX Settings → Date and Time) making business-hours time conditions fire at the wrong wall-clock times.",
+      "correct": true,
+      "explanation": "Timezone misconfig is a classic 'callflow took the wrong path' root cause. The time condition logic is correct, but PSE's idea of 'now' is off by hours, so 'after hours' branches fire during the day or vice versa. Always check Date and Time when timezone-correlated callflow tickets come in."
+    }
+  ]
+}

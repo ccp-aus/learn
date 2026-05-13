@@ -1,0 +1,38 @@
+{
+  "slug": "voip-fundamentals-checkpoint-handshake",
+  "course": "voip-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, SIP handshake",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-handshake-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "In a SIP trace, you see REGISTER → 401 → REGISTER (with Auth header) → 401 → REGISTER (with Auth) → 403. What's the most likely cause?",
+      "choices": [
+        "The PBX is rate-limiting the user",
+        "The password digest isn't matching; after a few failures the PBX is blocking with 403",
+        "The transport (UDP/TCP/TLS) is misconfigured",
+        "The extension doesn't exist"
+      ],
+      "correct": 1,
+      "explanation": "A 401 in response to a REGISTER with an Authorization header means the digest didn't validate. After repeated failures, most PBXs return 403 Forbidden and may auto-block the source IP via security rules. Wrong password is the prime suspect; non-existent extension would return 404, not 401."
+    },
+    {
+      "id": "ck-handshake-2",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which SIP response code class indicates the called party-side specifically said no for some reason (not available, not allowed, doesn't exist)?",
+      "choices": [
+        "1xx (provisional)",
+        "3xx (redirection)",
+        "4xx (client error)",
+        "5xx (server error)"
+      ],
+      "correct": 2,
+      "explanation": "4xx codes are client-side / called-side errors: 404 not found, 480 unavailable, 486 busy, 403 forbidden, etc. 5xx is server / infrastructure failure (e.g. 503 from a sick trunk)."
+    }
+  ]
+}

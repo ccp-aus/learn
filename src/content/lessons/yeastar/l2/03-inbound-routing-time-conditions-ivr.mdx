@@ -1,0 +1,186 @@
+---
+slug: 03-inbound-routing-time-conditions-ivr
+vendor: yeastar
+level: l2
+title: Inbound routing, time conditions, and IVR design
+summary: "How calls flow from a DID to the right destination by hour of day and day of year; multi-tier IVR design with key-press routing; the full destination palette including AI Receptionist."
+estimatedMinutes: 11
+order: 3
+topics: [pse, inbound-routing, ivr, time-condition, holiday]
+updated: 2026-05-13
+---
+
+A call lands on a trunk. The DID matches an inbound route. Now PSE has to decide what happens to that call: ring an extension, drop into an IVR, join a queue, hit voicemail, forward to an external number, hang up. The decision often depends on the time of day (business hours vs after hours), the day of the year (holidays), and which key the caller presses in an IVR. This lesson walks the destination palette, the time-condition mechanics, and how to build a multi-tier IVR that doesn't trap callers.
+
+The triage course covered reading these things from the outside (the CDR Timeline, an extension's inbound route lookup). This course covers building them.
+
+## The full destination palette
+
+Every routing decision in PSE picks from the same destination set. Knowing the full list saves you reaching for the wrong tool.
+
+| Destination | What it does | Use when |
+|---|---|---|
+| Hang Up | End the call | After-hours-with-no-voicemail; explicitly declined inbound numbers |
+| Play Greeting then Hang up | Play a prompt then end | "Our office is closed for the public holiday, please call back tomorrow" |
+| Extension | Ring a single extension | Reception desk during business hours |
+| Extension Voicemail | Drop straight to one user's voicemail | Senior leadership backline; "leave a message for the CFO" |
+| Group Voicemail | Drop to a shared voicemail box | "Leave a message for the Sales team" mailbox monitored by a group |
+| Match Selected Extensions | Ring a fixed list of extensions | Small customer-facing pool that doesn't justify a queue |
+| Match Extension Range | Ring a sequential range | Used with DID Range matching mode |
+| DID Number to Specific Extension | Each DID rings exactly one extension | Used with the DID-to-specific-extension matching mode |
+| IVR | Caller hears a menu and presses a key | Multi-team companies, after-hours menus, language picker |
+| Call Flow | The visual Call Flow Designer's flowchart | When the IVR isn't enough (database lookup, conditional logic, HTTP request) |
+| AI Receptionist | The LLM-driven voice receptionist | When you want natural-language intent routing instead of key presses |
+| Ring Group | Ring N extensions by strategy | Workgroups: "anyone in this list can answer" |
+| Queue | Full call-centre queue with agents and stats | Customer-facing inbound work where wait-time and answered-rate are KPIs |
+| Conference | Drop into a conference room | Conference-bridge dial-in numbers |
+| External Number | Forward to an outside phone | After-hours mobile rota; receptionist's mobile |
+| Outbound Route | Caller enters a number that gets dialled out | Calling-card style; almost always a security risk, use with PIN |
+| Fax to Email | Detect fax and email it | Legacy customers who still receive faxes |
+
+The Call Flow Designer (Call Control → Call Flow) is the escape hatch when an IVR's flat key-press model isn't enough. It supports time-based branches, condition components with expressions, database lookups, HTTP requests to external services, and back to the IVR. You build the flowchart visually and connect components with arrows. We won't deep-dive Call Flow here (it's a topic that needs its own time), but know it exists when an IVR can't express what the customer wants.
+
+## Time-based routing, three patterns
+
+Most inbound routes route differently in business hours, after hours, and on holidays. PSE supports three time modes:
+
+- **All Time** — single destination always. Simplest. Use when the customer wants a 24/7 ring (e.g. an emergency hotline).
+- **Based on Business Hours Configured for the Time Zone** — uses the system-wide business hours and holidays defined per time zone (PBX Settings → Preferences → Business Hours). Three destinations: business hours, outside business hours, holidays.
+- **Based on Custom Business Hours** — defines custom days and times for THIS route only. Same three destinations.
+- **Based on Custom Time Periods** — multiple discrete periods, each with its own destination. Use when the customer has unusual schedules (lunch break with separate routing, after-school hours different from after-work hours).
+
+For most customers, system-wide business hours plus per-route Holiday Destination is the right level of complexity. Use custom hours only when one inbound route genuinely needs different times than the rest of the customer's routes.
+
+### Holiday handling
+
+PSE has four holiday types:
+
+| Type | Defines | Example |
+|---|---|---|
+| **By Date** | One-off date range | Christmas Day 2026: 25/12/2026 00:00 to 25/12/2026 23:59 |
+| **By Month** | Annual recurring date range | Australia Day: 26/01 00:00 to 26/01 23:59 (recurs every year) |
+| **By Week** | Month + week-of-month + day-of-week | Memorial Day (US): May, Last Week, Monday |
+| **By Weekday** | Month + which weekday in the month | Labour Day (US): September, First Monday |
+
+Configure under PBX Settings → Preferences → Holiday. Each holiday has an optional Holiday Prompt that plays once before routing to the holiday destination ("Our office is closed for ANZAC Day, we'll reopen tomorrow at 9am").
+
+The **Ignore the Holiday Destination** checkbox on a route lets you opt out of holiday routing for one route. Useful when a route should follow business-hours rules even on a holiday (an emergency support line that runs 24/7 except for Christmas Eve, where holiday routing kicks back in).
+
+## Building an IVR that doesn't trap callers
+
+```
+Call Control → IVR → Add
+```
+
+The IVR is the most common destination on customer-facing inbound routes. The basic config:
+
+- **Number** — a virtual extension number (default range 6200-6299) that internal extensions can dial to test the IVR.
+- **Name** — what you call it.
+- **Prompt** — the audio file that plays. PSE supports up to 5 prompt files in sequence; useful when a long greeting is split into "welcome" + "menu options" + "language disclaimer" pieces.
+- **Prompt Repeat Count** — how many times to replay if the caller doesn't press a key. Default 3.
+- **Response Timeout (s)** — how long to wait for the first key press. Default 3 seconds.
+- **Digit Timeout (s)** — how long to wait between digits if the caller is dialling a multi-digit value. Default 3 seconds.
+
+Then the meat: **key press destinations**. Each of 0-9, `*`, `#` can route to any of the destination types listed above, plus two synthetic events:
+
+- **Response Timeout** — caller stayed silent through Prompt Repeat Count. Where do they go?
+- **Invalid Input** — caller pressed keys that don't have a destination defined. Where do they go?
+
+The default Yeastar prompt is "Dial the extension number or press 0 for operator" which assumes you've enabled **Dial Extensions** (callers can type any extension number to ring it directly). Most customers want to control this:
+
+- **Disable** — no extension dialling from this IVR.
+- **All Extensions** — any extension number on the PBX can be dialled.
+- **Allowed Extensions** — only the listed extensions can be dialled.
+- **Restricted Extensions** — all extensions can be dialled EXCEPT the listed ones.
+
+Allowed Extensions is the right default for a customer-facing IVR; restricting to a published staff directory means callers can't accidentally (or maliciously) ring the office printer's intercom extension.
+
+Two more permissions worth setting deliberately:
+
+- **Allow Calling Numbers** — can the caller dial ring group, queue, or conference numbers from this IVR? Usually yes if the customer publishes those numbers.
+- **Dial Outbound Routes** — can the caller make outbound calls FROM this IVR? **Almost always no.** This is how toll-fraud happens (caller hits IVR, dials out to international, customer foots the bill).
+
+### Multi-level IVR
+
+A single IVR is one menu, one set of key-presses. Sometimes you need a second menu (Sales → "press 1 for Sydney, 2 for Brisbane, 3 for Melbourne"). Set the destination for the Sales key on the first IVR to a *second IVR*. PSE calls this multi-level IVR; there's no special config, you just chain IVRs by setting one as the destination of the other.
+
+Don't go more than two levels deep. Three-deep IVRs feel like phone-tree hell to callers. If the customer's business genuinely has three layers of menu, that's usually a sign the front layer should be split into multiple inbound routes (different DIDs going straight to different second-tier menus) instead.
+
+### AI Receptionist as a destination
+
+Newer firmwares (v83.22.0.139 and later) added `AI Receptionist` as an IVR destination and as an inbound route destination. The AI Receptionist is a separate construct (configured under AI), where you define intents and the LLM routes the call by interpreting natural-language requests ("I need to talk to someone about my invoice"). For this lesson, the relevant fact is just that it shows up in the destination picker. Setting it up belongs to the advanced course.
+
+## A worked example: Able Moose Accounting's main number
+
+Able Moose's main number `+61398889100` rings into reception during business hours, an after-hours IVR after 6pm and on weekends, and a "we're closed for the holiday" message on declared holidays.
+
+<StepThrough>
+  <Step title="Set up the inbound route">
+    Call Control → Inbound Routes → Add. Name: "Sydney Main Inbound". Trunk: the Sydney trunk. DID Pattern: `+61398889100` (DID Pattern matching mode, single pattern). Time Condition: enable, Time Zone: Australia/Sydney.
+  </Step>
+  <Step title="Define the three time-based destinations">
+    Default Destination (business hours): Extension 1000 (the Sydney reception desk). Outside Business Hours Destination: IVR `Sydney-After-Hours`. Holidays Destination: a "Play Greeting then Hang up" with the holiday prompt `office_holiday_2026.wav`.
+  </Step>
+  <Step title="Build the after-hours IVR">
+    Call Control → IVR → Add. Name: "Sydney-After-Hours". Prompt: `after-hours-greeting.wav` ("Our office is closed. For urgent support, press 1. To leave a message for the team, press 2. To hear our hours, press 3.")
+  </Step>
+  <Step title="Configure the IVR key destinations">
+    Press 1 → External Number `+61400123456` (the on-call mobile). Press 2 → Group Voicemail `Sales-VM`. Press 3 → Play Prompt and Exit (a recorded clip of the office hours). Response Timeout → Group Voicemail `Sales-VM`. Invalid Input → repeat the prompt up to Prompt Repeat Count (default 3) then drop to Group Voicemail.
+  </Step>
+  <Step title="Test from the outside">
+    Call the main number during business hours: should ring reception. Call after 6pm: should hit the after-hours IVR; press 1 should call the on-call mobile. Set today as a test holiday in Holiday settings (or use a soon-coming real one): call should hit the holiday prompt and hang up.
+  </Step>
+</StepThrough>
+
+<Callout type="info" title="A common subtle bug, the timezone field">
+The PBX's system timezone (PBX Settings → Date and Time) and the per-route Time Zone field are two separate settings. If the PBX is on UTC and the route is on Australia/Sydney, business hours fire correctly because the route uses its own timezone for the comparison. If both are misconfigured, calls land in the wrong destination at unpredictable hours. Always check both when a customer reports "after-hours destination fired during business hours".
+</Callout>
+
+## Choosing the right routing tool
+
+A short decision tree for "what destination do I pick when the customer says X?":
+
+<DecisionTree client:load
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Does the call need to reach more than one person?", choices: [
+      { label: "No, one specific person or mailbox", next: "single" },
+      { label: "Yes, several people might answer", next: "multi" },
+      { label: "Caller needs to choose where they go", next: "choose" },
+    ]},
+    { type: "question", id: "single", prompt: "Does the customer need stats on this call line?", choices: [
+      { label: "No, it just needs to ring", next: "ext" },
+      { label: "Yes, who called and when, but they want voicemail not a ring", next: "vm" },
+    ]},
+    { type: "outcome", id: "ext", label: "Destination: Extension", tone: "success",
+      body: "Single extension. Reception desk, exec assistant, named individual. CDR captures the call as normal." },
+    { type: "outcome", id: "vm", label: "Destination: Extension Voicemail", tone: "info",
+      body: "Drops straight to that user's voicemail. The user gets the email notification, the call is in CDR with status VOICEMAIL." },
+    { type: "question", id: "multi", prompt: "Does the customer track wait time and answered rate as KPIs?", choices: [
+      { label: "Yes, this is a real customer-facing service", next: "queue" },
+      { label: "No, it just needs to land with someone available", next: "rg" },
+    ]},
+    { type: "outcome", id: "queue", label: "Destination: Queue", tone: "success",
+      body: "Full call-centre queue. Static and dynamic agents, MoH, periodic announcements, position-in-queue, wrap-up time, the queue stats reports. The next lesson covers queue config." },
+    { type: "outcome", id: "rg", label: "Destination: Ring Group", tone: "success",
+      body: "Lighter than a queue. Pick a ring strategy (Ring All, Memory Hunt, etc.), set a failover destination. No queue stats, no position announcements. The next lesson covers ring group config." },
+    { type: "question", id: "choose", prompt: "Will key-press selection work, or does the customer want natural-language routing?", choices: [
+      { label: "Key presses are fine", next: "ivr" },
+      { label: "Natural-language routing", next: "ai" },
+    ]},
+    { type: "outcome", id: "ivr", label: "Destination: IVR", tone: "success",
+      body: "Build the IVR's prompt, key destinations, and timeouts. Limit to two levels of menu depth. Always set Response Timeout and Invalid Input to a sane fallback (group voicemail or repeat-then-hang-up)." },
+    { type: "outcome", id: "ai", label: "Destination: AI Receptionist", tone: "info",
+      body: "Configured separately under AI. Define intents, business knowledge, escalation rules. The advanced course walks AI Receptionist setup; for this lesson it's enough to know it's available as an inbound destination." },
+  ]}
+/>
+
+## What this is NOT
+
+- **Not a Call Flow Designer tutorial.** Call Flow is the visual flowchart escape hatch beyond IVR; it has its own component palette (Prompt, Business Hours, Menu, User Input, Condition, Database Access, HTTP Request, etc.) and is rich enough to need its own dedicated treatment in a future course.
+- **Not the AI Receptionist setup walkthrough.** Setting up intents, uploading business knowledge, and tuning fallback behaviour is the advanced course.
+- **Not a treatment of outbound routes.** Outbound routes (which trunk to use for which dialled patterns, PIN-restricted dialling, call-frequency limits) are a related topic but a different subsystem; covered briefly in the recording-and-voicemail lesson where it intersects with policy.
+
+<Checkpoint slug="yeastar-pse-build-checkpoint-routing" client:visible />
+
+Next lesson: queues and ring groups, the destinations behind most IVR-press-1 paths.

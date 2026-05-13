@@ -1,0 +1,19 @@
+{
+  "slug": "voip-deep-diagnostics",
+  "vendor": "voip",
+  "level": "l3",
+  "title": "VoIP, diagnosing hard voice issues",
+  "shortTitle": "Deep voice diagnostics",
+  "summary": "Following a call's signalling path across proxies and B2BUAs, the failure-mode catalogue for registration / mid-call / one-way / quality, what changes when SIP TLS and SRTP enter the picture, and the analyst's workflow when traffic is encrypted.",
+  "estimatedMinutes": 55,
+  "prereqs": ["voip-sip-in-practice"],
+  "lessons": [
+    "01-wireshark-sip-flows",
+    "02-failed-registration-deep-dive",
+    "03-mid-call-failures",
+    "04-one-way-and-quality-deep-dive",
+    "05-encryption-and-srtp"
+  ],
+  "quiz": "voip-deep-diagnostics-final",
+  "status": "live"
+}

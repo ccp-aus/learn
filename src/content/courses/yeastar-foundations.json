@@ -1,0 +1,17 @@
+{
+  "slug": "yeastar-foundations",
+  "vendor": "yeastar",
+  "level": "l1",
+  "title": "Yeastar foundations, the three pieces and how they fit",
+  "shortTitle": "Yeastar foundations",
+  "summary": "Shared orientation for everyone joining the Yeastar voice track: what YCM, PSE, and Linkus each do; the MSP-as-BYOI Cloud PBX model; and the decision tree for which console to open first when a ticket lands.",
+  "estimatedMinutes": 15,
+  "prereqs": [],
+  "lessons": [
+    "01-three-pieces",
+    "02-byoi-cloud-pbx-model",
+    "03-where-to-look"
+  ],
+  "quiz": "yeastar-foundations-final",
+  "status": "live"
+}

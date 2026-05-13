@@ -1,0 +1,155 @@
+---
+slug: 03-ai-receptionist-and-toolbox
+vendor: yeastar
+level: l3
+title: AI Receptionist and the AI Toolbox
+summary: "AI Receptionist as an IVR destination (intents, fallbacks, knowledge upload, escalation), the AI Toolbox (text-to-speech, transcription), and the YCM-side quota economics that decide whether your customer can use any of it next month."
+estimatedMinutes: 11
+order: 3
+topics: [pse, ai-receptionist, ai-toolbox, tts, transcription]
+updated: 2026-05-13
+---
+
+PSE ships a built-in AI feature set under the **Call Features → AI Receptionist** and **Call Features → AI Toolbox** menus. The AI Receptionist is an LLM-backed voice agent that can answer common questions and route harder ones to a human. The AI Toolbox is the supporting infrastructure: text-to-speech for IVR prompts, AI transcription for call recordings, and the speech-to-text engine that powers both. None of it is free; all of it is metered out of YCM-allocated quotas. This lesson covers the setup, the design choices, and the quota economics a senior tech needs to keep an eye on.
+
+## AI Receptionist, what it actually is
+
+An AI Receptionist is a destination type in the same family as Extension, Queue, Ring Group, IVR, and Voicemail. You wire it into an inbound route or an IVR menu the same way you'd wire any of those (the API destination value is literally `ai_receptionist`, added in 83.22.0.134).
+
+When a call reaches an AI Receptionist:
+
+1. The receptionist greets the caller with a configured opening prompt (synthesised via text-to-speech).
+2. The caller speaks naturally. Their speech is transcribed in real time.
+3. The receptionist matches what they said against the configured **intents** (the things the receptionist is supposed to be able to handle).
+4. For a matched intent, the receptionist executes the associated action: answer from a knowledge document, transfer to an extension, transfer to a queue, send to voicemail, or hang up.
+5. For an unmatched intent (or repeated misses), the receptionist falls back: transfer to a designated fallback destination, usually a human queue.
+
+After the call ends, the CDR row carries an **AI Receptionist** status: Resolved (handled without transfer), Transferred (handed to a human), or Unresolved (neither).
+
+## Setup, in order
+
+Per the menu structure: **Call Features → AI Receptionist → Add**. The configuration breaks into four parts, and the order matters because each part builds on the previous.
+
+<StepThrough>
+  <Step title="Identity and language">
+    Name the receptionist (the customer's brand: "Able Moose Reception"). Pick a voice (TTS voice + language; the receptionist will speak and listen in this language). Pick a default fallback destination, the place callers end up when nothing matches; usually a queue or a Ring Group.
+  </Step>
+  <Step title="Greeting and reception loop prompts">
+    The greeting is the first thing the caller hears. The reception loop prompts (re-asking after a missed intent, asking to clarify) shape how patient the receptionist is. Either Custom Prompt (recorded audio) or Text-to-Speech (typed text the TTS engine reads). TTS is faster to iterate on; recorded audio is warmer for the customer's brand voice. Pick per situation.
+  </Step>
+  <Step title="Intents">
+    The list of things the receptionist can handle. Each intent has a name, a description (what the caller might say to trigger it), and an action (what to do when matched). Example intents for an accounting firm: "I need to talk to my account manager" -> transfer to the contact-management queue; "What are your office hours?" -> answer from the knowledge document; "I want to leave a message" -> voicemail.
+  </Step>
+  <Step title="Business knowledge upload">
+    For answer-from-knowledge intents, upload a PDF / DOCX / TXT containing the source-of-truth content. The receptionist queries against the uploaded text when the intent fires. Keep this scoped: a 200-page company handbook is not appropriate; a one-page FAQ is. Smaller is better for accuracy and latency.
+  </Step>
+  <Step title="Escalation and fallback rules">
+    What happens when the receptionist genuinely cannot figure out what the caller wants. Set the number of failed intent matches before fallback (default usually 2-3), set the fallback destination, optionally set a "press 0 for a human" key-press shortcut that bypasses the AI loop.
+  </Step>
+  <Step title="Save and test">
+    Save. Wire the receptionist into an inbound route or an IVR Menu key. Test by calling the route; iterate on prompts and intents based on what works.
+  </Step>
+</StepThrough>
+
+## Wiring into call flows
+
+Two common patterns:
+
+- **AI receptionist on the main DID.** Inbound route from the main customer number lands directly on the AI Receptionist. Use when the customer wants AI to triage every incoming call.
+- **AI receptionist as an IVR menu choice.** Inbound route lands on a traditional IVR ("press 1 for sales, press 2 for support, press 3 to talk to a person"); one of the IVR keys is wired to the AI receptionist. Use when the customer wants to gate AI to a specific use case (e.g. only callers who want operating-hours / address info).
+
+The first pattern is the more aggressive AI rollout. The second is what most MSPs default to with a new customer, because it gives the human queue a clear bypass while the receptionist's intent set is still being tuned.
+
+<Callout type="tip" title="Match the receptionist's intent count to the staff training">
+Six well-tuned intents beats twenty noisy ones. A receptionist that confidently handles a small set and falls back cleanly is a much better experience than one that confidently mis-answers half the questions. Start with three or four intents in the first deployment, watch the CDR Resolved/Transferred/Unresolved ratios for a week, then add intents based on what callers actually asked.
+</Callout>
+
+## The AI Toolbox: text-to-speech, transcription, and STT
+
+Three features in one menu. They serve different purposes but they share the AI quota pool.
+
+### Text-to-speech (TTS)
+
+Used anywhere PSE wants to play a generated audio prompt without you recording it yourself. Most obviously: IVR menu prompts, AI Receptionist greetings, call-flow Prompt components (in the Call Flow Designer; see pse-build).
+
+```
+Call Features → AI Toolbox → Text to Speech
+```
+
+Each TTS prompt is a small config: language, voice (a list of neural voices, plus some older robotic-sounding voices that 83.20.0.128 deprecated), speed, volume, and the text itself. Static text is what most prompts use; dynamic text (the prompt embeds variables that get filled in at call time) is the call-flow-designer power-user feature, used for things like `Hello, your booking reference is <bookingRef>`.
+
+The 83.20.0.128 release notes flagged a subtlety worth knowing: some of the older robotic-sounding voices were retired from new TTS generation. Existing prompts that used them keep playing fine; you just can't edit them. If a prompt's been "since forever, no one knows who recorded it" and a customer asks you to tweak the wording, you may need to re-generate with a neural voice.
+
+### AI Transcription
+
+Generates a text transcript of a recorded call. Appears in the CDR's AI Transcription panel; downloadable as `.txt` or `.docx`. The point: searching by keyword across a six-month archive of call recordings is hopeless without transcription, but trivial with it.
+
+Two prerequisites:
+
+1. The call must have been recorded (recording rule covered in pse-build's recording lesson).
+2. Transcription must be enabled for the call's scope (per-extension or org-wide).
+
+Permission to view transcripts is gated on the user-role's CDR + recording permissions; if a role can play the recording, they can usually see the transcript. The exact gating is in the User Role Permissions matrix under AI Toolbox.
+
+### Speech-to-Text via Google Cloud (for voicemail transcription)
+
+A separate STT integration, distinct from AI Transcription. The voicemail transcription feature uses Google Cloud Speech-to-Text rather than Yeastar's built-in transcription. Setup is in **Integration → Speech to Text** (note: the menu lives under Integration, not AI Toolbox, because the credentials are for an external Google service).
+
+The setup is mechanical: create a Google Cloud project, enable Cloud Speech-to-Text API, generate an API key restricted to the STT API, paste the key into PSE, pick a transcription language. After that, voicemails get a transcript automatically; the user sees the transcribed text in the email body their voicemail-to-email notification sends.
+
+The trade-off: voicemail transcription goes to a separate vendor (Google Cloud) under a separate billing arrangement (the customer's GCP account, not Yeastar's AI quota). For some customers that's an advantage (no quota burn for low-volume voicemail); for others it's friction (another vendor account to maintain).
+
+## The quota economics: where this gets uncomfortable
+
+The AI features draw against capacity allocated from YCM. From a PSE-only view, there's no quota counter visible at config time; PSE will happily let you save an AI Receptionist that consumes a thousand minutes in its first week. From a YCM view, that thousand minutes comes out of a defined pool with a finite size, and once the pool's drained, AI calls fail.
+
+Capacity types involved:
+
+| YCM capacity | What burns it |
+|---|---|
+| `receptionistCapacity` (AI Receptionist minutes) | Every minute a caller is connected to an AI Receptionist |
+| `transcriptionCapacity` (AI Transcription minutes) | Every minute of recording transcribed |
+| `ultimatePlanCapacity` | Whether the customer's plan even supports the AI features in the first place |
+
+The YCM-side allocation is at the per-Cloud-PBX level, set at create time and resizable later. Senior techs need to do two things:
+
+1. **Monitor consumption.** YCM's My Subscription view shows pool-level consumption; the per-Cloud-PBX view shows that tenant's draw. Excessive AI minute burn often indicates a runaway loop (an IVR misconfiguration that funnels everything through the AI; a poorly-tuned intent set where fallback is "transfer to AI again"). Look at the CDR Resolved/Transferred/Unresolved ratio; if Unresolved is climbing while AI minutes are also climbing, the receptionist is failing closed and burning time.
+2. **Plan resizes ahead of run-out.** A customer who's at 80% of their monthly AI quota mid-month is going to hit zero before the cycle resets. Better to upgrade the allocation in YCM proactively than to have AI calls start failing during a workday. The Concurrent Calls Overload event notification (added in 83.22.0.134) is a related early-warning that helps with the same class of capacity-watching.
+
+The YCM-side AI quota allocation is covered in `yeastar-ycm-scale`'s billing-and-subscription lesson. This lesson's job is to teach the PSE-side feature; the next-level governance is the YCM lesson.
+
+<Callout type="warn" title="Run-aways happen during testing">
+A common cause of unexpected AI minute burn is testing without an exit. A senior tech configures an AI Receptionist, dials in to try it, gets stuck in the conversation loop with no clear hang-up trigger, and forgets to test the hang-up intent. Five minutes of test calls a day for a week is half an hour of burn that comes out of the customer's pool, not yours. Build a "goodbye, this call is ending" intent during development, and use it.
+</Callout>
+
+## How AI features interact with recording
+
+The AI Receptionist conversation is recorded the same way any call is recorded; the recording rule determines whether the audio is kept. AI Transcription operates on the recording, so if recording is OFF, transcription has nothing to transcribe. Voicemail-STT is independent (it works on the voicemail recording, which is always kept regardless of call recording rules).
+
+A subtlety: when a call reaches the AI receptionist and then transfers to a human queue, the recording typically continues seamlessly across both legs (the call is one CDR with multiple Legs in the timeline). The transcription covers both legs in one document. For compliance use cases (a regulated industry that requires the human portion to be recorded with explicit consent), the recording-tone prompt (set in PBX Settings -> Voice Prompts -> Recording Tones) plays at call-start so the caller is on notice.
+
+## Worked example: Able Moose Group's AI Receptionist
+
+Able Moose's reception desk used to handle inbound at the head office: 350 calls a day, 80% of which were "what's my BAS lodgement deadline?" or "what's your office address?" or "can I speak to my account manager?". The receptionist had three options: answer the same three questions all day, transfer the rest, or get behind on their actual job.
+
+The AI Receptionist rollout:
+
+| Intent | Action | Why |
+|---|---|---|
+| "What are your hours?" / "Are you open today?" | Answer from knowledge doc | Static fact; perfect AI fit |
+| "What's my BAS deadline?" / "When are taxes due?" | Answer from knowledge doc (current cycle's deadlines) | Cycle-stable fact; updated quarterly |
+| "I want to speak to my account manager" | Ask for the caller's name; transfer to the contact-management queue | Routes to a human, but identifies the caller first |
+| "I want to leave a message" | Voicemail | Self-explanatory |
+| Anything else, twice | Fallback: main-reception queue | Where the human receptionist sits |
+
+Three months in, the CDR shows ~52% Resolved, ~38% Transferred-cleanly, ~10% Unresolved. The receptionist is doing 180 of the 350 daily calls without a human; the other 170 still go to a person, but with the caller's name and reason already known. AI minute burn averages 8 minutes per Resolved call (including the talk-back-and-forth time), which works out to about 800 minutes a month, well inside their YCM-allocated 2,000-minute quota.
+
+The honest reckoning: the AI is good at the FAQ shape and bad at anything new (an Australian Taxation Office rule change three weeks ago that's not in the knowledge doc shows up as Unresolved). Quarterly review with the customer to update the knowledge upload is how that gets fixed.
+
+## What this lesson did not cover
+
+- AI Call Activity Report: this is in the reporting and call accounting lesson.
+- AI Summary (the per-call summary that appears in the CDR's row): mentioned, but the detailed user-experience is covered in pse-triage's CDR lesson.
+- The Call Flow Designer's deeper integration with TTS / Internal Data Ops / HTTP Request: out of scope here; CFD is a separate guided learning track.
+
+<Checkpoint slug="yeastar-pse-advanced-checkpoint-ai" client:visible />

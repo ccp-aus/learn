@@ -1,0 +1,34 @@
+{
+  "slug": "yeastar-ycm-provisioning-checkpoint-templates",
+  "course": "yeastar-ycm-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, provisioning templates",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-templates-scope",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these settings can a Provisioning Template carry? (Select all that apply.)",
+      "choices": [
+        "Allowed IPs",
+        "The list of extensions to create",
+        "Music on Hold (with its audio file)",
+        "Inbound routes and IVR structure",
+        "Distinctive Caller ID Name format",
+        "Allowed country codes for outbound dialling"
+      ],
+      "correct": [0, 2, 4, 5],
+      "explanation": "Templates carry baseline settings (allowed IPs, music on hold, distinctive caller ID, country codes, contact visibility, device naming, speech-to-text). They do not carry per-customer data like extensions, queues, IVRs, time conditions, recording rules, trunks, or DIDs. Those are built per-customer in PSE after the template applies."
+    },
+    {
+      "id": "ck-templates-retroactive",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If you edit a Provisioning Template after applying it to a PBX, the changes flow back into that PBX automatically.",
+      "correct": false,
+      "explanation": "Template application is a one-shot push at apply time. Later edits to the template do not retroactively reach PBXes that already received it. This is by design: customers override settings post-apply, and a retroactive push would clobber their overrides."
+    }
+  ]
+}

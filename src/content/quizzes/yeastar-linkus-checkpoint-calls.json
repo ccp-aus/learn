@@ -1,0 +1,38 @@
+{
+  "slug": "yeastar-linkus-checkpoint-calls",
+  "course": "yeastar-linkus",
+  "kind": "checkpoint",
+  "title": "Quick check, transfer styles",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-calls-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer calls reception and is upset; they want to speak to a specific sales rep. The receptionist wants to brief the sales rep before connecting the customer. Which transfer should she use?",
+      "choices": [
+        "Blind transfer — it's faster",
+        "Attended transfer — she can talk to the sales rep first and brief them",
+        "Either one; they behave the same",
+        "Park the call and have the rep pick it up"
+      ],
+      "correct": 1,
+      "explanation": "Attended transfer puts the caller on hold while the receptionist talks to the target. She can brief, the target can decline, and the caller is only connected once both sides are ready. Blind transfer would drop the call onto the target with no warning — risky for an upset customer."
+    },
+    {
+      "id": "ck-calls-2",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "What does Call Flip do?",
+      "choices": [
+        "Transfers the current call to a different extension",
+        "Moves the current call to a different device that's also logged in with the same extension (e.g. mobile to desktop)",
+        "Reverses who's the caller and who's the callee",
+        "Inverts the audio direction for one-way audio troubleshooting"
+      ],
+      "correct": 1,
+      "explanation": "Call Flip moves an active call between devices registered to your own extension. You're on your phone, you flip the call to your desktop, the call continues there. It's not a transfer (the other party hasn't changed)."
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+---
+slug: 04-trunks-dids-and-resources
+vendor: yeastar
+level: l2
+title: Shared trunks, DIDs, and AI minute resources
+order: 4
+estimatedMinutes: 9
+topics: [ycm, trunks, dids, resources, ai-minutes]
+updated: 2026-05-13
+summary: "How shared trunks live at the MSP level and bind onto a customer's Cloud PBX; the DID assignment flow and its firmware and region prerequisites; the three AI minute pools (plan minutes, add-on minutes, monthly packs) and when each belongs."
+---
+
+A new Cloud PBX is born without a way to make or receive PSTN calls. Trunks live one layer up, at the MSP's YCM, and the provisioning team's job is to assign the right trunk and the right DIDs onto each customer's PBX. The same pattern applies to AI minutes: the pool sits at YCM, allocations land on the PBX. This is the lesson where the MSP's shared infrastructure meets the customer's instance.
+
+## The shared-trunk model in two sentences
+
+The MSP holds one or more SIP trunks at YCM. Each customer's Cloud PBX gets the trunks it needs assigned from that pool, with DIDs (inbound numbers) bound to the assignments.
+
+Why this shape: an MSP with 80 customers doesn't want 80 carrier accounts and 80 separate registration credentials to chase. One carrier account, one trunk in YCM, 80 assignments out to customer PBXs. The customer never sees the trunk credentials; they see calls flowing.
+
+## Trunk types
+
+Trunks come in three shapes (the same three any SIP-aware tech sees on any PBX, plus the YCM wrapper):
+
+| Trunk type | When carriers want this | Identifier |
+|---|---|---|
+| **Register trunk** | The PBX authenticates to the carrier with a username and password | `type: register` |
+| **Peer trunk (DID-based)** | The carrier identifies the PBX by the dialled DID, no username | `type: did_based` |
+| **Peer trunk (port-based)** | The carrier identifies the PBX by source IP and port | `type: port_based` |
+
+The carrier dictates which one. Read the carrier's onboarding sheet, pick the matching shape, fill the fields. The `voip-sip-in-practice` course's trunk-configuration lesson explains the differences in protocol terms; this lesson is about the YCM-side wrapping.
+
+Trunk creation lives at:
+
+```
+Repository  →  Shared Trunks  →  Add
+```
+
+## DIDs sit on trunks, not on PBXes
+
+The next mental model that catches techs is that DIDs belong to trunks, not to PBXes. The MSP adds DIDs into YCM and associates them with a trunk:
+
+```
+Repository  →  DID Numbers  →  Add
+```
+
+A DID record carries:
+
+- `didList`, the numbers themselves (in `+xxx` or `xxx` format, comma-separated for bulk add)
+- `didName`, a human label for the batch
+- `trunkIds`, the list of trunks the DIDs are assigned to (usually one; the multi-trunk shape exists for failover)
+
+The DID exists in YCM the moment you add it. It isn't yet routed to any customer; that's the next step.
+
+## Binding trunks and DIDs to a Cloud PBX
+
+This is the move most provisioning tickets ask for. The customer has a PBX, the MSP has a carrier trunk and a DID block, and the job is to wire them together.
+
+### Prerequisites
+
+Three things must be true before you start:
+
+- The **shared trunk and the Cloud PBX are in the same region**. A Sydney-hosted trunk cannot be assigned to a Singapore-hosted PBX. If the customer needs both regions, create separate trunks per region.
+- The DIDs have been added to that trunk in YCM.
+- The Cloud PBX firmware is **84.19.0.22 or later** (the version that introduced shared-trunk DID assignment).
+
+If any of these fails, the **Add** button on the Assigned DIDs tab is greyed or the trunk dropdown is empty.
+
+### The assignment procedure
+
+<StepThrough>
+  <Step title="Open the customer's Cloud PBX">
+    Cloud PBX list, search the customer, click the row name. The detail page loads.
+  </Step>
+  <Step title="Switch to the Assigned DIDs tab">
+    The tab list across the top includes Customer, Assigned Trunks, Assigned DIDs, and a few others. Click Assigned DIDs.
+  </Step>
+  <Step title="Click Add">
+    A pop-up opens. The first field is **Shared Trunk**, a dropdown of every trunk in the PBX's region.
+  </Step>
+  <Step title="Pick the trunk and the DIDs">
+    Pick the trunk; the second field, **DID Numbers**, populates with the DIDs assigned to that trunk in YCM. Pick the DIDs to route to this PBX. Multi-select if the customer gets a number block; single-pick if they get one main number.
+  </Step>
+  <Step title="Add custom SIP headers if the trunk requires them">
+    On YCM 87.18.0.46+ and PBX 84.22.0.138+, if the shared trunk has custom SIP headers defined (carrier requires `X-CDR-ACCOUNTID` or similar), the Add Header row appears. Pick the header, enter the value. The value must be unique across all Cloud PBXs for the same header on the same trunk; YCM enforces this at save.
+  </Step>
+  <Step title="Save">
+    The assignment commits. On the customer's PBX, the trunk now appears in PSE under Inbound → Trunks, marked as a shared trunk.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/yeastar/assign-dids.png"
+  alt="The Assigned DIDs pop-up showing Shared Trunk set to Europe_Trunk_London and a DID number selected with its descriptive label."
+  caption="The assignment is shared-trunk-first, then DID. The drop-downs are gated by region match; if your customer's PBX is in a different region from the trunk, the trunk won't appear here."
+>
+  <Hotspot client:load x={50} y={45} tone="primary" label="1" title="Pick the shared trunk first" purpose="DIDs filter to the trunk you chose.">
+    Region match gates the trunk dropdown: if the customer's PBX is in a different region from the trunk, the trunk won't appear here. Same region first, then the DID list narrows to numbers actually carried by that trunk.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+### Two things the assignment changes
+
+On the PBX side, **once a trunk is assigned**, two surfaces shift:
+
+- The trunk appears in PSE under Inbound → Trunks with a **shared** badge. The customer's PBX admin can see it but **cannot edit the centrally-managed fields** (registration credentials, hostname, codec list). YCM owns those.
+- Two fields the PBX admin *can* edit on the shared trunk: **Inbound Caller ID Reformatting** (how the PBX normalises the inbound CallerID) and **Outbound Caller ID** (what the PBX presents on outbound; the carrier may override this depending on type-of-service rules). These two are deliberately per-customer.
+
+Lesson 2 of `yeastar-pse-build` covers the PSE-side trunk surface in more detail; what matters here is that the assignment from YCM is what makes the trunk visible at all.
+
+<Callout type="warn" title="Shared trunks are NOT in PBX system backups">
+A backup taken from PSE captures everything except the centrally-managed shared trunks. After a restore (from YCM or from a manual backup file), the trunk is gone from the restored PBX; the MSP has to reassign it from YCM. Lesson 6 covers restore mechanics, and this is the wrinkle to remember.
+</Callout>
+
+## Trunk access for Hosting Users
+
+If the MSP runs a sub-reseller channel (Hosting Users with their own PBXes and their own customers), Hosting Users don't see the MSP's trunks by default. The MSP grants per-trunk access from:
+
+```
+Users  →  pick the Hosting User  →  Trunk Access Control
+```
+
+The grant carries the trunk plus the list of DIDs that Hosting User is allowed to assign onto their customers' PBXes. Without a grant, the trunk dropdown on the Hosting User's create form is empty.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/trunk-access-grant.png"
+  alt="The Trunk Access Control pop-up showing a User field, a Shared Trunks field, and a list of selectable DID numbers."
+  caption="One grant per (Hosting User, Trunk) pair. The DIDs you tick are the only DIDs that Hosting User can assign onto their downstream PBXes."
+>
+  <Hotspot client:load x={30} y={30} tone="primary" label="1" title="Hosting User selector" purpose="The sub-reseller who gets the grant.">
+    One grant per (Hosting User, Trunk) pair. The Hosting User can then assign the grant's DIDs onto their downstream PBXes; everything else on the trunk stays invisible to them.
+  </Hotspot>
+  <Hotspot client:load x={70} y={60} tone="primary" label="2" title="DID list" purpose="The DIDs the Hosting User can assign.">
+    Tick the specific DIDs this Hosting User is allowed to use. Untick a DID and they can't see it. Useful when the MSP carries a large pool of numbers but wants to dedicate a slice to each sub-reseller.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The MSP-direct customer model (no Hosting Users) doesn't need any of this; the Super Admin and the permitted Colleagues see every trunk.
+
+## AI minutes and recording, the three-pool story
+
+The same shared-resource pattern applies to AI transcription minutes, AI receptionist minutes, and recording minutes. There are three pools per minute type per PBX:
+
+| Pool | Field name | Refresh | Use when |
+|---|---|---|---|
+| **Plan-included** | `transcriptionCapacityPlan` / `receptionistCapacityPlan` | Once, at PBX create | Default; this is what the plan includes |
+| **One-time add-on** | `transcriptionCapacityAddon` / `receptionistCapacityAddon` | Once, allocated by MSP from pool | Customer needs more than plan included; one-shot top-up |
+| **Monthly pack** | `transcriptionPack` / `receptionistPack` | Refills every month | Customer's sustained usage exceeds plan; ongoing allocation |
+
+Practical rules:
+
+- Recording minutes have the same shape. Each PBX gets 500 free, the MSP can allocate extra from the pool (one-time), and any minutes allocated past the free 500 carry an expiration date (`recordingExpireDate`).
+- The customer consumes from plan-included first, then add-on, then pack. The PBX shows the breakdown on the detail page's Capacity panel.
+- One-time add-on minutes once issued **cannot be reduced** (same rule as Hosting User recording allocation). Monthly packs can be turned off or downsized at next-month boundary.
+
+### Worked example: Able Moose AI usage
+
+Able Moose's IT contact wants Linkus voicemail-to-text on for the finance team only. Volume estimate is 800 minutes of transcription per month.
+
+Decision tree:
+
+- Plan-included (120 mins for Enterprise) is not enough.
+- One-time add-on would top them up for one month; they'd run out the next.
+- Monthly pack at 1,000 minutes (one of the supported pack sizes) covers the demand with 200-minute headroom.
+
+The MSP allocates the 1,000-minute monthly pack from the My Subscription pack pool to Able Moose's PBX. The pack ticks down through the month and refills on the billing anniversary. Finance, no recurring tickets, predictable customer-side billing.
+
+## Where assignments are visible after the fact
+
+Three places to check what's been assigned where:
+
+| Question | Where |
+|---|---|
+| "What trunks and DIDs does this PBX have?" | Cloud PBX detail, Assigned Trunks tab + Assigned DIDs tab |
+| "Where is this DID assigned?" | Repository → DID Numbers, the row carries `cloudPbxId` |
+| "What did this Hosting User have access to?" | Users → user → Trunk Access Control |
+
+Triage-from-YCM is fast here; you read the assignment without descending into PSE at all. Lesson 6 covers when you do need to descend.
+
+<Checkpoint slug="yeastar-ycm-provisioning-checkpoint-resources" client:visible />
+
+Next lesson: the customer onboarding handover. Activation emails, the customer's first login, and how to draw the line between MSP-owned config and customer-owned config.

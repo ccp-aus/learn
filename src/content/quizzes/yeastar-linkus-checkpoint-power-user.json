@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-linkus-checkpoint-power-user",
+  "course": "yeastar-linkus",
+  "kind": "checkpoint",
+  "title": "Quick check, power-user surface",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-power-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A receptionist wants to see at a glance whether each member of the six-person sales team is on a call or free. What's the right Linkus feature?",
+      "choices": [
+        "Internal chat",
+        "Function keys configured as BLF (Busy Lamp Field) buttons, one per sales-team extension",
+        "The Contacts panel",
+        "Presence sync"
+      ],
+      "correct": 1,
+      "explanation": "BLF function keys turn the right-hand panel of Linkus Desktop into a live availability board for the configured extensions. Green = available, red = on a call. One click to dial. Presence sync is broader and not as fast for this specific 'who's free right now?' use case."
+    },
+    {
+      "id": "ck-power-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Linkus hotkeys (dial-from-anywhere) work in CTI mode as well as softphone mode.",
+      "correct": true,
+      "explanation": "Hotkeys are a Linkus Desktop feature; the dial-selected-text behaviour works regardless of whether Linkus is the audio path (softphone mode) or just the control surface (CTI mode). The dial command is issued through Linkus; where the audio plays is a separate concern."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "slug": "yeastar-pse-advanced",
+  "vendor": "yeastar",
+  "level": "l3",
+  "title": "Yeastar PSE, integrations, AI, security, HA",
+  "shortTitle": "PSE at scale",
+  "summary": "The beyond-baseline feature set: CRM and helpdesk integrations, Microsoft 365 / Google Workspace and Teams CTI, AI Receptionist and AI Toolbox, reporting and call accounting, security hardening (SIP TLS, SRTP, roles, 2FA), and HA / SD-WAN / backup and deep-troubleshooting.",
+  "estimatedMinutes": 65,
+  "prereqs": ["yeastar-pse-build"],
+  "lessons": [
+    "01-crm-and-helpdesk-integrations",
+    "02-microsoft-and-google-collaboration",
+    "03-ai-receptionist-and-toolbox",
+    "04-reporting-and-call-accounting",
+    "05-security-hardening",
+    "06-ha-sd-wan-backup-deep-troubleshooting"
+  ],
+  "quiz": "yeastar-pse-advanced-final",
+  "status": "live"
+}

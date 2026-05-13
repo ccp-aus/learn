@@ -1,0 +1,19 @@
+{
+  "slug": "yeastar-linkus",
+  "vendor": "yeastar",
+  "level": "l1",
+  "title": "Yeastar Linkus, supporting the user-facing client",
+  "shortTitle": "Linkus client",
+  "summary": "End-user fluency for the MSP tech: navigating Linkus Desktop / Web / Mobile, login and presence, the day-to-day call moves (hold, transfer, record, voicemail), softphone vs CTI mode, and the hotkeys / function keys / chat / contacts surface area.",
+  "estimatedMinutes": 35,
+  "prereqs": ["yeastar-foundations", "voip-fundamentals"],
+  "lessons": [
+    "01-three-clients",
+    "02-login-and-presence",
+    "03-call-basics-and-recording",
+    "04-cti-vs-softphone-mode",
+    "05-hotkeys-functionkeys-chat-contacts"
+  ],
+  "quiz": "yeastar-linkus-final",
+  "status": "live"
+}

@@ -1,0 +1,188 @@
+{
+  "slug": "voip-deep-diagnostics-final",
+  "course": "voip-deep-diagnostics",
+  "kind": "final",
+  "title": "Deep voice diagnostics, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-via-vs-record-route",
+      "type": "mcq",
+      "topic": "sip",
+      "difficulty": "medium",
+      "prompt": "What's the load-bearing difference between Via and Record-Route in a SIP request the analyst should remember when chasing dialogs across proxies?",
+      "choices": [
+        "Via stays in the path for the whole dialog; Record-Route only affects the initial request",
+        "Via is per-request and the response retraces it; Record-Route persists for the dialog by being copied into Route headers on subsequent requests",
+        "Via is for B2BUAs only; Record-Route is for true proxies only",
+        "Via and Record-Route are equivalent on modern SBCs"
+      ],
+      "correct": 1,
+      "explanation": "Via is the per-request hop list that the response retraces in reverse. Record-Route is the proxy's intent to remain in the dialog: each subsequent request inside the dialog (BYE, re-INVITE) copies Record-Route into Route headers so the proxy stays on the path."
+    },
+    {
+      "id": "q-b2bua-rtp-streams",
+      "type": "mcq",
+      "topic": "b2bua",
+      "difficulty": "medium",
+      "prompt": "A capture of a single customer call shows four RTP streams in `Telephony → RTP Streams` instead of the expected two. What does this most likely indicate?",
+      "choices": [
+        "Two separate calls were captured at the same time",
+        "A B2BUA in the path is bridging media, so each direction has separate streams between caller-and-B2BUA and between B2BUA-and-callee",
+        "RTP packet duplication on a span port",
+        "An SRTP rekey midway through the call"
+      ],
+      "correct": 1,
+      "explanation": "B2BUAs typically bridge media as well as signalling: caller↔B2BUA RTP is a different five-tuple from B2BUA↔callee RTP. A B2BUA-bridged call shows four streams (two pairs); a direct call shows two."
+    },
+    {
+      "id": "q-401-expires-loop",
+      "type": "mcq",
+      "topic": "registration",
+      "difficulty": "hard",
+      "prompt": "An endpoint behind a customer's home router registers fine, then re-registers from a different source port a minute later and the SBC challenges it again. What's the underlying mechanism?",
+      "choices": [
+        "Password rotation between the two REGISTERs",
+        "The router's NAT binding for the original source port aged out; the next outbound REGISTER had to use a fresh NAT-translated port",
+        "The endpoint is using a buggy SIP transport",
+        "The SBC is rotating its nonce too quickly"
+      ],
+      "correct": 1,
+      "explanation": "Cheap routers age UDP NAT bindings out in 30 to 60 seconds. The endpoint's source port at the customer side is the same; the public-facing translated port changes when the binding closes and a new one is created. The SBC sees what looks like a fresh registration. Fixes: NAT keepalive on the endpoint, shorter Expires, or a router with saner UDP timeouts."
+    },
+    {
+      "id": "q-tls-alert-snimismatch",
+      "type": "mcq",
+      "topic": "tls",
+      "difficulty": "hard",
+      "prompt": "An endpoint configured to register at `voip.example.com` over TLS receives a TLS Alert `unrecognized_name` from the SBC. What does this mean?",
+      "choices": [
+        "The SBC's clock is wrong",
+        "The endpoint's password is wrong",
+        "The SNI value (`voip.example.com`) doesn't match any certificate the SBC has configured for that listener",
+        "The endpoint is offering only TLS 1.0"
+      ],
+      "correct": 2,
+      "explanation": "`unrecognized_name` is the TLS alert specifically for SNI mismatch: the client included an SNI value the server doesn't have a cert for. Either the endpoint is configured with the wrong hostname or the SBC's listener doesn't have a cert provisioned for that hostname."
+    },
+    {
+      "id": "q-session-timer-fix",
+      "type": "multi",
+      "topic": "session-timer",
+      "difficulty": "hard",
+      "prompt": "Calls between a PBX and one carrier drop at exactly 90 seconds with `Reason: SIP;cause=408;text=\"Session timer expired\"`. Which of the following are valid investigation paths? (Select all that apply.)",
+      "choices": [
+        "Check whether the trunk profile on the PBX has session timers enabled at all",
+        "Read the 200 OK from the carrier to confirm the agreed `Session-Expires` and which side is the named refresher",
+        "Trace whether the PBX's refresh re-INVITE was sent and whether it was acknowledged by the carrier",
+        "Reset the customer's password",
+        "Verify no stateful middlebox is dropping the refresh INVITE"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Session-timer expiry needs all of: confirming the timer is even configured, identifying the named refresher and the agreed interval from the 200 OK, tracing whether the refresh actually happened and was acknowledged, and ruling out a middlebox that drops the refresh. The customer's password is unrelated."
+    },
+    {
+      "id": "q-hold-resume-rtp",
+      "type": "mcq",
+      "topic": "re-invite",
+      "difficulty": "hard",
+      "prompt": "A re-INVITE with `a=sendrecv` succeeds with 200 OK after a hold, but RTP only resumes in one direction. The B2BUA is suspect. What capture sequence isolates the bug to that B2BUA?",
+      "choices": [
+        "Capture only on the customer side and look at the SIP headers",
+        "Capture on both sides of the suspected B2BUA simultaneously, filtered to the call's RTP five-tuples; if RTP is present on the upstream side and missing on the downstream side, the B2BUA isn't re-bridging",
+        "Restart the customer's endpoint",
+        "Re-run the capture on the customer side for longer"
+      ],
+      "correct": 1,
+      "explanation": "Two captures, one per side of the B2BUA, each filtered to the relevant five-tuples. If RTP arrives on the upstream side after resume and doesn't appear on the downstream side, the B2BUA's media bridge for the resumed leg is the bug. Single-side captures can't distinguish a B2BUA bridge failure from a far-side endpoint problem."
+    },
+    {
+      "id": "q-rtp-pattern-vad",
+      "type": "mcq",
+      "topic": "rtp",
+      "difficulty": "medium",
+      "prompt": "RTP arrives in both directions, payload types match the SDP, jitter and loss are normal, and the customer reports silence on one side. Wireshark shows almost every packet on the silent side has payload type 13 (Comfort Noise). What's the cause?",
+      "choices": [
+        "SRTP key mismatch",
+        "Voice Activity Detection is misconfigured on the silent side and is sending Comfort Noise instead of audio",
+        "B2BUA media bridge bug",
+        "Session timer expiring"
+      ],
+      "correct": 1,
+      "explanation": "Payload type 13 is Comfort Noise. A stream that's almost entirely CN means the sender's VAD has decided everything is silence and is emitting CN markers instead of real audio. The fix is on the sender's side: VAD threshold, or VAD off entirely if the codec doesn't need it."
+    },
+    {
+      "id": "q-srtp-cleartext-envelope",
+      "type": "multi",
+      "topic": "srtp",
+      "difficulty": "medium",
+      "prompt": "Without any decryption keys, what can the analyst still verify from a SRTP capture? (Select all that apply.)",
+      "choices": [
+        "Whether RTP is flowing in both directions",
+        "Whether the negotiated codec's payload type is being used",
+        "What was actually said in the conversation",
+        "Loss, jitter, and per-packet delta computed from RTP headers",
+        "Whether DTMF tones (RFC 4733 events) occurred"
+      ],
+      "correct": [0, 1, 3, 4],
+      "explanation": "SRTP encrypts only the payload. RTP headers (sequence, timestamp, SSRC, payload type) are cleartext, so flow direction, codec selection, loss/jitter, and event payload types like RFC 4733 telephone-event remain visible. The actual audio samples are the only thing decryption would add."
+    },
+    {
+      "id": "q-dtls-srtp-keys",
+      "type": "tf",
+      "topic": "dtls-srtp",
+      "difficulty": "medium",
+      "prompt": "DTLS-SRTP session keys are visible in the SDP body of the corresponding SIP messages, so the analyst can decrypt captured DTLS-SRTP traffic by reading the SDP.",
+      "correct": false,
+      "explanation": "DTLS-SRTP keys are derived from the in-band DTLS handshake; SDP only carries `a=setup:` and `a=fingerprint:` (used to verify the certificate the peer presents). The keys themselves never appear on the wire. SDES is the SRTP key-exchange method that does put keys in SDP."
+    },
+    {
+      "id": "q-decryption-decision",
+      "type": "mcq",
+      "topic": "tls",
+      "difficulty": "easy",
+      "prompt": "When SIP is TLS-encrypted on the wire and the analyst needs to read the SIP message bodies, what's the first capture point to try?",
+      "choices": [
+        "A span port on the LAN switch the endpoint uses",
+        "The PBX's own packet capture, which sees plaintext SIP regardless of the wire format on each leg",
+        "A third-party MITM proxy",
+        "The carrier's edge switch"
+      ],
+      "correct": 1,
+      "explanation": "Most PBXes process SIP in plaintext internally regardless of the wire format on each leg. The PBX-side pcap captures that plaintext. A LAN span port sees only the encrypted wire; you need keys to decrypt it. Capturing where it's already plaintext avoids the key problem entirely."
+    },
+    {
+      "id": "q-dialog-chain-order",
+      "type": "order",
+      "topic": "sip",
+      "difficulty": "hard",
+      "prompt": "Put these steps in the right order for a senior tech reconstructing a multi-leg SIP dialog from one capture file.",
+      "items": [
+        "Run `sip` as a display filter to see all SIP messages",
+        "Identify the affected call by time, called number, or From/To",
+        "Note the Call-ID of the customer-facing dialog and filter to it",
+        "Find the matching B2BUA outbound INVITE close in time from the same SBC's IP, with a fresh Call-ID",
+        "Note the outbound dialog's Call-ID and repeat per hop until reaching the carrier-facing leg",
+        "Read each leg's SIP exchange to identify which leg the failure actually happened on"
+      ],
+      "explanation": "The chain is: filter to all SIP, find the affected call, lock onto the customer-facing Call-ID, then walk forward through the topology by matching time-adjacent INVITEs from each B2BUA. The fault almost always lives on one specific leg; the chain is how you find which."
+    },
+    {
+      "id": "q-one-way-decision",
+      "type": "order",
+      "topic": "rtp",
+      "difficulty": "medium",
+      "prompt": "A senior tech opens an RTP capture for a one-way audio ticket. Put these checks in the right diagnostic order.",
+      "items": [
+        "Open `Telephony → RTP Streams`",
+        "Check whether both directions of RTP are visible at this capture point",
+        "If only one stream visible, identify which direction is missing and look at the SDP for that side's advertised IP",
+        "If both visible, run RTP Streams → Analyze on each and check for payload-type mismatch, loss, jitter, or all-CN payloads",
+        "Move the capture point closer to the missing source if needed to confirm whether the packets ever left",
+        "Match wire-level evidence to the failure pattern in the catalogue and identify the network-side cause"
+      ],
+      "explanation": "Read first whether both directions are present. If only one, the question is where the missing direction is being lost; move capture toward the source. If both, the question is what's wrong with packets that are arriving (payload type, VAD, quality). The catalogue then maps wire evidence to root cause."
+    }
+  ]
+}

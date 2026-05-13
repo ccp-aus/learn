@@ -1,0 +1,38 @@
+{
+  "slug": "voip-sip-in-practice-checkpoint-capture",
+  "course": "voip-sip-in-practice",
+  "kind": "checkpoint",
+  "title": "Quick check, capturing and analysing",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-capture-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which Wireshark menu is the best starting point when you have a capture and you don't yet know which specific call you're chasing?",
+      "choices": [
+        "Telephony → SIP Flows",
+        "Telephony → RTP Streams",
+        "Telephony → VoIP Calls",
+        "Statistics → Conversations"
+      ],
+      "correct": 2,
+      "explanation": "Telephony → VoIP Calls combines SIP dialogs with their matching RTP streams, one row per call. It's the broadest VoIP-specific view. SIP Flows is narrower (only signalling); RTP Streams is media-only; Conversations isn't VoIP-aware."
+    },
+    {
+      "id": "ck-capture-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "You filter a Wireshark capture to a single call. SIP looks healthy: INVITE, 100, 180, 200, ACK, BYE. In Telephony → RTP Streams you see only one stream (from the answerer to the caller) instead of the expected two. What does this tell you?",
+      "choices": [
+        "The codec didn't negotiate",
+        "RTP from the caller isn't reaching the capture point, suggesting a firewall, NAT, or routing issue on the caller's side",
+        "The capture file is corrupt",
+        "SIP signalling is broken"
+      ],
+      "correct": 1,
+      "explanation": "A normal call has two RTP streams (one per direction). Only one stream visible means the other direction's RTP isn't reaching where you captured. If the capture is from the PBX, the caller's outbound RTP isn't arriving at the PBX, suggesting the caller's network is dropping or rerouting the packets."
+    }
+  ]
+}

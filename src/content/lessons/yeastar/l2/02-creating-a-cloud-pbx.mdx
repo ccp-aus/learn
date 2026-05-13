@@ -1,0 +1,133 @@
+---
+slug: 02-creating-a-cloud-pbx
+vendor: yeastar
+level: l2
+title: Creating a customer Cloud PBX, the create form end-to-end
+order: 2
+estimatedMinutes: 9
+topics: [ycm, cloud-pbx, provisioning, capacity]
+updated: 2026-05-13
+summary: "The plan / capacity / region / domain / firmware decisions baked into the create form, the AI minute split (plan minutes vs add-on vs monthly pack), and why the initial-config block decides whether the customer ever sees the install wizard."
+---
+
+The Cloud PBX list view you tour in `yeastar-ycm-triage` is mostly read-only. This is the page that puts new rows on it. The create form looks long, and at first pass it is, but the fields cluster into five decisions: **plan**, **capacity**, **where**, **what version**, and **what state the PBX is in when the customer first opens it**. Get those right and the customer's onboarding goes smooth. Get them wrong and you're either restoring from a backup or asking finance for a top-up call.
+
+## Where the create form lives
+
+```
+Cloud PBX  →  Add
+```
+
+A wizard opens. The sections walk top to bottom; nothing here is hidden in a sub-tab. The whole form is one page.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/create-cloud-pbx-form.png"
+  alt="The Cloud PBX create form with PBX name, plan selector, extension capacity, recording capacity, region, and the URL builder showing a sub-domain prefixing the cluster domain."
+  caption="The five decisions in one form. Plan choice gates which capacity ceilings you can pick, region pins the PBXHub the instance lands on, and the URL field is the first thing the customer ever types."
+>
+  <Hotspot client:load x={50} y={20} tone="primary" label="1" title="PBX Name" purpose="The white-label customer sees this on every email.">
+    Shows up in activation emails, welcome emails, and the PSE web admin browser title. Use the customer's brand, not "Yeastar P-Series Cloud PBX".
+  </Hotspot>
+  <Hotspot client:load x={70} y={48} tone="warning" label="2" title="Recording Capacity" purpose="In minutes. 500 free per Cloud PBX; paid additions stack on top.">
+    Allocated from the MSP's overall recording pool. Once exhausted, recording silently stops capturing new files (CDR rows still appear, but no audio is saved). Resize from this same form any time.
+  </Hotspot>
+  <Hotspot client:load x={70} y={88} tone="primary" label="3" title="Sub-domain + cluster domain" purpose="Combined to form the PBX URL.">
+    Sub-domain is the customer-facing name; cluster domain is the YCM region's wildcard domain. Together they make the URL Linkus clients and the PBX admin portal both reach. Sub-domain can't be changed after creation without a new welcome-email cycle.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## Decision 1: plan
+
+Two options: **Enterprise Plan** or **Ultimate Plan**. The plan you pick gates which feature set the PBX exposes (call centre, omnichannel chat, AI features) and how many free AI minutes ship with the instance.
+
+| Capacity | Enterprise Plan | Ultimate Plan |
+|---|---|---|
+| AI Transcription minutes (plan-included, one-time) | 120 | 240 |
+| AI Receptionist minutes (plan-included, one-time) | 60 | 60 |
+| Recording minutes (free, one-time) | 500 | 500 |
+
+Anything beyond the plan-included AI minutes draws from one of two MSP-side allocations: **add-on minutes** (one-time top-up; field is `transcriptionCapacityAddon` / `receptionistCapacityAddon`) or **monthly quota pack** (recurring monthly bucket, refreshes; field is `transcriptionPack` / `receptionistPack`). Lesson 4 covers when each makes sense.
+
+Plan choice cannot be changed silently. Upgrading later is a deliberate **Upgrade Plan** action from the row's action menu, and downgrading isn't supported through the UI; the customer would have to be migrated to a fresh PBX. Pick the plan the customer actually needs, with one tier of headroom if they're growing into call-centre or AI features.
+
+## Decision 2: capacity
+
+Three numbers the form asks for, all drawn from the **MSP's pool** (My Subscription):
+
+- **Extension capacity**, the maximum number of extensions the PBX will accept. At-cap means PSE refuses the next Add Extension click.
+- **Concurrent call capacity**, the simultaneous-call ceiling. Calls beyond this fail with a congestion response. Scale this against the customer's call-burst profile, not their headcount; a 50-seat office with one shift averages 5-10 concurrent calls, while a 50-seat sales team running outbound dialling can peak at 30.
+- **Recording capacity** in minutes (set Recording Status to Enabled first). Each PBX gets the free 500 minutes; anything beyond that comes out of the MSP's recording pool.
+
+<Callout type="warn" title="Capacity allocations are pool-deductions, immediately">
+The moment you save the create form, the chosen capacity numbers leave the MSP's My Subscription pool and reserve against this PBX, whether the customer fills them or not. Allocate tight to start; you can resize up later from the action menu, but resizing down is awkward and recording minutes specifically cannot be reduced once issued.
+</Callout>
+
+### Worked example: Able Moose Accounting
+
+Able Moose are 120 staff across three offices, finance / HR split, hybrid work. The IT contact has flagged "phones for everyone, plus four meeting room handsets, plus growth room for the acquisition we're talking about". A reasonable allocation:
+
+| Field | Value | Reasoning |
+|---|---|---|
+| Plan | Enterprise Plan | They want call recording + Linkus omnichannel; not yet on AI receptionist |
+| Extension capacity | 140 | 124 actual + 16 headroom for the acquisition |
+| Concurrent call capacity | 40 | Mostly office-mode calling; finance team peaks at lunchtime |
+| Recording capacity | 2,000 minutes | They want all internal-to-external calls recorded for 90 days; 2,000 minutes is a starter |
+| Type | Commercial | Not a Trial; the contract is signed |
+
+Tight enough to be honest with the pool, generous enough that the resize call doesn't come for six months.
+
+## Decision 3: where (region + URL)
+
+Two fields here. They look independent but they're coupled.
+
+**Region** picks which Yeastar Cloud Edition cluster (continent + datacentre) the PBX lands on. Pick by where the customer's users are, not where the MSP is. A PBX in the wrong region adds 100-300 ms of round-trip on every SIP transaction and makes media flow do unhelpful things.
+
+**Sub-domain + Domain** combine to form the PBX URL. The sub-domain is a string of numbers, letters, and hyphens; the domain is one of the cluster's available domain names. The result is the URL the customer types into Linkus, the URL the trunks register against, and the URL that appears in every welcome email. Once the PBX is live, **the URL is hard to change** without disrupting registered clients and trunks.
+
+<Callout type="info" title="If the MSP has a custom domain, use it">
+With the **Custom Domain** add-on (subscribed at the MSP level, set up on the SBC cluster), the domain dropdown contains the MSP's white-label domains alongside Yeastar's defaults. Picking the white-label domain means the customer's URL is `pbx.<msp-domain>` rather than `<sub-domain>.<region>.yeastarcloud.com`. The white-label setup itself is `yeastar-ycm-scale` territory; what matters here is to pick the right domain at create time.
+</Callout>
+
+## Decision 4: firmware version
+
+The **Version** dropdown lists the firmware versions the cluster supports. The default is usually the latest stable release.
+
+Two reasons to deviate from the default:
+
+- **Trunk compatibility.** Some carriers or SIP integrations have known issues with a specific firmware band; the MSP keeps a "this customer needs 84.21.x" note in their PSA. Apply that note here.
+- **Backup compatibility.** If you're creating this PBX to receive a restore from another PBX's backup, the new instance's firmware **cannot be older** than the backup file's firmware (the file name encodes `PCE-Backup-{firmware}-{time}.bak`). Lesson 6 covers restore mechanics; for now, if the new PBX is for restore, pick a firmware at or above the backup's.
+
+## Decision 5: initial state
+
+The bottom of the form is the **Initial Configuration** block. This is where you decide whether the customer hits an **Installation Wizard** the first time they open their PBX, or whether they land straight in PSE with their admin account already set up.
+
+Two paths:
+
+- **Leave Initial Config empty.** The PBX boots in `Unactivated` state. Send the customer an activation email (lesson 5), they click the link, they go through the install wizard themselves and pick their own admin password, timezone, and date format. Use this when the customer's IT contact wants ownership of the PBX setup.
+- **Fill in `cloudPbxInitialConfigRequest`.** Pre-fill admin username, password, email, contact name, notification preferences, timezone, and locale. The PBX boots `Activated` with that admin account live. The customer's IT contact can sign in with the credentials you hand them; no install wizard step. Use this when the MSP owns the build entirely (most BYOI customers).
+
+The initial-config block is also where you set **`autoActivated: true`** if you're driving the create via API, which auto-skips the wizard entirely. UI creates default to manual activation unless you tick the auto-activate box.
+
+## Optional: provisioning template + customer association
+
+Two more fields the form offers and lessons 3 and 5 cover in depth:
+
+- **Provisioning template** (`provisionTemplateId`). Pick a saved template here to apply the MSP's baseline (allowed IPs, music on hold, distinctive caller ID, allowed country codes, and so on) at create time. Lesson 3.
+- **Customer association** (`customerIds`). Pick one or more customer records here to bind the PBX to a customer in the MSP's records. Lesson 5 covers customer record creation; binding at create time means the customer record's email is the default activation-email recipient.
+
+## The Save click and what happens next
+
+When you click Save:
+
+1. The form validates against the pool: enough capacity? enough AI minutes? enough Ultimate Plan slots if you picked Ultimate? Fail fast at this step rather than half-allocating.
+2. YCM provisions the instance on the chosen PBXHub Server (one PBXHub Server hosts up to 100 Cloud PBXs and 2,000 extensions; the cluster picks the lightest-loaded one).
+3. The new row appears in the Cloud PBX list with `pbxStatus: Provisioning`. Watch for it to flip to `Stopped` (usually 30-90 seconds).
+4. From `Stopped`, click **Start** to bring it to `Running`.
+
+A typical create-to-running cycle is under three minutes. If it sits in `Provisioning` longer than five, check the Alarm view for a cluster-side event.
+
+<Callout type="tip" title="Don't stop a freshly provisioned PBX before the install wizard">
+If you left Initial Config empty and the PBX is `Stopped` waiting for first activation, do not click Start before sending the activation email. The wizard is gated by the activation flow; starting the PBX without activation leaves it `Running` but `Unactivated`, and the customer's first login goes nowhere useful. Send the email first, let the customer activate, then check the row.
+</Callout>
+
+Next lesson: provisioning templates. What you can put in one, what you can't, and why a template is a baseline that PSE-side overrides build on top of.

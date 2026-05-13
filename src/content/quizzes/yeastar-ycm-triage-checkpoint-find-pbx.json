@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-ycm-triage-checkpoint-find-pbx",
+  "course": "yeastar-ycm-triage",
+  "kind": "checkpoint",
+  "title": "Quick check: the Cloud PBX list",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-find-status-running",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Customer reports 'calls aren't working and nothing has changed'. The Cloud PBX list shows their row with Status = 'Stopped'. What's your first conclusion?",
+      "choices": [
+        "There's a SIP trunk problem; pull a trace.",
+        "The PBX has been explicitly stopped from YCM and won't carry calls until it's started; that's the cause, not a symptom.",
+        "The customer's network is down.",
+        "The recording quota is full."
+      ],
+      "correct": 1,
+      "explanation": "Only 'Running' carries calls. The other states (Stopped, Starting, Upgrading, Restoring, Provisioning) all mean calls are failing or disrupted. A Stopped PBX is the answer; you'd start it, or escalate if it was stopped deliberately by another team."
+    },
+    {
+      "id": "ck-find-capacity",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If a customer's Cloud PBX row reads Extensions 50 / 50, attempting to create a 51st extension in PSE will fail until the PBX is resized in YCM.",
+      "correct": true,
+      "explanation": "Capacity is a YCM-allocated limit. At cap, PSE will refuse the next extension. The fix lives in YCM (resize the Cloud PBX); knowing this saves a fruitless descent into PSE looking for a configuration knob that doesn't exist."
+    }
+  ]
+}

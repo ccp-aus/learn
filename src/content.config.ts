@@ -42,6 +42,13 @@ const courses = defineCollection({
     vendor: reference("vendors"),
     level: z.enum(["l1", "l2", "l3"]),
     title: z.string(),
+    /**
+     * Short, chip-friendly course name (2-4 words) used in prereq links,
+     * curation panels, and other compact UI. Falls back to `title` if absent.
+     * Existing courses (DNSFilter, ThreatLocker, etc.) will get one in a
+     * follow-up rename; new courses should always set it.
+     */
+    shortTitle: z.string().optional(),
     summary: z.string(),
     estimatedMinutes: z.number().int().positive(),
     /** Slugs of prerequisite courses (e.g. dnsfilter-l1 for the Intermediate course). */

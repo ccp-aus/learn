@@ -1,0 +1,10 @@
+{
+  "slug": "voip",
+  "name": "VoIP fundamentals",
+  "tagline": "Vendor-neutral SIP, RTP, and call-diagnostic skills for MSP techs.",
+  "summary": "SIP signalling and RTP media sit underneath every voice ticket. This track takes a tech from 'I don't quite know how VoIP works' to 'I can read a packet capture and tell you why this call failed'. SIP handshakes, SDP and codec negotiation, NAT traversal, Wireshark call-flow diagnostics, and the failure modes you'll see in the field.",
+  "accent": "oklch(0.74 0.15 35)",
+  "kind": "concept",
+  "status": "live",
+  "order": 7
+}

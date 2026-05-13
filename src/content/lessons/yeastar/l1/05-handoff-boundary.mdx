@@ -1,0 +1,109 @@
+---
+slug: 05-handoff-boundary
+vendor: yeastar
+level: l1
+title: Stay in YCM, descend into PSE, or coach Linkus
+summary: The boundary that turns YCM-side triage into a fast decision. Three branches, the records to read before you cross each one, and how to hand off cleanly.
+estimatedMinutes: 5
+order: 5
+topics: [ycm, triage, handoff]
+updated: 2026-05-12
+---
+
+You've now seen the YCM map. The skill that turns the map into triage speed is knowing when to stay and when to leave. Three branches: stay in YCM, descend into PSE, or coach the user through their Linkus app. Each has a different cost and a different audit trail. Pick wrong and you've spent twenty minutes inside a PBX when the fix was two clicks back in the lobby.
+
+## The decision tree
+
+<DecisionTree client:load
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What surface is the ticket pointing at?", choices: [
+      { label: "MSP-side records: capacity, plan, billing, alarms, sub-user permissions, white-label config", next: "stay" },
+      { label: "A specific call, callflow, extension, recording, voicemail, IVR, or time condition", next: "descend" },
+      { label: "A user's Linkus app: notifications, mic, login URL, presence display", next: "linkus" },
+      { label: "Not sure yet, still reading the ticket", next: "read-first" },
+    ]},
+    { type: "outcome", id: "stay", label: "Stay in YCM", tone: "success",
+      body: "Cloud PBX list, My Subscription, Alarm, Repository, Users. The answer is one of these sections. Don't descend; the PBX-side audit log doesn't care about a question that has nothing to do with the PBX." },
+    { type: "outcome", id: "descend", label: "Descend into PSE via passwordless login", tone: "info",
+      body: "Open the Cloud PBX, click in, passwordless-login. You'll land as Super Administrator. Do the per-call or per-extension diagnosis there (CDR, extension page, recordings), then back out. Close the PBX tab when you're done; the audit trail sees your session." },
+    { type: "outcome", id: "linkus", label: "Coach the user on Linkus first", tone: "warn",
+      body: "Confirm the Linkus version, the server URL, notification permissions, the device they're actually using. Most 'Linkus is broken' tickets are user-side and a five-minute coaching call resolves them. If the symptom survives, descend into PSE and check the extension's clients tab and presence rules." },
+    { type: "outcome", id: "read-first", label: "Read the YCM row before deciding", tone: "info",
+      body: "Open the Cloud PBX list, find the customer, read the row. Status, capacity, last backup. Half of ambiguous tickets resolve right there ('we can't make calls' becomes 'PBX is Stopped' or 'concurrent calls at cap'). Only descend once you've ruled out the surface-level explanations." },
+  ]}
+/>
+
+## Stay-in-YCM tickets
+
+These don't need a PSE descent at all:
+
+| Symptom | Stay-in-YCM action |
+|---|---|
+| "Customer is hiring three new staff, can we add them?" | Read Cloud PBX row. Extensions used/capacity tells the answer. Resize is intermediate-course territory. |
+| "Recording stopped working" | Read PBX detail; usedRecording vs recordingCapacity. If at cap, allocate from the pool. |
+| "Spin up a new customer's PBX" | Cloud PBX section, create. Apply provisioning template, assign trunks and DIDs from Repository. |
+| "Alarm fired overnight, what was it" | Alarm list, read the row, see whether it self-recovered. |
+| "Who provisioned this PBX last March?" | Cloud PBX detail, Creator field. Users page for context on that colleague. |
+| "Customer wants their company name updated on Linkus" | White-label settings on the PBX (or the MSP-level brand kit, depending on what's being changed). |
+| "Did we back this PBX up last night?" | Cloud PBX detail, lastBackupTime field. |
+
+The MSP records live in YCM. Don't descend to read them; the PBX doesn't hold them.
+
+## Descend-into-PSE tickets
+
+The whole `yeastar-pse-triage` course is about what to do once you've descended. Briefly, the per-call and per-extension surface lives in PSE, not YCM:
+
+- A specific call: read the CDR.
+- An extension: open the extension page, read its registered clients and presence.
+- A recording or voicemail: PSE's Reports and Recordings.
+- A callflow surprise: PSE's inbound routes, time conditions, IVRs, queues, ring groups.
+- A SIP trace or pcap: PSE's Maintenance Troubleshooting page.
+
+The PSE-triage course covers these in depth. The point for YCM-side triage is: **once you know the question is per-call or per-extension, descend immediately**. Don't keep poking at YCM hoping to find the answer; it's not there.
+
+## Linkus coaching tickets
+
+A meaningful fraction of "calls aren't working" tickets are really "the user's app isn't behaving". Things to confirm before you assume the PBX is at fault:
+
+- **Linkus version.** Mobile and Desktop track separate version numbers; the PBX firmware may require a Linkus minimum.
+- **Server URL.** Easy gotcha when a customer's PBX URL changed (rebrand, migration) and the app still points at the old one.
+- **Notification permissions.** iOS especially. If Focus mode or notification grants are off, the call rings the server but never wakes the phone.
+- **The actual device the user is using.** "It doesn't work on my phone" sometimes means a different phone is logged in and ringing.
+
+The Linkus course covers these end-to-end. The YCM-side discipline is to ask "is this really a PBX problem?" before you reach for a PSE descent.
+
+## M365 / Microsoft integration is out of scope here
+
+Microsoft 365 integration (extension sync, SSO, presence sync) is configured **per PBX in PSE**, not in YCM. If a ticket touches M365 integration:
+
+- **Setup questions** belong to the intermediate course (`yeastar-pse-build`), which walks the integration wizard.
+- **Permission and security questions** belong to the advanced course (`yeastar-pse-advanced`), which covers paring back the default Global Admin consent.
+
+YCM has no M365 surface to read or change. Don't go looking; descend into the relevant PBX in PSE, or hand the ticket to the right tier.
+
+## A worked example: Able Moose Accounting
+
+Sarah opens a ticket: "We bought another firm, Northwind. Can you sort out their phones?"
+
+The YCM-side read:
+
+1. **What's the ask?** Stand up a new customer's PBX. Stay-in-YCM territory.
+2. **Pool capacity.** Open My Subscription. Available extensions: 220. Plenty.
+3. **Provision the PBX.** Cloud PBX section, create. Pick Enterprise or Ultimate (customer choice). Apply a provisioning template if the MSP standardises one. Assign DIDs from the trunk's available pool.
+4. **Send the activation email.** From the PBX detail, send to the customer's nominated admin.
+5. **Hand off the rest to the build-and-config tier.** Extensions, queues, IVRs, AI receptionist setup, M365 integration: those live in PSE and are intermediate / advanced work. Your part ends when the new PBX is Running, the customer can log in, and the build-and-config tech has the handoff notes.
+
+No PSE descent. No Linkus involvement. A YCM-only ticket, resolved cleanly.
+
+## Handing off cleanly
+
+When you escalate or hand off, the recipient shouldn't have to redo your work. Three habits:
+
+- **Quote the YCM row.** PBX name, status, plan, capacity numbers, last backup, owner. Screenshot or paste, doesn't matter. The numbers are what the next tier reads first.
+- **State the boundary you're handing across.** "YCM-side I've confirmed PBX is Running, 47 / 50 extensions, recording at 80% quota. The customer reports failed transfers on extension 4012; that's a PSE descent for the extension page and a recent CDR."
+- **Don't pretend you ran a diagnosis you didn't.** If you didn't descend, say so. The next tier will descend, and they'd rather start fresh than discover halfway through that you've already pulled half the data and didn't share it.
+
+You've now got the YCM-side triage surface. The PSE triage course picks up where this leaves off; the Linkus course covers the user-side; the provisioning and advanced courses cover the change work that beginner triage hands off.
+
+<Checkpoint slug="yeastar-ycm-triage-checkpoint-handoff" client:visible />

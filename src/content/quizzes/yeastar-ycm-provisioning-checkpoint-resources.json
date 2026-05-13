@@ -1,0 +1,46 @@
+{
+  "slug": "yeastar-ycm-provisioning-checkpoint-resources",
+  "course": "yeastar-ycm-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, trunks, DIDs, and resources",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-resources-region-match",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A shared trunk created in the Sydney region of YCM can be assigned to a Cloud PBX hosted on the Singapore PBXHub cluster.",
+      "correct": false,
+      "explanation": "Trunk and PBX must be in the same region for assignment. If the customer needs both regions, the MSP creates separate trunks per region. The trunk dropdown on the Assigned DIDs tab filters by region; out-of-region trunks don't appear."
+    },
+    {
+      "id": "ck-resources-backup-trunks",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer's Cloud PBX has been restored from backup. After the restore completes and the PBX is Running, you check PSE and the shared trunk is missing from Inbound → Trunks. What's the cause?",
+      "choices": [
+        "The restore failed silently; restart the PBX.",
+        "Shared trunks are not included in PBX system backups; the MSP must reassign them from YCM after every restore.",
+        "The backup was taken on a different firmware version, so trunks didn't migrate.",
+        "The PSE administrator deleted the trunk."
+      ],
+      "correct": 1,
+      "explanation": "Centrally-managed shared trunks live in YCM, not in the PBX's own config. PSE-side backups capture per-PBX state only. After any restore (from YCM or from a backup file), the MSP reassigns the trunk and DIDs from the Cloud PBX detail's Assigned DIDs tab."
+    },
+    {
+      "id": "ck-resources-ai-pool-choice",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Able Moose Accounting wants Linkus voicemail-to-text for finance, estimated 800 minutes per month, ongoing. Their Enterprise Plan PBX has 120 plan-included AI Transcription minutes. Which allocation makes sense?",
+      "choices": [
+        "One-time add-on of 800 minutes; refresh manually each month.",
+        "Resize the plan to Ultimate Plan, doubling the included minutes.",
+        "Allocate a monthly quota pack of 1,000 minutes; the pack refills each month and covers the sustained demand with headroom.",
+        "Tell the customer to dial back their voicemail-to-text usage."
+      ],
+      "correct": 2,
+      "explanation": "Monthly packs are designed for sustained usage that exceeds plan-included minutes. They refill each month boundary, so finance gets a steady allowance without per-month tickets. One-time add-ons fit short-term spikes; an Ultimate Plan upgrade isn't justified by transcription minutes alone."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "slug": "voip-deep-diagnostics-checkpoint-flows",
+  "course": "voip-deep-diagnostics",
+  "kind": "checkpoint",
+  "title": "Quick check, following a call across B2BUAs",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-flows-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A capture shows two SIP dialogs with different Call-IDs, each started within 30 milliseconds of the other on the same SBC. What does this almost certainly indicate?",
+      "choices": [
+        "Two unrelated calls that happened to be placed at the same time",
+        "A B2BUA terminating one dialog and originating another for the same logical call",
+        "A failed transfer attempt",
+        "A protocol-version mismatch"
+      ],
+      "correct": 1,
+      "explanation": "B2BUAs act as a UAS to the originator and a UAC to the destination, so they terminate the inbound dialog and start a fresh outbound one with its own Call-ID and tags. Two dialogs starting within milliseconds of each other on the same SBC is the visible fingerprint of that bridging."
+    },
+    {
+      "id": "ck-flows-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "You captured only on the customer-facing side of the PBX and the dialog ends with a 4xx the customer didn't initiate. What's the most useful next move?",
+      "choices": [
+        "Re-run the customer-facing capture for longer",
+        "Add a second capture point on the carrier-facing side (or PBX pcap) for the same time window to see who upstream said no",
+        "Assume the carrier is at fault and escalate",
+        "Inspect the customer endpoint's local audio settings"
+      ],
+      "correct": 1,
+      "explanation": "The customer-facing capture only shows the leg the customer sees. A B2BUA translates upstream failures into customer-facing responses without preserving the original reason. Capturing on the carrier-facing leg (PBX pcap, trunk SBC mirror) for the same time window reveals which leg actually rejected the call."
+    }
+  ]
+}

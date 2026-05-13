@@ -1,0 +1,45 @@
+{
+  "slug": "yeastar-pse-build-checkpoint-routing",
+  "course": "yeastar-pse-build",
+  "kind": "checkpoint",
+  "title": "Quick check, inbound routing and IVR",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-routing-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer reports that calls to their main number land in the after-hours IVR during the day. The CDR Timeline View shows the time condition fired at 11am local time. What's the first thing to check?",
+      "choices": [
+        "The carrier's outbound proxy settings",
+        "Whether the PBX's system timezone and the per-route Time Zone field agree with the customer's actual location",
+        "The trunk's codec preference list",
+        "Whether the IVR's Prompt Repeat Count is set too low"
+      ],
+      "correct": 1,
+      "explanation": "The PBX's system timezone (PBX Settings → Date and Time) and the per-route Time Zone field are separate settings. If they disagree, business-hours rules fire at the wrong wall-clock times. Always check both before changing anything else."
+    },
+    {
+      "id": "ck-routing-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "An IVR with the Dial Outbound Routes option enabled lets callers make outbound calls from the IVR. This is safe to enable on a public-facing IVR because PSE has built-in protections.",
+      "correct": false,
+      "explanation": "Allowing outbound calls from an IVR is a classic toll-fraud vector. A caller dials in, navigates to outbound, dials an international number, and the customer foots the bill. Leave Dial Outbound Routes disabled on customer-facing IVRs unless the customer has a deliberate calling-card pattern with PIN restrictions."
+    },
+    {
+      "id": "ck-routing-3",
+      "type": "order",
+      "difficulty": "medium",
+      "prompt": "Put these inbound routing destination decisions in the right order from simplest to most complex, given a customer with one main number.",
+      "items": [
+        "All Time mode, single destination, rings reception extension directly",
+        "Time-condition with business hours and holiday handling, three destinations",
+        "Business-hours IVR with several key-press destinations including a queue, plus after-hours and holiday paths",
+        "Call Flow Designer flowchart with conditional logic and a database lookup before routing"
+      ],
+      "explanation": "Each tier adds capability. Start at the simplest that solves the customer's stated need; only climb if their requirements force it. Most small businesses are happy at tier 1 or 2."
+    }
+  ]
+}

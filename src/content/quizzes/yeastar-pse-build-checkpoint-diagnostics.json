@@ -1,0 +1,45 @@
+{
+  "slug": "yeastar-pse-build-checkpoint-diagnostics",
+  "course": "yeastar-pse-build",
+  "kind": "checkpoint",
+  "title": "Quick check, diagnosing call issues",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-diag-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A user reports a call connected but they couldn't hear the other side. CDR shows ANSWERED with a real Call Duration. You pull a SIP trace and the 200 OK's SDP body has c=IN IP4 192.168.1.50. The other party is on a public-Internet softphone. What's the likely root cause?",
+      "choices": [
+        "Codec mismatch between the two endpoints",
+        "The trunk's DTMF mode is set to Inband",
+        "The SDP advertises an RFC 1918 (private) address that the public-Internet endpoint can't route to",
+        "The trunk's Maximum Concurrent Calls cap is being hit"
+      ],
+      "correct": 2,
+      "explanation": "192.168.1.50 is private. The other endpoint on the public Internet has no route to that address, so RTP packets head to the void. Fix: set the trunk's 'Select which IP address to use in Contact and Connection fields' to custom_ip with the public IP, or enable NAT on the extension."
+    },
+    {
+      "id": "ck-diag-2",
+      "type": "order",
+      "difficulty": "medium",
+      "prompt": "Put the diagnostic ladder in the correct order for a failed call.",
+      "items": [
+        "Find the CDR row, read Status and Last Participant",
+        "Open Timeline View on that row, follow the chronological events",
+        "Pull a SIP trace from the troubleshooting menu, reproduce the call",
+        "Pull a PCAP with the Ethernet Capture Tool and open in Wireshark"
+      ],
+      "explanation": "Climb the ladder only as far as you need to. Most calls are diagnosed at step 1 or 2 (CDR + Timeline). SIP trace handles cases where Timeline doesn't show why. PCAP is the wire-level deep dive, used only when SIP trace doesn't answer it."
+    },
+    {
+      "id": "ck-diag-3",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A trunk that shows 'Registered' in the trunk list status is guaranteed to be passing calls correctly.",
+      "correct": false,
+      "explanation": "Registered means SIP signalling and authentication succeeded. It says nothing about codec compatibility, media-path NAT, or carrier-side blocks. A registered trunk can still produce one-way audio or rejected calls. Always test inbound and outbound end-to-end after a trunk change."
+    }
+  ]
+}

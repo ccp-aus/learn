@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-ycm-provisioning-checkpoint-tenancy",
+  "course": "yeastar-ycm-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, multi-tenant model",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-tenancy-permission-shape",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A Colleague tells you the Resize Capacity action is missing from their Cloud PBX row menu. What's the most likely cause?",
+      "choices": [
+        "The PBX is too old to be resized; YCM hides the action.",
+        "Their Colleague profile doesn't have the Resize Capacity permission ticked under the Cloud PBX feature tab.",
+        "The MSP pool is out of capacity, so the action is hidden site-wide.",
+        "Resize Capacity is only available from PSE."
+      ],
+      "correct": 1,
+      "explanation": "Colleague permissions are per-action checkboxes per feature tab. Missing actions in the row menu mean the Colleague profile doesn't have that specific permission. The fix is a Super Admin to add it, not a workaround in YCM."
+    },
+    {
+      "id": "ck-tenancy-allocation-direction",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "When you allocate capacity to a Hosting User (extensions, concurrent calls, recording minutes), that capacity leaves the MSP's pool immediately, before the Hosting User has created a single PBX.",
+      "correct": true,
+      "explanation": "The allocation is a reservation, not a usage meter. The capacity moves from My Subscription's available pool into the Hosting User's allocation at the moment of save. Allocate tight to start; recording minutes specifically cannot be reduced once issued."
+    }
+  ]
+}

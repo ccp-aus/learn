@@ -4,6 +4,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Breadcrumb from "@/components/site/Breadcrumb.astro";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Map } from "lucide-react";
+import { courseUrl, vendorOfCourse, levelLabel } from "@/lib/courseRoute";
 
 export async function getStaticPaths() {
   const paths = await getCollection("paths");
@@ -21,18 +22,6 @@ const allVendors = await getCollection("vendors");
 const courses = path.data.courses
   .map((slug: string) => allCourses.find((c) => c.data.slug === slug))
   .filter(Boolean) as typeof allCourses;
-
-function vendorOf(c: (typeof allCourses)[number]) {
-  const ref = c.data.vendor;
-  const vSlug = typeof ref === "string" ? ref : ref?.id;
-  return allVendors.find((v) => v.data.slug === vSlug);
-}
-
-const levelLabel: Record<"l1" | "l2" | "l3", string> = {
-  l1: "Beginner",
-  l2: "Intermediate",
-  l3: "Advanced",
-};
 ---
 
 <BaseLayout title={path.data.title} description={path.data.summary}>
@@ -60,12 +49,12 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
 
     <ol class="space-y-3">
       {courses.map((c, i) => {
-        const v = vendorOf(c);
+        const v = vendorOfCourse(c, allVendors);
         if (!v) return null;
         return (
           <li>
             <a
-              href={`${v.data.kind === "concept" ? "/concepts/" : "/vendors/"}${v.data.slug}/${c.data.level}/`}
+              href={courseUrl(c, v)}
               class="group flex items-center gap-4 rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/40"
               data-astro-prefetch
             >

@@ -1,0 +1,82 @@
+---
+slug: 05-when-to-blame-the-network
+vendor: voip
+level: l1
+title: The symptom-to-suspect decision tree
+summary: Given a customer-reported symptom (no audio, choppy, can't register, drops mid-call, works for some users not others) — the protocol-layer first guess for where the problem lives, before you even open the PBX.
+estimatedMinutes: 6
+order: 5
+topics: [troubleshooting, network, sip, rtp]
+updated: 2026-05-12
+---
+
+Customers describe symptoms, not causes. "It's broken" doesn't help. "I can't hear them but they can hear me" tells you the protocol layer, which side of the call has the problem, and roughly what to capture. This lesson is the lookup table that gets you from customer-words to next-action.
+
+## The cheat sheet
+
+| Customer says | Protocol layer | First suspect |
+|---|---|---|
+| "I can't log in" / "It says register failed" | SIP (REGISTER) | Wrong creds, transport mismatch, NAT keepalive, IP blocked by security rules. Trace shape 1. |
+| "When I dial, nothing happens" | SIP (INVITE) | Outbound route, trunk down, user-role permissions. Trace shape 2. |
+| "It rings but they can't hear me" | RTP (one direction) | NAT/firewall asymmetry on the RTP path. SIP looks fine. Trace shape 3. |
+| "We're connected but no audio at all" | RTP (both directions) | RTP can't traverse NAT either way. SDP probably advertises a wrong IP. Trace shape 3. |
+| "It sounds choppy / robotic" | RTP (loss/jitter) | Network congestion, wifi flakiness, undersized link. Check RTCP / MOS. |
+| "It drops out after a few minutes" | SIP (mid-call) | Session timer expiry, stateful middlebox ageing UDP binding. Trace shape 4. |
+| "It works on my desktop but not my mobile" | Network (per-device) | Mobile network NAT / cellular / VPN. Test on wifi vs mobile data. |
+| "It worked yesterday" | Either | Has the customer's network changed? Has the PBX been backed up / upgraded? Did a carrier maintenance happen? |
+
+## Walk-throughs
+
+### "We're connected but no audio at all"
+
+SIP succeeded all the way through. Both sides see the call as up. Neither hears anything. This is almost certainly **RTP being blocked or misrouted**.
+
+Steps:
+
+1. Open the PBX's SIP trace. Confirm INVITE → 200 OK → ACK with SDP bodies present. Note the `c=` IP and `m=audio` port in each SDP.
+2. Check the IPs. Is one of them an RFC 1918 private address (10.x, 172.16-31.x, 192.168.x)? If so, that endpoint is behind NAT; the public IP needs to be in the SDP, not the private one.
+3. Check the PBX's NAT settings (per SIP profile). Make sure NAT traversal is set correctly for the trunk type and the endpoint's location.
+4. Disable SIP ALG on the customer's router if it's enabled (it usually breaks more than it helps).
+5. If those don't resolve it, packet capture on the customer side: filter for the RTP port; verify packets are leaving the customer's network and arriving back.
+
+### "It's choppy in the afternoon"
+
+Time-of-day-correlated quality issues usually mean **bandwidth contention or wifi interference**.
+
+Steps:
+
+1. Pull CDR for an affected call. Read MOS, loss %, jitter. Numbers tell you which.
+2. Loss-heavy? Bandwidth. Find what else uses the customer's link in the afternoon (backups? video conferencing? guest wifi opening up?).
+3. Jitter-heavy? Wifi or path variability. Repro on wired Ethernet to rule out wifi.
+4. Both equally bad? ISP path issue or middlebox. Traceroute, then a ticket with the ISP.
+
+### "It worked at home, doesn't work at the office"
+
+Network-environment-specific tells you it's **not the PBX**; the same extension is working from one network and not another.
+
+Steps:
+
+1. Confirm the softphone client version matches between the two environments.
+2. From the failing site, run a simple connectivity test to the PBX URL (does the web admin portal load?). If yes, the SIP UDP path may still be blocked even though TCP/443 works.
+3. Check for SIP ALG, deep packet inspection, or aggressive firewall on the office router.
+4. If trace shape 1 (REGISTER failing), the auth side is OK but the firewall is blocking the SIP transport. If trace shape 3 (call up, no audio), RTP ports are blocked.
+
+### "Calls drop after exactly 30 minutes"
+
+A specific time interval (15, 30, 60 minutes) almost always means **session timers** (RFC 4028). The PBX expects a refresh INVITE every N seconds; if the refresh doesn't complete, the call is torn down at the timer.
+
+Steps:
+
+1. Trace shape 4, BYE with timer-related Reason header.
+2. Check the SIP profile session-timer settings on the trunk / extension.
+3. The refresh failure is usually a stateful middlebox (firewall, SBC) ageing a UDP binding. Lengthening the binding timeout fixes it; lengthening session timers is a workaround.
+
+## What "blame the network" means in practice
+
+Most voice tickets that get blamed on "the phone system" are network problems wearing a phone-system mask. Three habits help:
+
+- **Pull a trace before changing anything.** The trace decides the layer. Without it you're guessing.
+- **MOS / RTCP numbers over customer impressions.** Customers will say "really bad" when MOS is 4.1; "fine" when MOS is 3.4 and they got used to it. Trust the numbers.
+- **Reproduce on a different network.** If the customer's softphone supports it, move the active call to mobile data in seconds. If it works there, the customer's network is the suspect.
+
+VoIP is finicky but reductive: every voice ticket is signalling (SIP), media (RTP), or network. Once you know which, the next steps follow. The intermediate and advanced courses go deeper on capturing, decoding, and fixing each.

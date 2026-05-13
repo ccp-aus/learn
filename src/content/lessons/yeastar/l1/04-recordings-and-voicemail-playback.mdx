@@ -1,0 +1,89 @@
+---
+slug: 04-recordings-and-voicemail-playback
+vendor: yeastar
+level: l1
+title: Playing back recordings and voicemail
+summary: Where call recordings and voicemails live in PSE, how to play them, when to download (and the audit trail you leave when you do), and how to read recording rules to answer 'why was this call recorded?' without changing anything.
+estimatedMinutes: 5
+order: 4
+topics: [pse, recordings, voicemail, compliance]
+updated: 2026-05-12
+---
+
+Customers ask for two things from the recording library: "play me back this specific call" and "why was this call recorded?" Both are read operations. Neither requires you to change anything. The audit log notices when you do, though.
+
+## Recording playback from a CDR row
+
+The path of least resistance: find the call in CDR (Advanced), click the row, the Recording panel at the top has a waveform with playback controls. Play in place. Adjust the speed (1x, 1.5x, 2x) if you're skimming. Drag the waveform to a specific timestamp.
+
+Each call leg shows as a coloured bar above the waveform. Click a leg's bar and the playhead jumps to that segment — handy for inbound calls that bounced through an IVR and a queue before reaching an agent.
+
+To download: the panel has a download icon. Two download modes: **single file** (the whole call as one audio file) or **by segment** (one file per leg, useful when the legs were on different agents). Either way, when you click download, the operation logs to **Maintenance → Operation Logs** with your username, the call ID, and the timestamp. The customer can audit who downloaded which recording.
+
+## Recording playback from the Recordings list
+
+For "I want to see every recording for this extension this week" rather than "this specific call":
+
+```
+Reports and Recordings → Recordings
+```
+
+You get a list filterable by time, by extension, by trunk, by communication type. Each row is one recording (or one leg of one recording, depending on the recording rule). Playback, download, delete from the row's action menu. Same operation log applies.
+
+## Voicemail playback
+
+Voicemails live in the same area but under a different tab:
+
+```
+Reports and Recordings → Voicemails
+```
+
+You can filter by extension, time range, and read/unread status. Click to play in place; download to file with the same audit trail.
+
+A practical note: a user complaining "I can't hear my voicemails on Linkus" is rarely a voicemail-system problem. Their Linkus client has voicemail playback built in (Linkus → Voicemails). If they're missing voicemails entirely, the question is usually whether voicemail-to-email is configured correctly on their extension (Extension and Trunk → Extension → click extension → Voicemail tab).
+
+## Reading recording rules (without changing them)
+
+Recording rules say *when* PSE should record. They live at:
+
+```
+Call Features → Recording
+```
+
+The rules list lets you filter to a specific extension, trunk, or scenario. Each rule has:
+
+- **Recording Type**: All Calls / Inbound / Outbound / Internal.
+- **Targets**: which extensions, trunks, or queues the rule applies to.
+- **Recording Prompt**: whether PSE plays a "this call may be recorded" prompt at the start (jurisdiction-dependent compliance lever).
+- **Enabled**: whether the rule is currently active.
+
+For "why was this call recorded?" find the rule that matched. The combination of (call type, source, target) tells you. If a rule says "Record all Inbound calls answered by the Sales queue", any inbound call routed to Sales is recorded — regardless of who answered.
+
+For "why wasn't this call recorded?", either:
+- No rule matched the call's pattern.
+- A rule existed but was disabled.
+- The extension has recording disabled at the per-extension level (overrides the rule).
+- Recording capacity for the PBX is exhausted (YCM-side; allocate more).
+
+## Compliance and the disclosure prompt
+
+Different jurisdictions have different consent rules for recording:
+
+- **One-party consent** (much of the US, Australia for the most part): the recording party's consent is enough. No mandatory prompt.
+- **Two-party consent** (some US states, EU/UK under GDPR, others): both parties must be informed. A "this call may be recorded" prompt is the standard mitigation.
+
+PSE can be configured to play this prompt at the start of any recorded call. The prompt sits at:
+
+```
+Call Features → Recording → Recording Settings → Play Prompt
+```
+
+A triage tech doesn't change this. But knowing where it lives means you can answer "do we comply?" without making the policy call yourself. Escalate to the MSP's senior tier or the customer's compliance contact.
+
+## What you should never do
+
+- **Don't delete recordings.** Even if a customer asks. Recordings can be evidence. Get explicit MSP-side authorisation before any delete.
+- **Don't change recording rules.** A triage tech reads them, doesn't edit them. Changes have compliance implications and need an audit trail.
+- **Don't share recordings outside the audit.** Downloads log who took the file; emailing it from your personal address bypasses that trail. If a customer asks for a copy, the operation log should show the path from PBX → them.
+
+Next lesson: the three most common triage tickets and what specific PSE-side data to grab before escalating.

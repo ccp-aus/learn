@@ -1,0 +1,19 @@
+{
+  "slug": "yeastar-ycm-triage",
+  "vendor": "yeastar",
+  "level": "l1",
+  "title": "Yeastar YCM, portal-side triage",
+  "shortTitle": "YCM triage",
+  "summary": "Read-only fluency in the Yeastar Central Management portal: the multi-tenant view, finding a customer's Cloud PBX, reading alarms and status, locating billing / trunks / DIDs / backups, and the decision boundary for when a ticket stays in YCM vs descends into PSE or Linkus.",
+  "estimatedMinutes": 35,
+  "prereqs": ["yeastar-foundations"],
+  "lessons": [
+    "01-ycm-portal-tour",
+    "02-find-a-customers-pbx",
+    "03-alarms-and-status",
+    "04-where-to-find-records",
+    "05-handoff-boundary"
+  ],
+  "quiz": "yeastar-ycm-triage-final",
+  "status": "live"
+}

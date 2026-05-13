@@ -1,0 +1,20 @@
+{
+  "slug": "yeastar-pse-build",
+  "vendor": "yeastar",
+  "level": "l2",
+  "title": "Yeastar PSE, configuring a working PBX",
+  "shortTitle": "PSE configuration",
+  "summary": "Building a customer PBX from blank or templated state: extensions and departments, SIP trunks and DIDs, inbound routing with time conditions and IVRs, queues and ring groups, recording and voicemail policy, and walking a failed call from CDR to root cause.",
+  "estimatedMinutes": 55,
+  "prereqs": ["yeastar-pse-triage", "voip-sip-in-practice"],
+  "lessons": [
+    "01-extensions-and-departments",
+    "02-trunks-and-dids",
+    "03-inbound-routing-time-conditions-ivr",
+    "04-queues-and-ring-groups",
+    "05-recording-and-voicemail-policy",
+    "06-diagnosing-call-issues-at-pse"
+  ],
+  "quiz": "yeastar-pse-build-final",
+  "status": "live"
+}

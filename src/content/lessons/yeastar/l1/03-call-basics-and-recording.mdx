@@ -1,0 +1,99 @@
+---
+slug: 03-call-basics-and-recording
+vendor: yeastar
+level: l1
+title: The call moves users actually use
+summary: Make, answer, hold, mute; blind transfer vs attended transfer; recording during a call; voicemail playback; and call flip between devices. The actions a tech demonstrates in a Linkus onboarding session.
+estimatedMinutes: 7
+order: 3
+topics: [linkus, calls, transfer, recording]
+updated: 2026-05-12
+---
+
+You'll demonstrate these moves to users in their first week. Each is one button click in the Linkus UI, but the *which button* and the *consequences* matter, particularly with transfer.
+
+## Make, answer, hold, mute
+
+The basics work the same on all three clients:
+
+| Action | What it does |
+|---|---|
+| Make a call | Type a number or pick a contact, hit dial. Linkus places the call through PSE; you hear ringback. |
+| Answer | The incoming-call popup or the call screen has an answer button. Pick it. |
+| Hold / Resume | Pause audio in both directions. Caller hears music-on-hold (configured on the PBX). Click again to resume. |
+| Mute / Unmute | Your microphone is off but the caller's audio still plays to you. They can keep talking; you can't be heard. |
+| End | Hangs up. |
+
+Users get the basics quickly. Things they get wrong, that you'll teach: muting isn't holding (the customer keeps talking and you keep hearing them while muted, just one-way), and answering on one device while logged in on three doesn't move the call automatically (the others stop ringing once you answer; the call only goes to the answering device).
+
+## Transfer: blind vs attended
+
+Two ways. They look similar; they're very different in customer experience.
+
+### Blind transfer
+
+You're on a call. You hit Transfer → Blind. You select or dial the target. The current call disconnects from you and rings the target. **You're out of the conversation immediately.**
+
+Use blind transfer when:
+
+- The caller knows exactly who they want and you just need to put them through.
+- The target is reliably going to answer (it's a queue, or a named person known to be at their desk).
+- You're under time pressure.
+
+Don't use it when:
+
+- You need to brief the target ("this customer is upset, here's why").
+- The target might not answer (they're remote, in a meeting, etc.) — the caller experiences a transferred-to-voicemail moment with no warning.
+
+### Attended transfer
+
+You hit Transfer → Attended. The current call goes on hold. Linkus rings the target on a *second leg* you control. When the target answers, you can talk to them privately, brief them, and only then click Transfer to connect the two ends. If the target doesn't pick up, you can cancel and return to the caller.
+
+Use attended transfer when:
+
+- You want to introduce the caller.
+- The target might bounce the call back to you.
+- The customer is frustrated and a hand-off feels rude.
+
+Trade-off: it takes longer, ties you up briefly, and on Linkus Mobile the experience is less polished (some second-call operations aren't supported in mobile softphone mode).
+
+## Record during a call
+
+If the admin allowed it for the extension, a Record button in the call screen toggles call recording. Important nuances:
+
+- **The recording is a per-call file**, stored on the PBX (Cloud PBX's data volume, on the PBXHub server). It's accessible from PSE's Recordings list to anyone with the right role permissions; users can also see/play their own recordings via Linkus → Recordings.
+- **Compliance matters.** Many jurisdictions require disclosure to the other party. The admin can configure a recording prompt to play automatically; if they did, you're covered. If not, train users on the legal practice in their region.
+- **Always-on recording is a PBX-side setting**, not a user choice. If the customer has "record all calls" enabled, the user can't turn it off mid-call; the button is greyed out.
+
+## Voicemail playback
+
+Voicemails arrive in the user's Linkus → Voicemails list. Each is a row with caller ID, timestamp, duration, and a play button. Mark as read or delete in place. Voicemail-to-email (if the admin enabled it) sends an audio attachment to the user's mailbox too.
+
+What users don't know they can do:
+
+- **Greet customisation.** Linkus → Preferences → Voicemail lets the user record their own greeting per presence (Available, DND, Off Work) or fall back to the default. Most users have never opened this.
+- **Forward a voicemail to another extension.** Three dots on the row.
+- **Block a number from leaving voicemail.** Some firmware versions allow this; check before recommending.
+
+## Call flip between devices
+
+A Linkus Mobile feature: you're on a long call on your iPhone, your battery's dying. Tap **Call Flip** on the call screen. Linkus shows all the other devices where your extension is registered. Pick one (your desktop, your deskphone). Linkus rings that device. Answer there; the call moves cleanly without disconnecting.
+
+This is by far the most "wow" feature Linkus has. Users who learn it become evangelists for the platform. Things to mention:
+
+- **The extension has to be registered on more than one device.** Linkus Web + Desktop + Mobile all logged into the same extension all the time is the typical setup that enables it.
+- **Mid-call moves don't transfer the call to a different extension** (that's transfer). Call flip moves it to a different *device* registered to *your* extension.
+- **Audio briefly pauses during the flip** while the second device picks up. Not a glitch; just the natural transition.
+
+## What "the call quality is bad" looks like in Linkus
+
+When users complain about call quality, two things to check before opening PSE:
+
+- **Linkus client version.** Mobile, Desktop, and Web each have their own version. Old versions miss codec improvements and have known audio bugs. Check `Help → About` or the client's settings page.
+- **Network the user is on.** Linkus + cellular data can be dodgy. Linkus + corporate wifi behind aggressive QoS can be worse. Try the same call on a different network; if it fixes it, the network is the issue, not Linkus.
+
+If neither fixes it, descend into PSE: pull the call from CDR, check the MOS and RTCP stats, and follow the playbook from `voip-fundamentals`.
+
+<Checkpoint slug="yeastar-linkus-checkpoint-calls" client:visible />
+
+Next lesson: CTI mode and the deskphone-control pattern that older users tend to prefer.

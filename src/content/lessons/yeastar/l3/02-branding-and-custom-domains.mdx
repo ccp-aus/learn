@@ -1,0 +1,138 @@
+---
+slug: 02-branding-and-custom-domains
+vendor: yeastar
+level: l3
+title: White-label branding and custom domains
+summary: "Two branding surfaces (YCM portal, Cloud PBX), where each one applies, how to import settings from one to the other, the custom domain quota model, and DNS provider auto-renewal so certificates never lapse."
+estimatedMinutes: 10
+order: 2
+topics: [ycm, white-label, branding, custom-domain, dns]
+updated: 2026-05-13
+---
+
+The first thing a customer sees of the MSP is the URL of their Linkus app, the logo on the PBX login screen, and the email signature on the activation message. Get the branding right and your customer never reads the word "Yeastar" once. Get it wrong and the customer thinks they bought a Yeastar product, not the MSP's voice service. Two distinct branding surfaces sit behind that experience, and they need a single shared design.
+
+This lesson is about applying brand at scale across the whole MSP estate without ad-hoc fixes per customer.
+
+## Two surfaces, two White Label products
+
+YCM ships with two separate White Label entitlements, and an MSP that does end-to-end white-label needs both:
+
+| Surface | Service | What it brands | When you set it up |
+|---|---|---|---|
+| **YCM portal** | YCM White Label (subscribed on Yeastar Partner Portal) | The MSP's own portal: login page logo, illustration, copyright, email signature, email header colour, user manual link | Once, by the MSP admin. Affects every colleague and every Hosting User. |
+| **Cloud PBXs** | PCE White Label | Each customer's PBX management portal and Linkus UC Clients: logo, theme colours, login page illustration, welcome message, PBX email signature | Once per template; applied to all new Cloud PBXs and (manually) to existing ones via the OEM ID switch. |
+
+Brand the YCM portal and Hosting Users plus Colleagues log into your branded UI instead of Yeastar's. Brand the Cloud PBXs and the customer's tech who logs into their PBX or installs Linkus sees your brand instead of Yeastar's. Without both, you have an inconsistency the customer will eventually notice.
+
+Both surfaces require firmware versions: YCM `87.14.0.31` or later for YCM branding, YCM `87.17.0.80` and Cloud PBX `84.21.0.117` or later for PCE White Label.
+
+## YCM portal branding, the fields that matter
+
+The YCM portal brand lives at `System > Branding`. The Brand Information block is two fields (Brand name, Portal name) and the Other Information block carries everything visual.
+
+What earns attention when you set this up:
+
+- **Rectangle logo**: 300x120 suggested resolution, under 1MB, PNG / JPG / JPEG. This is the logo on the portal login page and in every notification email YCM sends.
+- **Square logo**: 150x150 suggested resolution, under 500KB. This is the favicon in the browser tab. Customers using Linkus Web Client also see it.
+- **Login page illustration**: 1600x900 suggested resolution, under 2MB. Left side of the portal login page.
+- **Email signature**: up to 500 characters, supports a small set of HTML tags (`<br/>`, `<strong/>`, `<b/>`, `<a/>`). This is what appears under every account activation, password reset, and notification email.
+- **DPA and Privacy Policy URLs**: links displayed on the login page. Use yours, not Yeastar's defaults.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/ycm-branding-login-page.png"
+  alt="YCM Branding configuration page showing logos, login page illustration, color selection, title, copyright information, DPA URL, and privacy policy fields."
+  caption="The Branding page has live preview on the right of every field you change. The Login Page Title is the text that sits over the illustration; treat it as a brand promise statement, not a tagline."
+>
+  <Hotspot client:load x={25} y={25} tone="primary" label="1" title="Logo and illustration" purpose="Upload with the size guidance shown on each row.">
+    Out-of-spec sizes cause the white-label login page to crop or stretch the brand. Match the recommended pixel dimensions exactly; export at 2x for retina displays if the brand asset supports it.
+  </Hotspot>
+  <Hotspot client:load x={25} y={75} tone="primary" label="2" title="DPA + Privacy Policy URLs" purpose="Use yours, not Yeastar's.">
+    The customer is signing the MSP's Data Processing Addendum, not Yeastar's. Hosting Users that see Yeastar's URLs in the activation flow will (rightly) ask why your platform is referencing a different vendor.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The brand applies the moment you click Save. Anyone logging in after that sees the new look. Existing tabs may need a refresh.
+
+## PCE White Label, the customer-facing brand
+
+The Cloud PBX brand is a separate template at `System > Cloud PBX White Label`, with significantly more configuration than the YCM portal. The reason is that this brand applies to the customer's PBX management portal *and* the Linkus UC Clients customers use every day. The brand has to survive light mode, dark mode, every UI control, and every email the PBX sends.
+
+Three sections drive the template:
+
+1. **Brand Information** (brand name, company information, product name, DPA, privacy policy). The product name is what the customer sees in Linkus instead of "Linkus".
+2. **Theme settings** (theme mode: Light only, Dark only, or Both, with separate logos and illustrations per mode). Theme colours include primary brand colour, success colour, error colour, warning colour, neutral text colour, primary background, secondary background. The whole control palette.
+3. **Email appearance** (email signature, email header colour) on PBX-generated emails (voicemail-to-email, password reset, missed-call notification).
+
+When you have already set up the YCM portal branding, the Cloud PBX White Label page offers an **Import White-Label Settings From** drop-down. Pick `System Branding Settings`, click Import, and the YCM brand values populate the PCE template as defaults. You still tweak per-section (the PBX login welcome message is different from the YCM portal title), but the logos and colours come across automatically. Use this. Re-typing every hex code twice is the path to a brand that drifts.
+
+<Callout type="warn" title="The Configuration Effective Time is a one-way decision">
+The PCE White Label template has a Configuration Effective Time setting. **Update Immediately** reboots every Cloud PBX created after the subscription so the new brand takes effect. PBXs created *before* the subscription do not auto-rebrand; you switch their OEM ID manually per PBX. Plan to brand at subscription time, not after fifty customers are already running.
+</Callout>
+
+## Custom domains: branding the URL, not just the UI
+
+A branded UI on a `customer.example.yeastarcloud.com` URL still has the word "yeastarcloud" in it. Custom Domain service replaces the wildcard domain with one you own (`*.pbx.contoso.com`, say), so the customer's PBX URL is `customer.pbx.contoso.com` and matches the rest of their portal experience.
+
+The wiring touches three places:
+
+1. **YCM**, where you add the cluster server domain.
+2. **Your DNS provider**, where you point the wildcard at the SBC Server's public IP.
+3. **A certificate authority**, where you obtain a wildcard certificate (or let YCM apply for Let's Encrypt for you).
+
+The architecture wrinkle is that a Cloud PBX URL routes through two cluster servers, the SBC Server (customer-facing: Linkus login, SIP registration, web access, account trunks) and the SBC Proxy Server (carrier-side and integration: SSH, AMI, DB grant, peer / register trunks). Both need a domain. The convention is:
+
+- **SBC Server**: wildcard like `*.pbx.contoso.com` (this is the PBX wildcard the customer sees in their URL)
+- **SBC Proxy Server**: a related wildcard like `*.proxy.pbx.contoso.com`, derived from the SBC domain and visible to carriers for trunk binding
+
+If you deployed more than one SBC Proxy Server in the region (for capacity), each gets its own derived domain (`*.proxy1.pbx.contoso.com`, `*.proxy2.pbx.contoso.com`). YCM's Add Cluster Domain form generates the proxy domains automatically once you enter the SBC wildcard.
+
+## The DNS provider integration that earns its keep
+
+YCM monitors the validity of every cluster server domain certificate. At 30 days, 15 days, 7 days, and on the day of expiration, a **Cluster Domain Name Certificate Expired** alarm fires and an email goes to the notification contacts. You do not want to be the MSP that misses that email and has every customer's PBX go dark for a TLS error on a Sunday.
+
+The way to remove that risk is the DNS Provider integration. YCM supports DNS-01 ACME challenges against an extensive provider list (Cloudflare, Route 53, AliDNS, Akamai EdgeDNS, DNSimple, DigitalOcean, Gandi, Namecheap, Hetzner, OVH, plus the rest in the documented list). Add your provider once at `System > DNS Provider`, supply the API credentials, and on each certificate add or update you can tick **Automatically refresh the certificate** with that provider selected. YCM then renews 7 days before expiry without anyone touching it.
+
+<StepThrough>
+  <Step title="Add the DNS provider authentication">
+    `System > DNS Provider > Add`. Name it (e.g. "Cloudflare prod"), pick the provider from the flag-name dropdown, enter the credentials (for Route 53: AccessKeyId, SecretAccessKey, Region, HostedZoneId; for Cloudflare: API token; varies by provider). Save.
+  </Step>
+  <Step title="Add the cluster server domain">
+    `System > Cluster Domain Name > Add`. Pick the region. Note the SBC IP address(es) and SBC Proxy IP address(es) shown. Enter your wildcard (`*.pbx.contoso.com`) in PBX Wildcard Domain; the SBC Proxy domain auto-derives.
+  </Step>
+  <Step title="Configure DNS resolution on your provider">
+    At the DNS provider, set `*.pbx.contoso.com` -> SBC public IP and `*.proxy.pbx.contoso.com` -> SBC Proxy public IP. Use the IPs YCM showed in the previous step. If you have multiple SBC Proxy Servers, set the additional records too.
+  </Step>
+  <Step title="Deploy the certificate with auto-refresh">
+    Back on the Cluster Domain Name page, in Operations next to the SBC domain, click the certificate icon. Choose **Apply for a certificate**, tick **Automatically refresh the certificate**, pick your DNS provider, click Confirm. Repeat for the SBC Proxy domain.
+  </Step>
+  <Step title="Verify with a new Cloud PBX">
+    Create a test Cloud PBX in this region. Its URL now uses your branded domain. Visit the URL; the browser should report a valid certificate issued by Let's Encrypt (or your CA if you uploaded a wildcard manually). Done.
+  </Step>
+</StepThrough>
+
+<Callout type="info" title="If your provider is not in the supported list, use Let's Encrypt with manual DNS">
+The auto-refresh checkbox falls back to Let's Encrypt if your certificate is not from Let's Encrypt. If your DNS provider is not supported, you can still manually upload a wildcard cert from a commercial CA, but you trade auto-refresh for a recurring 90-day or annual renewal task. Most MSPs eventually move to a supported provider for this reason.
+</Callout>
+
+## Sub-user custom domain quotas
+
+The Hosting User permission lesson mentioned `totalCustomDomains` as a per-region field on the Hosting Package. This is the count of custom domains that Hosting User is allowed to set for *their own* branded PBXs. The reseller channel pattern:
+
+- **Channel-running Hosting User** gets `totalCustomDomains: 1` (or more if they brand multiple regions). They can add `*.pbx.reseller.com.au` against an SBC and run their branded PBXs.
+- **Constrained Hosting User** gets `totalCustomDomains: 0`. They consume the MSP's brand (or a sub-brand the MSP sets up centrally), no per-reseller flexibility.
+
+If you also subscribed to **YCM White Label**, your account gets one custom domain quota by default. Subscribe to the **Custom Domain** service on Yeastar Partner Portal to add more, both for your own use and to allocate down to Hosting Users.
+
+## Brand consistency in practice
+
+A common MSP failure is to launch with branding done and let it drift over the next two years. A short discipline keeps it tight:
+
+- **Two templates, one design**. YCM brand and PCE White Label both point at the same logo asset on the design team's side. When the logo updates, both branches change in the same change request.
+- **Email signature lives next to brand assets**. The HTML for the YCM email signature and the PCE email signature should be the same source. The YCM signature appears on portal-side notifications, the PCE signature appears on PBX notifications, and customers receive both.
+- **DPA and Privacy Policy URLs survive lawyer reviews**. When legal updates the privacy policy, you change the URL on both branding pages in the same session. If the URL on Cloud PBX White Label still points at last year's policy six months after legal's update, your white-label is leaking the wrong information.
+- **Renewals before quarterlies**. Once a quarter, run a cert-validity report (the YCM dashboard surfaces expiry dates). Six months ahead is plenty of warning; surprises are an avoidable failure mode at this tier.
+
+The branding is what the customer remembers about the MSP. Treat it as production infrastructure, version it, review it, monitor it.
+
+Next lesson: enabling the YCM API, the OAuth client-credentials flow, real curl walkthroughs for the endpoints that drive scripted provisioning, and the webhook subscription model for event notifications.

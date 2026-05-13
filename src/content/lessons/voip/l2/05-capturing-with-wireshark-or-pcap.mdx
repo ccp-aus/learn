@@ -1,0 +1,152 @@
+---
+slug: 05-capturing-with-wireshark-or-pcap
+vendor: voip
+level: l2
+title: Capturing calls with the PBX pcap and Wireshark
+summary: "Where to get a capture (the PBX or a span port), Wireshark display filters for SIP and RTP, and the three Telephony menus that turn raw packets into ladder diagrams, RTP flow stats, and playable audio."
+estimatedMinutes: 9
+order: 5
+topics: [wireshark, pcap, capture]
+updated: 2026-05-12
+---
+
+Every voice ticket that isn't obvious from the PBX's trace screen ends with a packet capture. The capture is the ground truth: not what the PBX summarised in CDR, not what the customer reported, but every byte that actually moved on the wire. This lesson covers where to get a capture, how to filter it without drowning in irrelevant traffic, and the three Wireshark menus that do most of the diagnostic work.
+
+## Where the capture comes from
+
+Two sources, two situations:
+
+### The PBX's built-in pcap
+
+Almost every modern PBX has a packet-capture page somewhere under Maintenance / Diagnostics / Troubleshooting. It captures from the PBX's own network interface, lets you filter by extension / trunk / IP / port / time window, and produces a `.pcap` or `.pcapng` file you can download.
+
+Use the PBX pcap when:
+
+- The issue involves the carrier-side leg of a call.
+- You can't be on the customer's network in person.
+- The PBX is the only thing both legs of the call touch.
+
+### A host-side or span-port capture
+
+Run Wireshark on a host on the customer's LAN, or set up a span (mirror) port on the customer's switch and capture from a host plugged into the span. The span port copies every packet that traverses the switch to the monitoring port, regardless of which switch port is the real source or destination.
+
+Use a host or span capture when:
+
+- The issue is between an endpoint and the PBX (the PBX pcap shows what the PBX received, not what the endpoint sent).
+- You need to verify what's leaving the customer's network (is the RTP making it past the customer's firewall at all?).
+- The PBX-side pcap looks normal but the customer's experience is broken.
+
+## Sensible capture practice
+
+Both sources benefit from the same discipline. Untargeted captures fill with traffic that's irrelevant to the symptom and the resulting file is harder to read than the original problem.
+
+<StepThrough>
+  <Step title="Filter at capture time when you can">
+    The tcpdump-style capture filter on the PBX or on `dumpcap` reduces what hits disk. Examples for a call to/from `203.0.113.5` on the typical SIP and RTP ports:
+    ```
+    host 203.0.113.5 and (port 5060 or portrange 10000-20000)
+    ```
+    A two-minute filtered capture beats a thirty-second everything-on-the-wire one for readability.
+  </Step>
+  <Step title="Start the capture before reproducing the symptom">
+    The trace needs to include the call setup, not just the failure. If the customer says "I dial, then it cuts off", start capturing first, then have them dial.
+  </Step>
+  <Step title="Reproduce the symptom once">
+    Multiple reproductions in one capture make it harder to separate the affected call from the normal ones. One bad call, one good call as a control, is the readable pair.
+  </Step>
+  <Step title="Stop the capture promptly">
+    Captures that run for hours produce files in the gigabytes. Stop when you have what you need.
+  </Step>
+  <Step title="Save as .pcapng">
+    Wireshark's default format. Preserves comments, supports multiple interfaces in one file, future-proof. Use `.pcap` only if you're sharing with a tool that doesn't read pcapng.
+  </Step>
+</StepThrough>
+
+## Wireshark display filters for VoIP
+
+Display filters are what you type into Wireshark's filter bar after the capture is loaded. They narrow the visible packets without touching the file. The syntax is Wireshark-specific (different from tcpdump capture-filter syntax).
+
+| Filter | Matches |
+|---|---|
+| `sip` | All SIP packets. |
+| `sip.Method == "INVITE"` | INVITE messages only. |
+| `sip.Method == "REGISTER"` | REGISTER messages only. |
+| `sip.Status-Code == 200` | 200 OK responses. |
+| `sip.Status-Code >= 400 and sip.Status-Code < 500` | All 4xx responses (failed calls). |
+| `sip.Call-ID == "8f2a@198.51.100.20"` | One specific dialog. Most useful filter for chasing a single call. |
+| `sip.r-uri.user == "5000"` | Calls to extension 5000. |
+| `rtp` | All RTP packets. |
+| `rtcp` | RTCP only. |
+| `sip or rtp or rtcp` | All VoIP traffic, signal and media. |
+| `ip.addr == 203.0.113.5` | Anything involving that IP. |
+| `udp.port == 5060` | UDP-based SIP signalling. |
+
+A typical workflow: filter to `sip` first, find the Call-ID of the affected call (visible in the message details), then re-filter to `sip.Call-ID == "<id>" or rtp` to see just that call's signal and media.
+
+## The three Telephony menus
+
+Wireshark's `Telephony` menu has VoIP-specific views that interpret the raw packets.
+
+### Telephony → SIP Flows
+
+Lists every SIP dialog in the capture with timing and a ladder-diagram preview. Click into one to see the full message exchange. Click "Show packets" to jump to those packets in the wire view.
+
+What it tells you:
+
+- Which calls are in this capture, summarised.
+- The ladder diagram per call (INVITE, provisional, 200, ACK, BYE).
+- Timing between messages.
+
+When to start here: when you know roughly which call you want but not where it is in the capture.
+
+### Telephony → RTP Streams
+
+Lists every RTP flow in the capture. Each flow row shows: source IP/port, destination IP/port, payload type (codec), packet count, max delta (longest gap between packets), max jitter, mean jitter, packets lost.
+
+What it tells you:
+
+- Whether RTP is flowing in both directions (two streams per call, one per direction).
+- The codec each leg used (payload type column).
+- Loss, jitter, max delta per leg.
+
+Select a stream and click **Analyze** for per-packet detail (sequence number, timestamp, delta from previous, jitter). Click **Play Streams** to listen to the audio for that flow (Wireshark decodes G.711 and a few others natively; for Opus or G.722 you may need a transcoder).
+
+When to start here: when SIP looks fine in the trace and the complaint is about audio quality.
+
+### Telephony → VoIP Calls
+
+Combines SIP and RTP per call. The best starting point when you don't yet know which call you're chasing. Each row is a call (matched SIP dialog + RTP streams); click in for a flow view showing both signal and media.
+
+When to start here: any capture where you don't already know the Call-ID.
+
+## A worked example: "no audio one way"
+
+Customer at Able Moose Accounting reports "I can hear the customer but they can't hear me." Capture from the PBX:
+
+1. Open `Telephony → VoIP Calls`. Find the affected call by time and parties.
+2. Click "Flow Sequence" for that call. The SIP ladder looks normal: INVITE, 100, 180, 200, ACK, BYE. SDP bodies present.
+3. Open `Telephony → RTP Streams`. There should be two streams (Alice → Bob, Bob → Alice). Only one appears: the Bob → Alice direction. Alice's outbound RTP isn't reaching the PBX.
+4. Cross-reference: the SDP that Alice sent in the INVITE has `c=192.168.1.50`. That's a private RFC 1918 address. Alice is behind NAT. The PBX is set to symmetric RTP, so it should learn Alice's public IP from her first outbound packet. But there's no outbound packet from Alice.
+5. Conclusion: Alice's outbound RTP isn't leaving her network. Likely a firewall on the customer side blocking outbound UDP to the PBX's RTP port range. Move to a host capture on Alice's network to confirm.
+
+The capture didn't fix the problem; it pointed at the right layer. That's the standard outcome.
+
+## TLS-encrypted SIP signalling (5061)
+
+When SIP runs over TLS (port 5061), Wireshark sees the TLS handshake but the body is encrypted. To decrypt, Wireshark needs the session keys; for most setups you'd have to extract them from the endpoint or the PBX (where they're rarely exposed).
+
+Practical workaround: capture from inside the perimeter where SIP is unencrypted. The PBX's internal SIP processing is plaintext even when the wire format is TLS; the PBX's own pcap captures the inside-the-box plaintext. A span port on the LAN switch sees the encrypted TLS handshake; not useful.
+
+For SRTP (encrypted media), the same problem applies. The advanced course covers SRTP key extraction; for now, capture on whichever side has plaintext, which is usually inside the PBX.
+
+<Checkpoint slug="voip-sip-in-practice-checkpoint-capture" client:visible />
+
+## What this is NOT
+
+- **Not a Wireshark tutorial.** Wireshark's documentation is thorough; this lesson covers the VoIP-specific features. General display-filter syntax, columns, profiles, command-line capture: all in the Wireshark User's Guide.
+- **Not a guide to interpreting every codec's audio.** Wireshark plays G.711 natively. Other codecs need a decoder plugin or the raw RTP exported and decoded externally.
+- **Not analysis at scale.** Live monitoring, SIP-aware IDS, call-quality dashboards: those are separate tools (homer, voipmonitor). This lesson is the per-call diagnostic.
+
+## Sources
+
+Wireshark User's Guide ([wireshark.org/docs/](https://www.wireshark.org/docs/)), RFC 3550 (RTP/RTCP, what the streams contain), RFC 3261 (SIP messages, what the filters match).

@@ -1,0 +1,19 @@
+{
+  "slug": "voip-fundamentals",
+  "vendor": "voip",
+  "level": "l1",
+  "title": "VoIP fundamentals, what's happening on the wire",
+  "shortTitle": "VoIP fundamentals",
+  "summary": "How a Yeastar call splits into two streams (SIP signalling and RTP media), what the SIP handshake looks like, how RTP carries audio, reading the PBX's built-in trace viewer, and the symptom-to-suspect decision tree before you open Wireshark.",
+  "estimatedMinutes": 40,
+  "prereqs": [],
+  "lessons": [
+    "01-signaling-and-media-are-separate-streams",
+    "02-the-sip-handshake",
+    "03-the-rtp-stream",
+    "04-reading-a-call-trace",
+    "05-when-to-blame-the-network"
+  ],
+  "quiz": "voip-fundamentals-final",
+  "status": "live"
+}

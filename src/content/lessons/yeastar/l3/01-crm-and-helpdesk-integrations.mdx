@@ -1,0 +1,119 @@
+---
+slug: 01-crm-and-helpdesk-integrations
+vendor: yeastar
+level: l3
+title: CRM and helpdesk integrations
+summary: "Wiring PSE into the customer's CRM (HubSpot / Salesforce / Zoho / Dynamics 365 / Odoo) and helpdesk (Zendesk / Freshdesk / HaloPSA). Contact sync, click-to-call, screen-pops, call journaling, recording sync, and the custom-template path for the system you don't have a native connector for."
+estimatedMinutes: 11
+order: 1
+topics: [pse, integration, crm, helpdesk]
+updated: 2026-05-13
+---
+
+A customer who's bought PSE Enterprise or Ultimate plan rarely stops at "make and receive calls". The next conversation is "we want the call to show up against the contact in HubSpot", or "when someone calls in, can the support engineer's Zendesk ticket open automatically?" Both of those are CRM and helpdesk integration work, and PSE ships native connectors for the big ones plus a custom-template path for everything else.
+
+## What the Integration menu actually does
+
+From the L1 portal tour: **Integration → CRM** and **Integration → Helpdesk**. Two top-level sections, same shape, slightly different feature mix because CRM and helpdesk have slightly different priorities. Both connect PSE to a third-party system over OAuth so the PBX can read contacts, write call activity, and trigger screen-pops in Linkus.
+
+A working integration does four things, roughly in this order of how often you'll touch them:
+
+| Capability | What it does | Who notices first |
+|---|---|---|
+| **Contact sync** | CRM contacts appear in Linkus phonebook; inbound calls match against them | Anyone receiving calls |
+| **Click-to-call** | Click a phone number in the CRM web UI; Linkus dials it | Outbound-heavy users (sales, account managers) |
+| **Screen-pop** | Inbound call opens the matching contact / ticket / lead in the user's CRM tab | Reception, support engineers |
+| **Call journaling** | After the call, a record is written to the CRM as a call activity / note, optionally with the recording attached | Compliance and reporting people |
+
+Some integrations add a fifth, **recording sync**, which pushes the call recording file to the CRM after the call. Dynamics 365 is the one you'll see this on most often; the recording is attached to the call activity record, and visibility is gated to users with a Linkus-for-Dynamics login.
+
+## The native-integration list
+
+PSE ships pre-built connectors for the systems an MSP customer is most likely to be running. The exact roster shifts firmware-to-firmware, but the shape is stable:
+
+| Category | Native connectors |
+|---|---|
+| **CRM** | HubSpot, Salesforce, Zoho, Microsoft Dynamics 365, Odoo, Pipedrive, Bitrix24, SugarCRM, vTiger |
+| **Helpdesk** | Zendesk, Freshdesk, Zoho Desk, HaloPSA |
+
+For these, the setup is roughly: enter your CRM domain, click Authorize, log into the CRM with an admin account, grant the consent, and PSE handles the token refresh from there. The CRM-side OAuth app is pre-registered with Yeastar, so you don't fiddle with redirect URIs or client secrets.
+
+## The custom-template path: what to reach for when there's no native connector
+
+For everything else (Microsoft Dynamics 365 Business Central, a niche industry CRM, an internal Salesforce-but-not-quite system), use **Custom CRM Integration Template** or **Custom Helpdesk Integration Template**. The template is a small declarative config: a base URL, an OAuth 2.0 flow (Authorization Code, Client Credentials, or Authorization Code with PKCE since 83.23.0.23), and a set of HTTP-request mappings for each capability you want (search contact, create contact, write journal entry, etc.).
+
+The 83.22 timeline added two things worth knowing:
+
+- **Bearer Token authentication** option: instead of the OAuth 2.0 flow, the template can use a long-lived bearer token (with optional auto-refresh) for systems that don't have a standard OAuth implementation. Common with internal LOB systems.
+- **Custom request headers** support: include arbitrary headers in every outbound HTTP call (`X-Api-Version`, `X-Tenant-Id`, anything the target system needs).
+
+The template path is a couple of hours of work, not ten minutes; budget accordingly when scoping.
+
+<Callout type="info" title="Match the contact-search shape to the target system">
+The most common reason a custom template fails on the first run is the contact-search HTTP call. The native connectors search by phone-number suffix using the CRM's own search API; a custom template's HTTP Request mapping needs to construct an equivalent query string for the target system. If the system supports E.164 phone search, use it; if it only supports exact-match search, the matching rate against incoming-call CallerIDs will be poor and screen-pops will miss. Sanity-check this before declaring the integration done.
+</Callout>
+
+## Contact sync, the rules of the road
+
+PSE pulls contacts from the CRM and stores them in its Company Contacts phonebook. The matching rule is the **number-matching rule** configured at **PBX Settings → Preferences**, the same rule the rest of the system uses for caller-ID matching against company contacts. Either fuzzy (suffix-match the last N digits) or exact (full E.164 match).
+
+A subtle bite-mark: a single contact in the CRM with multiple phone numbers gets one PSE contact record with multiple Business / Mobile / Home fields. When an inbound call's CallerID matches any of those fields, the contact is identified. The fuzzy-match rule applies per-field.
+
+The other detail worth knowing: in 83.20.0.128, Yeastar fixed an Odoo CRM bug where an inbound call from a CRM contact was creating a duplicate contact in PSE instead of matching the existing one. The fix applies to other connectors too. The lesson: if you're seeing duplicate contacts after sync, check the firmware version before debugging the mapping.
+
+## Screen-pops: where they fire and where they don't
+
+A screen-pop happens in two places, and people often confuse the two:
+
+1. **In Linkus** (the PBX-side popup). When a call comes in, Linkus displays the matched contact (name, company, last interaction) inline in the incoming-call card. This is the default behaviour as soon as contact sync is working; no extra config.
+2. **In the CRM web UI** (the third-party-side popup). When the same call comes in, the user's browser opens the matching record (contact, ticket, lead) in the CRM. This requires the CRM-side extension to be installed; for HubSpot, that's the HubSpot app marketplace's Yeastar listing; for Zendesk, the Linkus for Zendesk add-on; etc. Each has its own install path inside the CRM.
+
+When a customer reports "the screen-pop isn't working", clarify which one they're asking about, then check separately. The Linkus-side pop reflects contact sync health; the CRM-side pop reflects the browser-extension install.
+
+## Caller identification in the Queue Panel
+
+A separate but related feature added in 83.20.0.128: when a call hits a queue, the Queue Panel display for the agent can show the company contact's identity **regardless of the agent's own visibility permission for company contacts**. The point: in a multi-department deployment where agents only see their own department's contacts, a customer in another department's phonebook should still be identified by name when they call the help queue, not shown as a raw phone number. Enable it under the recording / queue panel settings.
+
+## Recording sync: where it goes, who can hear it
+
+When you enable recording sync, the call's audio file is uploaded to the CRM after the call ends and attached to the call-activity record. The destination, format, and naming convention vary per connector. Dynamics 365 puts the file on the call activity entity with a binding to the call recording; HubSpot attaches to the engagement record; Zendesk attaches to the ticket.
+
+The security model is per-connector. For Dynamics 365 since 83.20.0.128, only users who have logged into the Linkus for Dynamics 365 extension can play recordings that have been synced; you can't play the recording from a generic Dynamics view without that extension active. Other connectors are more permissive. If recordings are sensitive (legal / finance / health), test the playback path from a user account that should NOT have access, and confirm it's actually blocked.
+
+<Callout type="warn" title="Recording sync interacts with backup-to-cloud archives">
+If you have backup archiving enabled to S3 / GCS / SharePoint (covered in the HA and backup lesson), recordings end up in two places: the CRM, and the archive. That's not wrong, but a senior tech writing the customer's data-retention policy needs to name both copies. Deleting the CRM record does not delete the archive copy, and vice versa.
+</Callout>
+
+## A worked deployment: Able Moose Group, HubSpot and HaloPSA
+
+Able Moose Group runs HubSpot for their finance teams' client-relationship management (every accountant has a HubSpot pipeline of their book of clients) and HaloPSA for their internal IT helpdesk (the IT team supports 1,800 internal users across 14 sub-firms). Both need integrations.
+
+<StepThrough>
+  <Step title="HubSpot, sales side">
+    Integration → CRM → HubSpot → Authorize. Log into the Able Moose HubSpot account with the Super Admin account, grant consent. Set contact sync to pull from a specific HubSpot list ("Clients-Active"); excluding lead lists keeps the PSE phonebook clean. Screen-pops on inbound calls open the matched contact's HubSpot record in the user's browser via the HubSpot Marketplace extension. Call journaling writes a `Call from <caller> to <agent>, <duration>` line to the contact's activity timeline. Recording sync OFF for client-call recordings (compliance + simpler permission model).
+  </Step>
+  <Step title="HaloPSA, helpdesk side">
+    Integration → Helpdesk → HaloPSA → Authorize. The user list here is the IT team only (twelve people), so set contact sync to pull HaloPSA's "Internal" contact group. Screen-pops open the caller's existing open ticket if any, else create a draft. Recording sync ON, because HaloPSA's ticket history is where the IT team's audit trail lives anyway.
+  </Step>
+  <Step title="Custom template for Bookkeeping LOB">
+    Able Moose's bookkeeping arm uses a niche industry-specific LOB system. No native connector. Custom CRM Integration Template, Bearer Token authentication (the LOB system has a stable API token per user), HTTP Request mapping for contact-search by phone-suffix. Only enabled for the 80-person bookkeeping department, not org-wide.
+  </Step>
+</StepThrough>
+
+Three integrations, three different shapes. One thing they all have in common: the OAuth (or bearer token) credential lives in PSE and persists across reboots. Backups include it. When you restore a backup of the PBX to a new host, the integration carries over. When you DELETE the integration (re-authorise from scratch), PSE issues a fresh token; the CRM's old token gets revoked next refresh.
+
+## CDR fields that change when a CRM integration is active
+
+When a call's contact matched against a CRM contact during the call, the CDR row carries the contact's name in the **Call From** or **Call To** field instead of just the raw number. This is the same data that drives the screen-pop. It also means a CDR export downloaded for an external auditor includes named contacts where contact sync was working, which can be a privacy consideration in some jurisdictions; export with the column hidden if needed.
+
+The post-83.21.0.117 unified CDR (covered in the reporting lesson) carries the contact match in a structured field that flows into Call Reports' filter logic too.
+
+## What this lesson did not cover
+
+- Linkus for Google Chrome extension: that's the Google Workspace lesson, since its main value is Google-Workspace-side click-to-call rather than CRM journaling.
+- Microsoft Teams CTI: also in the next lesson, since it's about Teams as a telephony front-end rather than a CRM target.
+- PMS integration (hospitality systems): out of scope for this course; covered briefly in the System menu reference if a customer's running a hotel deployment.
+
+<Checkpoint slug="yeastar-pse-advanced-checkpoint-crm" client:visible />
+
+Next lesson: M365 and Google Workspace collaboration, plus the security pass on the M365 integration that Yeastar's docs gloss over.

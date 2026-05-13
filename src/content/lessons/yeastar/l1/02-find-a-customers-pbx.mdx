@@ -1,0 +1,100 @@
+---
+slug: 02-find-a-customers-pbx
+vendor: yeastar
+level: l1
+title: Find a customer and read their Cloud PBX state
+summary: The Cloud PBX list is where almost every triage starts. Filter to the customer, read status and capacity at a glance, click in for the full record, decide whether to descend.
+estimatedMinutes: 7
+order: 2
+topics: [ycm, cloud-pbx, triage]
+updated: 2026-05-12
+---
+
+The first move on most Yeastar tickets is "find ABC's Cloud PBX". The Cloud PBX list page is built for this. Filters, status icons, and a capacity readout per row mean a tech who knows the page answers half the question without clicking into the PBX at all.
+
+## Opening the list
+
+```
+Cloud PBX
+```
+
+YCM lists every Cloud PBX instance the MSP has provisioned. Default sort is by creation time, newest first. The list scales with the MSP's fleet, so filters matter more than scrolling.
+
+## Filtering down to the right PBX
+
+Three filter mechanisms cover almost every lookup:
+
+- **Search box.** Type any of the PBX name, the serial number, or part of the owner's email. The search is fuzzy enough that "Able" matches "Able Moose Accounting" without needing the whole name.
+- **Group filter.** If the MSP has set up [Groups](/glossary/cloud-pbx/) (logical bundles of PBXs), the left rail filters by group. Useful when a region or a particular team owns a subset.
+- **Subordinate user filter.** If the MSP uses resellers or has colleagues each owning a slice, you can narrow to "all PBXes created by user X".
+
+The search box is what 90% of tickets need.
+
+## Reading a row without clicking in
+
+Every list row carries the headline state. A senior tech reads it the way they'd read a license plate, in one glance.
+
+| Column | Tells you |
+|---|---|
+| **Name** | PBX name (usually the customer's company), serial number, URL |
+| **Status** | Stopped / Starting / Running / Upgrading / Restoring / Provisioning |
+| **Plan** | Enterprise Plan or Ultimate Plan, plus expiration date |
+| **Type** | Trial or Commercial |
+| **Extensions** | Used / Capacity (e.g. 47 / 50) |
+| **Concurrent calls** | Active / Capacity (e.g. 3 / 15) |
+| **Owner / Creator** | Which YCM user provisioned it; role badge: Super Administrator, Hosting User, or My Colleague |
+| **Last backup** | Timestamp of the last YCM-task-driven backup |
+
+The six pbxStatus values are worth memorising:
+
+- **Running**, the only state where calls succeed.
+- **Stopped**, the PBX has been explicitly stopped from YCM. Customer calls fail.
+- **Starting**, brief transitional state after Start.
+- **Upgrading**, firmware upgrade in progress, calls may be disrupted.
+- **Restoring**, a backup is being restored onto the instance, calls fail.
+- **Provisioning**, brand-new PBX still being built out.
+
+When a customer says "we can't make calls and nothing has changed", the first thing to check is whether the row says Running. A status that isn't Running is the answer, not a symptom.
+
+## Capacity at a glance
+
+Capacity is two pairs of numbers:
+
+- **Extensions: used / capacity.** Number of extensions configured vs the cap the plan allows. At cap, PSE refuses to create the next extension. A customer reporting "new staff can't get added" with the row reading 50 / 50 has a capacity ticket, not a configuration ticket. Fix is to resize from YCM, which is intermediate-course territory.
+- **Concurrent calls: active / capacity.** Currently-in-progress calls vs the simultaneous-call cap the plan allows. Calls that exceed the cap fail with a congestion response. A customer reporting "sometimes new calls fail at busy times" with the row peaking at 15 / 15 has a concurrent-call ceiling, not a routing fault.
+
+Recording capacity is measured in minutes (`usedRecording` minutes consumed against `recordingCapacity` allocated). The list view shows the totals; the detail page shows the breakdown.
+
+## Clicking in: the detail page
+
+Clicking the PBX name opens the detail page. Three things to scan first:
+
+1. **The header.** Name, URL, status, plan, expiration, region.
+2. **Capacity panel.** Extensions, concurrent calls, recording, AI transcription minutes, AI receptionist minutes, each with used / total. AI quotas split between plan-included minutes (Enterprise = 120 transcription, Ultimate = 240; both plans include 60 AI receptionist minutes), one-time add-on minutes, and monthly quota packs.
+3. **The actions menu.** From here you can stop, start, resize, reassign customers, send activation email, edit settings, and (when enabled) **passwordless-login into the PBX**.
+
+For a triage ticket, the actions menu is mostly a read affordance. Passwordless-login is the one you'll use most often: one click and you're inside PSE as the Super Administrator. (Foundations 03 covers why this is the default delegation path; intermediate course covers the rest of the action set.)
+
+<Callout type="warn" title="Passwordless login is audited">
+Clicking through to PSE leaves a log entry on the PBX side. When you delegate in, the customer's audit trail records your YCM identity and the time. That's by design: it's how the customer's compliance picture survives MSP-side delegation. Don't leave the PBX tab open all day "just in case"; close it when you're done.
+</Callout>
+
+## A worked ticket: Able Moose Accounting
+
+Sarah from Able Moose Accounting opens a ticket: "Two of our new starters can't get a phone, the system says capacity is full."
+
+1. Open the Cloud PBX list. Search "Able Moose".
+2. Row shows: Status Running, Plan Enterprise, Extensions **48 / 50**, Concurrent calls 2 / 10.
+3. Extensions at 48 / 50 with two new starters waiting. Two more would fit, three wouldn't. Confirm with Sarah how many she actually needs.
+4. If she needs three or more, the answer is a resize from YCM. The fix is intermediate-course territory; what beginner triage does is confirm the diagnosis and hand the work to the right tier with the exact numbers ready.
+
+The ticket resolved without descending into PSE at all. That's the typical YCM-side triage outcome: the answer is in the list view.
+
+## What this is NOT
+
+- The Cloud PBX list **is not the place to fix call problems**. A specific dropped call, a callflow surprise, a misrouted DID, those need a descent into PSE for the CDR and the inbound routes. The list view tells you whether descent is the right move.
+- The Cloud PBX list **is not the source of truth for the white-label customer name**. The PBX has a `name` field set by the MSP at provisioning time; the actual end customer record (with company, contact details, External ID) lives on the PBX's Customer tab. Don't conflate "PBX name" with "customer record".
+
+<Checkpoint slug="yeastar-ycm-triage-checkpoint-find-pbx" client:visible />
+
+Next lesson, the Alarm view: where the system tells you about problems before customers do.

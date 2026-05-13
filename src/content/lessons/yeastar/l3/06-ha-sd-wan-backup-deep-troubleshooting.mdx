@@ -1,0 +1,280 @@
+---
+slug: 06-ha-sd-wan-backup-deep-troubleshooting
+vendor: yeastar
+level: l3
+title: HA, SD-WAN, backups, and deep troubleshooting
+summary: "Hot Standby (same-LAN Primary/Secondary on a virtual IP), the SD-WAN PBX networking option for cross-region disaster recovery, scheduled backup with remote archive (S3 / GCS / SharePoint / SFTP), and the deep-troubleshooting toolkit (ping, traceroute, pcap, system logs)."
+estimatedMinutes: 13
+order: 6
+topics: [pse, hot-standby, sd-wan, backup, troubleshooting]
+updated: 2026-05-13
+---
+
+A voice system that's working fine in steady state still needs an answer to "what happens when it breaks?" PSE's high-availability and resilience features are the answer; they range from a same-LAN Hot Standby pair (covers a server crash) to cross-region disaster recovery over SD-WAN (covers a data centre fire) to scheduled remote-archive backups (covers everything else). Plus the deep-troubleshooting toolkit you reach for when a Linkus client says "the PBX is down" and you need to find out, in the next ten minutes, whether they're right.
+
+## The resilience tier ladder
+
+Pick the right tier for the customer's risk tolerance and budget:
+
+| Tier | What it survives | Cost | Recovery time |
+|---|---|---|---|
+| Backups only | Catastrophic loss with a restore window | Cheapest | Hours (restore from archive to a new PBX) |
+| Hot Standby (LAN) | Server hardware failure, OS crash | One extra PBX licence on the same LAN | Seconds (auto-failover) |
+| Disaster Recovery via SD-WAN | Site loss, regional outage | Two PBX licences in different regions + Ultimate plan | Seconds (auto-failover to remote) |
+| Combined Hot Standby + DR | Server-level AND site-level failures | Three PBX licences, two regions | Seconds either way |
+
+Most MSP-hosted Cloud PBX deployments use Hot Standby + scheduled backups. Disaster Recovery via SD-WAN is appropriate for customers with regulatory requirements or where a regional outage is a real operational risk (call centres, healthcare, emergency services).
+
+## Hot Standby: same-LAN Primary/Secondary pair
+
+Two identical PSE servers on the same LAN subnet, sharing a virtual IP. The Primary is "active"; the Secondary is "standby" and continuously syncs. If the Primary stops responding to heartbeats for longer than the dead-time, the Secondary takes over automatically.
+
+```
+System -> High Availability -> Hot Standby
+Enable Hot Standby switch -> On
+```
+
+### The components
+
+Three IP addresses are involved:
+
+- **Primary Server IP** (e.g. `192.168.5.151`): the Primary's real LAN IP.
+- **Secondary Server IP** (e.g. `192.168.5.152`): the Secondary's real LAN IP.
+- **Virtual IP** (e.g. `192.168.5.150`): the shared address that always points to whichever server is currently active.
+
+Linkus clients, IP phones, and SIP trunks register against the Virtual IP. They have no idea which physical server they're talking to. When failover happens, the Virtual IP migrates to the new active server, and existing connections re-register transparently.
+
+### The settings that matter
+
+| Setting | Default | When to change |
+|---|---|---|
+| **Heartbeat Interval** | 2 seconds | Faster heartbeat = faster failover detection, but more chatty network. Default is fine. |
+| **Dead Time** | 120 seconds | The window the Secondary waits before taking over. Default is reasonable; tune up if your PBX takes longer than 2 minutes to reboot (the Secondary shouldn't fail over during a planned reboot). |
+| **Recording Data Synchronization** | Off | Turn on if recording archive is on the local PBX disk, so failover doesn't lose recent recordings. |
+| **External Chat Files Synchronization** | Off | Turn on if Linkus chat attachments need to survive failover. |
+| **Enable Unilateral WAN Port** | Off | Turn on if you also want the WAN IP to migrate (single-WAN topology); leave off for dual-WAN. |
+
+### Failover mechanics: what happens in the moment
+
+<StepThrough>
+  <Step title="Primary stops responding">
+    The Primary crashes, the OS hangs, the LAN cable comes loose. The Secondary's heartbeat detector stops getting acknowledgements.
+  </Step>
+  <Step title="Dead-time elapses">
+    The Secondary waits the configured dead-time (default 120s) for the Primary to come back. If no heartbeat returns in that window, the Secondary commits to taking over.
+  </Step>
+  <Step title="Secondary takes over the virtual IP">
+    The Secondary's status changes from Standby to Running. The Virtual IP now points to the Secondary. Linkus clients and trunks see a brief connection interruption; they re-register and the system carries on.
+  </Step>
+  <Step title="Notification fires">
+    The PBX Hot Standby Failover event triggers. The contacts you've configured for that event get notified (email, push, etc.). The MSP's NOC mailbox should be one of them.
+  </Step>
+  <Step title="Repair the Primary, then take over manually">
+    You fix whatever broke the Primary (replace the disk, restart the VM, etc.). On the Primary, click Repair Completed; data synchronises from the Secondary back to the Primary. Once the Primary is in Standby with synced data, click Take Over. The Primary becomes Running again; the Secondary returns to Standby.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/yeastar/hot-standby-takeover.png"
+  alt="Hot Standby admin page on the Secondary server showing Take Over button and Maintenance Mode option"
+  caption="The Secondary's view during a failover scenario. Take Over (manual switchover) and Maintenance Mode (suspend health checks during planned Primary work) are the two main buttons."
+>
+  <Hotspot client:load x={30} y={45} tone="primary" label="1" title="Take Over" purpose="Manual failover from Standby to Primary.">
+    Make sure there are no active calls first or they'll drop. Standby becomes Active and starts handling registrations and calls; the old Primary becomes Standby (or Faulted, depending on why you took over).
+  </Hotspot>
+  <Hotspot client:load x={70} y={45} tone="warning" label="2" title="Maintenance Mode" purpose="Suspends heartbeat checks during planned work on Primary.">
+    Without this, rebooting the Primary triggers an automatic failover to Standby. Maintenance Mode tells the cluster to ignore the heartbeat gap; turn off when the planned work is finished and the Primary is back up.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+### Maintenance Mode (don't skip this)
+
+A common mistake when upgrading firmware on a Hot Standby pair: upgrading the Primary causes a reboot, the reboot exceeds the dead-time, the Secondary takes over MID-upgrade, mayhem. Enable Maintenance Mode on the Secondary FIRST, before doing planned work on the Primary:
+
+```
+On Secondary -> Hot Standby page -> Maintenance Mode -> set timeout (default 0 = manual exit) -> Save
+```
+
+During Maintenance Mode, the Secondary stops monitoring heartbeats and stops synchronising data. Upgrade the Primary, confirm it's back up, then Exit Maintenance Mode on the Secondary to resume normal operation.
+
+### Restrictions worth knowing
+
+- **Same LAN subnet required.** The Primary and Secondary have to be in the same broadcast domain. Cross-VLAN Hot Standby is not supported.
+- **LAN port only.** If the PBX is dual-Ethernet, set LAN as the default interface. Hot Standby on WAN is unsupported.
+- **Identical firmware.** Both servers must run the same firmware version. A version mismatch breaks data sync.
+- **Heartbeat is bidirectional but failover is one-direction.** The Primary doesn't automatically take back over when it comes back; you do that manually.
+
+## Disaster Recovery via SD-WAN PBX Networking
+
+The cross-region story. Two PSE servers in different physical locations, connected via either a customer-owned Site-to-Site VPN or Yeastar's SD-WAN PBX Networking service. Requires the Ultimate plan.
+
+### Why SD-WAN matters
+
+The customer's two-region deployment needs a network path between the regions for data sync and heartbeats. Two ways to get there:
+
+- **Customer's own Site-to-Site VPN.** They have an IPSec tunnel between the two sites. Fine, works. Latency depends on their carrier; sync data integrity depends on their VPN being up. If their VPN tunnel is the failure mode you're trying to mitigate, this is circular.
+- **Yeastar SD-WAN PBX Networking.** PSE talks to a Yeastar-hosted SD-WAN cloud (`sdwantunnel.yeastar.com`) that routes traffic between sites. Plug-and-play; no IPSec config; uses Yeastar's network for the inter-site link.
+
+For most MSP deployments, SD-WAN is the simpler path: it's one less moving part the customer has to maintain. Worth knowing the architecture isn't a single magic box; it's an addressing server + forwarding server hosted by Yeastar, and each PSE connects to it.
+
+### The DR pair, conceptually
+
+Two PSEs configured as a disaster recovery pair:
+
+- **Working Server** (active): handles all production calls.
+- **Redundancy Server** (standby): mirrors data via heartbeat-driven sync; takes over when the Working Server fails.
+
+The Redundancy Server's failover behaviour mirrors Hot Standby's: heartbeat detection, dead-time wait, automatic takeover. The fallback (returning to the Working Server after the issue is fixed) is also manual.
+
+A more elaborate deployment, called 2+1 mode, combines Hot Standby + Disaster Recovery: a Hot Standby pair at Location A handles routine server-failure, and a Redundancy Server at Location B handles regional failure. Three servers, two regions; the most resilient topology PSE supports.
+
+<Callout type="info" title="Hot Standby is LAN, DR is WAN; they solve different problems">
+Hot Standby is for "the server crashed". Disaster Recovery is for "the data centre is offline". Don't try to fix the wrong problem with the wrong tool. A customer asking for "DR" who just means "what if the server breaks" is better served by Hot Standby; a customer asking for "HA" who actually means "the whole region might go" needs DR via SD-WAN.
+</Callout>
+
+## Onsite Proxy (a brief callout)
+
+Adjacent to SD-WAN: the Onsite Proxy is a small piece of Yeastar-provided software you deploy in a branch office to act as a SIP / provisioning proxy between remote IP phones and the central PBX. Useful when you don't want to do port-forwarding gymnastics on the branch firewall. Not a HA feature per se; it's a connectivity convenience. Covered in pse-build's trunks lesson at the menu level; this lesson's job is to flag that the System -> Onsite Proxy menu exists and what it's for.
+
+## Backup and remote archive
+
+Independent of HA. Backups are point-in-time snapshots of the PBX's configuration and data; archives are scheduled exports of backups to a remote destination.
+
+### Local backup
+
+```
+Maintenance -> Backup and Restore
+```
+
+Manual: click Backup, the PBX produces a `.bak` file with timestamp. Download it, store it.
+
+Scheduled: configure a backup task with a frequency (daily / weekly / monthly), what to include (config, CDR, recordings, voicemails, chat data, etc.), and a retention policy (how many to keep on local storage). The PBX runs the backup at the scheduled time and keeps the configured number of historical backups, deleting older ones.
+
+### Remote archive: the destination options
+
+For real off-PBX safety, the backup needs to leave the PBX. The Archive feature provides it:
+
+```
+System -> Archive
+```
+
+Add an Archive Server first (a connection profile for the destination), then create an Archive Task that pushes specific file types to it on a schedule. Destinations supported (varies slightly by firmware):
+
+| Destination | Auth | Best for |
+|---|---|---|
+| **Amazon S3** | IAM credentials | Customers already on AWS; cheap object storage |
+| **S3-compatible object storage** | IAM-equivalent | MinIO, Wasabi, Backblaze B2, etc. |
+| **Google Cloud Storage** | Service account | Customers on GCP |
+| **Microsoft SharePoint** | Entra app + Sites.ReadWrite.All | Customers on M365 (note: triggers the M365 permissions covered in lesson 2) |
+| **SFTP** | SSH key or username/password | A self-managed remote storage server |
+| **FTP** | Username/password | Legacy, avoid for sensitive backups; not encrypted in transit |
+
+### The retention policy is critical
+
+A scheduled archive without retention fills the destination with backups until it's full. Always set retention:
+
+- **Retention by Quantity:** keep the latest N folders/files; delete older.
+- **Retention by Days:** keep anything younger than N days; delete older.
+
+The retention period is measured from the **archive time on the destination**, not the file's creation time on PBX. A backup taken in January 2025 but only archived in May 2025 starts its retention clock in May.
+
+The destination account needs DELETE permission for retention to work. If you've configured your S3 IAM policy with only PutObject (no DeleteObject), retention will fail silently and the bucket fills.
+
+### A worked archive pattern for Able Moose Group
+
+| Task | Source | Destination | Frequency | Retention |
+|---|---|---|---|---|
+| Daily config backup | Configuration only | SFTP-PBX-Backup (their internal SFTP) | Daily 03:00 | 30 days |
+| Weekly full backup | Config + CDR + voicemail | S3-AbleMoose-Backups (their AWS account) | Sunday 02:00 | 12 weeks |
+| Monthly recordings archive | Recording files only | S3-AbleMoose-Recordings (separate bucket, longer retention) | Last day of month, 04:00 | 7 years (Australian financial-services compliance) |
+
+Three tasks. Daily config, weekly full, monthly recordings, each with a retention tuned to its purpose. Restoring from any of them takes minutes.
+
+The CDR-level setting that pairs with this: in System -> Storage, you can configure the local storage retention so the PBX doesn't fill its own disk while the recordings are archived elsewhere. "Delete local files after archiving" on the archive task does this automatically for recording files.
+
+## Deep troubleshooting: the toolkit
+
+When something's wrong and the CDR doesn't tell you the whole story, you reach for the troubleshooting tools.
+
+```
+Maintenance -> Troubleshooting
+```
+
+The page has four tools (varies slightly per firmware):
+
+### Ping
+
+Standard ICMP / TCP ping from the PBX to a target. Useful for "is the trunk's carrier-side IP reachable from the PBX". Default to TCP-ping against the carrier's SIP port (e.g. 5060) rather than ICMP-ping, since some carrier networks block ICMP.
+
+### Traceroute
+
+Path discovery from the PBX to a target. Useful for "where is the packet loss between the PBX and the carrier?" The result helps you decide whether the problem is your hosting network, the customer's WAN, or the carrier's edge.
+
+### Ethernet Capture (pcap)
+
+The high-power tool. Captures live packets on a chosen interface, filtered by your spec, for a chosen duration. Output is a standard `.pcap` file you download and open in Wireshark.
+
+The filter language is BPF-style (same as Wireshark capture filters):
+
+| Filter | Captures |
+|---|---|
+| `port 5060 or port 5061` | All SIP signalling (UDP/TCP/TLS) |
+| `host 1.2.3.4 and port 5060` | SIP to/from a specific carrier IP |
+| `host 1.2.3.4` | Everything to/from that IP, signalling and media |
+| `udp portrange 10000-20000` | Default RTP media port range |
+
+The captured pcap is what you attach to a carrier-support ticket when you're claiming the carrier is mis-signalling. The deep diagnostics work in `voip-deep-diagnostics` covers reading these captures in Wireshark; this lesson's job is to teach the capture-step.
+
+### System Logs
+
+The raw PBX logs. Several log categories: PBX core, Asterisk-level call processing, SIP debug, web admin, etc. Each can be set to a log level (debug / info / warning / error) and downloaded as a `.tar.gz` for analysis or sharing with Yeastar support.
+
+The pattern: when you open a support ticket with Yeastar, the first thing they ask for is the system logs covering the time window of the issue. Capture them BEFORE rebooting or making changes; some logs rotate aggressively.
+
+### Operation Logs (audit trail)
+
+Already mentioned in the security lesson; worth reiterating here because they're a troubleshooting tool too. When a customer asks "what changed?", Operation Logs answer it. Filter by admin user and date range; the column shows what was edited and the before/after values for most settings.
+
+## A deep-troubleshooting walkthrough
+
+A customer reports "all our outbound calls failed for 20 minutes around 14:00 yesterday". CDR shows the calls failed with status "FAILED" but no detailed reason; trunk status now shows Registered.
+
+<StepThrough>
+  <Step title="Operation Logs first">
+    Maintenance -> Operation Logs, filter to yesterday 13:50-14:20. Was a config change applied? Did someone toggle a trunk off and on? If yes, that's probably the cause; stop here.
+  </Step>
+  <Step title="System Logs second">
+    No config change. Maintenance -> Troubleshooting -> System Logs, download the PBX core log for the affected window. Search for the trunk's name. Did the trunk lose registration? When did it come back? Was there a 401-loop indicating credential rejection?
+  </Step>
+  <Step title="Carrier-side check via ping">
+    System logs show the trunk's REGISTER stopped getting responses at 13:58 and came back at 14:18. Maintenance -> Troubleshooting -> Ping the carrier's SIP signalling IP. Is the carrier reachable now? Run it for 30 seconds to confirm baseline.
+  </Step>
+  <Step title="Capture for next time">
+    Configure a continuous Ethernet Capture filtered to `host {carrier_ip} and port 5060`, scoped to the next 24 hours. If the issue recurs, you have a pcap to attach to the carrier-side support ticket.
+  </Step>
+  <Step title="Document and notify">
+    Update the customer's runbook with the 20-minute outage, the suspected cause (carrier-side SIP outage), and the mitigation (capture in place for next occurrence). Notify the MSP's account manager so they're prepared if the customer asks.
+  </Step>
+</StepThrough>
+
+The pattern: Operation Logs first (what changed?), System Logs second (what did the PBX see?), then targeted probes (ping / traceroute / pcap) to pin the location. Don't jump straight to packet captures; capture costs disk space and produces a wall of data that's only useful when you know what to look for.
+
+<Callout type="tip" title="Cross-reference voip-deep-diagnostics for pcap reading">
+The pcap you captured here is the input to the voip-deep-diagnostics course. That course teaches you to read the SIP / RTP flows in Wireshark to identify the specific failure mode. The pair is the full toolkit.
+</Callout>
+
+## Cross-references
+
+- The CDR + AI Summary work in pse-triage shows you what's already in the CDR before reaching for system logs.
+- voip-deep-diagnostics is the course on reading captures, SIP flow analysis, NAT and codec issues, and encrypted-call diagnosis.
+- The YCM-side backup management (per-customer backup task list, MSP-wide retention reporting) is in `yeastar-ycm-scale`'s SNMP-and-archiving lesson.
+
+## What this lesson did not cover
+
+- Firmware upgrade procedure (touched on under Maintenance Mode; the full procedure is in the maintenance section of the admin guide).
+- Yeastar Cloud-based remote management (RPS for IP phones): hardware-provisioning territory.
+- SNMP forwarding to a NMS: covered in `yeastar-ycm-scale`.
+
+<Checkpoint slug="yeastar-pse-advanced-checkpoint-ha" client:visible />
+
+End of the course content. The final quiz tests the cross-lesson concepts; revisit the M365 security rollback section in lesson 2 if needed before sitting it.

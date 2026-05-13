@@ -1,0 +1,124 @@
+---
+slug: 02-failed-registration-deep-dive
+vendor: voip
+level: l3
+title: Failed registration, from the wire
+summary: "The 401-expires loop, NAT-binding timeouts, TLS handshake failures, and provider auth quirks all look the same in a ticket. The capture separates them."
+estimatedMinutes: 11
+order: 2
+topics: [sip, registration, tls, nat]
+updated: 2026-05-12
+---
+
+REGISTER failures are noisy in the helpdesk queue and quiet in the explanation. The 401-then-200 handshake described in RFC 3261 §10 hides a lot of failure modes that all surface to the customer as "my phone says not registered". The capture is the only way to separate them.
+
+## The normal handshake, briefly
+
+1. Endpoint sends `REGISTER` with a `Contact` and an Expires value.
+2. Registrar replies `401 Unauthorized` with a `WWW-Authenticate` header (nonce, realm, qop).
+3. Endpoint computes the digest response from its credentials and resends `REGISTER` with `Authorization`.
+4. Registrar replies `200 OK` with the granted Expires.
+
+Everything that goes wrong is a deviation from this. The map of deviations is what to know cold.
+
+## The failure-mode catalogue
+
+| Pattern on the wire | Likely cause | What to confirm next |
+|---|---|---|
+| REGISTER sent, nothing comes back. Repeats at increasing intervals. | UDP path blocked, wrong port, registrar unreachable from this network. | Reachability test (`udp.port == 5060` filter on the registrar side; if nothing arrives, the path is broken). |
+| 401 → auth REGISTER → 401 → auth REGISTER → 401 (loop). Nonce changes each time. | Wrong password, wrong realm, or a digest implementation bug. | Compare the `realm` value in the challenge against what the endpoint is configured with. Check the digest computation against the credentials. |
+| 200 OK arrives with `Expires` much shorter than asked. Endpoint re-REGISTERs almost immediately. | Registrar policy override (some SBCs cap Expires at 60 to keep NAT bindings fresh). | Verify the granted Expires in the 200 OK's Contact line. |
+| 401 → 200, then a new REGISTER from a different source port a minute later gets 401 again on a fresh nonce. | NAT binding aged out; UA picked a new source port; SBC sees it as a new registration. | Source-port column in the wire view. If it changes between successful registration and the next attempt, NAT is the suspect. |
+| `423 Interval Too Brief` with `Min-Expires` in the response. | Endpoint asked for an Expires shorter than the registrar's floor. | The Min-Expires header tells you the floor. Configure the endpoint to use that or higher. |
+| `403 Forbidden`, no auth challenge. | IP block, account suspended, or the SBC's "registration not allowed from this IP" policy. | Source IP. Compare against the registrar's allow-list. |
+| `483 Too Many Hops`. | Loop in the routing topology. | Look at the Via stack. If it shows the same SBC twice, the topology is wrong. |
+| `500 Server Internal Error` after auth. | Registrar's backend rejected the registration (DB error, license cap, extension state mismatch). | Server-side log. The capture won't tell you more. |
+| TLS `Client Hello` then no response, or a TLS Alert. | TLS handshake failure (version, cert, SNI). | Decode-as TLS on the port. Read the Alert type. |
+
+The two non-obvious patterns to memorise are the **401-expires loop** and the **TLS handshake failure**, both common and both invisible to the customer's UA which shows the same "not registered" indicator.
+
+## The 401-expires loop, explained
+
+Some routers age UDP bindings out aggressively, often 30 to 60 seconds. A typical cheap router does this; an enterprise firewall usually doesn't. The endpoint registers with `Expires: 3600`, the registrar grants 3600, and as far as both parties think, the registration is good for an hour.
+
+The router doesn't think so. A minute after the last outbound packet, its NAT binding for the source port closes. The endpoint sends its next REGISTER (per its own keepalive timer, often every 5 to 15 minutes) from a fresh source port because the NAT had to rebind. The registrar's SBC sees a fresh-looking registration on the same credentials, sometimes accepts (rebinds the contact silently) and sometimes rejects.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UA as Endpoint
+    participant NAT as NAT router
+    participant Reg as Registrar / SBC
+    UA->>NAT: REGISTER (src port 50001)
+    NAT->>Reg: REGISTER (translated to 60001)
+    Reg-->>NAT: 200 OK Expires: 3600
+    NAT-->>UA: 200 OK
+    Note over NAT: 60 seconds of silence: binding closes.
+    UA->>NAT: REGISTER (src port 50001)
+    NAT->>Reg: REGISTER (translated to 60002 NEW)
+    Note over Reg: Sees this as a new contact;<br/>policy decides what happens.
+```
+
+Fixes in priority order:
+
+- **NAT keepalive at the endpoint or SBC** — a periodic packet (OPTIONS, double-CRLF, or empty UDP) every 25 to 30 seconds keeps the binding alive. Most modern endpoints have this. Some SBCs initiate it from their side too.
+- **Shorter Expires** — register every 30 seconds instead of every hour. Effective but noisy on the network.
+- **Replace the customer's router** with one that has saner NAT binding timeouts. Usually the right long-term fix but not always available.
+
+## TLS handshake failures (port 5061)
+
+Wireshark decodes the cleartext TLS handshake even when it can't read the encrypted application data. The information in those packets is enough to diagnose most TLS handshake failures.
+
+What to read in the handshake:
+
+- **Client Hello** — the offered TLS versions, cipher suites, and the SNI value (Server Name Indication). The SNI is the hostname the client thinks it's connecting to; if the server's certificate is for a different hostname, validation fails.
+- **Server Hello** — chosen version and cipher.
+- **Certificate** — the cert chain the server presented. You can read the subject and issuer fields in Wireshark's expanded view.
+- **TLS Alert** — if the handshake fails, an Alert message names why.
+
+Common alerts and their meanings:
+
+| Alert | What it usually means |
+|---|---|
+| `protocol_version` | Client and server can't agree on TLS version (often client wants 1.2+ and server only offers 1.0). |
+| `handshake_failure` | No common cipher suite. |
+| `bad_certificate` | Server's cert is malformed, expired, or has a bad signature. |
+| `certificate_unknown` | Client couldn't validate the chain (missing intermediate, untrusted root). |
+| `unrecognized_name` | SNI sent by the client doesn't match any cert the server has. |
+
+The diagnostic: capture, filter to `tls`, click the failed handshake, expand the offending message. Five clicks, and the analyst goes from "TLS broken" to "the SBC presented a cert for the wrong hostname".
+
+<Callout type="info" title="Decode-as for non-standard SIP-TLS ports">
+Wireshark only knows port 5061 is SIP-TLS by default. If a deployment uses 5071, 5161, or another port, right-click a packet and Decode-As → TLS → SIP. The handshake stays visible regardless of port.
+</Callout>
+
+## Provider auth quirks worth knowing
+
+Carriers and hosted-PBX providers have their own deviations. None of these are bugs; they're documented choices that a senior tech should recognise from a capture.
+
+- **Auth username different from the SIP user.** The `Authorization` header carries the auth username; the request URI carries the public number. Mismatching these in the endpoint config means digest auth fails even though the trunk is correctly configured at the public level.
+- **Multiple realms per provider.** A provider with regional registrars may challenge with different realm strings depending on which POP the endpoint hits. An endpoint configured with the wrong realm hard-fails the digest.
+- **Registrar load-balancing by DNS-SRV.** RFC 3263 says the SIP URI resolves through NAPTR / SRV / A. Some providers rotate through SRV targets; the endpoint may register to one POP, then re-register to another, leaving stale contacts on the first. The CDR may show calls routing to the stale contact and failing.
+- **One-shot 401 with `stale=false`.** Standard digest practice is to re-challenge with a fresh nonce after the previous one expires. A provider that returns `stale=false` means the credentials themselves are wrong, not the nonce. Don't have the endpoint retry; have the customer reset credentials.
+
+## A worked diagnostic
+
+A new deployment at Able Moose Group's London office can't register one of the new endpoints. The customer-facing capture shows:
+
+1. REGISTER sent. No response for two seconds.
+2. REGISTER retry. No response for four seconds.
+3. REGISTER retry. No response for eight seconds. The endpoint marks itself "not registered" and shows the customer "registration failed".
+
+The IP-side test: ping reaches the SBC's address. Telnet to port 5061 from the customer's network completes. SIP-TLS path is open at the IP layer.
+
+A second capture from inside the SBC's perimeter (a span port on the SBC's switch) sees what the customer can't:
+
+1. TCP handshake to 5061 from the customer's IP. Completes.
+2. TLS `Client Hello` from the customer's endpoint.
+3. The SBC sends a TLS Alert `protocol_version`.
+
+The customer's endpoint was configured for TLS 1.0; the SBC is hardened to require 1.2 or higher. The fix is at the endpoint: update its firmware or its TLS profile to negotiate 1.2. The customer's "not registered" message hid a specific protocol-layer cause that took ten seconds to identify with a capture and would have taken hours of escalation otherwise.
+
+## Sources
+
+RFC 3261 §10 (REGISTER and authentication), RFC 3263 (locating SIP servers), RFC 5246 (TLS 1.2), RFC 8446 (TLS 1.3), Wireshark User's Guide (TLS dissection), Asterisk Definitive Guide on SIP authentication and TLS.

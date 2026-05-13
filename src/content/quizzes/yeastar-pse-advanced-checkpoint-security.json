@@ -1,0 +1,35 @@
+{
+  "slug": "yeastar-pse-advanced-checkpoint-security",
+  "course": "yeastar-pse-advanced",
+  "kind": "checkpoint",
+  "title": "Quick check, security hardening",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-sec-layers",
+      "type": "order",
+      "topic": "defence-layers",
+      "difficulty": "medium",
+      "prompt": "Order the PSE security layers from outermost (filters traffic first) to innermost (last line of defence).",
+      "items": [
+        "Allowed Country IPs (GeoIP)",
+        "Static Defense (per-IP allow/deny)",
+        "Auto Defense (rate limit per source IP)",
+        "SIP / Web authentication (credentials)",
+        "User Role permissions",
+        "2FA challenge"
+      ],
+      "explanation": "Country -> Static Defense -> Auto Defense -> Auth -> Role -> 2FA. Each successive layer applies finer-grained checks against traffic that survived the previous layer. The order matters when reasoning about why a connection failed at a particular layer."
+    },
+    {
+      "id": "ck-sec-2fa-mandatory",
+      "type": "tf",
+      "topic": "2fa",
+      "difficulty": "easy",
+      "prompt": "Enabling 'Make Two-Factor Authentication Mandatory for All Extensions' immediately logs out every Linkus user who hasn't already configured 2FA.",
+      "correct": false,
+      "explanation": "It does NOT log them out immediately. It forces a 2FA setup flow on their next login attempt; users who don't complete the setup get logged out at that point. This still requires planning around because the disruption hits the next time the user opens Linkus, not at the moment you flip the toggle."
+    }
+  ]
+}

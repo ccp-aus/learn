@@ -1,0 +1,193 @@
+---
+slug: 04-reporting-and-call-accounting
+vendor: yeastar
+level: l3
+title: Reporting, scheduled exports, and call accounting
+summary: "PSE's restructured call reports (post-83.21.0.117): default reports, the custom-report builder, scheduled email delivery, and call accounting rules that turn raw call duration into a per-rate-per-destination cost line for the customer's finance team."
+estimatedMinutes: 11
+order: 4
+topics: [pse, reports, call-accounting, cdr]
+updated: 2026-05-13
+---
+
+The reporting story changed in firmware 83.21.0.117. Older deployments may still have the legacy reports menu; current deployments run the restructured Advanced CDR & Call Report. Both coexist for backward compatibility, but the new one is where the customer's actual workflows live going forward. This lesson assumes the post-83.21 shape; legacy notes appear where they matter.
+
+## The reports menu, end-to-end
+
+The triage lesson taught the CDR. CDR is the per-call record; reports are aggregations on top of it. The split:
+
+```
+Reports and Recordings
+├── CDR (Advanced)         <- per-call records (triage)
+├── CDR (Legacy)           <- pre-83.21 records, kept for old calls
+├── Call Reports           <- aggregations: My / Default / Custom / Scheduled
+│   ├── My Reports         <- ones you've built or pinned
+│   ├── Default Reports    <- Yeastar-built templates
+│   ├── Call Reports Legacy <- pre-83.21 reports
+│   ├── Scheduled Reports  <- reports the system emails out on a schedule
+│   ├── Scheduled Logs     <- delivery history of scheduled reports
+│   └── Rate               <- call-accounting rate rules
+└── Recordings             <- the recording file viewer
+```
+
+The four kinds of reports a senior tech actually generates:
+
+| Kind | Best for | Effort |
+|---|---|---|
+| **Default Report** (Yeastar-built) | Standard questions, "extension activity this month", "queue activity this week" | One click, pick a date range |
+| **Custom Report** | A specific question Default doesn't answer, "DOD outbound activity by extension by week" | 10-30 minutes of builder time, save for re-use |
+| **Scheduled Report** | "Email me this report every Monday morning" | Set once, runs forever |
+| **Call Accounting Report** | "How much did each extension cost in trunk minutes this month?" | Rate rules + a specific report type |
+
+## The default reports
+
+Built-in templates that answer the standard questions:
+
+| Default report | Answers |
+|---|---|
+| **Extension Call Activity** | Who called, how often, how long, by extension |
+| **Inbound Queue Activity Analysis** | How many calls hit each queue, answered vs abandoned, wait-time distributions, SLA |
+| **Inbound Queue Logs** | Per-call detail for queue calls; who answered, agent wait time, talk time |
+| **Ring Group Statistics** | How ring groups performed; same shape as queue but for non-queue ring patterns |
+| **DID/Outbound Caller ID Activity** | Which numbers (DIDs inbound, DODs outbound) drove the most calls |
+| **Unreturned Missed Call Report** | Inbound calls that weren't answered AND weren't called back; the "who did we lose?" report |
+| **AI Receptionist Call Activity** | AI Receptionist resolutions, transfers, unresolved (added in 83.22) |
+| **Extension Call Accounting** | Per-extension cost based on rate rules |
+
+Each can be opened, run, downloaded (CSV / XLS / HTML), and optionally pinned to My Reports for quick re-access.
+
+The Unreturned Missed Call Report deserves a callout. It's the report sales managers care about most, and triage staff find it later by accident. Filter by callback status NOT-Returned and a date range; export to CSV. The result is a list of names and numbers that called in, weren't answered, and never got called back. Worth scheduling weekly.
+
+## The custom report builder
+
+For questions the defaults don't answer:
+
+```
+Reports and Recordings -> Call Reports -> Default Reports / My Reports -> Add Custom Report
+```
+
+The builder takes:
+
+| Concept | What it is |
+|---|---|
+| **Dataset** | The source data (Extension Call Activity, Inbound Queue Activity Analysis, Trunk Activity, etc.) |
+| **Dimensions** | What to group by (Extension, Queue, Department, Time interval, DID) |
+| **Filters** | What to include / exclude (time range, callerID pattern, abandoned-within-Xs exclusion, etc.) |
+| **Metrics** | What to count (Total Calls, Talk Time, AVG Wait Time, Answered Rate, SLA) |
+
+<AnnotatedScreenshot
+  src="/img/yeastar/custom-call-report-builder.png"
+  alt="The PSE custom call report builder showing metric selection for an Inbound Queue Activity Analysis dataset"
+  caption="The builder is a column-pick exercise. Pick the dataset, pick the dimensions to group by, pick the metrics to show."
+>
+  <Hotspot client:load x={30} y={40} tone="primary" label="1" title="Dimensions" purpose="The columns the rows are grouped by.">
+    Extension, Department, Trunk, Time-of-day, Week-of-year. Pick one or two; more dimensions splits the rows so finely the report is hard to read. "By Extension" is the default for most operational reports.
+  </Hotspot>
+  <Hotspot client:load x={70} y={60} tone="primary" label="2" title="Metrics" purpose="The numbers in the value columns.">
+    Total Calls, Talk Duration, Average Talk Duration, Cost. Pick the metrics that match what the customer's finance or ops team actually consumes; an unread metric is noise.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+A worked custom report for Able Moose Group: "DOD outbound activity by extension by week, excluding any calls under 10 seconds (toll-fraud probes), filtered to last quarter". Dataset = Trunk Activity / Outbound; Dimensions = Extension, Week-Of; Filters = Time = last quarter AND Talk Duration > 10s; Metrics = Total Calls, Talk Time, AVG Talk Time. Save it as "Quarterly DOD by extension".
+
+Saved custom reports show up in My Reports for the user who built them, plus anyone whose user role grants access to "Created by Myself and Specific Extension/Extension Group" scope (covered in User Roles).
+
+## Scheduled reports: set once, run forever
+
+Any report (default or custom) can be wrapped in a Scheduled Report:
+
+```
+At the bottom of the report page -> Add to Scheduled Reports
+```
+
+Pick frequency (Daily / Weekly / Monthly), pick the time, pick the recipients (one or many email addresses), pick the output format. PSE generates and emails the report at the configured time. The Scheduled Logs page shows delivery status (Sent Successfully, Failed) and lets you re-trigger failed sends.
+
+For an MSP with multiple customer PBXs, a useful pattern: schedule the customer's monthly Queue Activity to email their operations manager on the first of every month, schedule the AI Receptionist Call Activity to email both the operations manager and the MSP's account manager weekly, and schedule the Unreturned Missed Call Report to email the sales team daily. Three reports, ten minutes of one-time setup, ongoing value.
+
+<Callout type="info" title="Schedule reports to email a service account, not a person">
+Reports scheduled to a named individual's mailbox break when that person leaves the customer. Better to send to a role-based mailbox (`finance@example.com`, `ops@example.com`) that survives staff turnover. This sounds obvious; it's also the most common cause of "we stopped getting our monthly reports" tickets six months after delivery.
+</Callout>
+
+## Call accounting: rate rules
+
+Call accounting turns minutes into money. Per destination-prefix, you set a rate, and PSE reports how much each call cost.
+
+```
+Reports and Recordings -> Call Reports -> Rate
+```
+
+Each rate rule has:
+
+| Field | Meaning |
+|---|---|
+| `Name` | What to call it ("Local fixed-line", "Mobile to AU", "International to NZ") |
+| `Match Prefix` | The destination-number prefix this rule applies to (`02` for Sydney area, `+61 4` for Australian mobile, etc.) |
+| `Number Length` | Optional; restricts the rule to numbers of a specific length |
+| `Rate` | The per-billable-unit cost (e.g. 0.05) |
+| `Billable Unit (s)` | The billable-unit duration in seconds (60 = per-minute, 6 = per-6-second-block, 1 = per-second) |
+| `Initial Time (s)` | Time charged at a flat Initial Cost before billable units start (the "minimum call charge" pattern, e.g. 60 = "first 60 seconds counted at the flat rate") |
+| `Initial Cost` | The flat charge for the initial time |
+
+The cost formula: `Initial Cost + (max(0, ActualSeconds - Initial Time) / Billable Unit) * Rate`. Rounded up by billable-unit increments. So a rule with Initial Time = 60, Initial Cost = 0.10, Billable Unit = 30, Rate = 0.04 means "10 cents for the first minute, then 4 cents per 30 seconds after that". The match-prefix ordering matters: PSE applies the longest matching prefix wins, so `+61 4` beats `+61` for an Australian mobile.
+
+For an MSP charging the customer for trunk minutes, the rate rules typically mirror the carrier's wholesale rates (give or take an MSP margin). Rules can be imported from a CSV: useful for tens or hundreds of country / mobile / premium-rate prefixes.
+
+### Extension Call Accounting report
+
+Once rate rules are in place, the **Extension Call Accounting** report (Default Reports menu) shows per-extension, per-trunk, per-destination cost summaries:
+
+<AnnotatedScreenshot
+  src="/img/yeastar/extension-call-accounting-report.png"
+  alt="Extension Call Accounting report showing per-extension call cost breakdown with pie chart and totals"
+  caption="Per-extension cost rollup. The pie shows which extensions drove cost; the table shows the underlying numbers."
+>
+  <Hotspot client:load x={50} y={45} tone="primary" label="1" title="Cost distribution" purpose="Identify high-cost extensions at a glance.">
+    The pie segments by extension; the table rows give the underlying numbers. The customer's finance contact can see who's driving voice cost and ask the right questions about it. Schedule monthly to remove the manual rollup work.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+Schedule this monthly to the customer's finance team and you've automated the accounts-payable reconciliation for the voice line.
+
+## Wallboards
+
+Wallboards are real-time dashboards displayed on a wall-mounted screen (or a browser tab); they show queue activity live. Useful for contact-centre deployments where the supervisor wants visibility into "agents on call right now", "longest waiting call", "calls answered this hour".
+
+PSE's wallboards are configured in **Reports and Recordings -> Call Reports -> Wallboard** (the menu varies slightly by firmware). Each wallboard is a saved layout of queue / agent / KPI widgets. The watching role is per-user-role; agents typically can't view supervisor wallboards.
+
+Wallboards aren't a senior-tech-only feature, but they're a senior-tech-led-deployment feature: scoping which KPIs to surface, designing the layout, and configuring the role permissions is design work, not configuration work.
+
+## The post-83.21.0.117 CDR data structure
+
+The release notes describe this as "restructured CDR and Call Report features to provide unified call logging, richer call details, and more flexible call report management". In practice:
+
+- The CDR Advanced view (the one the triage course taught) is the new structure. The Timeline View, the per-leg metrics, the AI Receptionist status column, the AI Summary, the AI Transcription panel: all the post-83.21 enrichments.
+- The CDR Legacy view holds pre-83.21 records. Once they age out of the customer's retention period, the menu may disappear from the UI.
+- Call Reports built against the new structure can use richer dimensions (Call Leg ID, Call Time Breakdown components) that the legacy structure doesn't carry.
+
+For a customer that upgraded mid-quarter, you'll see a split: calls in the old format up to upgrade-day, calls in the new format after. Reports that span the boundary may be sparse on the new-format columns for the old-format calls. Plan around it; usually it sorts itself out within one full quarterly cycle.
+
+<Callout type="warn" title="Custom reports built on legacy can break post-upgrade">
+A custom report originally authored against the legacy CDR structure (with the older dimension names and metric names) may fail or return empty after the upgrade. The fix is to rebuild against the new dataset. Worth flagging in the upgrade plan rather than discovering the morning after.
+</Callout>
+
+## Permissions: who sees which reports
+
+Reports are gated by user role, separately from CDR access. The role's **Reports and Recordings** section has three controls:
+
+- **My Reports Access Permissions:** All / Created by Myself / Created by Myself and Specific Extension/Extension Group. The scope of saved reports the user can see.
+- **Call Report Operation Permission:** Download / Schedule Download / Rate. Whether the user can export, schedule, or define rate rules.
+- **Call Report Data Permission:** Queue Call Reports / Extension Call Reports / Other Call Reports. Which underlying datasets the user's reports can pull from.
+
+For a typical deployment: the supervisor role gets All My Reports + Download + Schedule + Queue and Extension report data. The agent role gets nothing in the reports section. The finance-export role (a custom role you'd build for a customer's accounts payable user) gets Created-by-Myself + Download + Extension Call Reports data, scoped to Extension Call Accounting; nothing else.
+
+## Cross-references
+
+- Per-call CDR mechanics (Timeline, AI Summary, AI Transcription): pse-triage's CDR lesson.
+- User Roles in detail: the security hardening lesson next.
+- Recording rules (which calls have recordings to report on): pse-build's recording lesson.
+
+## What this lesson did not cover
+
+- Wallboard JavaScript embedding and external dashboards: niche; supported via the API.
+- The legacy reports menu in detail: it's deprecating; the post-83.21 flow is where to invest time.
+- The API endpoints for programmatic CDR / report extraction: the YCM-scale course covers webhook + API patterns for cross-tenant report aggregation.

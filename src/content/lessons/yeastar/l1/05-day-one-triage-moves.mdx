@@ -1,0 +1,85 @@
+---
+slug: 05-day-one-triage-moves
+vendor: yeastar
+level: l1
+title: The three most common tickets and the data to gather
+summary: Three ticket patterns — 'I can't make outbound calls', 'no audio after answer', 'callflow went to the wrong place' — and the specific PSE-side data each one needs before you can fix it or escalate it cleanly.
+estimatedMinutes: 7
+order: 5
+topics: [pse, triage, playbook]
+updated: 2026-05-12
+---
+
+Tickets cluster. Three patterns will land on your queue more than any others. Knowing exactly what to gather for each turns a "I'll look into it" into a fix or a clean escalation with everything the next tier needs.
+
+## Pattern 1: "I can't make outbound calls"
+
+Sarah dials an external number. Linkus shows "call failed" or the call doesn't connect.
+
+### Gather
+
+1. **Extension status.** Open Sarah's extension. Is it registered? Are her clients shown in **Linkus Clients**?
+2. **User Role.** Does her role permit outbound calls? Specifically, can she dial external numbers? Some role templates restrict this.
+3. **CDR row for the attempted call.** Time filter for the last 10 minutes; Call From = Sarah's extension. Read the Status column.
+4. **The Status code tells you the next step:**
+
+| Status / Last Participant | Likely cause |
+|---|---|
+| FAILED, Last Participant = "No matching route" | The outbound route doesn't accept her dialled pattern. Check Outbound Routes for the number pattern. |
+| FAILED with trunk-side response | The carrier rejected. Check the trunk's status; pull a SIP trace if needed. |
+| BUSY at the destination | Normal, the called number is busy. Not a problem. |
+| Status is ANSWERED but Sarah says it failed | The call connected but Sarah may have hung up or heard silence. Pull the recording (if any) or a SIP trace. |
+| No row at all | The INVITE never made it to the PBX. Linkus client issue or network. |
+
+### Escalate with
+
+If escalation is needed, hand off with: the extension number, the time range, the dialled number, the CDR Last Participant value, and a screenshot of the row. Don't escalate "can't dial out" alone — that's the question, not data.
+
+## Pattern 2: "We got connected but I couldn't hear anything"
+
+Calls connect (the user knew the call was up — they tried to talk) but audio is missing one direction or both.
+
+### Gather
+
+1. **The CDR row.** Status should be ANSWERED. Confirm Call Duration is a real number (the call lasted some seconds at least).
+2. **The recording, if recorded.** Play the first 5 seconds. Did the audio capture? If the recording has audio, the issue is endpoint-side delivery, not media-server-side.
+3. **Caller IP Address column.** If the customer's endpoint is on an unexpected IP (a different VPN, an unknown subnet), that's a clue.
+4. **MOS and packet stats.** If the customer is on a recent PSE firmware, MOS appears in the CDR detail. MOS < 3.0 and high packet loss → network. MOS > 4.0 and they still say "no audio" → endpoint hardware (muted speaker, broken headset).
+5. **SIP trace.** From Maintenance → Troubleshooting → PCAP / SIP Capture, filter by Sarah's extension for the last few minutes. Reproduce briefly. The trace shows the SDP body — read the IP and port that each side advertised for RTP.
+
+### The SDP-IP gotcha
+
+This is the most common root cause for "no audio after answer": one side's SDP advertises a private IP that the other side can't route to. Two telltales in the trace:
+
+- The 200 OK SDP from one side has a `c=` line with an RFC 1918 address (10.x, 172.16-31.x, 192.168.x).
+- The other side is on the public Internet (or a different private network).
+
+When you see this, the fix is in PSE's SIP profile (NAT settings for the extension or trunk). Escalate if it's not obvious; intermediate course covers the config.
+
+## Pattern 3: "The callflow took the call to the wrong place"
+
+Caller dials the customer's main number, expected to hit reception, ended up in an IVR's "after hours" branch instead.
+
+### Gather
+
+1. **The CDR row for the inbound call.** Find it by Call To = the customer's DID, and the time the caller said.
+2. **Communication Type** should be Inbound. **Source Trunk** tells you which carrier route it came in on. **DID/DDI** tells you which dialled number matched.
+3. **Click in. Use Timeline View** if available. The chronological events show which inbound route matched, which time condition fired, which IVR branch the caller took.
+4. **Time conditions.** Probably the culprit. Go to Call Control → Time Conditions; find the condition that applies; check its time-range definition against the call's actual timestamp. A common gotcha: the timezone is misconfigured on the PBX (PBX Settings → Date and Time) so business-hours rules fire at the wrong wall-clock times.
+5. **IVR structure.** If the IVR's "key press 1" goes somewhere unexpected, read the IVR config (Call Control → IVR) and verify destinations.
+
+### Escalate with
+
+For callflow tickets, the escalation data is: the dialled DID, the call time (with timezone), the Timeline view screenshot, and the suspect time-condition or IVR identifier. The intermediate course owns the actual fixes — what's important at this stage is not pretending to know how to safely modify a customer's callflow.
+
+## The day-one rules
+
+Three habits that separate effective triage from busy triage:
+
+- **Read before you change.** Most tickets resolve at read. The CDR / extension page / recording is usually enough.
+- **Bring data, not impressions.** "The phone system is broken" is a ticket. "Sarah's outbound call to 0398… at 14:22 hit FAILED with Last Participant = 'No matching route'" is a diagnosis.
+- **Escalate cleanly.** The next tier shouldn't have to redo your investigation. Hand off the CDR row, the times, the screenshot, the trace if you pulled one. Repetition wastes everyone's time.
+
+<Checkpoint slug="yeastar-pse-triage-checkpoint-triage" client:visible />
+
+You've now seen the PSE triage surface. The intermediate course (PSE configuration) picks up where this ends: building the callflows you read in this course, configuring trunks the right way, and the diagnostic moves that actually need to change PBX state.

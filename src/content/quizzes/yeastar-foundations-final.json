@@ -1,0 +1,79 @@
+{
+  "slug": "yeastar-foundations-final",
+  "course": "yeastar-foundations",
+  "kind": "final",
+  "title": "Yeastar foundations, final check",
+  "drawCount": 0,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-roles",
+      "type": "mcq",
+      "topic": "three-pieces",
+      "difficulty": "easy",
+      "prompt": "Which Yeastar console is the right place to create a brand-new customer's PBX from scratch?",
+      "choices": [
+        "PSE (P-Series Software Edition) admin portal",
+        "Yeastar Central Management (YCM)",
+        "Linkus Web Client",
+        "Each customer creates their own PBX from a Yeastar signup page"
+      ],
+      "correct": 1,
+      "explanation": "Cloud PBX creation is a YCM operation. PSE is the PBX software that YCM provisions an instance of; the customer admin doesn't have a YCM login. Linkus is the end-user client and never creates a PBX."
+    },
+    {
+      "id": "q-call-handling",
+      "type": "mcq",
+      "topic": "three-pieces",
+      "difficulty": "easy",
+      "prompt": "When a customer's receptionist makes an outbound call from Linkus on her laptop, which Yeastar component bridges audio between her client and the SIP trunk?",
+      "choices": [
+        "YCM, because it manages all the customer PBXs centrally",
+        "Linkus itself, peer-to-peer with the trunk provider",
+        "The customer's own PSE instance (Cloud PBX)",
+        "Both YCM and PSE, in parallel"
+      ],
+      "correct": 2,
+      "explanation": "The Cloud PBX is the PSE instance for that customer; call routing and media bridging are PSE's job. YCM never handles a call. Linkus is the endpoint, not a routing element."
+    },
+    {
+      "id": "q-not-byoi",
+      "type": "multi",
+      "topic": "byoi-model",
+      "difficulty": "medium",
+      "prompt": "Which of the following deployment shapes are NOT covered by the BYOI model this site teaches? (Select all that apply.)",
+      "choices": [
+        "An MSP running YCM in their own AWS account, creating Cloud PBXs there for each customer",
+        "Yeastar-hosted P-Series Cloud Edition (PCE) where Yeastar themselves run the customer PBXs",
+        "An MSP running YCM in a colocation rack they own",
+        "A standalone P-Series appliance sitting in the customer's server room, connected to YCM only for remote management",
+        "An MSP running YCM on a customer's hypervisor as a one-off"
+      ],
+      "correct": [1, 3],
+      "explanation": "BYOI specifically means the MSP runs YCM on infrastructure they operate (cloud, colo, on-prem). PCE is Yeastar-hosted and a different model; the appliance-via-Device-Connection path is in the YCM docs but is the 'Device' shape, not Cloud PBX. The 'on a customer's hypervisor' option is unusual but still BYOI in spirit (the MSP is operating the infrastructure)."
+    },
+    {
+      "id": "q-multitenant",
+      "type": "tf",
+      "topic": "multi-tenant",
+      "difficulty": "easy",
+      "prompt": "A Hosting User account in YCM can see and manage other Hosting Users' Cloud PBXs by default.",
+      "correct": false,
+      "explanation": "Hosting Users are sub-resellers; each one has their own scoped slice. Only the Super Administrator (and explicitly-granted Colleagues) can see everything. A Hosting User sees the Cloud PBXs their account owns, plus any sub-resellers they themselves created."
+    },
+    {
+      "id": "q-decision-tree",
+      "type": "order",
+      "topic": "where-to-look",
+      "difficulty": "medium",
+      "prompt": "A ticket says 'we need three more extensions for ABC Company, and once they exist set them up with Linkus on their laptops.' Put the consoles in the right order of operations.",
+      "items": [
+        "YCM: check ABC's Cloud PBX capacity, resize if extension capacity is exhausted",
+        "PSE: create the three new extensions on ABC's Cloud PBX, configure their roles and presence rules",
+        "PSE: send Linkus welcome emails (with QR codes) to the three new users",
+        "Linkus Desktop / Mobile: the users install, log in via the welcome-email link, and place a test call"
+      ],
+      "explanation": "Capacity check is YCM-side. Extension creation is per-PBX, so PSE. The welcome email and QR generation is also PSE-side (per the extension you just created). Linkus is the last step, on the user's device."
+    }
+  ]
+}

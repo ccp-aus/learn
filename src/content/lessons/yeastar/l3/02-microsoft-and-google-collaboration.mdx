@@ -1,0 +1,205 @@
+---
+slug: 02-microsoft-and-google-collaboration
+vendor: yeastar
+level: l3
+title: Microsoft 365, Google Workspace, and paring back the default permissions
+summary: "End-to-end M365 integration (user sync, SSO, presence, Teams CTI), the equivalent Google Workspace path, and the security pass Yeastar's one-click setup leaves to you. What the auto-created Entra app actually requests, what each PSE feature genuinely needs, and what you can safely revoke."
+estimatedMinutes: 15
+order: 2
+topics: [pse, integration, m365, entra, google-workspace, teams, security]
+updated: 2026-05-13
+---
+
+The configuration lesson in pse-build introduced M365 user sync as one of three ways to create extensions. That covered the day-one happy path. This lesson goes deeper: what the integration is actually doing under the hood, the related M365 features (SSO, Teams CTI, presence sync), the Google Workspace equivalent, and the load-bearing security work this course exists to teach, paring back the default Graph permissions to what each customer's deployment actually needs.
+
+## The four M365 capabilities, and what each one costs in permissions
+
+Yeastar's "Microsoft Entra ID Integration" page bundles multiple capabilities behind one Authorize click. From a security perspective, treat them as four separate features:
+
+| Capability | What it does | Microsoft Graph permission(s) needed |
+|---|---|---|
+| **User / extension sync** | Pull users from Entra ID into PSE as extensions; auto-create or assign existing extensions; sync display name, email, mobile, job title, avatar | `User.Read.All`, `Directory.Read.All` (Application) |
+| **SSO** (single sign-on) | Linkus users sign in with their M365 credentials instead of a separate Linkus password | `openid`, `profile`, `email`, `User.Read` (Delegated) |
+| **Teams User Presence Sync** | Extension presence in PSE mirrors Teams presence (Available, Busy, In a Call, etc.); optionally bidirectional | `Presence.Read.All` (one-way), `Presence.ReadWrite.All` (bidirectional) (Application) |
+| **Teams CTI / Phone System** | Teams acts as a softphone front-end to the PSE PBX; calls placed in Teams route through PSE trunks | `Calls.AccessMedia.All`, `OnlineMeetings.Read.All`, `User.Read.All` (Application) |
+
+The Outlook personal-contact sync (an extension user's Outlook Contacts appear in their Linkus contacts directory) is a delegated permission (`Contacts.Read`) granted per-user, not org-wide; that's a different consent flow and not part of the org-level Application permissions.
+
+Read that table once more. Notice that **only the user-sync feature is required to get the PBX populated**. SSO, presence, and Teams CTI are independent opt-ins. A customer who's not using Teams as a front-end has no use for `Calls.AccessMedia.All`.
+
+## The simplified integration flow (post-83.22.0.134)
+
+Firmware 83.22 streamlined the setup. The pre-83.22 flow required you to register an enterprise app in Entra by hand, copy a tenant ID / client ID / client secret, configure API permissions, grant admin consent, then paste credentials back into PSE. Painful. The current flow:
+
+```
+Integration → Collaboration → Microsoft → Microsoft Entra ID → Authorize
+  → Sign in as Global Administrator
+  → Grant consent
+  → Done; PSE has created the enterprise app for you in Entra
+```
+
+Single click. The cost of that simplification is that the auto-created app gets a permission set sized for "anything PSE might ever offer", not for "what this customer's deployment actually needs". Yeastar's docs treat the consent grant as a one-time thing; the next section walks through the security pass that turns the simplified integration into a least-privilege one.
+
+<Callout type="info" title="Legacy integrations still work">
+If a customer was set up before 83.22 with the hand-built app registration, that integration continues to run unchanged. You don't have to migrate. The advice in this lesson about paring back permissions applies to BOTH the new auto-created app and the older hand-built one. The rollback flow is identical; the only difference is what was granted on day one.
+</Callout>
+
+## Securing the M365 integration: the rollback that earns its place
+
+Yeastar's documentation says **accept the Global Administrator consent prompt**. That's correct for day-one functionality. It's not the end of the story for a customer who cares about least-privilege access in Entra. The rest of this section is the security pass a senior tech does after the integration is working, customer by customer, to revoke permissions that aren't being used.
+
+### Why bother
+
+The auto-created app holds a credential (a client certificate or secret) in PSE. That credential is what authenticates PSE to Microsoft Graph. If the PBX is ever compromised (a remote-code-execution on the PBX, a leaked backup, a stolen administrator account), the credential gives the attacker delegated access to everything the app's permission set allows. Reducing that permission set reduces blast radius. The math is simple: a customer using only extension sync gets nothing extra from giving the app `Calls.AccessMedia.All` and a great deal of regret if the credential ever leaks.
+
+Reducing permissions is also reversible. If the customer enables Teams CTI six months from now, you re-grant `Calls.AccessMedia.All` and CTI starts working. The rollback isn't a one-way door.
+
+### The "which features does this customer actually use" inventory
+
+Before touching anything in Entra, list the M365-dependent features actually enabled in PSE:
+
+- **Integration → Collaboration → Microsoft Entra ID** is configured: user sync is on
+- **Integration → Collaboration → Microsoft Teams** is configured: presence sync and/or CTI is on
+- A SSO login button appears on the Linkus login page: SSO is on
+- An extension has Outlook personal-contact sync enabled in its Linkus profile: Outlook contacts is on
+- The email server in **System → Email Server** is "Microsoft" type: Outlook-as-SMTP is on
+- An archive task in **System → Archive** points to SharePoint or OneDrive: SharePoint backup is on
+
+Each enabled feature corresponds to a row in the permission table. Anything not on the list is a candidate for revocation.
+
+### The verification flow in Entra
+
+<AnnotatedScreenshot
+  src="/img/yeastar/entra-app-api-permissions.png"
+  alt="Azure portal API permissions page for a Yeastar-created Entra app, listing configured Microsoft Graph permissions with Granted/Not granted status"
+  caption="Enterprise Applications → the Yeastar app → API permissions is where you decide what to keep. Every row is reversible."
+>
+  <Hotspot client:load x={20} y={30} tone="primary" label="1" title="Add a permission" purpose="The button to grant additional permissions to the integration.">
+    Use only when adding what's strictly required for a feature. The rollback work is removing rows from the permissions list, not adding to it; this button is for very deliberate additions.
+  </Hotspot>
+  <Hotspot client:load x={68} y={62} tone="warning" label="2" title="Permission row" purpose="Review the Type and Status columns.">
+    Application permissions act on the whole tenant without user context (used by user sync, presence sync). Delegated permissions act on behalf of a signed-in user (used by SSO). Status column shows whether the permission has admin consent. A row without consent does nothing; a row with consent that nothing actually uses is a candidate for removal.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+<StepThrough>
+  <Step title="Open the app in Entra">
+    Entra admin centre (entra.microsoft.com) → Identity → Applications → Enterprise applications. Filter by application type "Microsoft Applications" off, search for the Yeastar app name. It's named after the PBX's external host or the integration creation timestamp; the integration page on PSE shows the exact app name to look for.
+  </Step>
+  <Step title="Review the configured permissions">
+    Click into the app → API permissions. You see a list of granted Microsoft Graph permissions, each with a Type (Application or Delegated) and a Status. Cross-reference against your enabled-features inventory.
+  </Step>
+  <Step title="Revoke the permissions you don't need">
+    For each row that's NOT on the inventory, click the three-dot menu → Remove permission. Confirm. Status updates immediately. For Application permissions, the change takes effect on the next token refresh (usually within an hour); for Delegated permissions, it takes effect on the user's next sign-in.
+  </Step>
+  <Step title="Verify the integration still works">
+    Back in PSE: Integration → Collaboration → Microsoft Entra ID → click Sync Now (or trigger user sync from the user list). The sync should complete without error. If it errors with an authorisation failure, you've cut too deep; re-add the permission. Do the same for SSO (sign out / sign in on Linkus Web), presence (toggle the extension's presence and watch Teams reflect it), and any other enabled features.
+  </Step>
+  <Step title="Audit the app's recent activity in Entra">
+    Sign-in logs → filter by the Yeastar app → review last seven days. You should see Sync-Now sign-in events and (for SSO) extension-user sign-in events. Audit logs → filter by the Yeastar app → review last seven days; you'll see permission changes, owner changes, and credential changes. This is also where you'd catch a compromised credential being used from an unexpected location.
+  </Step>
+</StepThrough>
+
+### The over-granted permissions table
+
+Cross-referenced against Yeastar's feature inventory and Microsoft Graph's permissions reference. Use this as a starting point; the customer's deployment may have legitimate uses you're not aware of, so don't revoke blindly.
+
+| Permission | When it's needed | When it's NOT needed (revoke candidate) |
+|---|---|---|
+| `User.Read.All` | Extension sync, Teams CTI feature lookup | Never; almost every feature reads users |
+| `Directory.Read.All` | Extension sync (reads directory metadata) | Never; same as above |
+| `Group.ReadWrite.All` | Modifying Entra groups from PSE (rare) | Always a revoke candidate; reading groups uses `GroupMember.Read.All` |
+| `Presence.Read.All` | One-way presence sync (Teams → PSE) | If presence sync is OFF |
+| `Presence.ReadWrite.All` | Bidirectional presence sync (PSE -> Teams) | If presence sync is OFF or one-way only |
+| `Calls.AccessMedia.All` | Teams CTI (Teams as PSE softphone) | If Teams CTI is OFF |
+| `OnlineMeetings.Read.All` | Teams CTI meeting-context | If Teams CTI is OFF |
+| `Mail.Read` / `Mail.ReadWrite` | Outlook-as-SMTP in delegated mode (rare) | Almost always; system SMTP is the default |
+| `Mail.Send` | Outlook-as-SMTP application-mode | If email server is system SMTP, not Microsoft |
+| `Files.Read.All` / `Files.ReadWrite.All` | SharePoint backup archive | If no archive task points at SharePoint |
+| `Sites.ReadWrite.All` | SharePoint backup archive | If no archive task points at SharePoint |
+| `Calendars.ReadWrite` | (No PSE feature uses this today) | Always revoke; legacy from earlier integration versions |
+| `User.ReadWrite.All` | (No PSE feature uses this; PSE only reads users) | Always revoke; reduces blast radius significantly |
+| `Contacts.Read` | Outlook personal-contact sync per user (delegated) | If no extension has Outlook contact sync enabled |
+
+<Callout type="warn" title="Re-authorising the integration re-grants everything">
+The Yeastar support move for "the M365 integration stopped working" tickets is often "re-authorise from PSE". This re-runs the consent flow with the default permission set, undoing your rollback. If you've pared back permissions, document the change in the customer's runbook so the next tech doesn't undo it. When troubleshooting an integration failure, identify the specific permission that's failing (Entra Sign-in logs show the missing permission in the error) and re-grant just that one, not the whole set.
+</Callout>
+
+### The honest tradeoff to surface with the customer
+
+A least-privilege M365 integration is a hardening step, not a cost-free win. The tradeoffs to name in the customer's runbook:
+
+- **Future feature enablement requires permission re-grant.** A customer who decides to roll out Teams CTI two quarters from now needs you (or a Global Admin) back in Entra granting `Calls.AccessMedia.All`. Plan for it.
+- **Yeastar firmware updates may introduce new features that quietly need new permissions.** Read the release notes for collaboration-integration changes; the v83.22 series did this with the simplified-integration rollout.
+- **The customer's Entra change-control process applies.** If they have a ticketing requirement for any Entra permission grant, you'll be raising tickets to re-enable things. Worth knowing up front.
+
+For Able Moose Group's deployment, the rollback is straightforward: they use extension sync, SSO, and one-way presence sync. They don't use Teams CTI, SharePoint archive, or Outlook-as-SMTP. Revoke `Calls.AccessMedia.All`, `OnlineMeetings.Read.All`, `Files.*`, `Sites.ReadWrite.All`, `Mail.*`, `Calendars.ReadWrite`, `User.ReadWrite.All`, `Group.ReadWrite.All`. Keep `User.Read.All`, `Directory.Read.All`, `Presence.Read.All`, plus the SSO delegated permissions. The integration runs identically; the blast radius if the credential leaks is roughly an order of magnitude smaller.
+
+## SSO setup, what's different from extension sync
+
+User sync creates extensions; SSO replaces the Linkus password. They're orthogonal: a customer can have one without the other.
+
+To enable SSO once the integration's authorised:
+
+```
+Integration → Collaboration → Microsoft → Microsoft Entra ID → SSO
+```
+
+Toggle SSO on. Linkus Web and Desktop now show a "Sign in with Microsoft" button on the login screen. The user clicks it, completes the M365 sign-in, and lands in Linkus without entering a Linkus password.
+
+The matching rule is the one the v83.23.0.23 release notes called out: PSE uses the user's **userPrincipalName** in Entra ID to match against the PBX extension's email address. NOT the mapped Email Address field. If a user's UPN changes (rare, but happens during domain rebranding), the SSO link breaks until you reassociate. Email changes don't break it.
+
+For Google Workspace, the matching key is the user's **Primary email** in Workspace. Functionally similar; just a different identifier.
+
+## Teams User Presence Sync, and the bidirectional gotcha
+
+When enabled, an extension's PSE presence (Available / Busy / DND / etc.) and the user's Teams presence stay in sync. Two modes:
+
+- **One-way (Teams -> PSE):** Teams is the source of truth. Extension presence follows Teams. Use this when Teams is the user's primary collaboration tool and they don't toggle PSE presence manually.
+- **Bidirectional:** Either side can change presence; the other follows. Use when users may toggle from Linkus too.
+
+There's a subtlety the v83.20.0.128 release notes documented: when bidirectional sync is on, the extension does NOT sync its presence from Teams **when the extension is ringing or busy on a call**. The reason: during a live call, the extension's "Busy" status reflects the actual call, and pulling Teams's status mid-call could overwrite it incorrectly. Without that fix, an incoming Teams meeting invite (which flips Teams to "In a Meeting") would have changed the extension's status mid-PBX-call. Now the call wins.
+
+## Linkus for Google: the Chrome extension
+
+The Google Workspace equivalent of the CRM integrations from the previous lesson, plus a click-to-call surface that lives in the Chrome browser rather than in a specific Workspace app. Installed from the Chrome Web Store; signs in with the user's Workspace account; clicks on any phone number on any web page trigger a Linkus dial. Useful where Workspace is the customer's identity backbone and the user spends most of their day in a browser.
+
+Setup is per-user, not org-wide. The Workspace org doesn't need to grant special permissions for the extension to work, beyond the standard "this extension wants to read the user's basic profile" prompt.
+
+## Google Workspace integration, briefly
+
+The Workspace integration follows the same shape as the M365 one: PBX-side initiation, admin consent, automatic field mapping, ongoing user sync. Different identifier semantics:
+
+| Aspect | M365 | Google Workspace |
+|---|---|---|
+| Admin consent | Entra Global Admin | Workspace Super Admin |
+| Matching key | userPrincipalName | Primary email |
+| Field map | `givenName` / `surname` / `mail` / `mobilePhone` / `jobTitle` / `avatar` | Workspace equivalents |
+| SSO | Yes (Microsoft button) | Yes (Google button) |
+| Presence | Teams presence (separate feature) | Not currently supported |
+| CTI front-end | Teams (separate feature) | Not currently supported |
+
+The security-rollback discipline applies to Workspace too. Google Workspace's admin console (admin.google.com) → Security → API controls → Domain-wide delegation is where the granted scopes live, and the same logic applies: revoke what no enabled PSE feature uses.
+
+## Migrating a legacy hand-built app registration to the simplified flow
+
+A customer onboarded before firmware 83.22 has a hand-built Entra app. The legacy method works fine; there's no functional reason to migrate. But if the customer asks (often during a security review or an Entra tenancy migration), the path is:
+
+1. Disable the integration in PSE (does not delete the Entra app, just disables the PBX side).
+2. Authorize fresh from PSE; PSE creates a new auto-managed app.
+3. Confirm sync works against the new app.
+4. In Entra: delete the old hand-built app. The legacy credentials are then gone.
+
+Do the rollback security pass on the new app, then update customer documentation. The whole migration is ten minutes if user sync is the only feature; longer if SSO is also configured because user sessions on Linkus need to re-authenticate against the new app.
+
+## Cross-references
+
+- Extension creation paths (manual, CSV, M365 sync): see the extensions lesson in `yeastar-pse-build`.
+- The "Yeastar's docs say accept the GA prompt; this course covers paring back" callout from `yeastar-pse-build` lesson 1: this lesson is what it pointed at.
+- Operation logs and audit logs in PSE (what was changed and by whom on the PBX side): security lesson coming up.
+
+## What this lesson did not cover
+
+- Active Directory (on-premises AD) integration. Different setup; not Graph-based; not the focus of an MSP-hosted Cloud PBX deployment.
+- Red Hat SSO. Niche; the same matching-rule and rollback principles apply but the specifics differ.
+- Linkus mobile push-notification setup via Firebase / APNS. Not strictly M365 territory.

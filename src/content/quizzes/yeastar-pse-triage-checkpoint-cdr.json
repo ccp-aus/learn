@@ -1,0 +1,38 @@
+{
+  "slug": "yeastar-pse-triage-checkpoint-cdr",
+  "course": "yeastar-pse-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, reading the CDR",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-cdr-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer reports 'my call this morning dropped after a few minutes'. You filter CDR (Advanced) to the right time window and find the call. Status: ANSWERED. Duration: 6:42. What's the next step?",
+      "choices": [
+        "Open a SIP trace immediately",
+        "Click into the call detail and open Timeline View to see the chronological events that ended the call",
+        "Resize the customer's recording capacity",
+        "Send the user a fresh welcome email"
+      ],
+      "correct": 1,
+      "explanation": "Timeline View gives chronological events: hold start/end, transfers, who hung up, what triggered the BYE. Often shows the call ended normally (caller hung up) and there's no real problem to fix. SIP trace is the next step *if* Timeline View doesn't explain it."
+    },
+    {
+      "id": "ck-cdr-2",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which CDR Status value would you see for a call where the caller hung up before anyone answered?",
+      "choices": [
+        "ANSWERED",
+        "BUSY",
+        "ABANDONED",
+        "VOICEMAIL"
+      ],
+      "correct": 2,
+      "explanation": "ABANDONED is the CDR status for 'caller hung up before answer'. ANSWERED = someone picked up; BUSY = called party was busy; VOICEMAIL = call routed to voicemail; FAILED = something else went wrong."
+    }
+  ]
+}
