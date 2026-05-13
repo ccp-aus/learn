@@ -1,8 +1,8 @@
 {
-  "slug": "domains-and-dns-l3-final",
-  "course": "domains-and-dns-l3",
+  "slug": "domains-and-dns-migrations-and-security-final",
+  "course": "domains-and-dns-migrations-and-security",
   "kind": "final",
-  "title": "Domains & DNS Advanced: final check",
+  "title": "Domains & DNS, migrations and security: final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

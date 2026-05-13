@@ -24,7 +24,7 @@ Every DNS record carries a TTL in seconds. When a resolver gets the record, it s
 | `86400` | 24 hours | Records that almost never change (NS, MX) |
 | `604800` | 1 week | Records that are essentially permanent |
 
-The trade-off: **shorter TTL = faster changes, more queries**; **longer TTL = slower changes, less load**. For day-to-day operation, longer is cheaper and more reliable. For a planned change, shorter is what you want, set in advance (L3 lesson 2 covers the pre-stage TTL drop).
+The trade-off: **shorter TTL = faster changes, more queries**; **longer TTL = slower changes, less load**. For day-to-day operation, longer is cheaper and more reliable. For a planned change, shorter is what you want, set in advance (the web-host migration lesson covers the pre-stage TTL drop).
 
 ## What the time-feels-different reality looks like
 
@@ -86,4 +86,4 @@ Tell Sarah the actual cache remaining (you can see it in `dig +noall +answer exa
 </Step>
 </StepThrough>
 
-You've now finished the Beginner course. You can read DNS, you know who controls a domain, you understand where records live and why changes take time. The Intermediate course teaches the panels you'll spend most of your time in, plus the SPF / DKIM / DMARC stack that decides whether the customer's email arrives.
+You've now finished the foundation course. You can read DNS, you know who controls a domain, you understand where records live and why changes take time. The day-to-day course teaches the panels you'll spend most of your time in, plus the SPF / DKIM / DMARC stack that decides whether the customer's email arrives.

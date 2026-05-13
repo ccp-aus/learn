@@ -1,8 +1,9 @@
 {
-  "slug": "domains-and-dns-l1",
+  "slug": "domains-and-dns-foundation",
   "vendor": "domains-and-dns",
   "level": "l1",
-  "title": "Domains & DNS Beginner, the foundation",
+  "title": "Domains & DNS, the foundation",
+  "shortTitle": "DNS foundation",
   "summary": "How a domain name turns into a working website or mailbox: registration, the global DNS hierarchy, nameservers, the record types you'll see daily, and why DNS changes 'take time'.",
   "estimatedMinutes": 40,
   "prereqs": [],
@@ -13,6 +14,6 @@
     "04-the-record-types-you-will-see-daily",
     "05-ttl-and-the-propagation-myth"
   ],
-  "quiz": "domains-and-dns-l1-final",
+  "quiz": "domains-and-dns-foundation-final",
   "status": "live"
 }

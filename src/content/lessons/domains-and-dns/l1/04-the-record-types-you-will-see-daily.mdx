@@ -23,7 +23,7 @@ A DNS record is one row in a zone file. It has a **name**, a **type**, a **TTL**
 | **MX** | "Where does mail for this domain go?" | `10 example-com.mail.protection.outlook.com` | Inbound email bounces; mail loops |
 | **NS** | "Who is authoritative for this name?" | `ns1.cloudflare.com` | Whole domain disappears or routes to wrong host |
 
-The other 30+ record types in the standards are real, but you'll meet them rarely (SRV in lesson 5 of this course's L2; CAA, DNSSEC records, and PTR in L3).
+The other 30+ record types in the standards are real, but you'll meet them rarely (SRV in the verification-and-srv-records lesson once you start onboarding Microsoft 365; CAA, DNSSEC records, and PTR in the migrations-and-security course).
 
 ## The five you have to recognise on sight
 
@@ -48,14 +48,14 @@ shop.example.com.   3600   IN   CNAME   example-shop.shop-platform.example.
 careers.example.com.   3600   IN   CNAME   jobs.recruiter.example.
 ```
 
-A CNAME does not carry an IP. The resolver follows the alias to whatever the target resolves to. **CNAMEs cannot coexist with most other records on the same name**, and they cannot legally sit at the **apex** of a zone (covered in L3 lesson 4). Use them for subdomains pointed at a vendor's hostname.
+A CNAME does not carry an IP. The resolver follows the alias to whatever the target resolves to. **CNAMEs cannot coexist with most other records on the same name**, and they cannot legally sit at the **apex** of a zone (the apex-records and CNAME-traps lesson covers this in detail). Use them for subdomains pointed at a vendor's hostname.
 
 ### TXT: plain text for verification and email auth
 
 A `TXT` record carries arbitrary text. Two uses dominate:
 
 - **Service verification.** "Add this TXT record so we know you control the domain." Microsoft, Google, Atlassian, Slack — almost every SaaS does this during onboarding.
-- **Email authentication.** SPF, DKIM, and DMARC are all stored in TXT-shaped records (with the L2 nuance that DKIM uses a CNAME-or-TXT pair). L2 lesson 4 covers them.
+- **Email authentication.** SPF, DKIM, and DMARC are all stored in TXT-shaped records (the SPF/DKIM/DMARC lesson covers them in detail, including the DKIM CNAME-or-TXT split).
 
 ```
 example.com.   3600   IN   TXT   "v=spf1 include:spf.protection.outlook.com -all"
@@ -85,7 +85,7 @@ example.com.   86400   IN   NS   ns1.cloudflare.com.
 example.com.   86400   IN   NS   ns2.cloudflare.com.
 ```
 
-You'll occasionally edit NS records at a *subdomain* level to delegate that subdomain to a different DNS host. For a Beginner-course tech, the apex NS records are managed at the registrar (where the delegation actually counts), not in the zone file.
+You'll occasionally edit NS records at a *subdomain* level to delegate that subdomain to a different DNS host. At this point in the track, treat the apex NS records as managed at the registrar (where the delegation actually counts), not in the zone file.
 
 ## A worked ticket: Able Moose Accounting
 
@@ -112,4 +112,4 @@ Save.
 </Step>
 </StepThrough>
 
-<Checkpoint slug="domains-and-dns-l1-checkpoint-records" client:visible />
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-records" client:visible />
