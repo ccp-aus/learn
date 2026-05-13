@@ -1,8 +1,9 @@
 {
-  "slug": "threatlocker-l1",
+  "slug": "threatlocker-helpdesk-fundamentals",
   "vendor": "threatlocker",
   "level": "l1",
-  "title": "ThreatLocker helpdesk fundamentals",
+  "title": "ThreatLocker, helpdesk fundamentals",
+  "shortTitle": "TL helpdesk",
   "summary": "The mental model and console moves a new helpdesk hire needs to triage ThreatLocker tickets confidently, from the Response Center through approval requests, the Unified Audit, and Learning Mode.",
   "estimatedMinutes": 38,
   "prereqs": [],
@@ -13,6 +14,6 @@
     "04-reading-the-unified-audit",
     "05-learning-mode-basics"
   ],
-  "quiz": "threatlocker-l1-final",
+  "quiz": "threatlocker-helpdesk-fundamentals-final",
   "status": "live"
 }

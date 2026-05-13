@@ -1,6 +1,6 @@
 {
-  "slug": "threatlocker-l2-checkpoint-ringfencing",
-  "course": "threatlocker-l2",
+  "slug": "threatlocker-policy-rollout-checkpoint-ringfencing",
+  "course": "threatlocker-policy-rollout",
   "kind": "checkpoint",
   "title": "Quick check, ringfencing",
   "drawCount": 0,

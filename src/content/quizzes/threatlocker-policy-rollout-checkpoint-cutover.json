@@ -1,6 +1,6 @@
 {
-  "slug": "threatlocker-l2-checkpoint-cutover",
-  "course": "threatlocker-l2",
+  "slug": "threatlocker-policy-rollout-checkpoint-cutover",
+  "course": "threatlocker-policy-rollout",
   "kind": "checkpoint",
   "title": "Quick check, cutover",
   "drawCount": 0,
