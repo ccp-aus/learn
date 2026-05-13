@@ -1,0 +1,57 @@
+---
+slug: 01-pbx-portal-tour
+vendor: yeastar
+level: l1
+title: A tour of the PSE admin portal
+summary: The PSE web admin portal layout. Each top-level section corresponds to a different administrative concern; this lesson maps the menu to what you'd be looking at it for, so a tech finding the right page becomes the fast move it ought to be.
+estimatedMinutes: 7
+order: 1
+topics: [pse, portal, navigation]
+updated: 2026-05-12
+---
+
+When you delegate into a customer's PBX from YCM via passwordless login, you land in the PSE admin web portal as the PBX Super Administrator. The portal is dense: an MSP tech who knows the menu spends thirty seconds finding a page that takes a beginner five minutes to locate. Worth learning the map before you need it.
+
+## The top-level menu
+
+PSE groups every feature into nine or ten top-level sections. The exact label set varies slightly by firmware, but the shape is consistent:
+
+| Section | What lives there | When you open it |
+|---|---|---|
+| **Extension and Trunk** | Extensions list, extension groups, SIP / IAX trunks | Adding a new user, checking who's registered, configuring a SIP carrier link |
+| **Call Control** | Inbound routes, outbound routes, time conditions, IVR, ring groups, queues, call flow | Building or diagnosing how a call is routed |
+| **Call Features** | Voicemail, recording rules, paging/intercom, PIN list, call disposition, blocked/allowed numbers, AI Receptionist, AI Toolbox | Per-PBX feature config (recording policy, voicemail-to-email, AI receptionist setup) |
+| **Reports and Recordings** | CDR (Advanced + Legacy), call reports, scheduled exports, recording files | Diagnosing a specific call, generating call activity reports, listening back to a recording |
+| **PBX Settings** | Preferences, voice prompts, SIP settings, jitter buffer | Per-PBX defaults (timezone, default codec, SIP profile tuning) |
+| **System** | Network, date and time, storage, archive, event notification, remote management, SNMP, high availability, SD-WAN, onsite proxy | Platform-level config; rarely touched per-customer |
+| **Security** | Security rules (IP blocking), security settings (password policy, TLS, 2FA) | Hardening; reviewing why an IP got blocked |
+| **Maintenance** | Upgrade, backup and restore, reboot, reset, operation logs, troubleshooting, activation, system logs | Triage tools, packet capture, log download |
+| **Integration** | Collaboration, CRM, helpdesk, PMS, Speech to Text, AMI, API, Database Grant, Linkus SDK, Fax, WebSocket Audio Streaming | Third-party hooks (Salesforce, HubSpot, Zoho, Teams, M365, Google) |
+| **Hotel Management** | Hotel Settings, Room Management, Wake-up Service | Only relevant when the customer is a hotel |
+
+## The pages a triage tech opens most often
+
+In rough order of how often you'll find yourself there:
+
+1. **Extension and Trunk → Extension** — find an extension, see its registration status, reset its password, send a fresh Linkus welcome email.
+2. **Reports and Recordings → CDR (Advanced)** — pull the call detail record for a specific call to see what happened.
+3. **Reports and Recordings → Recordings** — listen back to a recorded call.
+4. **Call Control → Inbound Routes** — find the route a specific incoming DID matches, read its destination.
+5. **Call Features → Voicemail** — read the per-extension voicemail settings; download a voicemail message.
+6. **Maintenance → Troubleshooting** — pull a SIP trace or pcap when a call's behaviour doesn't match what the CDR shows.
+7. **Maintenance → Operation Logs** — see who did what in the portal (audit), useful when something changed and nobody owns it.
+8. **Maintenance → System Logs** — the raw PBX logs, when the trace isn't enough.
+
+The remaining pages live further down the triage tree; you'll learn them when an intermediate or advanced course lands you there.
+
+## The Activation page
+
+One page worth knowing exists even though you'll rarely open it: **Activation** (under Maintenance). It tells you what plan the customer is on (Enterprise vs Ultimate), how many extensions they're entitled to, current concurrent-call cap, recording and AI quotas, expiry date. When a customer asks "do we have feature X?" the Activation page is the authoritative answer.
+
+In a BYOI deployment, the Activation page reflects what YCM allocated when it provisioned the Cloud PBX. If a customer needs more, the fix is in YCM (Resize Cloud PBX), not in PSE.
+
+## A note on roles
+
+Logging in as the PBX Super Administrator (which is what passwordless login from YCM gives you) shows the full portal. A customer logging in with an extension-bound account whose role permissions are restricted sees a cut-down version. When a customer complains that "I can't find the recordings page", the cause is usually their role doesn't grant Recording Files access. Their fix is in **Extension and Trunk → User Roles** in the same portal, when you delegate in.
+
+Next lesson: finding the extension a ticket is about.

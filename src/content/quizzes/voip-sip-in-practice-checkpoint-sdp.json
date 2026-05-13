@@ -1,0 +1,38 @@
+{
+  "slug": "voip-sip-in-practice-checkpoint-sdp",
+  "course": "voip-sip-in-practice",
+  "kind": "checkpoint",
+  "title": "Quick check, SDP and codec negotiation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-sdp-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "You read a 200 OK SDP body and see `c=IN IP4 192.168.1.50` and `m=audio 18000 RTP/AVP 8`. The calling endpoint is on the public Internet. What's the most likely consequence?",
+      "choices": [
+        "Codec mismatch; call will fail with 488 Not Acceptable Here",
+        "The caller's RTP will be sent to 192.168.1.50 (a private address) and never arrive; classic one-way or no-audio symptom",
+        "The call will use the wrong sample rate",
+        "DTMF won't work but audio will be fine"
+      ],
+      "correct": 1,
+      "explanation": "The `c=` line names the IP where RTP should be sent for this leg. A private RFC 1918 address that's not reachable from the caller's side means the caller's outbound RTP goes nowhere. SIP succeeds, audio fails. The fix is on the answerer side: NAT handling on the SIP profile so the PBX rewrites SDP correctly."
+    },
+    {
+      "id": "ck-sdp-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An INVITE offers payload types `0 8 9 96 101` with rtpmap lines mapping them to PCMU, PCMA, G722, Opus, and telephone-event. The 200 OK answer contains `m=audio 18000 RTP/AVP 8 101` only. What does that mean?",
+      "choices": [
+        "The answerer rejected the call; 488 will follow",
+        "The answerer picked PCMA as the audio codec and kept telephone-event for RFC 4733 DTMF",
+        "The answerer chose all five codecs and will rotate between them",
+        "The answer is malformed; the m-line must list all offered codecs"
+      ],
+      "correct": 1,
+      "explanation": "RFC 3264 offer/answer: the answerer picks ONE audio codec from the offer (here, PCMA / payload type 8) plus the telephone-event entry for DTMF. The answer SDP lists only what was selected. RTP for this call will use PCMA in both directions."
+    }
+  ]
+}

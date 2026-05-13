@@ -1,0 +1,46 @@
+{
+  "slug": "voip-sip-in-practice-checkpoint-nat",
+  "course": "voip-sip-in-practice",
+  "kind": "checkpoint",
+  "title": "Quick check, NAT traversal",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-nat-1",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Enabling SIP ALG on the customer's router usually helps SIP traffic work better through NAT.",
+      "correct": false,
+      "explanation": "SIP ALG on retail routers is almost always out of date with the SIP spec, corrupts SDP rewrites, breaks re-INVITEs and call transfers, and interferes with keepalive. Industry consensus is to disable it on customer routers and handle NAT at the PBX or SBC."
+    },
+    {
+      "id": "ck-nat-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which mechanism lets the PBX learn an endpoint's real public IP and port by observing where its first RTP packet arrives from, rather than trusting the SDP?",
+      "choices": [
+        "STUN",
+        "TURN",
+        "Symmetric RTP",
+        "ICE"
+      ],
+      "correct": 2,
+      "explanation": "Symmetric RTP: the PBX or SBC ignores the SDP-advertised RTP address and sends return RTP to wherever the inbound RTP arrived from. STUN works the other direction (endpoint asks an external server what its public address is). TURN relays media. ICE is the candidate-gathering procedure used in WebRTC."
+    },
+    {
+      "id": "ck-nat-3",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An endpoint registers successfully, then stops receiving inbound calls 60 seconds later even though the registration is still valid. What's the most likely cause?",
+      "choices": [
+        "The endpoint's password expired",
+        "A NAT binding timed out; without NAT keepalive, the path back to the endpoint closed",
+        "The PBX restarted",
+        "The SIP transport switched from UDP to TCP"
+      ],
+      "correct": 1,
+      "explanation": "UDP NAT bindings typically age out in 30-60 seconds without traffic. The registration is still valid from the PBX's perspective, but inbound INVITEs can't reach the endpoint because the NAT no longer has a binding. The fix is NAT keepalive, a small periodic packet (typically 15-30s interval) the endpoint sends to keep the binding fresh."
+    }
+  ]
+}

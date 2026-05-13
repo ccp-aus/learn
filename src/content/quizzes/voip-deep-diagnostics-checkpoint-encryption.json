@@ -1,0 +1,33 @@
+{
+  "slug": "voip-deep-diagnostics-checkpoint-encryption",
+  "course": "voip-deep-diagnostics",
+  "kind": "checkpoint",
+  "title": "Quick check, encrypted SIP and SRTP",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-encryption-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of these can the analyst still read from a SRTP capture without any decryption keys? (Select all that apply.)",
+      "choices": [
+        "RTP sequence number, timestamp, and SSRC",
+        "Payload type byte (the codec negotiated)",
+        "The audio samples",
+        "Loss and jitter computed from RTP headers",
+        "The contents of the SDP `a=crypto:` line"
+      ],
+      "correct": [0, 1, 3],
+      "explanation": "SRTP encrypts the payload but leaves the RTP header in cleartext. Sequence number, timestamp, SSRC, and payload type are visible; Wireshark computes loss and jitter from those headers. Audio samples are encrypted. The SDP `a=crypto:` line is in the SIP body, which is only readable when SIP is plaintext or has been decrypted separately."
+    },
+    {
+      "id": "ck-encryption-2",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "Captured DTLS-SRTP traffic can usually be decrypted after the fact by extracting keys from the SDP body of the corresponding SIP messages.",
+      "correct": false,
+      "explanation": "DTLS-SRTP keys are derived during the in-band DTLS handshake and never appear in SDP. SDP only carries `a=setup:` and `a=fingerprint:` for verification; the actual session keys exist only in the two endpoints' memory after the handshake. SDES, by contrast, does carry keys in `a=crypto:` SDP attributes."
+    }
+  ]
+}

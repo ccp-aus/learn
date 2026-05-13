@@ -1,0 +1,206 @@
+---
+slug: 06-diagnosing-call-issues-at-pse
+vendor: yeastar
+level: l2
+title: Diagnosing call issues at PSE, from CDR row to root cause
+summary: "Walk a failed call from CDR Timeline View to root cause: REGISTER 401, trunk 4xx/5xx/6xx, codec mismatch, NAT SDP problems, time-condition surprises. Capture PCAP and SIP traces when the Timeline isn't enough."
+estimatedMinutes: 10
+order: 6
+topics: [pse, diagnostics, pcap, sip-trace, cdr]
+updated: 2026-05-13
+---
+
+Configuration is the bulk of this course. This lesson is what to do when configuration produces a broken call. The triage course covered gathering data and escalating cleanly; this lesson assumes you're the one fixing it, not handing it off. The protocol side (reading a SIP handshake, interpreting an SDP body, identifying NAT-related symptoms) is in the VoIP fundamentals and SIP in practice courses. The PSE-side moves are what we cover here.
+
+## The diagnostic ladder
+
+A failed call has a root cause. Climbing toward it from outside-in:
+
+1. **Find the CDR row.** Time, extension, DID, status. The triage course covered this; if you need a refresher on the CDR view, see the PSE triage course's CDR-reading lesson.
+2. **Open Timeline View** on that CDR row. The chronological event list shows which inbound route matched, which time condition fired, which IVR branch the caller took, which queue they joined, where the ring stopped.
+3. **Read the Status column** for the failure type. ANSWERED with low duration is different from FAILED is different from NO ANSWER is different from VOICEMAIL.
+4. **If Timeline doesn't explain it, pull the SIP trace.** Maintenance → Troubleshooting → SIP Trace. Reproduce the failure briefly. The trace shows the SIP messages between PBX, extension, and trunk.
+5. **If SIP trace is ambiguous, pull a PCAP.** Maintenance → Troubleshooting → Ethernet Capture Tool. Captures everything at the wire level. Open the resulting `.pcap` in Wireshark.
+
+Most calls are diagnosed at step 2 or 3. PCAP is the deep dive, used when something weird is happening that text-level SIP traces don't reveal (RTP issues, malformed packets, transport-layer problems).
+
+<AnnotatedScreenshot
+  src="/img/yeastar/cdr-call-leg-breakdown.png"
+  alt="CDR call-leg breakdown showing three inbound call legs across a ring group, with Call Leg ID, Status, Ring Duration, Hold Duration, Caller IP Address, and Source Trunk fields"
+  caption="A CDR row expands into call legs. Each leg has its own Status, Ring Duration, and IP context. Read the legs left-to-right to follow the call's path."
+>
+  <Hotspot client:load x={20} y={35} tone="primary" label="1" title="Leg 1" purpose="External caller arrives at the Ring Group.">
+    The first leg always carries the inbound trunk and the DID/DDI that matched. If the caller's number doesn't show, check the carrier-side caller ID delivery and any Inbound Caller ID Reformatting on the trunk.
+  </Hotspot>
+  <Hotspot client:load x={50} y={35} tone="primary" label="2" title="Leg 2" purpose="Ring Group dispatches to the first member.">
+    Each ring group member produces a leg when the strategy reaches them. Status NO ANSWER on this leg means that member's phone rang but they didn't pick up; the ring group then moved on to the next.
+  </Hotspot>
+  <Hotspot client:load x={80} y={35} tone="primary" label="3" title="Leg 3" purpose="Second member answered the call.">
+    Status ANSWERED on this leg with a real Ring Duration tells you who finally picked up. The leg's Caller IP shows where their Linkus client / deskphone was; useful for "the wrong office answered" tickets.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## Mapping symptoms to root cause
+
+The most common failure modes, mapped to where to look and what to do.
+
+### REGISTER 401 challenge loop on an extension
+
+**Symptom:** Extension shows as not registered in the extension list. Linkus client cycles between connecting and disconnected. SIP trace shows the extension's REGISTER getting 401 (Unauthorized) repeatedly, with a `WWW-Authenticate` header offering a challenge each time. The extension never produces a 200 OK.
+
+**Root cause options:**
+
+- Wrong **Registration Password** on the extension. The user might have the right User Password but the wrong Registration Password (the two are deliberately separate; lesson 1 covered this).
+- Extension is disabled (Extension Status = Disabled).
+- The extension's User Role has no SIP registration permission (rare; default roles allow it).
+- The IP-side auto-defense rule blocked the extension's source IP after too many failed registrations (Security → Security Rules → Auto Defense). PSE bans an IP after N failed attempts in M seconds.
+
+**Move:** Reset the extension's Registration Password. Confirm the user's softphone/deskphone is using the new value. If a deskphone, push provisioning. If the IP is auto-banned, unblock at Security → Security Rules → IP Blocklist.
+
+### Trunk 4xx on outbound INVITE (401, 403, 407)
+
+**Symptom:** An outbound call fails immediately. CDR shows FAILED with a short duration. Status code visible if you click into CDR Details or pull the SIP trace.
+
+**Root cause:**
+
+- **401** — Trunk-side authentication failure. Wrong username or password on the Register Trunk; the carrier challenged, we replied with bad credentials.
+- **403** — Trunk-side authorisation failure. Often source IP isn't whitelisted (for Peer Trunks), or the carrier-side account is suspended.
+- **407** — Proxy Authentication Required. The carrier wants us to authenticate to a proxy in front of them. Configure outbound proxy on the trunk.
+
+**Move:** For 401, fix the trunk's Username/Password/Authentication Name. For 403, ring the carrier and confirm IP whitelist or account status. For 407, ask carrier for outbound proxy details and configure.
+
+### Trunk 5xx on outbound INVITE
+
+**Symptom:** Outbound call fails. SIP trace shows 5xx (500, 503, 504) from the trunk.
+
+**Root cause:** Carrier-side server problem. Their SBC is unhealthy, overloaded, or otherwise broken. Not yours.
+
+**Move:** Capture the Call-ID from the SIP trace, ring the carrier, ask them to look up the failed call. Don't burn time changing PBX config; this is theirs to fix.
+
+### Trunk 6xx (busy globally, decline)
+
+**Symptom:** Outbound call fails. SIP trace shows 6xx (typically 603 Decline).
+
+**Root cause:** The carrier permanently declined the call. Sometimes a codec mismatch presents this way (no overlap between offered codecs and accepted codecs). Sometimes a blocked-numbers rule on the carrier side. Sometimes a destination that's permanently unreachable.
+
+**Move:** Check trunk codec list against carrier docs. Try a different destination number to isolate (is it this destination, or all calls?). If codec mismatch, narrow the trunk's codec list to what the carrier explicitly supports.
+
+### No audio after answer (one-way or no-way)
+
+**Symptom:** CDR shows ANSWERED with a real Call Duration; the user reports the call connected but they couldn't hear the other side, or the other side couldn't hear them, or neither side could hear anything.
+
+**Root cause (most common):** SDP advertises an unroutable IP for RTP media. One side put an RFC 1918 address (10.x, 172.16-31.x, 192.168.x) in the SDP `c=` line; the other side is on the public Internet and can't route packets there.
+
+**Move:**
+
+1. Pull a SIP trace for a reproduced call.
+2. Find the 200 OK with SDP body. Look at the `c=IN IP4 ...` line.
+3. If that IP is RFC 1918 and the other party is on the public Internet, fix the NAT setting:
+   - For trunk-side: trunk Advanced → "Select which IP address to use in 'Contact'(SIP) and 'Connection'(SDP) fields" → `custom_ip`, then specify the public IP.
+   - For extension-side: extension's Advanced settings → NAT, enable it.
+
+**Other no-audio causes** (less common):
+
+- Codec mismatch where one side sent G.729 and the other only supports G.711 (audio packets arrive but the decoder produces garbage).
+- Firewall blocking the RTP UDP port range (default 10000-12000 on PSE).
+- SRTP/SDES key mismatch when one side enabled SRTP and the other didn't.
+
+For codec mismatch and firewall, the SIP and RTP in practice course's diagnostics lesson covers the protocol-level reading. For SRTP, the advanced course covers it.
+
+### Call routed to wrong destination (the time-condition gotcha)
+
+**Symptom:** Customer's main number rings into the after-hours IVR at 11am. Or business-hours destination during a holiday. Or holiday destination on a normal Tuesday.
+
+**Root cause options:**
+
+1. PBX timezone misconfigured. PBX Settings → Date and Time. If the PBX thinks it's UTC and you're configuring against Australia/Sydney, business-hours rules fire 10-11 hours offset.
+2. Per-route Time Zone field set wrong. The route can use a different timezone than the PBX; if they disagree without you noticing, weird hours.
+3. Holiday definitions wrong. Date typo, By Month vs By Date confusion, missing year on a By Date rule.
+4. Business-hours rule covers different hours than the customer expected.
+
+**Move:**
+
+- Check both timezones (system + route).
+- Open the relevant Time Condition / Business Hours config and read the time-of-day rules out loud against the customer's expected hours.
+- Open Holiday list and confirm the dates aren't subtly wrong.
+- Open the CDR Timeline View for the misrouted call; it shows which time condition fired with timestamp, which tells you the disagreement.
+
+## Capturing a PCAP with the built-in tool
+
+When Timeline View and SIP trace don't explain a failure, the Ethernet Capture Tool gives you wire-level packets.
+
+```
+Maintenance → Troubleshooting → Ethernet Capture Tool
+```
+
+<AnnotatedScreenshot
+  src="/img/yeastar/ethernet-capture-tool.png"
+  alt="Ethernet Capture Tool interface with fields for Ethernet Interface, IP Address, and Port, plus a Start button"
+  caption="The capture tool captures everything on the chosen interface. Set an IP filter to scope to one extension or trunk; leave it blank to capture all SIP and RTP."
+>
+  <Hotspot client:load x={20} y={35} tone="primary" label="1" title="Interface" purpose="Any / LAN / WAN.">
+    Any captures both interfaces. Use LAN or WAN when you know which side the issue is on (LAN = Linkus client side; WAN = trunk / public Internet side). Cuts noise dramatically.
+  </Hotspot>
+  <Hotspot client:load x={20} y={55} tone="primary" label="2" title="IP filter" purpose="Scope by remote endpoint.">
+    Enter the customer's egress IP, the carrier's SBC IP, or the troubled extension's source IP. Captures only packets to/from that address. Critical for keeping the pcap small and readable.
+  </Hotspot>
+  <Hotspot client:load x={20} y={75} tone="warning" label="3" title="Port filter" purpose="Optional. 5060 captures SIP only.">
+    Leave blank when you need RTP too (for no-audio diagnostics). Set 5060 (or 5061 for TLS) when you only need the SIP signalling and want to keep the pcap small.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The procedure:
+
+<StepThrough>
+  <Step title="Set the capture scope">
+    Pick Ethernet Interface (Any captures all interfaces and the loopback; LAN or WAN scopes to one). Optionally set an IP Address to filter to packets to or from one endpoint. Optionally set a Port (5060 for SIP signalling only, blank for everything).
+  </Step>
+  <Step title="Start the capture">
+    Click Start. The PBX begins writing packets to local storage.
+  </Step>
+  <Step title="Reproduce the failure">
+    Make the call that fails, or wait for the extension to misregister, or whatever the user can recreate. Capture for as short a window as possible; PCAPs get big fast.
+  </Step>
+  <Step title="Stop and download">
+    Click Stop. Then Download. The result is a `.tar` file containing one `.pcap`.
+  </Step>
+  <Step title="Open in Wireshark">
+    Extract the `.tar`. Open the `.pcap` in Wireshark. Useful starting filters: `sip` (all SIP signalling), `rtp` (RTP media streams), `sip.Call-ID == "abc..."` (one specific call across all its packets). Telephony → SIP Flows gives an end-to-end ladder diagram.
+  </Step>
+</StepThrough>
+
+The Wireshark-side analysis (reading SIP flows, identifying RTP streams, spotting NAT-related anomalies in the SDP, interpreting RTCP loss and jitter) is covered in the SIP and RTP in practice course's "capturing with Wireshark or pcap" lesson, and at depth in the VoIP deep diagnostics course. The PSE-side move is just "get the capture, hand it to your protocol-skilled colleague or use the protocol-course knowledge yourself".
+
+## When the problem is M365 sync, not PSE
+
+A recent class of "broken call" tickets traces to the M365 user sync from lesson 1, not to PSE config:
+
+- Extension exists in PSE but has wrong mobile number because someone edited it on PSE and the next sync overwrote it.
+- Extension didn't get created because the M365 user wasn't in the selected sync scope.
+- User can't log into Linkus via SSO because the M365 sync hasn't run yet, or the user is in a different tenant.
+
+When triage data points at an extension that "shouldn't exist" or "should exist", check the M365 sync log (Integration → Collaboration → Microsoft Entra ID → Sync History) before assuming a PSE-side cause. The advanced course covers the deeper M365 issues including permission rollback and audit trails.
+
+## A worked diagnostic: Brisbane support call fails immediately
+
+Sarah from Able Moose Brisbane reports: "I tried to call out at 14:22, it failed instantly. I dialled `02 9999 8888`."
+
+**Step 1, CDR.** Open CDR. Filter to Call From = 2003 (Sarah's extension), Time = 14:20-14:25. Find the row. Status: FAILED. Last Participant: "No matching route". Duration: 0.
+
+**Diagnosis at step 1.** Last Participant = "No matching route" is the giveaway: Sarah's dial didn't match any outbound route. Check Outbound Routes (Call Control → Outbound Routes). The Sarah-Brisbane outbound route accepts pattern `0[2378]XXXXXXXX` (Australian landlines). Sarah dialled `02 9999 8888`, which is `0299998888` after stripping the space — 10 digits, matches the pattern. So the route should accept it.
+
+But the route's "From Extensions" list shows only the Sydney extensions group, not Brisbane. Sarah's extension isn't authorised to use this route.
+
+**Fix.** Add the Brisbane-Finance extension group to the route's From Extensions. Sarah dials again, the call goes through.
+
+Total diagnostic time: under two minutes. No SIP trace, no PCAP. Most diagnostic problems land like this; the CDR Timeline plus a 30-second read of the suspect config is enough.
+
+## What this is NOT
+
+- **Not the Wireshark deep dive.** The protocol-level reading (SIP message structure, SDP body, RTP packets) is covered at depth in the VoIP courses; this lesson points at the PSE-side captures and assumes you can read what they contain.
+- **Not security incident response.** Toll-fraud forensics, brute-force REGISTER analysis, and the security rules that prevent these belong to the advanced course.
+- **Not high-availability diagnostics.** Disaster recovery / hot-standby failures (when one PBX in a pair stops being the working server) are the advanced course's territory.
+
+<Checkpoint slug="yeastar-pse-build-checkpoint-diagnostics" client:visible />
+
+You can now build a customer PBX from blank, configure trunks and routing and queues, capture recordings within a sensible policy, and diagnose the common failure modes. The advanced course (PSE advanced) picks up integration depth, AI Receptionist setup, the M365 permission rollback, security hardening, and high availability.

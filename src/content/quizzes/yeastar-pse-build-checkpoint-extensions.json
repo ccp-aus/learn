@@ -1,0 +1,47 @@
+{
+  "slug": "yeastar-pse-build-checkpoint-extensions",
+  "course": "yeastar-pse-build",
+  "kind": "checkpoint",
+  "title": "Quick check, extension creation paths",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ext-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "When PSE syncs a user from Microsoft Entra ID, which Entra ID attribute does PSE use as the matching key to associate the user with a PBX extension?",
+      "choices": [
+        "The user's email address (the mail attribute)",
+        "The userPrincipalName",
+        "The displayName",
+        "The objectId"
+      ],
+      "correct": 1,
+      "explanation": "PSE uses userPrincipalName as the matching key. This survives an admin changing the user's primary email in Entra ID; if the UPN changes (rare, like a domain rebrand), the link breaks and the user has to be re-associated."
+    },
+    {
+      "id": "ck-ext-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A user's PSE extension has two passwords: a User Password (for Linkus login) and a Registration Password (for SIP endpoint registration). These can be set to different values.",
+      "correct": true,
+      "explanation": "They are deliberately separate fields. A leaked user password shouldn't give a fraudster SIP registration. When a user reports 'Linkus logs in but my desk phone says auth failed', check the Registration Password, not the User Password."
+    },
+    {
+      "id": "ck-ext-3",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which of the following are valid reasons to choose bulk CSV import over M365 user sync for creating extensions? (Select all that apply.)",
+      "choices": [
+        "The customer's identity lives in a Google Workspace tenant, not M365",
+        "The customer wants extensions for users in a different tenant that won't migrate for several months",
+        "The customer wants ongoing automatic sync of identity changes",
+        "The customer prefers their user records to be PBX-local instead of identity-provider-owned",
+        "The CSV import gives faster setup than M365 sync for the initial cutover"
+      ],
+      "correct": [0, 1, 3],
+      "explanation": "M365 sync is the right call when identity lives in M365 and the customer wants ongoing sync. Bulk CSV makes sense for non-M365 identity sources, parallel tenants, or customers who prefer PBX-local records. CSV is not faster for the initial cutover (M365 sync is essentially one-click); the speed argument is wrong."
+    }
+  ]
+}

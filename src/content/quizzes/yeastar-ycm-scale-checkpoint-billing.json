@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-ycm-scale-checkpoint-billing",
+  "course": "yeastar-ycm-scale",
+  "kind": "checkpoint",
+  "title": "Quick check: subscription and reconciliation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-bill-monthly-pack",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "AI Receptionist Monthly Quota Pack minutes that go unused at the end of the month roll over and add to next month's available pack.",
+      "correct": false,
+      "explanation": "Monthly Quota Packs are use-it-or-lose-it. Unused minutes do not roll over. If a customer is consistently using less than half their pack, drop the pack size and rely on plan-included minutes plus the one-time addon for spikes."
+    },
+    {
+      "id": "ck-bill-allocation-rule",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which statement about Hosting User capacity allocation is correct?",
+      "choices": [
+        "Hosting User capacity is reserved on the form but only deducted from the MSP pool when the Hosting User actually creates their first PBX.",
+        "Hosting User capacity is deducted from the MSP pool the moment you save the Create Hosting User form, regardless of whether they have created any PBXs yet.",
+        "Hosting User capacity floats, meaning their PBXs draw from the MSP pool directly until the per-PBX cap is reached.",
+        "Hosting User recording minutes can be reduced down at any time to reclaim them for the MSP pool."
+      ],
+      "correct": 1,
+      "explanation": "Allocations are immediate reservations: capacity leaves the MSP pool the moment you save, whether the Hosting User has created PBXs or not. Recording minutes specifically are one-way; the Update User Subscription endpoint forbids reducing totalRecordings."
+    }
+  ]
+}

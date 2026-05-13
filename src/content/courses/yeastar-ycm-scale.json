@@ -1,0 +1,20 @@
+{
+  "slug": "yeastar-ycm-scale",
+  "vendor": "yeastar",
+  "level": "l3",
+  "title": "Yeastar YCM, white-label, API, governance",
+  "shortTitle": "YCM at scale",
+  "summary": "Running the YCM cluster at scale: designing the sub-reseller and colleague permission hierarchy, branding and custom domains, the YCM REST API and webhooks, SNMP and remote archiving, YCM-side HA and audit, and the subscription / capacity / billing governance view.",
+  "estimatedMinutes": 60,
+  "prereqs": ["yeastar-ycm-provisioning"],
+  "lessons": [
+    "01-permissions-and-sub-resellers",
+    "02-branding-and-custom-domains",
+    "03-ycm-api-and-webhooks",
+    "04-snmp-and-remote-archiving",
+    "05-ycm-ha-and-audit",
+    "06-billing-subscription-governance"
+  ],
+  "quiz": "yeastar-ycm-scale-final",
+  "status": "live"
+}

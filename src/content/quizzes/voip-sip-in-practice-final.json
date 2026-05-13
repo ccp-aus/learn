@@ -1,0 +1,188 @@
+{
+  "slug": "voip-sip-in-practice-final",
+  "course": "voip-sip-in-practice",
+  "kind": "final",
+  "title": "SIP in practice, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-sdp-lines",
+      "type": "multi",
+      "topic": "sdp",
+      "difficulty": "medium",
+      "prompt": "Which SDP lines do you read first when diagnosing 'connected, no audio'? (Select all that apply.)",
+      "choices": [
+        "`v=` (SDP version)",
+        "`c=` (connection address, where to send RTP)",
+        "`m=audio` (the port and offered codecs)",
+        "`s=` (session name)",
+        "`t=` (time range)"
+      ],
+      "correct": [1, 2],
+      "explanation": "The `c=` line names where RTP should be sent for this leg; if it's a private RFC 1918 address and the other end is on the public Internet, RTP won't arrive. The `m=audio` line gives the port (so you can verify it matches what RTP is actually using) and the offered codecs (to spot mismatches). `v=`, `s=`, and `t=` are protocol scaffolding and don't change diagnosis."
+    },
+    {
+      "id": "q-codec-match",
+      "type": "mcq",
+      "topic": "sdp",
+      "difficulty": "medium",
+      "prompt": "A SIP trace shows INVITE → 488 Not Acceptable Here. SIP signalling looks correct otherwise. What's the most likely cause?",
+      "choices": [
+        "Wrong username or password",
+        "No overlap between the offered codecs and what the answerer supports",
+        "NAT blocking RTP",
+        "DTMF mode mismatch"
+      ],
+      "correct": 1,
+      "explanation": "488 Not Acceptable Here is the specific code for 'no codec in the offer is something I support'. Compare the offerer's `m=audio` codec list against what the answerer's trunk or extension is configured to accept; the fix is to add a codec to the answerer's allowed list or restrict the offerer's list."
+    },
+    {
+      "id": "q-dtmf-modes",
+      "type": "mcq",
+      "topic": "dtmf",
+      "difficulty": "easy",
+      "prompt": "Which DTMF transport mode survives lossy codecs like Opus and G.729 without distortion?",
+      "choices": [
+        "Inband DTMF (the tone plays as audio in the RTP stream)",
+        "RFC 4733 telephone-event (keypresses sent as RTP payload type 101)",
+        "Q.931 SETUP messages",
+        "DNS TXT records"
+      ],
+      "correct": 1,
+      "explanation": "RFC 4733 (originally 2833) carries keypresses as discrete events in an RTP payload type that's separate from the audio codec, so the codec compressing the audio doesn't affect them. Inband tones get mangled by anything that isn't lossless like G.711; SIP INFO is an alternative (a SIP message rather than RTP) but isn't on this list."
+    },
+    {
+      "id": "q-nat-mechanisms",
+      "type": "multi",
+      "topic": "nat",
+      "difficulty": "medium",
+      "prompt": "Which of these are NAT traversal mechanisms used in SIP / WebRTC voice? (Select all that apply.)",
+      "choices": [
+        "Symmetric RTP",
+        "STUN",
+        "TURN",
+        "ICE",
+        "DNS-SRV",
+        "Reverse-NAT"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Symmetric RTP, STUN, TURN, and ICE are the four mechanisms covered. DNS-SRV is for service discovery (RFC 3263), not NAT. 'Reverse-NAT' isn't a standard term."
+    },
+    {
+      "id": "q-sip-alg",
+      "type": "tf",
+      "topic": "nat",
+      "difficulty": "easy",
+      "prompt": "SIP ALG on a customer's router should be left enabled because it helps SIP traffic traverse NAT.",
+      "correct": false,
+      "explanation": "SIP ALG implementations on retail routers are typically out of date with the SIP spec, corrupt SDP rewrites, break re-INVITEs and transfers, and interfere with keepalive. The industry-standard advice is to disable SIP ALG and handle NAT at the PBX or SBC instead."
+    },
+    {
+      "id": "q-trunk-types",
+      "type": "mcq",
+      "topic": "trunk",
+      "difficulty": "medium",
+      "prompt": "Which trunk authentication model is the typical fit for an SMB customer with a dynamic public IP?",
+      "choices": [
+        "Peer-trust (IP-authenticated) trunk",
+        "Registration trunk (PBX registers to the carrier with username and password)",
+        "Anonymous trunk with no auth",
+        "MPLS-only trunk"
+      ],
+      "correct": 1,
+      "explanation": "Registration trunks work without a static public IP because the PBX initiates the connection. The carrier knows where to send inbound calls because the PBX is currently registered. Peer-trust requires static IPs on both sides. Anonymous trunks aren't realistic for customer-facing carriers."
+    },
+    {
+      "id": "q-early-media",
+      "type": "mcq",
+      "topic": "trunk",
+      "difficulty": "medium",
+      "prompt": "A customer reports 'calls connect but I don't hear the network message that says the number has changed.' Which trunk setting is the most likely culprit?",
+      "choices": [
+        "DTMF mode set to inband",
+        "P-Early-Media disabled, so the carrier's pre-answer announcement isn't passed to the caller",
+        "DOD (caller-ID override) set incorrectly",
+        "Symmetric RTP disabled"
+      ],
+      "correct": 1,
+      "explanation": "Carrier announcements like 'this number has changed' arrive as early media (RTP between 183 Session Progress and 200 OK). Without P-Early-Media enabled, the caller hears local ringback instead. Enabling P-Early-Media on the trunk lets the carrier's pre-answer audio reach the caller."
+    },
+    {
+      "id": "q-dscp-scope",
+      "type": "mcq",
+      "topic": "qos",
+      "difficulty": "medium",
+      "prompt": "Why does DSCP marking help voice quality on a customer's LAN but typically not across the public Internet?",
+      "choices": [
+        "Public Internet routers process DSCP faster than LAN switches do",
+        "Most ISPs rewrite DSCP to 0 at the network edge, so per-class queueing doesn't survive beyond the customer's network",
+        "DSCP can only be set on TCP packets, and voice uses UDP",
+        "DSCP is encrypted on the public Internet"
+      ],
+      "correct": 1,
+      "explanation": "DSCP is an end-to-end intention but a hop-by-hop honour. Customer LAN gear configured for QoS treats voice as expedited; the ISP usually wipes the marking at its edge, so once on the public Internet voice competes as best-effort. DSCP still helps inside the LAN and on managed MPLS/SD-WAN that respects markings."
+    },
+    {
+      "id": "q-rtcp-loss-jitter",
+      "type": "mcq",
+      "topic": "qos",
+      "difficulty": "hard",
+      "prompt": "An RTCP report shows low packet loss (0.3%) but high jitter (60 ms on a G.711 call). What does this pattern usually indicate?",
+      "choices": [
+        "A lossy link such as a flaky wifi connection",
+        "Variable queueing delay (e.g. backups or video calls sharing the customer's uplink during business hours)",
+        "A codec mismatch",
+        "A firewall blocking RTP"
+      ],
+      "correct": 1,
+      "explanation": "Low loss with high jitter means packets are arriving, but at uneven intervals: classic queueing variance, not a lossy link. Common cause is something else competing for the same uplink during the affected time window. A firewall blocking RTP would zero the receive side, not produce high jitter. Codec mismatch is a SIP-layer failure, not an RTCP pattern."
+    },
+    {
+      "id": "q-wireshark-filter",
+      "type": "mcq",
+      "topic": "capture",
+      "difficulty": "easy",
+      "prompt": "Which Wireshark display filter narrows the view to one specific SIP call so you can read just that dialog's messages?",
+      "choices": [
+        "`sip.Method == INVITE`",
+        "`sip.Call-ID == \"<the-id>\"`",
+        "`udp.port == 5060`",
+        "`ip.addr == 203.0.113.5`"
+      ],
+      "correct": 1,
+      "explanation": "Call-ID is unique per dialog, so filtering on it isolates one specific call's messages. Method-based filters return all INVITEs across the whole capture; port and IP filters return all SIP or all of that host's traffic."
+    },
+    {
+      "id": "q-capture-source-choice",
+      "type": "mcq",
+      "topic": "capture",
+      "difficulty": "medium",
+      "prompt": "The PBX-side packet capture shows a customer's call setup looks normal but no inbound RTP arrives at the PBX. Where's the right next capture point?",
+      "choices": [
+        "Re-run the PBX-side capture for longer",
+        "Capture from a host on the customer's LAN (or a span port) to verify what's leaving their network",
+        "Capture from the carrier's network",
+        "Capture from a remote site on a different ISP"
+      ],
+      "correct": 1,
+      "explanation": "If the PBX isn't receiving the customer's RTP, the question is where it's getting lost. A capture on the customer's LAN (or span port) shows whether the RTP is leaving the customer's network at all. If it is, the issue is on the path between the customer and the PBX; if it isn't, the firewall or NAT is the suspect."
+    },
+    {
+      "id": "q-handshake-order",
+      "type": "order",
+      "topic": "sdp",
+      "difficulty": "medium",
+      "prompt": "Put these offer/answer events in correct order for a single answered call.",
+      "items": [
+        "Caller's UA constructs SDP offer with codec list in preference order",
+        "INVITE with SDP offer sent to the PBX",
+        "Answerer picks one codec from the offer and constructs the SDP answer",
+        "200 OK with SDP answer returned",
+        "Caller's UA sends ACK",
+        "RTP begins using the chosen codec"
+      ],
+      "explanation": "RFC 3264 offer/answer: the offerer puts the codec list in the INVITE's SDP body in preference order. The answerer picks one and returns it in the 200 OK's SDP. ACK closes the SIP three-way; RTP then begins using the negotiated codec."
+    }
+  ]
+}

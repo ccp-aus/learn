@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-pse-triage-checkpoint-extensions",
+  "course": "yeastar-pse-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, finding an extension",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ext-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user reports their Linkus is not ringing for inbound calls. You open their extension in PSE and the row shows a grey dot (not registered). What's the next step?",
+      "choices": [
+        "Reset the extension password",
+        "Check the Linkus Clients tab to confirm no devices are registered; if so, send a fresh welcome email so the user can log in again",
+        "Restart the PBX",
+        "Open a packet capture"
+      ],
+      "correct": 1,
+      "explanation": "Grey = no clients registered. Confirm via the Linkus Clients tab (it shows live device sessions). A fresh welcome email gives the user new QR / login link to re-establish a session. Don't reset the password — that invalidates *existing* clients and doesn't help if there are no clients."
+    },
+    {
+      "id": "ck-ext-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Resetting an extension's password is a safe routine action when a user reports any login issue.",
+      "correct": false,
+      "explanation": "Resetting the password invalidates every currently logged-in client for that extension, forcing all of them to re-register from a fresh welcome email. Only do it after confirming the user has actually lost their password — otherwise you've created work for yourself and disrupted their other devices."
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "slug": "yeastar-linkus-final",
+  "course": "yeastar-linkus",
+  "kind": "final",
+  "title": "Linkus support, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-clients-overview",
+      "type": "mcq",
+      "topic": "clients",
+      "difficulty": "easy",
+      "prompt": "Which Linkus client gets push notifications for incoming calls when the app is backgrounded?",
+      "choices": [
+        "Linkus Desktop",
+        "Linkus Web",
+        "Linkus Mobile",
+        "All three"
+      ],
+      "correct": 2,
+      "explanation": "Mobile has OS-level push notifications; Desktop and Web rely on the app being open. A user complaining their phone doesn't ring when their Linkus Mobile app is in the background should check that notification permissions and battery-saver settings allow it to run."
+    },
+    {
+      "id": "q-welcome-email",
+      "type": "multi",
+      "topic": "login",
+      "difficulty": "medium",
+      "prompt": "A user lost their Linkus welcome email and is trying to log in. Which of the following options can they use? (Select all that apply.)",
+      "choices": [
+        "Have the admin resend the welcome email",
+        "Manual login with extension number / email + password + server URL",
+        "SSO with their Microsoft account (if the admin enabled it)",
+        "Sign up for a new account at yeastar.com",
+        "Reuse a colleague's QR code"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Re-sending the welcome email, manual login, and SSO are all valid paths. Yeastar.com signups are for trial accounts on Yeastar-hosted PCE, not BYOI Cloud PBXs. QR codes are single-use and tied to a specific account."
+    },
+    {
+      "id": "q-presence",
+      "type": "mcq",
+      "topic": "presence",
+      "difficulty": "medium",
+      "prompt": "A user reports that their phone keeps ringing during their morning team meeting. What's the cheapest fix to recommend?",
+      "choices": [
+        "Have the admin disable their extension during meetings",
+        "Use presence: switch to DND or Busy for the meeting, switch back to Available afterward",
+        "Log out of Linkus before each meeting",
+        "Mute the phone hardware"
+      ],
+      "correct": 1,
+      "explanation": "Presence drives call-handling rules. DND or Busy diverts calls to voicemail or follows a different ring-forward chain. It's user-controlled, takes one click, and doesn't require admin involvement."
+    },
+    {
+      "id": "q-transfer-types",
+      "type": "mcq",
+      "topic": "transfer",
+      "difficulty": "easy",
+      "prompt": "What's the practical difference between a blind transfer and an attended transfer?",
+      "choices": [
+        "Blind transfer disconnects the caller; attended transfer doesn't",
+        "Blind transfer disconnects you (the transferrer) from the call immediately when you select the target; attended transfer keeps you on the line until you confirm the target answers",
+        "Blind transfer requires a specific user role; attended transfer is open to everyone",
+        "There's no difference; the names are just historical"
+      ],
+      "correct": 1,
+      "explanation": "Blind transfer = you're out as soon as you hit transfer; the target gets the call cold. Attended transfer = you stay connected until the target answers, you can brief them, then you click transfer to finalise. Use attended for sensitive customers or when the target might bounce the call back."
+    },
+    {
+      "id": "q-recording",
+      "type": "tf",
+      "topic": "recording",
+      "difficulty": "easy",
+      "prompt": "If a customer's PBX is configured to record all calls automatically, the user can disable recording for a specific call by tapping the Record button.",
+      "correct": false,
+      "explanation": "'Record all calls' is a PBX-side policy. The per-call Record button is greyed out when the policy is on, because the user can't override the admin's compliance choice. If a call genuinely shouldn't be recorded, the admin has to configure an exception."
+    },
+    {
+      "id": "q-cti-mute",
+      "type": "mcq",
+      "topic": "cti",
+      "difficulty": "medium",
+      "prompt": "A user is in Linkus CTI mode driving a Yealink deskphone. They click the Mute button in Linkus. What happens?",
+      "choices": [
+        "The microphone on the deskphone mutes",
+        "Nothing — Mute is not supported in CTI mode regardless of phone brand",
+        "Linkus prompts to disable CTI mode first",
+        "The call ends"
+      ],
+      "correct": 1,
+      "explanation": "Mute is one of the few operations not supported in CTI mode for any phone brand. The user mutes on the phone hardware itself. If they need software mute, they need softphone mode."
+    },
+    {
+      "id": "q-cti-setup",
+      "type": "mcq",
+      "topic": "cti",
+      "difficulty": "medium",
+      "prompt": "An MSP tech is setting up CTI mode for a user with a Yealink deskphone. The user reports CTI doesn't work after switching modes in Linkus Desktop. Which is the most likely cause?",
+      "choices": [
+        "The user is using the wrong Linkus version",
+        "The PBX doesn't have uaCSTA enabled, or the Yealink phone doesn't have uaCSTA enabled in its web UI",
+        "Linkus Desktop only supports CTI mode on macOS",
+        "CTI mode requires the user to be in the same office as the PBX"
+      ],
+      "correct": 1,
+      "explanation": "For compatible Yealink / Fanvil / Snom / Grandstream phones, the uaCSTA feature must be enabled both on the PBX (PSE SIP settings) and on the phone (in the phone's own web UI). Missing one side is the most common config gap."
+    },
+    {
+      "id": "q-hotkey-value",
+      "type": "tf",
+      "topic": "hotkeys",
+      "difficulty": "easy",
+      "prompt": "Linkus hotkeys can dial a phone number that's selected (highlighted) anywhere on the user's screen — in a web page, an email, a CRM record.",
+      "correct": true,
+      "explanation": "The dial hotkey reads the current text selection from any window and dials it through Linkus. Receptionists who learn this save 5-10 seconds per outbound call vs copy-pasting into the dialpad."
+    },
+    {
+      "id": "q-function-key-types",
+      "type": "multi",
+      "topic": "function-keys",
+      "difficulty": "medium",
+      "prompt": "Which of the following can be configured as Linkus function key types? (Select all that apply.)",
+      "choices": [
+        "BLF (Busy Lamp Field) showing a colleague's status",
+        "Speed dial to an external number",
+        "Queue agent login / logout toggle",
+        "Set Presence (switch to a specific presence state with one click)",
+        "Open a specific website",
+        "Park / Pickup slots for call-floor scenarios"
+      ],
+      "correct": [0, 1, 2, 3, 5],
+      "explanation": "Function keys are call-related: BLF, speed dial, queue toggle, presence, park/pickup, DTMF, recording toggle. They don't open external websites; that's outside their scope."
+    },
+    {
+      "id": "q-troubleshooting-order",
+      "type": "order",
+      "topic": "troubleshooting",
+      "difficulty": "medium",
+      "prompt": "A user reports 'Linkus on my laptop is acting weird'. Put these troubleshooting steps in the order you'd run them.",
+      "items": [
+        "Confirm Linkus Desktop is up to date (check version in Help → About)",
+        "Confirm the user is logged in to the correct PBX server URL",
+        "Try the same action on Linkus Web in a browser (rules out Desktop-specific bugs)",
+        "Descend into PSE: check the extension's status, role permissions, presence rules",
+        "If still broken, escalate with logs and PSE-side trace"
+      ],
+      "explanation": "Cheapest checks first (client version, server URL); then a peer-client test (Web) to rule out Desktop-specific issues; then admin-side (PSE); then escalate. Starting with PSE would skip cheap client-side problems."
+    },
+    {
+      "id": "q-mobile-flip-precondition",
+      "type": "tf",
+      "topic": "call-flip",
+      "difficulty": "easy",
+      "prompt": "Call Flip from Linkus Mobile only works if your extension is currently registered on more than one device.",
+      "correct": true,
+      "explanation": "Call Flip moves the active call to another device that's already logged in with your extension. If only Mobile is logged in, there's no other device to flip to. The button still appears but has nowhere to flip the call."
+    },
+    {
+      "id": "q-internal-chat-prereq",
+      "type": "mcq",
+      "topic": "chat",
+      "difficulty": "medium",
+      "prompt": "A user says 'I can't chat with my colleagues in Linkus.' What's the first thing to check?",
+      "choices": [
+        "Whether the user's Linkus version is up to date",
+        "Whether the PBX has internal chat (IM) enabled — in YCM, `im: Enabled` on the Cloud PBX, and Internal Chat enabled in PSE",
+        "Whether the user has paid for the chat feature",
+        "Whether the user is in the right time zone"
+      ],
+      "correct": 1,
+      "explanation": "Internal chat is a PBX-wide feature toggle. If `im` is Disabled on the Cloud PBX (in YCM), or Internal Chat is disabled in PSE, no extension can chat. Check the platform setting first; client version comes later."
+    }
+  ]
+}

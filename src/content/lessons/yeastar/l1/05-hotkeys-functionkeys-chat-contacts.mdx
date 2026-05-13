@@ -1,0 +1,88 @@
+---
+slug: 05-hotkeys-functionkeys-chat-contacts
+vendor: yeastar
+level: l1
+title: Hotkeys, function keys, chat, and contacts
+summary: The productivity surface around the call buttons. Hotkeys dial selected text from anywhere, function keys turn the Linkus sidebar into BLF and queue panels, internal chat is built in, and contacts have a per-user vs company-shared split worth understanding.
+estimatedMinutes: 6
+order: 5
+topics: [linkus, hotkeys, function-keys, chat, contacts]
+updated: 2026-05-12
+---
+
+The headline call features are demos. The "I use this every day" features are hotkeys and function keys. Teach a user one hotkey on day one and they'll evangelise Linkus to their colleagues. Skip it and they'll keep copy-pasting phone numbers into the dialpad forever.
+
+## Hotkeys (Desktop only)
+
+Linkus Desktop has a Hotkeys feature that does three useful things from anywhere on screen:
+
+- **Dial selected text.** Highlight a phone number on a web page, in an email, in a CRM. Press the hotkey. Linkus dials it.
+- **Answer the incoming call.** A keyboard shortcut for "pick up" without finding the popup.
+- **Hang up.** Same.
+
+The defaults are sensible but can be remapped under Linkus Desktop → Preferences → Hotkeys. Most users pick a chord like <Kbd>Ctrl+Shift+D</Kbd> for dial; the answer / hang up shortcuts are best left for users who answer many calls (receptionists, queue agents).
+
+Why this matters: a receptionist who can press <Kbd>Ctrl+Shift+D</Kbd> with a number selected anywhere on screen saves 5-10 seconds per outbound call. Over a day, that's real.
+
+## Function keys (Desktop only)
+
+Function keys turn the right-hand panel of Linkus Desktop into a board of programmable buttons. Each button does one thing:
+
+| Function key type | What it does |
+|---|---|
+| **BLF (Busy Lamp Field)** | A light per colleague's extension. Green when they're available, red when on a call. Click to dial them directly. |
+| **Speed Dial** | A button for an external number. |
+| **Queue Login / Logout** | Toggle yourself into or out of a specific call queue. |
+| **Set Presence** | Switch yourself to a specific presence state with one click. |
+| **Park / Pickup** | Park slots and group pickup, for call-floor scenarios. |
+| **DTMF / Feature codes** | Send DTMF or trigger PBX feature codes. |
+| **Call recording toggle** | Start / stop recording on the active call. |
+
+Real-world use case: a receptionist has BLF lights for all six members of the sales team. When a sales call arrives, they can see at a glance who's free and transfer directly to that person. Without function keys, they'd have to ask "who's available?" each time.
+
+Configuration lives under Preferences → Function Keys. Some keys (Set Presence, Queue Login) need PBX-side support (the PBX firmware version has to be recent enough); the docs flag the minimum version per feature.
+
+## Chat: internal and external
+
+Linkus has two chat surfaces that share a UI but solve different problems:
+
+- **Internal chat** is the team messenger between extensions on the same PBX. One-to-one or group chats, persistent history. The PBX admin enables it per the platform setting; on a Cloud PBX, the `im: Enabled` flag in YCM has to be on.
+- **External chat** routes messages from outside the PBX into Linkus. Common integrations: SMS (via a configured SMS provider), WhatsApp Business, Facebook Messenger, web-chat widgets. Inbound messages land in a queue or a dedicated extension; agents reply from Linkus.
+
+What this means for support:
+
+- "Why can't I chat with my colleague?" — check the PBX's IM setting. If disabled, no internal chat for anyone.
+- "Where did my external customer's message go?" — depends on the message channel setup; check Message Queues / Message Campaigns in PSE.
+- "I see a chat panel but no messages." — the user might not be a member of any chat. Internal chat needs at least one conversation initiated.
+
+## Contacts: personal, company, and the unified directory
+
+Linkus exposes three contact sources that behave differently:
+
+| Source | Who owns it | Where it lives |
+|---|---|---|
+| **Personal contacts** | The individual user | Per-extension, private. Up to 3,000 (mobile) per Linkus 1.12.4+. |
+| **Company contacts** | The PSE admin | PBX-wide. All extensions see them. Synced from CRM/M365/Google if integrations are enabled. |
+| **Unified directory** (Mobile) | A merged view | Phone OS native contacts + Linkus extensions + Company + Personal, in one search. |
+
+A user who's added a customer's number to their phone OS contacts and is still on Linkus Mobile will see that number in the unified directory automatically — they don't need to add it again to Linkus.
+
+CRM integrations (HubSpot, Salesforce, Zoho, etc.) populate company contacts and add screen-pop behaviour on inbound calls. That's an Advanced course topic, but users should know it exists.
+
+## Worked example: setting up a receptionist
+
+Sarah at Able Moose Accounting is the front-desk receptionist. The MSP tech setting her up does this:
+
+1. **Hotkeys** for dial / answer / hang up. Quick wins.
+2. **Function keys** for the six sales team members (BLF). She can see at a glance who's free.
+3. **Function keys** for "Set Presence: Available" and "Set Presence: Lunch Break" so she can switch presence with one click.
+4. **A speed-dial function key** for the main customer service number she transfers calls to.
+5. **CTI mode** off (she uses Linkus Desktop with a USB headset, no deskphone).
+6. **Voicemail greeting** customised for after-hours.
+7. **Internal chat** enabled for "ping the sales team without disturbing"
+
+After fifteen minutes of setup, she goes from "the phone" to "the phone, plus six things". The function-key layout is the difference between Linkus being a tool and Linkus being a workstation. Users notice.
+
+<Checkpoint slug="yeastar-linkus-checkpoint-power-user" client:visible />
+
+You've now seen the full Linkus surface. Helpdesk tickets about Linkus mostly fall into login (lesson 2), call handling (lesson 3), CTI confusion (lesson 4), and "I want it to do X" feature requests (lesson 5). When in doubt, descend into PSE: extension state, role permissions, and presence rules drive most of what Linkus does.

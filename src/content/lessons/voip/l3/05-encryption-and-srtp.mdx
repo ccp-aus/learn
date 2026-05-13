@@ -1,0 +1,170 @@
+---
+slug: 05-encryption-and-srtp
+vendor: voip
+level: l3
+title: Encrypted SIP and SRTP, what the analyst can still see
+summary: "SIP TLS hides the message bodies and SRTP hides the audio payload, but the cleartext envelopes leak enough to diagnose most failures. The senior workflow: capture where it's plaintext, read what TLS and RTP headers expose, decrypt only when the keys are reachable."
+estimatedMinutes: 11
+order: 5
+topics: [tls, srtp, sdes, dtls-srtp, security]
+updated: 2026-05-13
+---
+
+The first four lessons in this course assume a plaintext capture. That assumption holds for most internal-PBX troubleshooting and for trunks that never adopted TLS. Customer-facing SIP increasingly runs over TLS and SRTP, and so do carrier trunks where security policy demands it. The senior question is what you can still diagnose when the bodies and audio are encrypted, and when it's worth the effort to obtain decryption keys.
+
+## What encryption hides and what it leaves visible
+
+| Layer | Encrypted | Cleartext on the wire |
+|---|---|---|
+| SIP-TLS | Method, headers, SDP body of every SIP message. | TLS handshake: Client Hello (offered versions, ciphers, SNI), Server Hello (chosen cipher, version), Certificate, Alerts. Endpoints (5-tuple). Packet sizes and timing. |
+| SRTP | RTP payload (the audio samples). | RTP header (sequence number, timestamp, SSRC, payload type). RTCP reports (usually unencrypted; SRTCP is rarer). Endpoint 5-tuple. |
+| DTLS-SRTP | Same as SRTP for media. | DTLS handshake on the RTP port (Client Hello / Server Hello / Certificate / Alerts). |
+
+The pattern is consistent across all three: the security layer's own handshake stays in cleartext (because the parties need a way to negotiate keys before they can use them), and only the application payload becomes opaque. That cleartext envelope is enough for a surprising fraction of senior diagnostics.
+
+## SIP over TLS, what the handshake tells you
+
+Wireshark decodes the TLS handshake completely even when the encrypted application data that follows is just "Application Data" frames. Most SIP-TLS failures are TLS-layer failures, and those are readable in the cleartext part.
+
+What to look at, in order:
+
+| Handshake stage | What to read | Common failure |
+|---|---|---|
+| TCP handshake | SYN, SYN-ACK, ACK on port 5061 (or whatever the deployment uses). | TCP never completes: firewall blocking, wrong port. |
+| Client Hello | Offered TLS versions, cipher suites, SNI value. | SNI doesn't match the cert's subject; client offers only TLS 1.0; client offers no AEAD ciphers. |
+| Server Hello | Chosen version and cipher. | None on its own, but absence (Server Hello never arrives) means the server rejected the client. |
+| Certificate | Subject, issuer, validity dates, chain. | Cert expired; subject doesn't match the hostname the client expected; chain incomplete. |
+| TLS Alert | Alert type and description. | The specific failure code. |
+
+The TLS Alert table from the failed registration lesson covered the common alerts. The same alerts apply mid-session: a TLS connection that drops mid-call usually carries an Alert just before the TCP FIN. Read it; it names the cause.
+
+```
+Decode-As for non-standard ports: right-click any TCP packet on the port,
+select Decode As, set the protocol to TLS. The handshake stays visible.
+For ports above 5061, this is the only way to make Wireshark dissect
+the cleartext.
+```
+
+## SRTP, reading the cleartext envelope
+
+SRTP (RFC 3711) encrypts the RTP payload but leaves the RTP header in cleartext. Sequence numbers, timestamps, SSRC, and the payload type byte are all readable. Practical implications:
+
+- You can count packets and confirm RTP is flowing.
+- You can identify the SSRC (and so distinguish streams within one call from streams of a different call).
+- You can read the payload type byte and confirm it matches the SDP's negotiated codec.
+- You can compute loss, jitter, and max delta from the headers; Wireshark does this automatically in RTP Streams.
+- You can identify when DTMF tones occurred from the payload type (if RFC 4733 is in use, payload type 101 is visible).
+
+What you cannot do without keys:
+
+- Decode and play back the audio.
+- See what's actually in the silence/comfort-noise packets (though their payload type 13 is visible in the header).
+- Verify integrity beyond what Wireshark reports.
+
+For a typical "is media flowing in both directions" investigation, the cleartext envelope is enough. For "is the audio garbled because of a codec issue or because of a key mismatch", you need to decrypt or capture at a plaintext point.
+
+## SDES key exchange and its failure modes
+
+SDES (RFC 4568) is the most common SRTP key exchange in commercial SIP. The keys travel inside the SDP body as `a=crypto:` attributes:
+
+```
+a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:RGV0YWlscy4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4=
+```
+
+SDES depends on SIP-TLS for confidentiality. If SIP is plaintext, the keys are visible in the trace and the SRTP session might as well be plaintext. Any deployment using SDES with cleartext SIP is providing no real confidentiality; reading SRTP traffic in that environment requires only the plaintext SDP from the same capture.
+
+Failure modes with SDES:
+
+| Pattern on the wire | Likely cause |
+|---|---|
+| INVITE offers a single crypto suite; 200 OK answers with a different (incompatible) one. | Offer/answer crypto mismatch. Wireshark shows the `a=crypto:` lines on both sides; the tag references don't align. |
+| INVITE and 200 OK look correct; SRTP packets arrive; receiver reports no audio. | Wrong key on one side, despite the SDP showing the right one. Implementation bug or middlebox that touched the SDP. |
+| SDP has `s=` and `t=` lines but no `a=crypto:` line. | One side offered SRTP, the other answered with plain RTP. SRTP didn't start. |
+
+If you can read the SDP (plaintext capture, or SIP-TLS decrypted), you can usually answer SDES failures by inspection.
+
+## DTLS-SRTP, key exchange in-band on the RTP port
+
+DTLS-SRTP (RFC 5763 / 5764) does the key exchange on the same socket as the eventual SRTP, via a DTLS handshake. The SDP carries:
+
+- `a=setup:active` or `a=setup:passive`, naming which side initiates the DTLS handshake.
+- `a=fingerprint:sha-256 <hex>`, the fingerprint of the certificate the other side will present.
+
+The DTLS handshake itself looks like a TLS handshake on a UDP socket: Client Hello, Server Hello, Certificate, Server Hello Done, Client Key Exchange, Change Cipher Spec, Finished. Wireshark decodes it in cleartext.
+
+Failure modes with DTLS-SRTP:
+
+| Pattern on the wire | Likely cause |
+|---|---|
+| DTLS Client Hello sent, no response. | Firewall blocking the RTP port from the other direction. Same as one-way RTP for unencrypted media. |
+| DTLS handshake completes; SRTP doesn't flow. | Application-level issue; the keys derived correctly, but media isn't being sent. |
+| DTLS Alert `bad_certificate`. | Certificate's fingerprint doesn't match the `a=fingerprint:` in SDP. |
+| DTLS handshake stalls at Certificate Request. | Mutual DTLS expected; one side didn't present a cert. |
+
+The keys derived by DTLS-SRTP never appear on the wire and are never accessible from SDP. There's no equivalent to "read the SDP to recover the keys"; the keys are an output of the handshake known only to the two endpoints. Decrypting captured DTLS-SRTP traffic after the fact is generally impossible without one of the endpoints volunteering the session secrets.
+
+## When to obtain keys and how
+
+Three scenarios where decryption is worth the effort:
+
+1. **You need to read SIP message bodies for a specific failure.** SDP is the most common reason. If SDES is in use and SIP is plaintext at any point in the path, capture there. If everything is TLS end to end, you need session keys.
+2. **You need to play back audio.** SRTP decryption with the right keys lets Wireshark play the stream. Useful for "is the audio garbled or silent" questions that the headers alone can't answer.
+3. **You're investigating a security incident.** Different rules apply; involve the security team and legal review before extracting keys from production systems.
+
+Mechanisms for obtaining keys, in rough order of feasibility:
+
+| Source | How | Limits |
+|---|---|---|
+| `SSLKEYLOGFILE` on the endpoint | If the endpoint supports the environment variable, it writes session keys to a file as it generates them. Wireshark consumes the file. | Most open-source softphones support this; few closed-source endpoints do. |
+| PBX-side key extraction | Some open-source PBXs expose session keys via debug log or sip-debug commands. | Vendor-specific; rarely available on commercial PBXes. |
+| Captured SDES from plaintext SDP | If SIP is plaintext anywhere, the SDES keys are in the `a=crypto:` line and decrypt the SRTP. | Doesn't apply to DTLS-SRTP. |
+| Endpoint memory dump | Forensic technique; not a routine option. | Out of scope for normal operations. |
+
+If keys aren't reachable, decide what the investigation actually needs. Half of "we need to decrypt" requests resolve once the analyst rereads the question against what the cleartext envelope already exposes.
+
+## The analyst workflow when traffic is encrypted
+
+<StepThrough>
+  <Step title="Capture at the plaintext point if it exists">
+    Most PBXes process SIP and RTP in plaintext internally regardless of the wire format on each leg. The PBX's own pcap captures the plaintext form. A span port on the LAN switch sees only the encrypted wire.
+  </Step>
+  <Step title="Read the TLS handshake first">
+    Filter to `tls` (or DTLS) and look for Alert messages. Most TLS-layer failures are diagnosed entirely from the cleartext handshake without needing to decrypt application data.
+  </Step>
+  <Step title="Read the RTP headers for flow / SSRC / payload type">
+    SRTP doesn't hide the header. Many media issues are diagnosable from headers alone: missing direction, payload type mismatch, jitter, loss.
+  </Step>
+  <Step title="Decide what decryption would add">
+    If headers and handshake answer the question, don't pursue keys. If the SDP body or audio playback is genuinely needed, decide which method (SSLKEYLOGFILE, plaintext-side capture, SDES extraction) applies and is permitted.
+  </Step>
+  <Step title="If you must enable plaintext for diagnosis">
+    Some platforms let you enable plaintext SIP on a test extension for the diagnostic window. Treat that as a security-policy decision, not an operations decision. Re-enable TLS as soon as the capture is complete.
+  </Step>
+</StepThrough>
+
+## A worked diagnostic: Able Moose Group's TLS-only deployment
+
+Able Moose Group's enterprise tenants run SIP-TLS end to end and SRTP for media. A new sub-firm tenant reports that one specific endpoint can't complete calls; the SIP looks fine according to the PBX's own logs but the customer reports no audio.
+
+The senior tech can't read the SIP bodies on the customer-facing wire. She captures at three points:
+
+1. **The customer's LAN.** Sees TCP and TLS to the SBC complete; SIP application data flows; UDP packets to the SRTP port range follow. The handshake on the RTP port is DTLS; she watches it complete cleanly. RTP packets follow in both directions.
+2. **The PBX's own pcap (plaintext).** SIP messages are readable. INVITE, 200 OK, ACK look correct. SDP shows correct codecs and IP addresses for both sides. RTP at the PBX shows packets arriving from the customer side, none going out.
+3. **A second pcap on the PBX's outbound RTP interface.** Confirms the PBX isn't transmitting RTP for this call.
+
+So: customer's RTP arrives; PBX's RTP doesn't leave. The DTLS handshake completed (visible at the customer's LAN). The plaintext SIP signalling is correct (visible at the PBX). The bug is at the PBX's media bridge for this specific dialog: it received DTLS-SRTP packets, derived keys, decoded payload, but never sent any outbound to the carrier leg.
+
+The senior's escalation to the PBX vendor includes both the customer-side capture (showing the DTLS handshake succeeding) and the PBX pcap (showing the outbound RTP missing). The vendor's investigation finds a B2BUA media-bridge bug specific to one DTLS-SRTP profile. Patch ships; deployment continues.
+
+The whole investigation didn't decrypt a single packet. The cleartext envelope of both TLS and SRTP, combined with PBX-side plaintext capture, gave enough evidence to isolate the failure and escalate with proof.
+
+<Checkpoint slug="voip-deep-diagnostics-checkpoint-encryption" client:visible />
+
+## What this is NOT
+
+- **Not a SRTP cryptography primer.** The cipher suite, MKI, and integrity tag mechanics live in RFC 3711 §3 if you need them. The senior question is whether keys are reachable and whether the cleartext envelope answers the diagnostic; it usually does.
+- **Not a guide to defeating encryption.** If decryption keys aren't legitimately accessible, they aren't legitimately accessible. Cleartext-side capture or enabling plaintext on a test extension are the operations-level options.
+
+## Sources
+
+RFC 3261 (SIP), RFC 3711 (SRTP), RFC 4568 (SDES), RFC 5246 (TLS 1.2), RFC 5763 (DTLS-SRTP framework), RFC 5764 (DTLS-SRTP key extractor), RFC 8446 (TLS 1.3), Wireshark User's Guide on TLS dissection and SRTP decryption with key material.

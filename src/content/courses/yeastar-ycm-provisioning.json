@@ -1,0 +1,20 @@
+{
+  "slug": "yeastar-ycm-provisioning",
+  "vendor": "yeastar",
+  "level": "l2",
+  "title": "Yeastar YCM, provisioning a customer PBX",
+  "shortTitle": "YCM provisioning",
+  "summary": "The day-to-day provisioning workflow: the multi-tenant user model, creating and sizing a Cloud PBX, building and applying provisioning templates, assigning shared trunks and DIDs and resource quotas, customer onboarding handover, and the day-two ops (resize, restart, backup, alarm response) from the YCM side.",
+  "estimatedMinutes": 50,
+  "prereqs": ["yeastar-ycm-triage", "yeastar-pse-triage"],
+  "lessons": [
+    "01-multi-tenant-model",
+    "02-creating-a-cloud-pbx",
+    "03-provisioning-templates",
+    "04-trunks-dids-and-resources",
+    "05-customer-onboarding-handover",
+    "06-day-two-from-ycm"
+  ],
+  "quiz": "yeastar-ycm-provisioning-final",
+  "status": "live"
+}

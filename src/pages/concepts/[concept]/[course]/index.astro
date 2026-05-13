@@ -1,0 +1,208 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { CourseProgressBar } from "@/components/learning/CourseProgressBar";
+import { Clock, ArrowRight, Trophy, Layers } from "lucide-react";
+import {
+  courseUrl,
+  courseUrlSuffix,
+  vendorOfCourse,
+  vendorSlugOfCourse,
+  levelLabel,
+} from "@/lib/courseRoute";
+
+export async function getStaticPaths() {
+  const courses = await getCollection("courses");
+  const vendors = await getCollection("vendors");
+  const conceptSlugs = new Set(
+    vendors.filter((v) => v.data.kind === "concept").map((v) => v.data.slug),
+  );
+  return courses
+    .filter((c) => c.data.status === "live")
+    .map((c) => ({ c, vendorSlug: vendorSlugOfCourse(c) }))
+    .filter(({ vendorSlug }) => vendorSlug && conceptSlugs.has(vendorSlug))
+    .map(({ c, vendorSlug }) => ({
+      params: { concept: vendorSlug!, course: courseUrlSuffix(c) },
+      props: { course: c },
+    }));
+}
+
+const { course } = Astro.props;
+const { concept: vendorParam } = Astro.params;
+const level = course.data.level;
+
+const vendors = await getCollection("vendors");
+const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
+
+const lessons = await getCollection("lessons");
+const courseLessons = course.data.lessons
+  .map((slug: string) =>
+    lessons.find(
+      (l) =>
+        l.data.slug === slug &&
+        (typeof l.data.vendor === "string"
+          ? l.data.vendor
+          : l.data.vendor?.id) === vendor.data.slug,
+    ),
+  )
+  .filter(Boolean) as typeof lessons;
+
+const allCourses = await getCollection("courses");
+const prereqCourses = course.data.prereqs
+  .map((p: string) => allCourses.find((c) => c.data.slug === p))
+  .filter(Boolean) as typeof allCourses;
+---
+
+<BaseLayout
+  title={`${vendor.data.name} ${levelLabel[level]}, ${course.data.title}`}
+  description={course.data.summary}
+>
+  <div class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/concepts/", label: "Concepts" },
+        { href: `/concepts/${vendor.data.slug}/`, label: vendor.data.name },
+        { label: course.data.title },
+      ]}
+    />
+
+    <header class="mt-6 mb-8 grid gap-6 md:grid-cols-3">
+      <div class="md:col-span-2">
+        <Badge variant={level as "l1" | "l2" | "l3"} className="mb-3 text-[10px] uppercase tracking-widest">
+          {levelLabel[level]}
+        </Badge>
+        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+          {course.data.title}
+        </h1>
+        <p class="mt-3 max-w-2xl text-muted-foreground text-lg leading-relaxed">
+          {course.data.summary}
+        </p>
+        <div class="mt-5 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          <span class="inline-flex items-center gap-1.5">
+            <Clock className="h-4 w-4" /> ~{course.data.estimatedMinutes} min total
+          </span>
+          <span>·</span>
+          <span class="inline-flex items-center gap-1.5">
+            <Layers className="h-4 w-4" /> {courseLessons.length} lessons
+          </span>
+          {course.data.quiz && (
+            <>
+              <span>·</span>
+              <span class="inline-flex items-center gap-1.5">
+                <Trophy className="h-4 w-4" /> Final quiz
+              </span>
+            </>
+          )}
+        </div>
+        {courseLessons.length > 0 && (
+          <CourseProgressBar
+            lessonSlugs={courseLessons.filter((l) => !l.data.draft).map((l) => l.data.slug)}
+            className="mt-5 max-w-md"
+            client:idle
+          />
+        )}
+      </div>
+
+      {prereqCourses.length > 0 && (
+        <aside class="rounded-lg border border-amber-500/40 bg-amber-500/5 p-4 md:self-start">
+          <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">
+            Builds on
+          </div>
+          <p class="mt-2 text-sm text-foreground/85">
+            This course assumes you've completed:
+          </p>
+          <ul class="mt-2 space-y-1 text-sm">
+            {prereqCourses.map((p) => {
+              const pVendor = vendorOfCourse(p, vendors);
+              if (!pVendor) return null;
+              return (
+                <li>
+                  <a
+                    href={courseUrl(p, pVendor)}
+                    class="text-primary hover:underline"
+                    data-astro-prefetch
+                  >
+                    {p.data.shortTitle ?? p.data.title}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+      )}
+    </header>
+
+    <section class="mt-10">
+      <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        Lessons
+      </h2>
+      {courseLessons.length === 0 ? (
+        <p class="text-sm text-muted-foreground">
+          No lessons yet, check back soon.
+        </p>
+      ) : (
+        <ol class="space-y-2.5">
+          {courseLessons
+            .sort((a, b) => a.data.order - b.data.order)
+            .map((l, i) => (
+              <li>
+                <a
+                  href={`${courseUrl(course, vendor)}${l.data.slug}/`}
+                  class="group flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:bg-card/70"
+                  data-astro-prefetch
+                >
+                  <span class="font-mono text-xs text-muted-foreground w-6 shrink-0 text-right">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium tracking-tight group-hover:text-primary">
+                        {l.data.title}
+                      </span>
+                      {l.data.draft && (
+                        <Badge variant="warning" className="text-[9px] uppercase tracking-widest">
+                          Draft
+                        </Badge>
+                      )}
+                    </div>
+                    <p class="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+                      {l.data.summary}
+                    </p>
+                  </div>
+                  <span class="hidden text-xs text-muted-foreground sm:inline">
+                    ~{l.data.estimatedMinutes} min
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                </a>
+              </li>
+            ))}
+          {course.data.quiz && (
+            <li>
+              <a
+                href={`${courseUrl(course, vendor)}quiz/`}
+                class="group flex items-center gap-4 rounded-lg border border-primary/30 bg-primary/5 p-4 transition-all hover:border-primary hover:bg-primary/10"
+                data-astro-prefetch
+              >
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <Trophy className="h-3.5 w-3.5" />
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium tracking-tight group-hover:text-primary">
+                    Final quiz
+                  </div>
+                  <p class="mt-0.5 text-sm text-muted-foreground">
+                    Test what you learned. Wrong answers are explained on the spot.
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+              </a>
+            </li>
+          )}
+        </ol>
+      )}
+    </section>
+  </div>
+</BaseLayout>

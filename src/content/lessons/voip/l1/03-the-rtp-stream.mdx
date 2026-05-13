@@ -1,0 +1,86 @@
+---
+slug: 03-the-rtp-stream
+vendor: voip
+level: l1
+title: How RTP carries the audio
+summary: RTP packets, sequence numbers, codecs, jitter buffers, and the RTCP stats that the PBX writes back into call records. Once you can read an RTCP report you can tell where in the network a quality problem lives.
+estimatedMinutes: 7
+order: 3
+topics: [rtp, rtcp, codec, quality]
+updated: 2026-05-12
+---
+
+SIP set the call up. Now the endpoints have to actually talk. That's RTP, on dynamic UDP ports negotiated during the SIP handshake (the SDP body in INVITE and 200 OK). RTP looks simple on the wire and behaves badly when the network does.
+
+## What's in an RTP packet
+
+RTP (Real-time Transport Protocol, RFC 3550) packetises audio into small chunks and sends them constantly. The header is 12 bytes; the payload is encoded audio for whichever codec was negotiated.
+
+| Field | Use |
+|---|---|
+| Version, payload type | Identifies the codec for this stream. 0 = PCMU (G.711u), 8 = PCMA (G.711a), 9 = G.722, dynamic numbers (96+) for Opus. |
+| Sequence number | Per-packet counter. The receiver uses this to detect drops and reordering. |
+| Timestamp | Sample-clock timestamp. Used to schedule playback. |
+| SSRC (synchronisation source) | A random ID per stream. Identifies which endpoint sent it. |
+| Payload | The actual encoded audio. |
+
+A typical call sends one RTP packet every 20 ms in each direction. That's 50 packets per second per direction. A 5-minute call generates 30,000 packets to chase down if you ever have to.
+
+## The codecs you'll see
+
+| Codec | Bitrate | Use |
+|---|---|---|
+| **G.711a / G.711u** (PCMA / PCMU) | 64 kbps | The default. Narrowband (300-3400 Hz). Lossless to the source. PCMA in Europe and Australia, PCMU in North America. Always negotiable. |
+| **G.722** | 64 kbps | Wideband (50-7000 Hz). Sounds noticeably better than G.711 for the same bandwidth. Most modern endpoints support it. |
+| **Opus** | 6-510 kbps | Modern, very good quality at low bitrates, scales wideband to fullband. Many softphones use it by default where the trunk allows. |
+| **G.729** | 8 kbps | Legacy low-bandwidth codec. Rare in 2025 deployments. Some old carrier trunks still mandate it. |
+
+Codec negotiation lives in SDP (covered in the intermediate course). For now: both endpoints publish a list of codecs they support; the call uses the first match. If the carrier trunk is G.711 only and the softphone is offering Opus only, the call fails with no codec match, even though SIP looks fine.
+
+## Jitter buffer, in one paragraph
+
+Packets are sent every 20 ms but they don't *arrive* every 20 ms. The network delays each one by some variable amount. The receiving endpoint can't play them in their as-arrived order or audio would speed up, slow down, and skip. It buffers N packets, reorders them by sequence number, and plays them out at the sender's pace. The buffer adds latency proportional to its size; bigger buffer = more variance tolerated, more delay. Endpoints typically tune the buffer dynamically.
+
+## RTCP, the quality reporter
+
+Alongside the RTP audio stream is **RTCP** (RTP Control Protocol, RFC 3550 §6) on the next-higher odd port. RTCP doesn't carry audio. It carries periodic reports about the stream's health:
+
+- Packets sent, packets received
+- Packets lost (with %)
+- Jitter (variance in inter-arrival time)
+- Round-trip time
+- Sender / receiver reports timed every few seconds
+
+PBXes consume RTCP reports and write the headline numbers into their call records (CDR). Many modern PBXes also compute a **MOS** (Mean Opinion Score) per call leg from this data.
+
+## Reading MOS and what's "good"
+
+MOS is a perceptual quality estimate on a 1.0 to 5.0 scale. Derived from packet loss, jitter, and codec choice. Rough field bands:
+
+| MOS | What it sounds like |
+|---|---|
+| 4.3 – 4.5 | G.711 or Opus, healthy network. Indistinguishable from a landline. |
+| 4.0 – 4.3 | Solid. Customer happy. |
+| 3.5 – 4.0 | Audible quality drop. Slight packet loss or a low-bitrate codec. |
+| 3.0 – 3.5 | "It sounds dodgy." Customers complain. |
+| < 3.0 | "It's broken." Bad. |
+
+When customers complain about "the line is bad", pull the CDR for the call, read the MOS. If MOS is high and they still complain, the issue is something other than the media path (echo, sidetone, hardware).
+
+## When RTP misbehaves
+
+Three signature failure modes, with what to look for:
+
+### No audio at all (one or both directions)
+
+SIP completed (200 OK, ACK, no early BYE). The SDP in 200 OK has a non-zero RTP port and a sensible IP. But the audio never plays. Almost always: **the RTP packets aren't getting through the NAT or firewall**. Confirm with a packet capture on the customer's network or with the PBX's built-in pcap tool. The trace will show RTP traffic in one direction but not the other (or neither).
+
+### Choppy audio
+
+RTCP shows packet loss > 1% or jitter > 30 ms. Either the network is congested, or the access link is undersized for the codec, or wifi is misbehaving. **Test on a wired connection.** If wifi-only customer, look at wifi channel utilisation. If wired and still bad, talk to the ISP about packet loss on the path.
+
+### Robotic voice
+
+Like choppy but worse, sustained packet loss combined with codec sensitivity. Often a sign of bursty loss (a chunk of consecutive packets gone). Wired Ethernet usually fixes it; if it doesn't, packet capture and look for loss patterns.
+
+The next lesson is the practical one: where the trace lives on a typical PBX, how to filter it, and what shape the symptom-to-trace mapping has.

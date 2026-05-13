@@ -3,29 +3,31 @@
 Welcome. This site is open for vendor- and community-authored training content.
 
 > **For coursework authors:** every PR that touches `src/content/lessons/` or `src/content/quizzes/` must pass a copyright/voice review and follow the content authoring conventions below. The PR template includes a checkbox confirming both. See [Why the content rules exist](#why-the-content-rules-exist).
+>
+> **Detailed conventions live in [docs/course-authoring-conventions.md](docs/course-authoring-conventions.md)** — slug naming, URL derivation, the AnnotatedScreenshot+Hotspot pattern, multi-course-per-vendor, mermaid pitfalls, and the rest. Read it before authoring lessons.
 
 ## Repository layout
 
 | Path | What lives here |
 |---|---|
-| `src/content/vendors/` | One JSON per vendor (metadata, accent, status) |
-| `src/content/courses/` | One JSON per `<vendor>-l1`/`l2`/`l3` (lesson order, prereqs, quiz) |
-| `src/content/lessons/<vendor>/<level>/` | Lesson MDX files |
+| `src/content/vendors/` | One JSON per vendor or concept track (metadata, accent, status, `kind: "vendor"\|"concept"`) |
+| `src/content/courses/` | One JSON per course. Slug is descriptive (e.g. `yeastar-pse-triage`, `voip-fundamentals`); legacy `<vendor>-l1`/`l2`/`l3` slugs still work |
+| `src/content/lessons/<vendor>/<level>/` | Lesson MDX files. Multiple courses can share the same `<vendor>/<level>/` directory; lesson files are unique by their slug |
 | `src/content/quizzes/` | Question banks (final per course + inline checkpoints) |
 | `src/content/glossary/` | Glossary terms, auto-linked into lessons |
 | `src/content/paths/` | Curated cross-vendor learning sequences |
-| `src/components/learning/` | The MDX vocabulary (`<Callout>`, `<StepThrough>`, etc.) |
+| `src/components/learning/` | The MDX vocabulary (`<Callout>`, `<StepThrough>`, `<AnnotatedScreenshot>`, etc.) |
 | `src/components/curate/` | Stack-curation UI |
-| `src/lib/` | Helpers (progress, quiz, curation, glossary remark) |
-| `src/pages/` | Astro routes |
-| `docs/` | Deployment + workflow docs |
+| `src/lib/` | Helpers (progress, quiz, curation, glossary remark, **`courseRoute.ts`** for URL/suffix derivation) |
+| `src/pages/` | Astro routes — note that the per-course directory is `[course]` (not `[level]`) |
+| `docs/` | Deployment + workflow docs (including `course-authoring-conventions.md`) |
 
 Schemas in `src/content.config.ts` are validated at build time via Zod — broken frontmatter fails the build.
 
 ## Branch strategy
 
 - **`main`** — production. GitHub Pages auto-deploys on merge.
-- **`vendor/<slug>`** — vendor content branches. One per vendor product. Examples: `vendor/dnsfilter`, `vendor/huntress`, `vendor/threatlocker`, `vendor/printix`, `vendor/exclaimer`. All lessons, quizzes, and course JSON for that vendor live here until merged.
+- **`courses/<slug>`** — course-content branches. One per vendor or concept track. Examples: `courses/yeastar`, `courses/voip`, `courses/threatlocker`, `courses/exclaimer`. The previous `vendor/<slug>` convention is deprecated; existing branches are honoured but new content goes into `courses/<slug>`.
 - **`feat/<short>`** — platform features (e.g. `feat/curation-multi-language`).
 - **`fix/<short>`** — bug fixes (e.g. `fix/quiz-shuffle-seed`).
 - **`docs/<short>`** — pure documentation changes.
@@ -73,26 +75,26 @@ Keep messages descriptive of the change itself. Refer to internal authoring tool
 
 ### MDX vocabulary
 
-Every lesson file under `src/content/lessons/` automatically gets these components imported (via `src/lib/vite-lesson-imports.mjs`) — drop them inline:
+Every lesson file under `src/content/lessons/` automatically gets these components imported (via `src/lib/vite-lesson-imports.mjs`) — drop them inline (no `import` lines needed):
 
 - `<Callout type="tip|info|warn|danger|success">` — note boxes
 - `<Term>` — glossary hovercard. Most known terms auto-link via the glossary remark plugin; explicit `<Term>` tagging is rarely needed.
 - `<Kbd>` — keyboard chip
-- `<AnnotatedScreenshot src="..." alt="...">` with `<Hotspot x="..." y="..." label="...">...</Hotspot>` children
+- `<AnnotatedScreenshot src="..." alt="..." caption="...">` with `<Hotspot client:load x={N} y={N} tone="primary|warning|success" label="1" title="..." purpose="...">body</Hotspot>` children. **Hotspots require `client:load` and a numeric `label`**; the long descriptive text goes in `title` / `purpose` / children. The `<AnnotatedScreenshot>` wrapper itself must NOT carry a hydration directive (it conflicts with the nested Hotspot islands and breaks the popovers). See [docs/course-authoring-conventions.md §6](docs/course-authoring-conventions.md#6-annotatedscreenshot--hotspot--the-canonical-pattern) for the full pattern.
 - `<StepThrough>` with `<Step title="...">...</Step>` children
-- `<DecisionTree startId="...">` with `<Question id prompt>...<Choice label next /></Question>` and `<Outcome id label tone>...</Outcome>` children
-- `<Checkpoint slug="<vendor>-<level>-checkpoint-<topic>" />`
-- Mermaid code fences (` ```mermaid ... ``` `) — render client-side in the lesson page
+- `<DecisionTree client:load startId="..." nodes={[...]} />` — config-prop API; `nodes` is an array of `question` and `outcome` objects, not children
+- `<Checkpoint slug="<course-slug>-checkpoint-<topic>" client:visible />`
+- Mermaid code fences (` ```mermaid ... ``` `) — render client-side. **Avoid extra colons inside sequence-diagram arrow messages** (the parser treats the first `:` as the participant/message separator and trips on subsequent colons in recent mermaid releases).
 
 ### Lesson frontmatter
 
 ```yaml
 ---
-slug: 01-what-is-x                       # kebab-case, unique within vendor+level
+slug: 01-what-is-x                       # kebab-case, unique within the lesson directory
 vendor: dnsfilter                        # references vendors/<slug>.json
-level: l1                                # l1 | l2 | l3
+level: l1                                # l1 | l2 | l3 — drives the badge ("Beginner"/"Intermediate"/"Advanced") and prereq logic; NOT the URL
 title: What X is and where it sits
-summary: A 5-minute mental model of how X works.
+summary: "A 5-minute mental model of how X works."   # quote when the value contains a colon (YAML safety)
 estimatedMinutes: 6
 order: 1                                 # display order within course
 topics: [networking, fundamentals]
@@ -102,11 +104,35 @@ draftReason: ""                          # optional reviewer note shown in banne
 ---
 ```
 
+### Course frontmatter
+
+```json
+{
+  "slug": "yeastar-pse-triage",
+  "vendor": "yeastar",
+  "level": "l1",
+  "title": "Yeastar PSE, PBX-side triage",
+  "shortTitle": "PSE triage",
+  "summary": "...",
+  "estimatedMinutes": 38,
+  "prereqs": ["yeastar-foundations", "voip-fundamentals"],
+  "lessons": ["01-pbx-portal-tour", "02-finding-extensions-and-users", "..."],
+  "quiz": "yeastar-pse-triage-final",
+  "status": "live"
+}
+```
+
+`shortTitle` (2–4 words) is used in prereq chips and other compact UI. Falls back to `title` if absent. Always include it on new courses.
+
 ### Layered no-repetition rule
 
-L3 builds on L2 builds on L1 with **no repetition**. When authoring an L2 lesson, do not re-teach concepts already covered in the relevant L1 lesson — link to it instead. Same for L3 → L2.
+The Advanced course builds on the Intermediate, which builds on the Beginner — **with no repetition**. When authoring an Intermediate lesson, do not re-teach concepts already covered in the relevant Beginner lesson — link to it instead. Same for Advanced → Intermediate. Cross-reference by topic ("the CDR view from PSE triage") not by tier.
 
 The scope per level is defined in the per-vendor course-source notes maintained outside this repo. If you don't have access to those, ask a maintainer for the relevant excerpts before writing.
+
+### Don't tag the reader by tier
+
+Use process language. ✗ "as an L1 tech, you'll..." ✓ "during triage..." or "on the helpdesk floor...". Industry vocabulary about MSP role tiers is fine in glossary entries (defining what L1/L2/L3 mean inside an MSP org) but never as a tag applied to the reader of a lesson.
 
 ## Quizzes
 

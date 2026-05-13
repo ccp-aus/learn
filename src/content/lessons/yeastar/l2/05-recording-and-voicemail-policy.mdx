@@ -1,0 +1,207 @@
+---
+slug: 05-recording-and-voicemail-policy
+vendor: yeastar
+level: l2
+title: Recording and voicemail, policy and the playback question
+summary: "Configure recording rules by call type and target; voicemail-to-email and custom greetings; the role-based recording playback permissions that decide who can hear which calls; retention and auto-cleanup."
+estimatedMinutes: 9
+order: 5
+topics: [pse, recording, voicemail, retention, permission]
+updated: 2026-05-13
+---
+
+Two systems live behind one decision: who can listen back to what, and for how long. Recording rules pick which calls get captured; voicemail rules pick what happens when nobody's there. The user-role permissions on top decide who in the customer's organisation can play, download, or delete each type of file. Get the rules right and the rest is housekeeping.
+
+## Recording rules
+
+PSE records by **scope**: which trunks, which extensions, which queues, which conferences, which paging/intercom calls.
+
+```
+Call Features → Recording → Recording Settings
+```
+
+The shape of a recording configuration:
+
+- **Record Trunks** — pick trunks; the system records all external calls on those trunks (inbound and outbound).
+- **Record Extensions** — pick extensions; the system records that extension's internal AND external calls. Optionally record internal-only calls separately via the **Enable Recording of Internal Calls** flag in Recording Settings.
+- **Record Pagings/Intercoms** — single flag, on or off, applies to all paging/intercom calls.
+- **Record Conferences** — pick conference rooms; their calls get recorded.
+- **Record Queues** — pick queues; calls answered through those queues get recorded.
+- **Record IVRs** — pick IVRs; the IVR-routed calls get recorded.
+
+The five scopes overlap. A call from an external customer to a Sydney support agent through the Support queue is potentially captured by:
+
+1. The Sydney trunk (if it's in Record Trunks).
+2. The agent's extension (if it's in Record Extensions).
+3. The Support queue (if it's in Record Queues).
+
+PSE deduplicates: one call produces one recording even if multiple rules match. The earliest-matching rule's settings (continue-on-transfer, etc.) take effect.
+
+### Continue Recording After Call Transfer
+
+A subtle and important option on each Record Extensions selection. By default, when an extension transfers a call to a third party, the recording stops. Toggle this on (per selected extension) and the recording continues across the transfer.
+
+The behaviour has carve-outs:
+
+- Recording **always continues** if the transfer destination is a Queue, even if the queue itself isn't in Record Queues.
+- Recording **does not continue** if the transfer destination is a Call Flow with a recording-disable component, or an IVR where the caller pressed the opt-out-of-recording key.
+- Recording **may not continue** for attended transfers from Linkus to Paging/Intercom or Conference, unless those destinations are themselves recorded.
+- Recording **may not continue** for calls transferred to Linkus and then attended-transferred again, unless either party is configured for recording.
+
+The rule of thumb: turn on Continue Recording After Call Transfer for any extension where transfers are part of the workflow (front-desk receptionist, queue agents, executive assistants). Don't rely on it being seamless across Call Flow / IVR / paging hops; test the exact transfer paths the customer uses.
+
+### One-click recording
+
+Even when a call doesn't fall under any rule, an agent in Linkus can start recording mid-call (or pause/resume an active recording) IF their extension's `Recording operation` permission allows it:
+
+| Recording operation value | Means |
+|---|---|
+| `0` (No permission) | Agent can't change recording state |
+| `1` (Pause/Resume) | Agent can pause and resume an existing recording |
+| `2` (Start/Pause/Resume) | Agent can also start a recording that wasn't running |
+
+Set per-extension. Default is 0.
+
+### Recording tones
+
+Optional prompts that play during recorded calls so participants know recording is happening (a legal requirement in many jurisdictions). Configured at PBX Settings → Voice Prompt → Recording Tones:
+
+- Internal Call Being Recorded Prompt
+- Outbound Call Being Recorded Prompt
+- Inbound Call Being Recorded Prompt
+- One-Click Recording Start Prompt
+- One-Click Recording End Prompt
+
+For Australia and most jurisdictions, the inbound prompt is the most legally important: when you record a call from an external party, they need to be told. A single short clip ("This call may be recorded for training and quality") satisfies most obligations; check the customer's specific compliance requirements.
+
+## Recording playback, the permission layer
+
+Just because a call was recorded doesn't mean every staff member can play it back. PSE's role-based permissions decide:
+
+```
+PBX Settings → User Roles → [edit role] → Reports and Recordings → Recording Files
+```
+
+Two settings per role:
+
+**Scope** (which extensions' recordings can this role see?):
+
+- All Extensions
+- All the other extensions of the same Extension Groups
+- All other extensions of the same department
+- Specific Extensions
+
+**Manage Recording Files** (what can they do with what they see?):
+
+- Play
+- Download
+- Delete
+
+Each is independently toggleable. So a Quality Manager role might be Play + Download for All Extensions; a Team Lead role might be Play only for "the same department"; a regular agent might have no permissions on recordings at all.
+
+CDR scope follows the same model in the same place. It's worth aligning recording scope with CDR scope so users aren't seeing a CDR row but unable to play the recording attached to it; reach for the same scope value on both.
+
+<Callout type="warn" title="Recording downloads are audit-logged">
+Every time a user downloads a recording, the action is logged in Maintenance → Operation Logs with the user, the timestamp, and the file ID. When a customer asks "who downloaded the call between Sarah and the angry vendor on Tuesday?", the audit log is the answer. Tell the customer's senior staff this exists; it changes how the recordings are treated.
+</Callout>
+
+## Retention and auto-cleanup
+
+Recordings consume disk. PSE's auto-cleanup keeps the local PBX storage from filling up.
+
+```
+System → Storage → Auto Cleanup Settings
+```
+
+Two policies, applied independently:
+
+| Setting | Default | What it controls |
+|---|---|---|
+| **Max Usage of Device (%)** | 80% | When local storage hits this, oldest recordings are deleted to make space. |
+| **Recordings Preservation Days** | 0 (no limit) | Recordings older than this are deleted regardless of disk usage. |
+
+When usage reaches 90% of the configured threshold (so 72% by default), PSE fires an Auto Cleanup Reminder event and emails the configured contacts. Don't ignore that email; a customer who fills the disk is a customer about to lose calls.
+
+For long-retention requirements (12 months, 7 years for some compliance regimes), don't try to hold it all on the PBX. Set up **archive tasks** to push old recordings to S3, SharePoint, FTP, or SFTP. The Archive feature can also delete-local-after-archiving so the PBX stays slim while the archive grows.
+
+The advanced course covers archive task configuration in detail (per-target, scheduling, retention on the archive side, organize-by-date folders). For this course, the move is: agree retention with the customer, set Recordings Preservation Days to match, configure archive if compliance demands beyond what local can hold.
+
+## Voicemail policy
+
+Voicemail is configured per-extension, with a few system-wide defaults.
+
+### Per-extension voicemail settings
+
+Under Extension and Trunk → Extensions → [edit extension] → Voicemail tab:
+
+- **Enable Voicemail** — on or off.
+- **Voicemail Access PIN Authentication** — require the user to enter a PIN when they dial in to check voicemail. Default on.
+- **Voicemail Access PIN** — the PIN. Random if blank.
+- **Voicemail Language** — the language of the system prompts.
+- **New Voicemail Notification** — what happens when a new voicemail arrives:
+  - `no` — no email notification.
+  - `with_attach` — email notification with the .wav file attached.
+  - `without_attach` — email notification only; user has to dial in or open Linkus to listen.
+- **After Notification** — for `with_attach`, what happens to the original voicemail after email goes out: `no` (do nothing), `mark_read`, `delete`. For most customers, `mark_read` is the right answer — keeps the voicemail on PSE for backup but stops it showing as new.
+- **Send to** — `user Email` (the extension's email field) or `custom Email` (a different address).
+
+For most customers: voicemail on, PIN required (random PIN), with_attach + mark_read, send to user's email.
+
+### Custom voicemail greetings
+
+Default voicemail greeting is the system one ("the person at extension N is unavailable, please leave a message"). Custom greetings let users record their own:
+
+- Self-service: extension dials a feature code from their own phone, follows the prompts to record. This is the user-side path; coverage in Linkus L1.
+- Admin-side: PBX admin uploads a `.wav` file to the extension under Voicemail tab → Greeting Management.
+
+For shared mailboxes (Group Voicemail behind a Sales or Support queue's voicemail), the admin-uploaded path is usually correct.
+
+### Group voicemail
+
+Configured at Call Features → Voicemail → Group Voicemail. A virtual mailbox shared by a group. Each group voicemail has its own PIN, its own greeting, its own notification list (multiple emails). When the queue or ring group's failover destination is "Group Voicemail X", the recordings land here, and the configured email addresses get notified.
+
+Group voicemail is the right pattern for shared service queues (Sales, Support, Reception). Avoids "the message went to my voicemail and I'm on leave; nobody knows" failure mode.
+
+### Voicemail auto-cleanup
+
+Same shape as recording auto-cleanup, configured at System → Storage → Auto Cleanup Settings:
+
+- **Max Number of Voicemail** — per mailbox.
+- **Voicemail Preservation Days** — per mailbox; oldest deleted past this age.
+
+For most customers, 30-90 day voicemail preservation is reasonable. Anything older than that, the user has either listened and acted, or the voicemail doesn't matter.
+
+## A worked recording policy: Able Moose Accounting
+
+Customer requirements:
+
+- Record all inbound calls to the Sales and Support queues for training.
+- Record all outbound calls from finance extensions for audit (post-implementation of new accounting compliance).
+- Don't record internal calls (productivity, privacy concerns).
+- Recordings retained 90 days locally; archived to the customer's SharePoint for 7 years.
+- Sales Manager can play any Sales recording; Support Manager any Support; Finance Manager any Finance; CFO can play and download anything.
+
+The configuration:
+
+| Setting | Value |
+|---|---|
+| Record Queues | Sales (6401), Support (6400) |
+| Record Extensions | Finance extensions (Sydney finance group + Brisbane finance group) |
+| Enable Recording of Internal Calls | Off |
+| Recording Tones | Inbound prompt: `recorded-for-training.wav` |
+| Recordings Preservation Days | 90 |
+| Archive task | SharePoint, daily, delete-local-after-archive on, organize by date YYYYMMDD |
+| Sales Manager role | Recording Files: Play, scope = Same Department (Sales) |
+| Support Manager role | Recording Files: Play, scope = Same Department (Support) |
+| Finance Manager role | Recording Files: Play, scope = Same Department (Finance) |
+| CFO role | Recording Files: Play + Download, scope = All Extensions |
+
+Voicemail: per-extension defaults (enabled, PIN, with_attach + mark_read). Group voicemails for Sales-VM and Support-VM, both notify the team mailbox plus the relevant manager.
+
+## What this is NOT
+
+- **Not an introduction to recording legality.** Australian law (and most jurisdictions) requires consent or notification when recording calls between you and another party. The recording tones and the customer's published policy together typically satisfy this; consult the customer's legal team for specifics.
+- **Not the archive task deep-dive.** Archive task configuration (per-target setup, S3 bucket policies, SharePoint app registrations, FTP credentials, retention on the archive server side) is the advanced course's territory.
+- **Not voicemail transcription.** AI Toolbox includes voicemail-to-text transcription as a separate feature; the advanced course covers AI Toolbox configuration.
+
+Next lesson: when something goes wrong, the diagnostic moves at the PSE side that don't require leaving the portal.

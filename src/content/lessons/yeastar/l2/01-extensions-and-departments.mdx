@@ -1,0 +1,199 @@
+---
+slug: 01-extensions-and-departments
+vendor: yeastar
+level: l2
+title: Extensions, departments, and three ways to create users
+summary: "Building the user side of a PBX: single-extension creation, CSV bulk import, and the one-click Microsoft 365 user sync that most MSPs will reach for first. Plus departments, presence rules, and hot-desking."
+estimatedMinutes: 10
+order: 1
+topics: [pse, extensions, departments, m365, presence]
+updated: 2026-05-12
+---
+
+A customer onboarding starts with users. Forty extensions for the Sydney office, twelve for Brisbane, eight for Melbourne, each tied to a real human with a name, an email, a phone, a department, a manager. You have three ways to create them, and the choice you make affects everything downstream: how users log in, how their contact card looks in Linkus, whether their presence syncs with Teams, and how much rework you do six months from now when the customer hires fifty more people.
+
+## The three creation paths
+
+| Path | Best for | Time per extension | Identity source |
+|---|---|---|---|
+| Manual single extension | One-off adds, contractors, special-purpose extensions (conference rooms, fax) | 2-5 minutes | PBX local |
+| Bulk CSV import | Greenfield migration; cutover from another PBX where you already have a user list | seconds at scale | PBX local |
+| Microsoft 365 / Google Workspace user sync | Any customer whose identity already lives in M365 or Workspace (which is most of them) | one-time setup, ongoing zero | M365 / Workspace |
+
+Read that table once. Most MSPs land on the third row most of the time, because the identity is already there, the user already has an email and a phone in M365, and tying the PBX extension to that record means one fewer place to keep names and mobile numbers up to date.
+
+But you still need to know all three. M365 sync gives you a sane bulk path for in-tenant users; bulk CSV handles cases where the identity source isn't M365 (mixed Google + on-prem, or a Workspace tenant the PBX integration doesn't quite fit), and manual is for the contractor whose phone you're setting up on Wednesday.
+
+## Path 1: manual, single extension
+
+The slowest path is also the most flexible. Use it when you want to set every field yourself.
+
+```
+Extension and Trunk → Extensions → Add
+```
+
+The fields divide into four groups:
+
+- **Identity:** Number, First Name, Last Name, Email Address, Mobile Number, Job Title, Department.
+- **Authentication:** User Password (Linkus login), Registration Password (SIP registration from a phone or softphone). These are deliberately separate; a leaked user password shouldn't grant SIP registration to a fraudster.
+- **Presence:** which of the eight presence states the extension has rules for, and what each rule does to inbound calls.
+- **Voicemail:** Enable Voicemail, PIN authentication, voicemail-to-email notification choices, custom greeting.
+
+After saving, you usually send a welcome email (the **Send Welcome Email** action on the extension row). That email contains a QR code for Linkus mobile, a URL for Linkus web, and the user password. The QR is the fast-path for end users: they scan, the Linkus app installs the extension, done.
+
+<Callout type="info" title="Two passwords on every extension">
+The User Password logs the human into Linkus and the Linkus Web. The Registration Password authenticates a SIP endpoint (deskphone, softphone) to the PBX. If a user reports "I can log into Linkus but my desk phone says auth failed", check the Registration Password and the endpoint's SIP credentials separately. They are not the same field.
+</Callout>
+
+## Path 2: bulk CSV import
+
+```
+Extension and Trunk → Extensions → Export, edit, then Import
+```
+
+Export the empty (or single-row) extension list as a CSV. PSE gives you a template with every column the system understands, including the optional ones. Fill in your rows. Import.
+
+CSV requirements:
+
+- **Format:** UTF-8 .CSV.
+- **Size:** under 50 MB.
+- **Filename:** under 127 characters.
+- **Field rules:** documented in the *Extension Parameters* reference. Each column has a permitted value set and a default for blanks.
+
+A few field defaults worth knowing because they bite during cutover:
+
+| Field | Default if blank | What it means |
+|---|---|---|
+| `Enable Voicemail` | `1` (on) | Every imported extension gets voicemail on. |
+| `Voicemail PIN Authentication` | `1` (on) | New users will be prompted for a PIN before they can check voicemail by phone. |
+| `Voicemail Access PIN` | random | Random PIN if you don't supply one. Users find this in Linkus or in the welcome email. |
+| `New Voicemail Notification` | `no` | No voicemail-to-email unless you set it; many customers expect this on by default, so set it. |
+| `Hot Desking` | `0` (off) | If hot-desking is part of the deployment, set this per row. |
+| `max_clients` | `1` | Number of Linkus mobile clients allowed. Bump to 2 or 3 for users who want both phone and tablet. |
+| `Recording operation` | `0` (no permission) | Users can't pause/resume their own recording mid-call unless you set this. |
+
+Bulk CSV is fast and reproducible. It is also unforgiving: a typo in a header row or an out-of-range value in one column silently fills with the default. Test the import on a five-row file first, eyeball one extension's profile after import, then run the full batch.
+
+## Path 3: Microsoft 365 (Entra ID) integration
+
+This is the path most MSPs will reach for, because the customer's name list already lives in Microsoft 365 and keeping it in two places is a rework debt that compounds.
+
+Yeastar reworked the M365 integration so the entire setup runs from the PBX side. You no longer hand-build an app registration in the Azure portal.
+
+```
+Integration → Collaboration → Microsoft → Microsoft Entra ID
+```
+
+<StepThrough>
+  <Step title="Start the integration from PSE">
+    Open Integration → Collaboration → Microsoft → Microsoft Entra ID. Click Authorize. PSE opens a Microsoft sign-in popup.
+  </Step>
+  <Step title="Sign in with a Global Administrator">
+    Sign in to the customer's M365 tenant with a Global Administrator account, and grant the consent prompt. The integration needs admin-level consent because it registers an enterprise application in Entra ID and grants it Microsoft Graph permissions.
+  </Step>
+  <Step title="PSE creates the app registration automatically">
+    PSE auto-creates the application in Microsoft Entra ID with the necessary Graph permissions for user sync, presence sync, and SSO. The integration appears in Entra ID as an Enterprise Application named after the PBX.
+  </Step>
+  <Step title="Choose which users to sync">
+    Search for specific users or groups in Entra ID. Pick the ones you want as PBX extensions. For each user, decide whether to assign an existing extension to them or create a new extension. You do not have to sync the whole tenant.
+  </Step>
+  <Step title="Confirm the field mapping">
+    Check the Map section. The default mapping is below. Disable any field you don't want synced; PSE will leave the unmapped fields editable directly on the extension.
+  </Step>
+  <Step title="Save">
+    The selected users now exist as PBX extensions. Welcome emails go out (or not, depending on the toggle) using the M365 email address.
+  </Step>
+</StepThrough>
+
+### The user-sync field mapping
+
+<AnnotatedScreenshot
+  src="/img/yeastar/m365-field-mapping.png"
+  alt="PSE Microsoft 365 user sync Map section showing checkboxes for First Name, Last Name, Email Address, Mobile Number, and Job Title alongside the matching Entra ID attribute names givenName, surname, mail, mobilePhone, and jobTitle"
+  caption="The Map section. Each extension field has a checkbox; check it to sync from Entra ID, uncheck to keep the PSE-side value editable."
+>
+  <Hotspot client:load x={28} y={20} tone="primary" label="1" title="Field map" purpose="One row per syncable field, with a checkbox.">
+    Check a row to pull the field from Entra ID on every sync. Uncheck it to keep the PSE-side value editable and ignore Entra ID for that field.
+  </Hotspot>
+  <Hotspot client:load x={28} y={60} tone="warning" label="2" title="Mobile Number row" purpose="The most common one to leave unchecked.">
+    Customers often want PSE-side mobile numbers (the user's work mobile, not their personal one in Entra ID). Unchecking here lets the MSP enter the value on the extension page without it being overwritten on the next sync.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The bridge between an Entra ID user and a PSE extension is a fixed field map. Each row has a checkbox in the Map section and a behaviour-when-unchecked outcome:
+
+| PBX extension field | Entra ID attribute | If unchecked |
+|---|---|---|
+| First Name | `givenName` | Editable on PSE; never overwritten |
+| Last Name | `surname` | Editable on PSE; never overwritten |
+| Email Address | `mail` | Editable on PSE; the matching key (UPN) doesn't change |
+| Mobile Number | `mobilePhone` | Common: lets MSP enter a work-issued mobile that's not in Entra ID |
+| Job Title | `jobTitle` | Editable on PSE; useful when titles in Entra ID are HR-formal and PSE needs the friendly version |
+| Avatar (optional) | user profile photo | Extension keeps the default initials avatar |
+
+If you check Mobile Number, the value gets refreshed from Entra ID on every sync and edits on the PBX side get overwritten. The third column above is the one to scan when designing the customer's sync policy: any field where PSE-editable matters more than Entra-source-of-truth should stay unchecked.
+
+A subtle but important detail: the matching key the PBX uses to associate an Entra ID user with an extension is **userPrincipalName**, not the mapped Email Address. This protects you when an admin changes a user's primary email in Entra ID; the link survives. If a user's UPN changes (rare, but happens during domain rebranding), the link breaks and you need to re-associate.
+
+<Callout type="warn" title="One-click consent is Yeastar's recommended path">
+The integration uses Global Administrator consent, which grants the auto-created Enterprise Application a broad set of Microsoft Graph permissions by default. This is the documented Yeastar setup, and it works out of the box. The advanced course covers paring back those permissions afterward, auditing what the integration actually uses, and revoking what it doesn't need; that's a worthwhile pass for any customer with a serious security posture, but it sits outside the day-one configuration.
+</Callout>
+
+### Google Workspace, briefly
+
+Google Workspace integration follows the same shape: PBX-side initiation, admin consent in Workspace, automatic field mapping. The matching key differs: PSE uses the user's **Primary email** in Workspace (rather than the userPrincipalName equivalent). The field map covers the same identity attributes with Workspace-specific field names. Treat it as the same path with a different identity provider.
+
+## Departments and Extension Groups
+
+These two collections look alike on a first read and confuse people who joined the customer's PBX from another system. They are different.
+
+- **Departments** are a tree: Sales > Sales-Sydney, Sales-Brisbane; Support > Support-Tier1, Support-Tier2. A department can contain other departments. An extension belongs to exactly one department. Used in recording-rule scoping, role-based recording / CDR visibility, and IVR routing prompts.
+- **Extension Groups** are flat: "Customer-facing", "After-hours rota", "Bookkeeping team". One extension can belong to many groups. Used for ringing groups, queue agent rosters, and quick filters in CDR.
+
+The rule of thumb: department for who reports to whom, group for ad-hoc operational rosters. Bookkeeping at Able Moose Accounting is a department; the "After-hours support" rota that spans Sydney and Brisbane is a group.
+
+## Presence rules
+
+Presence is per-extension and has eight states: Available, Busy, Do Not Disturb, Away, Business Trip, Off Work, Lunch Break, Off Hours. Each state has its own call-handling rule:
+
+- Ring as normal.
+- Forward to another extension (e.g. Sarah's calls go to Mark while she's on a Business Trip).
+- Forward to extension voicemail.
+- Forward to a custom external number (a personal mobile during after-hours rota).
+- **Send Busy** (return SIP `486 Busy Here` to the caller; available from v83.23.0.23). Useful for the "I'm absolutely not taking calls right now" case where you want the caller to know it's busy, not just unanswered.
+
+Presence can change manually (the user toggles it in Linkus) or automatically via Time Conditions (covered in the routing lesson). Auto-presence is one of the underused power features: extensions that flip to "Lunch Break" at 12:00 and "Available" at 13:00 stop ringing at lunch with no human intervention.
+
+## Hot-desking
+
+Hot-desking lets one extension log into any IP phone that's been configured as a hot-desking endpoint. Useful for shift work, shared desks, and the "I sit at a different desk every day" hybrid pattern.
+
+Per-extension fields:
+
+- **Hot Desking** — enable.
+- **Log out of Queue** — when the user logs out of the hot-desk phone, also log them out as a dynamic queue agent. Stops phantom rings to a desk no-one's at.
+- **Automatic Guest Out** — auto-logout after N hours of inactivity, or at a fixed daily time. The fixed-daily-time option is the "everyone's logged out at 6pm so the night-cleaning crew doesn't take customer calls" version.
+
+The IP phones themselves need to be in hot-desking mode (set in Auto Provisioning), and the customer's deployment plan needs a story for what happens when two users want the same phone at the same time. Outside the scope of this lesson, but worth flagging during scoping.
+
+## A worked rollout: Able Moose Accounting
+
+Able Moose is moving from a legacy PBX with 120 users. Sydney HQ has 80 (finance, exec, ops, IT, reception); Brisbane has 25 (regional finance team); Melbourne has 15 (the recently-acquired accounting boutique).
+
+The chosen path:
+
+1. **M365 sync for the 105 users already in the Able Moose tenant** (Sydney + Brisbane). Filter by the Entra ID groups `AbleMoose-Sydney` and `AbleMoose-Brisbane`. Field map: all five default fields plus Avatar. Welcome emails enabled; the migration team scheduled them to fire on cutover morning.
+2. **Bulk CSV for the 15 Melbourne users**, who are still on the acquired company's separate M365 tenant and won't migrate to the Able Moose tenant for another quarter. CSV authored from an HR export; voicemail-to-email pre-enabled; voicemail PIN field left blank to auto-generate.
+3. **Manual extensions** for the four shared-purpose endpoints: the Sydney reception desk phone (1000), the Brisbane meeting room (2050), the Melbourne kitchen phone (3025), and the emergency-only fax-to-email line on the Sydney trunk (1999).
+
+Three departments at the top level (Sydney, Brisbane, Melbourne), with sub-departments under each for Finance, HR, Ops, IT, Sales. Extension Groups for cross-office concerns: After-hours-rota, Senior-leaders-can-be-reached-on-mobile, Reception-pool.
+
+When the Melbourne acquisition finishes its tenant merge in Q2, the Melbourne users get re-onboarded via M365 sync and their bulk-CSV extensions get re-associated. The user role permissions, presence rules, and voicemail settings survive the re-association as long as the matching `userPrincipalName` lines up.
+
+## A note on order
+
+Build extensions first, then departments and groups (so you have something to assign), then trunks and routing, then queues. The temptation is to build trunks first because "calls have to work first". Resist it: a trunk without inbound destinations sits idle and a trunk with destinations pointed at nothing-extensions causes the worst class of failed-call ticket. Extensions first. Always.
+
+<Checkpoint slug="yeastar-pse-build-checkpoint-extensions" client:visible />
+
+Next lesson: trunks and DIDs, the carrier side of the configuration.

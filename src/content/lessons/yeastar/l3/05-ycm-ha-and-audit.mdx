@@ -1,0 +1,136 @@
+---
+slug: 05-ycm-ha-and-audit
+vendor: yeastar
+level: l3
+title: Cluster health, capacity planning, and audit discipline
+summary: "How to monitor the SBC, SBC Proxy, and PBXHub clusters across regions; reading the resource utilization view; planning growth before any cluster hits its limits; and the operation log practices that make the platform's history defensible across all your sub-users."
+estimatedMinutes: 9
+order: 5
+topics: [ycm, cluster, monitoring, audit, capacity-planning]
+updated: 2026-05-13
+---
+
+The Foundations course introduced YCM's four-cluster topology in passing (YCM server, SBC cluster, SBC Proxy cluster, PBXHub cluster). This lesson is what to *do* with that topology once you operate it at scale: monitor every cluster server's health, read the resource rollup before any one piece runs out, and keep the audit log discipline that makes platform history defensible across MSP staff, Hosting Users, and their staff.
+
+Reference the architecture lesson from `yeastar-foundations` if you need a refresher on what each cluster does. We will not re-explain the SBC vs SBC Proxy vs PBXHub split here. We will explain what runs out, how you see it coming, and what the records say after the fact.
+
+## The cluster status view, per region
+
+YCM's `System > Cluster Management` page is where cluster health lives. At the top is the region selector; pick a region, and the page shows three tabs: SBC Cluster, SBC Proxy Cluster, PBXHub Cluster. Above them, a Region Overview block summarises the region's resource consumption across all clusters in that region.
+
+The Region Overview rollup is the at-a-glance read. Each metric carries a `used / total / available` triplet.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/cluster-region-rollup.png"
+  alt="YCM cluster region status summary showing Extension count, PBX capacity, Call Recording usage, Peer Trunk connections, and General Storage status."
+  caption="The Region Overview tells you in one glance whether the region has room to grow. PBX 33/100 means 33 PBXs running on a region that supports 100 (one PBXHub Server = 100 PBXs cap). When this row crosses 80%, capacity planning has become a real conversation, not a quarterly checkbox."
+>
+  <Hotspot client:load x={30} y={55} tone="primary" label="1" title="PBX count" purpose="PBXHub Servers cap at 100 PBXs each.">
+    33 / 100 means one PBXHub Server is hosting 33 PBXs. When this row crosses 80 (80%), capacity planning becomes a real conversation. Add another PBXHub Server in the region before you hit the wall.
+  </Hotspot>
+  <Hotspot client:load x={70} y={55} tone="warning" label="2" title="Peer Trunk Port" purpose="SBC Proxy caps at 500 ports each.">
+    Each SBC Proxy Server provides up to 500 peer-trunk ports and 5,000 general-service ports. Heavy carrier-side trunk usage exhausts the peer-trunk pool first. Same drill as PBX count: at 80%, plan an SBC Proxy expansion.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+What each metric in the rollup is *actually* counting:
+
+| Metric | What | What caps it |
+|---|---|---|
+| **PBX** | Cloud PBXs hosted in this region | Number of PBXHub Servers deployed (100 PBXs per server) |
+| **Extension** | Sum of extensions across all PBXs in the region | Number of PBXHub Servers (2,000 extensions per server) |
+| **Call Recording** | Storage consumed by recording files (toggle GiB vs minutes view in the UI) | Storage volumes attached to PBXHub Cluster (1 GiB = 1,000 recording minutes) |
+| **Peer Trunk Port** | Port-based peer trunk consumption | Number of SBC Proxy Servers (500 ports per server) |
+| **General Service Port** | SSH, AMI, Database Grant integration ports | Number of SBC Proxy Servers (5,000 ports per server) |
+
+Read the row top to bottom whenever a customer's onboarding ticket lands. If PBX is 99/100, you cannot stand up another customer's PBX in this region; either move the customer to a different region (and accept the latency penalty), or stand up another PBXHub Server first.
+
+## The three cluster tabs in depth
+
+Each tab shows the individual servers in that cluster with their health detail.
+
+**SBC Cluster tab** lists every SBC Server in the region. Columns: Status, Service State, Name, Firmware Version, Domain, Alarm, CPU Usage, Memory Usage, Local Disk Space, Operations. SBC handles the customer-facing surfaces (Linkus client login, SIP extension registration, PBX web access, account trunk traffic). When an SBC is unhealthy, your customers feel it as login failures or registration timeouts.
+
+**SBC Proxy Cluster tab** lists every SBC Proxy Server. Same columns. SBC Proxy handles the carrier-facing surface (register / peer trunks) and integration ports (SSH, AMI, DB grant). When an SBC Proxy is unhealthy, carriers stop receiving registrations from your PBXs and inbound calls start failing.
+
+**PBXHub Cluster tab** lists every PBXHub Server. Same columns plus Data Space (recording storage utilization). PBXHub is where the actual Cloud PBX instances run; a sick PBXHub Server means the PBXs hosted on it are sick.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/pbxhub-cluster-status.png"
+  alt="PBXHub Cluster tab showing Status, Service State, Name, Firmware Version, Domain, Alarm, CPU Usage 32%, Memory Usage 30%, Local Disk Space 10%, Data Space 2%, and Operations columns."
+  caption="A healthy PBXHub Server tab. Data Space at 2% means recording storage has plenty of headroom; once any server's Data Space crosses 80%, plan a storage volume expansion before customers start losing recording capacity."
+>
+  <Hotspot client:load x={70} y={50} tone="primary" label="1" title="Data Space" purpose="Recording storage on this PBXHub Server.">
+    Data Space tracks the storage volume mounted for Cloud PBX recording files. Once it crosses 80%, customers start losing recording capacity. Plan a storage volume expansion (or move some PBXes to a different PBXHub) before that point.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+The three statuses you read on every row:
+
+- **Running**: the cluster server is in good condition.
+- **Lost Connection**: the cluster server has lost connection to YCM. Calls might still work (the cluster servers are autonomous to a degree), but YCM can no longer manage it. Investigate within minutes.
+- **Suspended**: the cluster server is not working. This is an outage. Page on-call immediately.
+
+The Alarm column is hyperlinked to the alarms filtered by that server, so one click takes you from "this server looks unhealthy" to "here are the active alarms that explain why."
+
+## Capacity-planning at the platform level
+
+Three numbers tell you when to add hardware:
+
+1. **PBXs per region**: when any region crosses 80 PBXs (out of 100 per PBXHub Server), order another PBXHub Server. Lead time depends on your hosting model (cloud is fast, colo is slow). 80% is your warning; 95% is past warning.
+2. **Extensions per PBXHub**: similar arithmetic, 2,000 cap per server. Customers running large PBXs (200+ extensions) hit the extension cap before the PBX cap.
+3. **Peer trunk ports per SBC Proxy**: 500 cap per server. If you run many DID-based or port-based peer trunks, this fills first. Plan another SBC Proxy at 400 used.
+
+The Dashboard's Cloud PBX Resource Overview widget shows fleet-level utilization trends over the last 1-24 hours. The Cloud PBX Resource Historical Usage widget shows month-over-month for concurrent calls, recording minutes, and (on PBXs running firmware `84.21.0.66`+) peak registration counts. Combine those two for a quarterly capacity report: how the fleet is growing and where the next bottleneck appears.
+
+```mermaid
+flowchart LR
+    Daily["Daily glance:<br/>Region Overview rollups"]
+    Weekly["Weekly check:<br/>per-server health<br/>+ Server Monitor Alarms"]
+    Quarterly["Quarterly:<br/>Dashboard historical view<br/>+ growth-trend extrapolation"]
+    Daily -->|"alerts on unhealthy server"| Weekly
+    Weekly -->|"alerts on slow drift"| Quarterly
+    Quarterly -->|"hardware orders"| Procurement[Procurement]
+```
+
+The pattern is the same as any platform-engineering capacity practice: short-loop alarms catch surprises, long-loop reviews catch drift.
+
+## The operation log, your audit trail
+
+Every change in YCM lands in **System > Operation Log**. The log is the platform's history: who did what, when, from what source IP, with what before / after values for edits. Three things make it worth treating as a first-class artefact rather than an afterthought.
+
+First, **it covers every actor class**. Super Admin actions, Colleague actions, Hosting User actions, Hosting User's Colleagues' actions, plus API-driven actions (which appear with the API client name as the actor). Whether someone clicked in the UI or POSTed via the API, the log shows it.
+
+Second, **edit operations carry diffs**. When somebody edits a Cloud PBX's settings, the log entry expands to show "field X: was Y, now Z" for every changed field. This is invaluable when a customer asks "who turned on passwordless login on our PBX" or "who reduced our extension capacity." Click the row; the answer is there.
+
+Third, **it is searchable and filterable**. By time range, by actor, by feature area (Cloud PBX / User / Repository / Branding / API / etc.), by operation type (Add / Edit / Delete / Login). A quarterly review against a sample of high-impact action types (Resize Capacity, Apply Provisioning Template, Branding edit, API enable, Custom Domain add, Hosting User create) takes thirty minutes.
+
+## Audit practices that survive the platform's growth
+
+A six-month-old operation log is overwhelming if you only look at it during incidents. Three habits keep it useful:
+
+- **A monthly review on a small action set**. Pick the actions that change the platform's shape: `Resize Capacity`, `Apply Provisioning Template`, `Branding`, `API enable / regenerate`, `Custom Domain add`, `Hosting User create`, `Hosting User capacity update`. Filter on those, scan for the unexpected. Five minutes a month catches the things that would otherwise be discovered in the next audit and look bad.
+- **A quarterly review across sub-users**. Hosting Users have their own colleagues acting inside their tenancy. The Super Admin's operation log shows their activity too. Once a quarter, sample a few sub-tenancies and confirm their activity matches the contract you have with that reseller. Patterns that look like data exfiltration (large CDR downloads from one Hosting User's Colleague repeatedly) are findable here before they grow.
+- **An incident playbook that starts with the log**. When a customer reports "something broke last Thursday around 3pm," your first move should be filtering the operation log to that PBX and that window. Half the time, "something broke" is "a Colleague made a change at 14:55 last Thursday and the customer noticed at 15:10." The fix may be a rollback; the diagnostic is the log.
+
+## Retention and exporting
+
+YCM keeps operation logs on-platform; the retention defaults are tied to platform settings. For long-term retention (compliance contexts: HIPAA-aligned MSPs, GDPR DPIA records, SOC 2 audit prep), the API endpoint for operation logs returns the same data in JSON. A small scheduled script can pull each day's entries and ship them into your SIEM or log archive. From that point on, the log lives as long as the rest of your security telemetry.
+
+Operation logs touching personal data (customer contact records, extension numbers, names) are themselves personal data. Handle accordingly: encrypted in transit, encrypted at rest, access-controlled at the SIEM, retention policy matching your customer commitments.
+
+## A worked HA failover scenario
+
+Able Moose Group's MSP is multi-region (Singapore primary, Sydney secondary). Sunday afternoon, the on-call engineer sees Server Monitor Alarms firing for the Singapore SBC Proxy Server: high CPU, elevated memory, and three pbxAccountTrunkDown traps for customers in that region. The opmenu cascade:
+
+1. **Cluster Management page**: confirm the SBC Proxy Server in Singapore is in `Lost Connection`, not `Suspended`. Calls in progress still flowing; new registrations failing.
+2. **Operation Log filtered to last 24 hours**: a Colleague applied a firmware upgrade to the SBC Proxy at 14:02. The trap pattern starts at 14:08, consistent with the upgrade reboot. Probable root cause: upgrade did not come back clean.
+3. **PBXHub Cluster status**: still Running. Customer PBXs themselves are fine; only carrier-side registration is impacted.
+4. **The fix**: SSH into the SBC Proxy machine using the operations team's break-glass procedure, confirm the SBC Proxy service is up, restart if needed. Refresh the YCM cluster view; `Lost Connection` flips back to `Running`. Re-monitor the trunk-down alarms; they self-recover.
+5. **Post-incident**: open a change record on the upgrade, root-cause why it did not come back clean, update the upgrade runbook so the next time the same procedure detects the half-up state earlier.
+
+The on-call engineer never needed to call Yeastar. The platform exposed enough state to localise the problem and recover it. That is what cluster monitoring plus audit log discipline buys; it lets your team operate the platform at scale rather than babysit it.
+
+<Checkpoint slug="yeastar-ycm-scale-checkpoint-ha" client:visible />
+
+Next lesson: the subscription view, the capacity allocation model across Hosting Users and direct customers, the AI minute pack economics, and reconciling YCM consumption against the customer billing your finance team produces.

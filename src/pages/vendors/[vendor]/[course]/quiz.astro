@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { Quiz } from "@/components/learning/Quiz";
+import {
+  courseUrl,
+  courseUrlSuffix,
+  vendorSlugOfCourse,
+  levelLabel,
+} from "@/lib/courseRoute";
+
+export async function getStaticPaths() {
+  const courses = await getCollection("courses");
+  const vendors = await getCollection("vendors");
+  const conceptSlugs = new Set(
+    vendors.filter((v) => v.data.kind === "concept").map((v) => v.data.slug),
+  );
+  return courses
+    .filter((c) => c.data.status === "live" && c.data.quiz)
+    .map((c) => ({ c, vendorSlug: vendorSlugOfCourse(c) }))
+    .filter(({ vendorSlug }) => vendorSlug && !conceptSlugs.has(vendorSlug))
+    .map(({ c, vendorSlug }) => ({
+      params: { vendor: vendorSlug!, course: courseUrlSuffix(c) },
+      props: { course: c },
+    }));
+}
+
+const { course } = Astro.props;
+const { vendor: vendorParam } = Astro.params;
+const level = course.data.level;
+
+const vendors = await getCollection("vendors");
+const vendor = vendors.find((v) => v.data.slug === vendorParam)!;
+const courseBase = courseUrl(course, vendor);
+---
+
+<BaseLayout
+  title={`${vendor.data.name} ${levelLabel[level]}, ${course.data.title}, final quiz`}
+  description={`Test your understanding of ${course.data.title}.`}
+>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/vendors/", label: "Vendors" },
+        { href: `/vendors/${vendor.data.slug}/`, label: vendor.data.name },
+        { href: courseBase, label: course.data.title },
+        { label: "Final quiz" },
+      ]}
+    />
+
+    <header class="mt-6 mb-2">
+      <Badge variant={level as "l1" | "l2" | "l3"} className="mb-3 text-[10px] uppercase tracking-widest">
+        {levelLabel[level]} · Final quiz
+      </Badge>
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+        {course.data.title}, final check
+      </h1>
+      <p class="mt-3 max-w-2xl text-muted-foreground text-lg leading-relaxed">
+        Wrong answers explain themselves on the spot. Your best score is
+        remembered locally, nothing leaves your browser.
+      </p>
+    </header>
+
+    <Quiz slug={course.data.quiz!} client:visible />
+  </div>
+</BaseLayout>

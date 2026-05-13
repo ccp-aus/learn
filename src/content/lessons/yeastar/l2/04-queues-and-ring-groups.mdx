@@ -1,0 +1,170 @@
+---
+slug: 04-queues-and-ring-groups
+vendor: yeastar
+level: l2
+title: Queues and ring groups, where the calls actually land
+summary: "Ring groups (four strategies, failover destinations, 256 groups of 120 members), queues (static and dynamic agents, ring strategies, MoH and announcements, overflow), and the decision rule for queue versus ring group."
+estimatedMinutes: 10
+order: 4
+topics: [pse, queue, ring-group, agent, ring-strategy]
+updated: 2026-05-13
+---
+
+Most IVR "press 1 for Sales" branches end at a queue or a ring group. They look similar from the outside (a virtual number that fans out to several extensions), but inside they're different tools. This lesson walks both, and gives you the rule for picking one over the other.
+
+## Ring groups, the lightweight option
+
+A ring group merges N extensions behind one virtual number. Calls ring through the members until someone picks up. Up to 256 ring groups on the PBX, 120 members per group.
+
+```
+Call Features → Ring Group → Add
+```
+
+The four ring strategies:
+
+| Strategy | Behaviour |
+|---|---|
+| **Ring All** | All members ring at once; first to pick up wins. |
+| **Ring Sequentially** | Ring member 1; if no answer in Ring Timeout, ring member 2; then member 3; etc. |
+| **Memory Hunt** | Ring member 1; if no answer in Ring Timeout, ring members 1 AND 2; then 1, 2 AND 3; etc. Cumulative. |
+| **Custom** | Each member has their own Delay (seconds before they start ringing) and Ring Timeout (seconds before they stop). Lets you build "always ring Alice, ring Bob 5 seconds later, ring Carol 10 seconds after that". |
+
+Ring All is the sane default for small workgroups. The others are useful when you want priority: the senior person rings first, the backup rings only if the senior doesn't pick up.
+
+### Failover destination
+
+When no member answers in the configured Ring Timeout, the call doesn't just hang up. PSE routes it to the **Failover Destination**: Hang Up, Extension, Extension Voicemail, Group Voicemail, IVR, Call Flow, Ring Group, Queue, External Number, or Play Prompt and Exit.
+
+A reasonable default for most ring groups is Group Voicemail. The caller hears a "leave a message" prompt; the group's mailbox notifies all members via email; someone calls back.
+
+### Per-member delay and timeout (Custom strategy)
+
+When you select Custom, the Members section shows a Delay column and a Ring Timeout column per member. Two rules:
+
+- Delay 0-600 seconds. 0 means ring immediately.
+- Ring Timeout 1-600 seconds. When the member's timeout fires, they stop ringing.
+- If all members time out, the call goes to Failover Destination.
+
+A worked pattern: an after-hours support rota where the on-call engineer rings first for 15 seconds, then the backup engineer rings (alongside the first) for the next 30 seconds, then both stop and the call drops to voicemail.
+
+| Member | Delay | Ring Timeout |
+|---|---|---|
+| 1 (on-call) | 0 | 45 |
+| 2 (backup) | 15 | 30 |
+
+After 45 seconds total, both members stop ringing, the call hits Failover Destination → Group Voicemail.
+
+### Record Missed Calls
+
+Optional checkbox on the ring group config. When enabled and combined with certain strategy + failover combinations (Ring All / Memory Hunt / Custom + failover to Extension / Queue / Ring Group), missed calls are logged to the group as missed-call records. Useful for "who hasn't returned the missed call yet?" follow-up reports.
+
+The constraint matters: missed-call recording isn't available under Ring Sequentially strategy or when failover is Voicemail. The product team's reasoning: Ring Sequentially's "missed" is ambiguous (some members never rang at all), and Voicemail-failed calls already produce voicemail records that cover the same ground.
+
+## Queues, the call-centre option
+
+Queues are the richer construct. You get the same "ring N people" behaviour, plus everything a customer-facing service desk needs:
+
+- **Static agents** are pre-assigned to the queue and always part of it (unless they manually pause). They don't log in.
+- **Dynamic agents** log in and out via feature code (`*7` + queue number, `*07` + queue number, `*77` for all queues, `*78` for last logged-in queues) or via Linkus toggle. Useful for shift work where the same person might cover different queues different days.
+- **Music on Hold (MoH)** plays while the caller waits.
+- **Periodic Announcement** plays at intervals ("your call is important to us, average wait is...").
+- **Position-in-queue announcement** plays the caller's spot in the queue.
+- **Wrap-up time** gives agents N seconds between calls to write notes before the next call rings them.
+- **Maximum Callers in Queue** caps the queue length; overflow routes to a separate destination.
+- **Overflow destination** when the queue is full or wait time exceeds a threshold (Voicemail, External Number, Extension, IVR, Hang Up, Play Prompt and Exit).
+- **Missed-call reporting and inbound-queue-logs reports** track wait times, answered rates, abandoned rates per agent and per queue.
+
+### Queue ring strategies
+
+PSE supports several strategies for distributing calls to agents in the queue. The names vary slightly between firmwares; the conceptual options:
+
+| Strategy | How it picks the agent |
+|---|---|
+| **Ring All** | Same as ring group: all agents at once. |
+| **Linear** | Agent 1, then 2, then 3, in fixed order from top of list. |
+| **Least Recent** | The agent who has been idle longest. Fair distribution for non-specialised teams. |
+| **Fewest Calls** | The agent with fewest answered calls today. Balances workload. |
+| **Random** | Random selection from available agents. |
+| **Round Robin Memory** | Rotation; remembers where it left off. |
+| **Skill-Based** | Agent skill levels; routes by required skill match. For multi-skill queues. |
+
+Pick **Least Recent** or **Fewest Calls** for most customer-facing queues. They produce the most equitable distribution. Pick **Linear** when there's a deliberate priority (the senior agent should always take it if available; junior agents only catch overflow). Pick **Skill-Based** when agents have different specialisations within the queue (Tier 1 / Tier 2 support, multi-language teams).
+
+### Agent operations via feature code
+
+| Code | What it does |
+|---|---|
+| `*7` + queue | Log in or out of a specific queue (dynamic agent) |
+| `*07` + queue | Pause or unpause a specific queue (any agent) |
+| `*77` | Log in to ALL queues (dynamic agents); resume static agents |
+| `*077` | Log out of all queues (dynamic agents only) |
+| `*78` | Log in to all previously logged-in queues |
+
+These work from any device that can dial extensions: deskphone, Linkus, web client. Static agents pause and unpause with `*07`; they can't actually log out (they're statically assigned), but pausing functions equivalently from the queue's perspective.
+
+### Presence-driven agent state
+
+Each extension has a setting **Agent Status Auto Switch** (under presence settings) that ties queue status to extension presence. With it on:
+
+- When the user's presence flips to Lunch Break, they're auto-paused in their queues.
+- When they flip to Available, they're auto-resumed.
+
+This stops the "phantom agent ringing while at lunch" problem without users having to remember the pause feature code.
+
+### Distinctive ringtones
+
+Queue Alert Info is a string (e.g. `Support`, `Sales`) that PSE adds to the SIP INVITE's Alert-Info header. Configured IP phones and Linkus clients can match that string to a specific ringtone, so the agent knows from the ring which queue is calling them. Configure on the queue's Preferences tab; match on each agent's extension (deskphone Auto Provisioning + Distinctive Ringtone section) or Linkus client (queue's Linkus Client Distinctive Ringtone field).
+
+## Queue versus ring group, the decision
+
+Two questions decide it:
+
+1. **Does the customer want stats?** If wait time, answered rate, and abandoned rate matter, queue. Ring groups don't produce these reports.
+2. **Are agents shift-rotating?** If dynamic agent login/logout is part of the workflow, queue. Ring groups have fixed membership.
+
+Beyond that, queue's prompts and overflow logic (Music on Hold, position announcement, max-callers cap) are essential for customer-facing service desks and superfluous for a four-person sales pod. The right rule of thumb: **anything customers wait in goes in a queue; anything internal teams just need to share goes in a ring group.**
+
+| Scenario | Pick |
+|---|---|
+| Sales hotline, customers call in expecting to wait if busy | Queue |
+| Tech support service desk with 2-hour SLA on answer | Queue |
+| After-hours on-call rota with two engineers | Ring group (Custom strategy) |
+| Reception backline (3 receptionists in the office, anyone can pick up) | Ring group (Ring All) |
+| Multi-language support with skill-based routing | Queue (Skill-Based strategy) |
+| Internal IT helpdesk for 20-person office | Ring group (Ring All) is fine; queue only if they want metrics |
+
+## A worked queue: Able Moose Support
+
+Able Moose's Support team has eight agents across Sydney (5) and Brisbane (3). Customers expect to wait up to two minutes during business hours; they want their position announced and they want hold music. After 30 seconds of all-agents-busy at a certain wait threshold, overflow routes to the Sydney on-call mobile.
+
+```
+Call Features → Queue → Inbound Queue → Add
+```
+
+| Setting | Value | Why |
+|---|---|---|
+| Number | 6400 | Default queue range, pick the first one |
+| Name | Support | Matches the team |
+| Ring Strategy | Least Recent | Even distribution; nobody gets hammered with calls |
+| Maximum Callers In Queue | 10 | At more than 10, the customer is having a bad time anyway; overflow |
+| Static Agents | The 8 support reps (5 Sydney + 3 Brisbane) | All eight are always in this queue |
+| Music on Hold | `Support-MoH` playlist | Customer's brand-friendly hold music |
+| Periodic Announcement | `support-periodic.wav` every 60 seconds | "Your call is in queue, we're sorry for the wait" |
+| Position Announcement | Enabled, after Periodic | "Your position in queue is..." |
+| Wrap-up Time | 30 seconds | Agents type the ticket update before next call rings |
+| Failover Destination | External Number `+61400123456` (Sydney on-call) | When queue is full or wait exceeds threshold |
+| Queue Alert Info | `Support` | Sydney IP phones match this and play the Support ringtone |
+
+The inbound route for the Sydney support DID points its business-hours destination at this queue. Outside business hours, the same inbound route points at a smaller after-hours IVR (which itself routes 1 to the on-call mobile, 2 to voicemail).
+
+The advanced course will cover queue tuning at depth: SLA configuration, agent-performance dashboards, skill-based routing for multi-skill teams. This level (build a working queue, pick a reasonable strategy, set sane overflow) is enough for most customers.
+
+## What this is NOT
+
+- **Not the agent-performance reporting walkthrough.** Inbound Queue Logs and Agent Performance reports are separate features under Reports, and a full treatment belongs in the advanced course.
+- **Not call-flow-designer-based queues.** Call Flow Designer can build queue-like structures with its own logic; we cover IVR and the standard Queue here. Call Flow is its own subject.
+- **Not outbound campaigns.** The Outbound Call Center module (campaigns, dialler logic) is for outbound-heavy operations and is its own subsystem.
+
+<Checkpoint slug="yeastar-pse-build-checkpoint-queues" client:visible />
+
+Next lesson: recording rules, voicemail policy, and the role-based playback permissions that decide who can hear what.

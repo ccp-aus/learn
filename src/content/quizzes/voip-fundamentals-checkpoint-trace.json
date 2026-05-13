@@ -1,0 +1,32 @@
+{
+  "slug": "voip-fundamentals-checkpoint-trace",
+  "course": "voip-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, reading a trace",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-trace-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "You pull a SIP trace for a 'no audio after answer' ticket. The trace shows INVITE → 200 OK → ACK cleanly. SDP bodies are present in INVITE and 200 OK. What's the most likely root cause?",
+      "choices": [
+        "An auth problem at the PBX",
+        "RTP can't traverse NAT or firewall on the media path",
+        "The codec offered in SDP wasn't supported",
+        "Session timers expired during call setup"
+      ],
+      "correct": 1,
+      "explanation": "SIP signalling completed cleanly. The audio problem is therefore RTP-side, almost always a NAT/firewall problem on the media path. Codec mismatch would cause INVITE → 488 Not Acceptable Here, not 200 OK. Auth or session-timer problems would show different shapes."
+    },
+    {
+      "id": "ck-trace-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A 487 Request Terminated in response to an INVITE means the call failed; you should investigate it as a problem.",
+      "correct": false,
+      "explanation": "487 means the caller cancelled (sent CANCEL) before the call connected. Totally normal — happens any time a user starts dialling and hangs up before answer. Not a problem."
+    }
+  ]
+}

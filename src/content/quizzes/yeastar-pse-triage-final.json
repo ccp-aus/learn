@@ -1,0 +1,167 @@
+{
+  "slug": "yeastar-pse-triage-final",
+  "course": "yeastar-pse-triage",
+  "kind": "final",
+  "title": "PSE triage, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-portal-section",
+      "type": "mcq",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "Which PSE menu section would you open to listen back to a specific call's recording?",
+      "choices": [
+        "Extension and Trunk",
+        "Call Control",
+        "Reports and Recordings",
+        "Maintenance"
+      ],
+      "correct": 2,
+      "explanation": "Recordings live under Reports and Recordings (alongside CDR). The fastest path is finding the call in CDR (Advanced), clicking it, and using the in-page playback; the Recordings tab also lets you browse all recordings independent of a CDR row."
+    },
+    {
+      "id": "q-extension-state",
+      "type": "mcq",
+      "topic": "extensions",
+      "difficulty": "easy",
+      "prompt": "Which extension-profile tab tells you which Linkus clients are currently logged in for that user?",
+      "choices": [
+        "Basic",
+        "User Information",
+        "Linkus Clients",
+        "Function Keys"
+      ],
+      "correct": 2,
+      "explanation": "The Linkus Clients tab on the extension profile lists every registered client (Desktop / Web / Mobile) with last-seen timestamps. Most 'why isn't my Linkus working?' tickets resolve right there."
+    },
+    {
+      "id": "q-cdr-fields",
+      "type": "multi",
+      "topic": "cdr",
+      "difficulty": "medium",
+      "prompt": "Which CDR fields are most useful when triaging an inbound call that 'went to the wrong place'? (Select all that apply.)",
+      "choices": [
+        "DID/DDI (the dialled number — tells you which inbound route matched)",
+        "Source Trunk (which carrier route)",
+        "Last Participant (where the call ended up)",
+        "Caller IP Address",
+        "PIN Code"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "DID, Source Trunk, and Last Participant together tell you the routing path. PIN Code is for restricted outbound routes (not inbound). Caller IP is media-side info, not routing info."
+    },
+    {
+      "id": "q-cdr-versions",
+      "type": "tf",
+      "topic": "cdr",
+      "difficulty": "easy",
+      "prompt": "On PSE firmware 83.21.0.117 or later, both 'CDR (Advanced)' and 'CDR (Legacy)' tabs can have data; new calls land in Advanced, older calls remain in Legacy until cleanup ages them out.",
+      "correct": true,
+      "explanation": "The 83.21.0.117 release introduced a new CDR data structure. Older records keep living under the Legacy tab until the auto-cleanup setting purges them. When a customer upgrades, expect both tabs to be populated for a while."
+    },
+    {
+      "id": "q-timeline-view",
+      "type": "mcq",
+      "topic": "cdr",
+      "difficulty": "medium",
+      "prompt": "What does Timeline View (in CDR detail) show that Standard View doesn't?",
+      "choices": [
+        "The audio waveform",
+        "Chronological per-event listing of everything that happened during the call (entered IVR, transferred to queue, hold start/end, hangup) — call lifecycle granularity",
+        "The caller's IP address",
+        "MOS score per leg"
+      ],
+      "correct": 1,
+      "explanation": "Timeline View gives chronological events through the call's lifecycle. Standard View is the flat summary. Timeline View needs the 'call timeline' feature enabled in PBX Settings → Preferences; if not enabled, Standard View is all you get."
+    },
+    {
+      "id": "q-recording-rules",
+      "type": "mcq",
+      "topic": "recordings",
+      "difficulty": "medium",
+      "prompt": "A customer asks 'why was this call recorded?'. You read the recording rules in Call Features → Recording. Each rule matches calls by which combination of attributes?",
+      "choices": [
+        "Time of day only",
+        "Call type (inbound / outbound / internal) plus targets (extensions / trunks / queues) plus enable state",
+        "Caller IP address",
+        "Recording quota remaining"
+      ],
+      "correct": 1,
+      "explanation": "Recording rules combine call type, target sets, and an enabled flag. A rule matching 'inbound calls to the Sales queue' records every inbound call that hit Sales regardless of who answered. Knowing this lets you read why-or-why-not without changing the rule."
+    },
+    {
+      "id": "q-download-audit",
+      "type": "tf",
+      "topic": "recordings",
+      "difficulty": "easy",
+      "prompt": "When you download a call recording from the PSE admin portal, the operation is logged in Maintenance → Operation Logs with your username, the call ID, and the timestamp.",
+      "correct": true,
+      "explanation": "Recording downloads are audited. The Operation Logs page is the audit trail customers can review. This is why you should never share recordings outside that trail — emailing a copy from your personal address bypasses the log."
+    },
+    {
+      "id": "q-no-route",
+      "type": "mcq",
+      "topic": "outbound",
+      "difficulty": "medium",
+      "prompt": "Sarah dials an external number and her CDR row shows Status = FAILED with Last Participant indicating 'No matching route'. What's the most likely cause?",
+      "choices": [
+        "Sarah's password is wrong",
+        "The outbound route does not have a number pattern that matches the dialled number, so PSE has nowhere to send the call",
+        "The trunk is down",
+        "The PBX needs a reboot"
+      ],
+      "correct": 1,
+      "explanation": "'No matching route' is PSE's way of saying the outbound routes evaluated for that extension don't have a number pattern that catches the dialled number. The fix is in Call Control → Outbound Routes: either Sarah's role lacks access to a route that would catch it, or the pattern is wrong / missing."
+    },
+    {
+      "id": "q-sdp-private-ip",
+      "type": "mcq",
+      "topic": "no-audio",
+      "difficulty": "hard",
+      "prompt": "You're triaging a 'connected but no audio' ticket. The SIP trace shows INVITE → 200 OK → ACK normally. The 200 OK's SDP body has `c=10.0.5.42` and `m=audio 21000 RTP/AVP 8`. The trunk is on the public internet. What's the most likely root cause?",
+      "choices": [
+        "Codec mismatch (G.711a 'PCMA' isn't supported)",
+        "The SDP is advertising a private RFC 1918 IP that the trunk side can't reach for RTP; NAT settings on the PBX SIP profile probably need adjusting",
+        "The PBX is overloaded",
+        "Session timer expired"
+      ],
+      "correct": 1,
+      "explanation": "10.0.5.42 is RFC 1918 (10.x). A public-internet trunk can't route RTP to a private address. The fix is per-trunk or per-extension NAT settings in the SIP profile so PSE rewrites the SDP with the public IP. PCMA (payload type 8) is fine."
+    },
+    {
+      "id": "q-escalation-data",
+      "type": "order",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "Put these triage-data items in the order a useful escalation would present them:",
+      "items": [
+        "Customer-reported symptom in one sentence",
+        "Affected extension number and the precise time range",
+        "CDR row screenshot or row ID with the headline Status",
+        "Timeline View / SIP trace showing the failure point",
+        "Suspected root cause based on the gathered data"
+      ],
+      "explanation": "Symptom → context (who, when) → data (CDR) → detail (Timeline/trace) → hypothesis. This lets the next tier read top-to-bottom and stop reading as soon as they have what they need."
+    },
+    {
+      "id": "q-timezone-trap",
+      "type": "tf",
+      "topic": "callflow",
+      "difficulty": "medium",
+      "prompt": "A misconfigured timezone on the PBX (PBX Settings → Date and Time) can cause business-hours time conditions to fire at the wrong wall-clock times, sending calls to wrong destinations.",
+      "correct": true,
+      "explanation": "Classic callflow gotcha. Time conditions are evaluated against PSE's local time; if the timezone is wrong, the 'business hours' window is offset by hours from reality. Always sanity-check the timezone when 'wrong destination at specific times' tickets come in."
+    },
+    {
+      "id": "q-read-vs-change",
+      "type": "tf",
+      "topic": "triage",
+      "difficulty": "easy",
+      "prompt": "A triage tech's default action when investigating a ticket is to *read* PSE rather than *change* it; most callflow / extension / role tickets resolve without any configuration changes by the triage tier.",
+      "correct": true,
+      "explanation": "Most tickets resolve at the read step. Changes to extensions, callflows, recording rules, and roles have downstream effects that aren't always visible from the symptom. Read first; escalate cleanly when the fix is genuinely an intermediate / advanced course's responsibility."
+    }
+  ]
+}

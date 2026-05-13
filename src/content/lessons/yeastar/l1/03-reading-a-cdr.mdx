@@ -1,0 +1,106 @@
+---
+slug: 03-reading-a-cdr
+vendor: yeastar
+level: l1
+title: Reading a CDR
+summary: "PSE's CDR (Advanced) gives a per-leg trace of every call — who, when, which trunk, which route, why it ended. The headline metrics, the Timeline view for hard-to-trace flows, and the filter shortcuts that find your call fast."
+estimatedMinutes: 8
+order: 3
+topics: [pse, cdr, triage]
+updated: 2026-05-12
+---
+
+PSE's CDR (Call Detail Records) is the single most useful page for a triage tech. Every call leaves a row. Each row tells you who called whom, which trunk, which route, how long, whether it answered, and why it ended. For a specific-call ticket ("my call to Bob disconnected at 14:32"), you're three filters away from the answer.
+
+## Where to find it
+
+```
+Reports and Recordings → CDR (Advanced)
+```
+
+Note: PSE firmware 83.21.0.117 introduced a new CDR data structure. Older calls live under **CDR (Legacy)**. New calls land in **CDR (Advanced)** with richer per-leg detail. If you're on a customer that recently upgraded, both tabs may have data.
+
+## The filter shortcuts
+
+The CDR page is paginated and the list is long. Filter first:
+
+| Filter | Use for |
+|---|---|
+| **Time** | The single most useful filter. Set start and end date / time. If the user said "around 2pm yesterday", give yourself a 30-minute window. |
+| **Call From** | Caller's number or name; for an extension, enter the extension number. |
+| **Call To** | Callee's number or name. |
+| Click the **fuzzy search** toggle | Partial name match if you only know "Sarah". |
+| **Advanced filters** (right pane) | Second/last participant, queue, trunk, DID, recording present/absent, AI summary keyword |
+
+Combine Time + Call From or Time + Call To and you usually have one or two candidate rows.
+
+## The columns that matter
+
+The list view shows a subset of columns by default. The ones to keep visible:
+
+| Column | What it tells you |
+|---|---|
+| **Time** | When the call started. |
+| **Communication Type** | Internal / Inbound / Outbound. Tells you the call's overall direction. |
+| **Call From** | The originating extension / caller-ID number. |
+| **Call To** | The destination extension / external number. |
+| **Second Participant** | The next hop after the initial routing. For an inbound call that hit an IVR then a queue, this is the queue. |
+| **Last Participant** | Where the call ended up. Usually the answering extension. |
+| **Status** | ANSWERED / NO ANSWER / BUSY / FAILED / VOICEMAIL / ABANDONED. |
+| **Call Duration** | Total elapsed time. |
+| **Ring Duration** | How long it rang before answer or end. |
+| **Hold Duration** | If the call had hold periods. |
+| **Source Trunk** | The trunk a call came in on (for inbound). |
+| **Destination Trunk** | The trunk a call went out on (for outbound). |
+| **DID/DDI** | The dialled number for inbound — important for "which inbound route did this hit?" questions. |
+
+For "the call sounded bad" tickets, the **Caller IP Address** column is also worth showing — combined with MOS / RTCP stats in the call detail, it tells you whether quality issues were endpoint-side or network-side.
+
+## Drilling into a single call
+
+Click a row. You get the **Call Detail Record** view, which has several panels:
+
+### Recording panel (top)
+
+If the call was recorded, a waveform appears here with playback controls — play, pause, speed adjustment, volume. Each call leg is shown as a coloured segment; click a leg to jump to its part of the recording. Download or delete from the same panel.
+
+### Timeline panel
+
+Two views:
+
+- **Standard View**: a flat summary of each call leg with the headline metrics. Default.
+- **Timeline View**: a chronological event-by-event listing of everything that happened during the call (entered IVR, transferred to queue, agent picked up, transferred to extension, hold start, hold end, hangup). Only available when the admin has enabled the "call timeline" feature; switches it on in PBX Settings → Preferences.
+
+For "the call dropped, why?" the Timeline view is the answer machine. It tells you which leg dropped, what event triggered the drop, who hung up.
+
+### AI Transcription / Summary panel
+
+If the call had AI Transcription enabled, you get the full transcript here, searchable, plus an AI-generated summary. Export as `.txt` or `.docx`. (Requires the customer to have AI Transcription minutes allocated from YCM; the advanced PSE course covers setup.)
+
+### Call Time Breakdown panel
+
+A donut chart showing the call's lifetime split: routing duration, waiting duration, ring duration, pure talk duration, hold duration, wrap-up duration. Useful for "why was the customer on hold so long?" tickets — the chart tells you instantly.
+
+## A worked example
+
+A customer rings reception saying their call to Alice this morning dropped after a few minutes. Triage flow:
+
+1. CDR (Advanced) → Time filter: today, 09:00 – 10:00.
+2. Call To: 1003 (Alice's extension).
+3. One row matches. Status: ANSWERED. Call Duration: 6:42. Last Participant: 1003.
+4. Click the row.
+5. Timeline View: ... 6:38 — hold start (by 1003); 6:40 — hold end; 6:42 — BYE from caller side.
+6. Conclusion: the call ended normally. Alice put the caller on hold for 2 seconds, took her off hold, and the caller hung up four seconds later.
+
+This is a common pattern: the customer thinks the call "dropped" when actually the caller hung up. The CDR shows the truth without escalation.
+
+## What the CDR doesn't tell you
+
+Two things to remember:
+
+- **CDR has no SIP-level detail.** For "why did this SIP transaction fail with code X" you need the **Maintenance → Troubleshooting** SIP trace, not the CDR. CDR is the call's narrative; the SIP trace is the call's transcript.
+- **CDR can lag a couple of seconds** behind the actual call. If a customer reports a problem in real time and you don't see the row yet, refresh in 30 seconds.
+
+<Checkpoint slug="yeastar-pse-triage-checkpoint-cdr" client:visible />
+
+Next lesson: playing back the recording you just located in CDR.

@@ -1,0 +1,201 @@
+{
+  "slug": "yeastar-pse-advanced-final",
+  "course": "yeastar-pse-advanced",
+  "kind": "final",
+  "title": "PSE at scale, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-crm-screen-pop-source",
+      "type": "mcq",
+      "topic": "crm",
+      "difficulty": "easy",
+      "prompt": "After enabling a HubSpot integration, the Linkus call-popup correctly shows the matched contact's name on inbound calls, but the user's HubSpot browser tab does NOT open the contact record. Which is the most likely root cause?",
+      "choices": [
+        "Contact sync is broken",
+        "The HubSpot OAuth token has expired",
+        "The HubSpot browser extension hasn't been installed in the user's browser",
+        "PSE doesn't support HubSpot screen-pops"
+      ],
+      "correct": 2,
+      "explanation": "Two screen-pops exist: in-Linkus (driven by contact sync; works since contact is identified) and in-CRM (requires the per-CRM browser extension). The in-Linkus pop working confirms sync is fine; the in-CRM pop failing points at the missing extension."
+    },
+    {
+      "id": "q-m365-permission-rollback",
+      "type": "multi",
+      "topic": "m365-security",
+      "difficulty": "hard",
+      "prompt": "A customer's PSE deployment uses M365 user sync, SSO, and one-way Teams presence sync. They do NOT use Teams CTI, SharePoint backup archive, or Outlook-as-SMTP. After paring back the auto-granted Microsoft Graph permissions to least-privilege, which permissions should remain on the Yeastar Enterprise Application? (Select all that apply.)",
+      "choices": [
+        "User.Read.All (Application)",
+        "Directory.Read.All (Application)",
+        "Presence.Read.All (Application)",
+        "Calls.AccessMedia.All (Application)",
+        "Sites.ReadWrite.All (Application)",
+        "openid / profile / email / User.Read (Delegated)",
+        "User.ReadWrite.All (Application)"
+      ],
+      "correct": [0, 1, 2, 5],
+      "explanation": "User.Read.All + Directory.Read.All cover user/extension sync. Presence.Read.All covers one-way presence sync (bidirectional would need Presence.ReadWrite.All). The delegated openid/profile/email/User.Read scopes cover SSO. Calls.AccessMedia.All is only needed for Teams CTI (off here). Sites.ReadWrite.All is only needed for SharePoint archive (off here). User.ReadWrite.All is never needed; PSE only reads users."
+    },
+    {
+      "id": "q-m365-rollback-flow",
+      "type": "mcq",
+      "topic": "m365-security",
+      "difficulty": "medium",
+      "prompt": "Where in Entra ID do you actually revoke an over-granted permission from the Yeastar-created enterprise application?",
+      "choices": [
+        "Microsoft Entra ID -> App registrations -> the Yeastar app -> API permissions",
+        "Microsoft Entra ID -> Enterprise applications -> the Yeastar app -> Permissions",
+        "Microsoft Entra ID -> Users -> the Global Admin -> revoke consent",
+        "Microsoft 365 admin centre -> Settings -> Integrated apps"
+      ],
+      "correct": 1,
+      "explanation": "The Yeastar app appears as an Enterprise Application in Entra (since admin consent was granted on behalf of the tenant). The Permissions tab on the Enterprise Application is where individual Graph permissions are revoked. App registrations is where you'd manage the underlying app object; the Enterprise Application view is the consent-and-permission view."
+    },
+    {
+      "id": "q-m365-reauth-warning",
+      "type": "tf",
+      "topic": "m365-security",
+      "difficulty": "easy",
+      "prompt": "If you've pared back the Microsoft Graph permissions on a customer's M365 integration, and Yeastar support tells the customer's admin to 'just re-authorise the integration' to fix a sync error, the re-authorisation will preserve your custom permission set.",
+      "correct": false,
+      "explanation": "Re-authorising re-runs the consent flow with the default (broad) permission set, undoing your rollback. Document the rollback in the customer runbook so future techs (and Yeastar support recommendations) don't silently undo it. When troubleshooting, identify the specific failing permission in Entra Sign-in logs and re-grant just that one."
+    },
+    {
+      "id": "q-presence-bidir-during-call",
+      "type": "tf",
+      "topic": "teams-presence",
+      "difficulty": "medium",
+      "prompt": "When bidirectional Teams presence sync is enabled, a Teams meeting that flips the user to 'In a Meeting' will overwrite the extension's 'On a Call' status mid-PBX-call.",
+      "correct": false,
+      "explanation": "Per the v83.20.0.128 fix: when the extension is ringing or busy on a call, presence does not sync from Teams. The local call wins so an external Teams status change can't disrupt an in-progress PBX call."
+    },
+    {
+      "id": "q-ai-receptionist-resolution-status",
+      "type": "mcq",
+      "topic": "ai-receptionist",
+      "difficulty": "medium",
+      "prompt": "In the post-83.21 CDR, what does the AI Receptionist 'Transferred' status indicate?",
+      "choices": [
+        "The receptionist failed and the call was dropped",
+        "The receptionist matched an intent and routed the caller to another destination (extension, queue, voicemail) without resolving the issue itself",
+        "The call was transferred TO the AI Receptionist from another destination",
+        "The receptionist could not understand the caller and fell back to the default destination"
+      ],
+      "correct": 1,
+      "explanation": "Three statuses: Resolved (handled without transfer), Transferred (matched an intent that routed the caller elsewhere), Unresolved (didn't resolve and didn't transfer cleanly; usually fell back). Transferred is a successful outcome: the AI identified the right destination."
+    },
+    {
+      "id": "q-call-accounting-formula",
+      "type": "mcq",
+      "topic": "call-accounting",
+      "difficulty": "hard",
+      "prompt": "A rate rule has Initial Time = 60s, Initial Cost = 0.10, Billable Unit = 30s, Rate = 0.04. A call lasts 145 seconds. What's the cost?",
+      "choices": [
+        "0.10",
+        "0.18 (0.10 + 2 * 0.04 for the additional 60 seconds, rounded to billable units)",
+        "0.22 (0.10 + 3 * 0.04 for the additional 85 seconds, rounded UP to 3 30-second blocks)",
+        "0.50"
+      ],
+      "correct": 2,
+      "explanation": "Cost = Initial Cost + ceil((Total - Initial Time) / Billable Unit) * Rate. (145 - 60) = 85 seconds beyond the initial period; ceil(85 / 30) = 3 billable units; 3 * 0.04 = 0.12; plus initial 0.10 = 0.22. PSE rounds UP to whole billable units."
+    },
+    {
+      "id": "q-scheduled-report-recipient",
+      "type": "tf",
+      "topic": "reports",
+      "difficulty": "easy",
+      "prompt": "When configuring a Scheduled Report's recipient list, sending to a role-based mailbox like ops@example.com is more durable than sending to a named individual's mailbox.",
+      "correct": true,
+      "explanation": "Named-individual mailboxes break when staff leave; role-based mailboxes survive turnover. The most common cause of 'we stopped getting our monthly reports' tickets six months after deployment is the original recipient leaving the customer."
+    },
+    {
+      "id": "q-security-layer-order",
+      "type": "order",
+      "topic": "security",
+      "difficulty": "medium",
+      "prompt": "Order the PSE security layers from outermost (filters traffic first) to innermost (last line of defence).",
+      "items": [
+        "Allowed Country IPs (GeoIP)",
+        "Static Defense (per-IP)",
+        "Auto Defense (rate limit per source IP)",
+        "SIP / Web authentication",
+        "User Role permissions",
+        "2FA challenge"
+      ],
+      "explanation": "Country -> Static -> Auto -> Auth -> Role -> 2FA. Each layer applies finer-grained checks against traffic that survived the previous layer. The order also helps reason about which layer rejected a connection."
+    },
+    {
+      "id": "q-srtp-vs-tls",
+      "type": "mcq",
+      "topic": "encryption",
+      "difficulty": "medium",
+      "prompt": "What's the difference between SIP TLS and SRTP, and which one encrypts the actual call audio?",
+      "choices": [
+        "SIP TLS encrypts both signalling and audio; SRTP is a legacy alternative",
+        "SIP TLS encrypts SIP signalling messages; SRTP encrypts the RTP audio payload. Both are needed for a fully-encrypted call",
+        "SRTP encrypts signalling; SIP TLS encrypts audio",
+        "They're the same thing under different names"
+      ],
+      "correct": 1,
+      "explanation": "SIP TLS protects the signalling messages (REGISTER, INVITE, etc.) on port 5061. SRTP protects the audio payload in the RTP stream. They're independent: a call can have TLS without SRTP (signalling encrypted, audio in clear) or vice versa. Both together is the fully-encrypted-call configuration."
+    },
+    {
+      "id": "q-2fa-mandatory-effect",
+      "type": "mcq",
+      "topic": "2fa",
+      "difficulty": "medium",
+      "prompt": "After enabling 'Make Two-Factor Authentication Mandatory for All Extensions' on a 200-extension PBX, what happens to extension users who've never set up 2FA?",
+      "choices": [
+        "All 200 are immediately logged out of Linkus",
+        "On their next Linkus login attempt, they're forced through a 2FA setup flow; if they don't complete it, they get logged out at that point",
+        "Their accounts are disabled until an admin sets 2FA for each one",
+        "Nothing changes; the toggle only affects newly-created extensions"
+      ],
+      "correct": 1,
+      "explanation": "The enforcement applies on the next Linkus login. Users already logged in stay logged in until their session ends; on the next login attempt, the setup window appears and incomplete setups result in logout. Plan the rollout with comms and helpdesk readiness for the day after enabling."
+    },
+    {
+      "id": "q-hot-standby-restriction",
+      "type": "multi",
+      "topic": "hot-standby",
+      "difficulty": "medium",
+      "prompt": "Which constraints apply to a PSE Hot Standby pair? (Select all that apply.)",
+      "choices": [
+        "Both servers must be on the same LAN subnet",
+        "Both servers must run identical firmware",
+        "The pair uses the LAN port (WAN port Hot Standby is not supported)",
+        "Failover is automatic; takeback to the Primary is also automatic once it's repaired",
+        "The Virtual IP migrates between Primary and Secondary so clients always reach whichever is active"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Same LAN, same firmware, LAN port only, virtual IP migration: all true. Failover is automatic but takeback is MANUAL (you click Repair Completed then Take Over on the Primary after fixing it)."
+    },
+    {
+      "id": "q-archive-retention-clock",
+      "type": "tf",
+      "topic": "backup",
+      "difficulty": "medium",
+      "prompt": "An Archive task with Retention by Days = 30 will delete files based on when the file was archived to the destination, not when the file was originally created on the PBX.",
+      "correct": true,
+      "explanation": "The retention clock starts at archive time on the destination. A backup taken in January but only archived in May starts its 30-day retention clock in May."
+    },
+    {
+      "id": "q-deep-troubleshoot-order",
+      "type": "order",
+      "topic": "troubleshooting",
+      "difficulty": "hard",
+      "prompt": "A customer reports 'all our outbound calls failed for 20 minutes around 14:00 yesterday'. Order the troubleshooting steps from first to last.",
+      "items": [
+        "Check Operation Logs to see if a config change was applied around that time",
+        "Download System Logs covering the 20-minute window and search for the trunk's name",
+        "Use Ping (TCP, port 5060) to confirm carrier reachability now",
+        "Configure a continuous Ethernet Capture filtered to the carrier's IP for the next 24 hours",
+        "Document the incident and notify the MSP's account manager"
+      ],
+      "explanation": "Operation Logs first (cheap, may resolve immediately), System Logs second (records what the PBX saw), targeted probes (ping) to validate baseline, capture for next-time evidence, document. Don't jump to packet captures first; capture without a hypothesis is data overload."
+    }
+  ]
+}

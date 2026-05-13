@@ -1,0 +1,40 @@
+{
+  "slug": "yeastar-pse-advanced-checkpoint-ai",
+  "course": "yeastar-pse-advanced",
+  "kind": "checkpoint",
+  "title": "Quick check, AI Receptionist and AI Toolbox",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ai-quota-source",
+      "type": "mcq",
+      "topic": "quota",
+      "difficulty": "medium",
+      "prompt": "A customer's AI Receptionist starts failing calls mid-month. CDR shows the receptionist had been resolving calls fine until the failure started. Where does the senior tech look first?",
+      "choices": [
+        "PSE's AI Receptionist configuration page",
+        "YCM's My Subscription / per-Cloud-PBX capacity view to check if `receptionistCapacity` minutes are exhausted",
+        "The Speech-to-Text Integration page",
+        "The Call Flow Designer for an infinite loop"
+      ],
+      "correct": 1,
+      "explanation": "AI minutes are pool resources allocated from YCM. A mid-month failure with previously-working configuration is most often quota exhaustion, not a config issue. Check the YCM-side capacity first; resize the allocation if needed."
+    },
+    {
+      "id": "ck-ai-tts-vs-stt",
+      "type": "mcq",
+      "topic": "ai-toolbox",
+      "difficulty": "easy",
+      "prompt": "Voicemail transcription on PSE uses which engine?",
+      "choices": [
+        "Yeastar's built-in AI Transcription",
+        "Google Cloud Speech-to-Text (configured under Integration -> Speech to Text)",
+        "Microsoft Azure Speech Services",
+        "OpenAI Whisper"
+      ],
+      "correct": 1,
+      "explanation": "Voicemail transcription is a separate Google Cloud Speech-to-Text integration with its own API key and billing. AI Transcription (for call recordings) is the Yeastar-built feature that draws from the YCM-allocated transcription pool."
+    }
+  ]
+}

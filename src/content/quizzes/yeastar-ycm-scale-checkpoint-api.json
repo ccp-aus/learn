@@ -1,0 +1,38 @@
+{
+  "slug": "yeastar-ycm-scale-checkpoint-api",
+  "course": "yeastar-ycm-scale",
+  "kind": "checkpoint",
+  "title": "Quick check: OAuth, endpoints, and webhooks",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-api-token-lifecycle",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Your provisioning script obtains an access token at 09:00 and starts a long batch of Cloud PBX creates that runs until 11:30. What's the right token-handling approach?",
+      "choices": [
+        "Use the same access token throughout; it stays valid as long as the connection is active.",
+        "Refresh the access token using the refresh_token grant before the 30-minute expiry, capturing the new access_token and refresh_token from each refresh response.",
+        "Re-run the client_credentials grant every time the token expires, since refresh tokens are not supported.",
+        "Cache the access token in plaintext on the script's host so it survives restarts."
+      ],
+      "correct": 1,
+      "explanation": "Access tokens expire after 30 minutes. The refresh_token grant exchanges a refresh token for a new access_token + new refresh_token; both should be captured for the next cycle. Re-running client_credentials works but is wasteful and unnecessary."
+    },
+    {
+      "id": "ck-api-webhook-signature",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Your webhook endpoint receives a POST from YCM with an X-Signature header. How do you verify the request is genuine?",
+      "choices": [
+        "Check that the request came from a Yeastar-owned IP address.",
+        "Compute base64(HMAC-SHA256(raw_body, your_webhook_secret)) and constant-time-compare against the X-Signature header value.",
+        "Decode the X-Signature header as a JWT and verify the signature with YCM's public key.",
+        "Trust the request if the User-Agent contains 'Yeastar'."
+      ],
+      "correct": 1,
+      "explanation": "The X-Signature is HMAC-SHA256 of the raw body keyed by the per-webhook secret YCM generated, base64-encoded. You compute the same value and compare; if they match, the request came from someone with the secret (i.e. YCM). IP whitelisting helps but is not the documented integrity check."
+    }
+  ]
+}

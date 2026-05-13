@@ -1,0 +1,80 @@
+---
+slug: 02-finding-extensions-and-users
+vendor: yeastar
+level: l1
+title: Finding an extension and reading its state
+summary: How to look up an extension by name, number, or department; what the extension profile tells you about registration, presence, and which Linkus clients are logged in; the one-screen view that resolves half of all triage tickets.
+estimatedMinutes: 6
+order: 2
+topics: [pse, extensions, triage]
+updated: 2026-05-12
+---
+
+"Sarah's phone isn't working" is most tickets. The first thing you open is her extension. The Extension page tells you whether her phone *can* work, who's logged in, what presence she's on, and which devices are reachable. Half of triage tickets resolve at this screen.
+
+## Navigating to the extension list
+
+```
+Extension and Trunk → Extension
+```
+
+The list defaults to a paginated table of every extension on the PBX: number, full name, department, status icons, devices. You can filter the list using the search box at the top (number or name partial match) or by clicking the department/group filters in the left rail.
+
+## What the status icons mean
+
+Each row shows registration status and presence at a glance:
+
+- A **green dot or filled icon** = registered and reachable on at least one device.
+- A **grey dot** = not registered. If the extension exists but is grey, the user has no live client / phone connected.
+- A **red dot or banner** = error state (locked out, no clients, password reset required).
+- **Presence indicator** (separate icon or coloured text) = the current presence state (Available / Busy / DND / custom).
+
+A common ticket: "calls aren't reaching me." If the row is grey, the user's clients aren't registered. If the row is green but presence shows DND, the user has set themselves Do Not Disturb. Two different fixes, both visible without opening anything else.
+
+## Inside the extension profile
+
+Click an extension and you get a multi-tab profile. The tabs you'll read most:
+
+| Tab | What's on it |
+|---|---|
+| **Basic** | Extension number, full name, password, email, mobile number, department, organisation. The identity record. |
+| **User Information** | First name, last name, job title, M365 / Google mapping fields if integration is enabled. |
+| **User Role** | Which role permissions this user has (CDR access scope, recording playback rights, etc.). |
+| **Linkus Clients** | All currently registered Linkus / SIP devices for this extension, with last-seen timestamps. Tells you which device the user is *actually* using right now. |
+| **Voicemail** | Per-extension voicemail settings; greeting recordings; voicemail-to-email config. |
+| **Presence** | Per-presence call-handling rules; ring time; voicemail forwarding; what to do with ring-group calls per presence. |
+| **Function Keys** | The function-key layout for this user (BLF lights, queue toggles, presence shortcuts). |
+| **Features** | Per-extension features (call recording on/off, follow-me, hot-desking, do-not-disturb mode). |
+
+The two tabs that solve most tickets are **Linkus Clients** (is anything actually logged in?) and **Presence** (what's the current presence and what does that presence's rules say to do with incoming calls?).
+
+## Two ticket walk-throughs
+
+### "Why isn't my Linkus working?"
+
+1. Open the extension.
+2. Click **Linkus Clients**. Is anything registered?
+   - If yes, note the device type (iOS / Android / Desktop / Web) and last-seen time. The user is logged in somewhere; the question is whether *their* device is the one that's logged in.
+   - If no, the user has no active session. They probably need a fresh welcome email.
+3. Send welcome email: from the extension's main page, the "Send Welcome Email" action is in the toolbar or the three-dots menu. Generates a fresh QR / login link.
+
+### "Why isn't this user's phone ringing?"
+
+1. Open the extension.
+2. Check **Linkus Clients** — are devices registered? If not, fix that first.
+3. Check **Presence** — what state are they in?
+4. Open the **Presence** tab — what call-handling rule applies to that presence?
+   - If "Do Not Disturb" is set or the presence has "forward all to voicemail", that's why.
+5. If presence is OK and devices are registered, the issue is upstream of the extension: inbound route, ring group, time condition.
+
+## Fields you can read but probably shouldn't touch
+
+A triage tech reads the extension profile; an intermediate tech edits it. From this lesson:
+
+- **Don't reset passwords** unless you've confirmed with the user that they've actually lost it. Resetting their password invalidates all logged-in clients and they have to re-register from a fresh welcome email.
+- **Don't change role assignment** without checking the rest of the team's roles for context. A user demoted to a lower role can lose access to CDR or recordings that they use day-to-day.
+- **Don't toggle features** (recording, follow-me, hot-desking) without checking the customer's policy. Recording rules in particular have compliance implications.
+
+<Checkpoint slug="yeastar-pse-triage-checkpoint-extensions" client:visible />
+
+Read-only is your friend at this stage. The next lesson is reading the call detail records, where most "what actually happened on this call" tickets get resolved.

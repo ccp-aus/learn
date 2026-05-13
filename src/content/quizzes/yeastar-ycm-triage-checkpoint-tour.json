@@ -1,0 +1,38 @@
+{
+  "slug": "yeastar-ycm-triage-checkpoint-tour",
+  "course": "yeastar-ycm-triage",
+  "kind": "checkpoint",
+  "title": "Quick check: the YCM map",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-tour-device-vs-pbx",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Your team hosts every customer as a Cloud PBX instance launched onto a PBXHub Server. Which YCM section holds those customer PBXes?",
+      "choices": [
+        "Device",
+        "Cloud PBX",
+        "Group",
+        "Repository"
+      ],
+      "correct": 1,
+      "explanation": "Cloud PBX holds managed Cloud PBX instances that YCM provisioned. Device is for remote P-Series appliances added to YCM via remote management, which is a separate use case."
+    },
+    {
+      "id": "ck-tour-section-match",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which YCM section would you open to assign a shared trunk to a customer's Cloud PBX?",
+      "choices": [
+        "Dashboard",
+        "Alarm",
+        "Repository",
+        "Task"
+      ],
+      "correct": 2,
+      "explanation": "Repository holds reusable assets the MSP assigns out: provisioning templates, firmware files, backup files, shared trunks, DID numbers. The Cloud PBX detail view also lists currently assigned trunks for one PBX."
+    }
+  ]
+}

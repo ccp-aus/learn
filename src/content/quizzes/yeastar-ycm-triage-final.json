@@ -1,0 +1,180 @@
+{
+  "slug": "yeastar-ycm-triage-final",
+  "course": "yeastar-ycm-triage",
+  "kind": "final",
+  "title": "YCM triage, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-ycm-section-trunks",
+      "type": "mcq",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "Where in YCM would you look for the shared trunks the MSP holds at the fleet level?",
+      "choices": [
+        "Device",
+        "Cloud PBX detail",
+        "Repository",
+        "Alarm"
+      ],
+      "correct": 2,
+      "explanation": "Repository holds reusable assets including shared trunks, DIDs, provisioning templates, backup files, and firmware images. The Cloud PBX detail shows which trunks are assigned to one PBX, but the pool itself lives in Repository."
+    },
+    {
+      "id": "q-ycm-device-vs-cloud-pbx",
+      "type": "mcq",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "Your team only hosts customers as Cloud PBX instances on PBXHub Servers. None of your customers have on-prem appliances. What section can you mostly ignore?",
+      "choices": [
+        "Cloud PBX",
+        "Repository",
+        "Device",
+        "Alarm"
+      ],
+      "correct": 2,
+      "explanation": "Device holds remote P-Series appliances added via remote management, on-prem boxes the MSP manages remotely. If all your customers are hosted Cloud PBX instances, Device is empty and you can ignore it until you have a customer who keeps their own appliance."
+    },
+    {
+      "id": "q-pbx-status-values",
+      "type": "multi",
+      "topic": "cloud-pbx",
+      "difficulty": "medium",
+      "prompt": "Which of these are valid Cloud PBX status values in YCM? (Select all that apply.)",
+      "choices": [
+        "Running",
+        "Stopped",
+        "Provisioning",
+        "Quarantined",
+        "Upgrading",
+        "Listening"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Per the YCM API, the six pbxStatus values are Stopped, Starting, Running, Upgrading, Restoring, Provisioning. 'Quarantined' and 'Listening' are not real values; knowing the legitimate set lets you spot a row that's been miscategorised or a third-party report that's making something up."
+    },
+    {
+      "id": "q-capacity-50-50",
+      "type": "mcq",
+      "topic": "capacity",
+      "difficulty": "medium",
+      "prompt": "A customer's Cloud PBX row shows Extensions: 50 / 50. The customer wants to onboard three new staff this week. What's the right move for a triage tech?",
+      "choices": [
+        "Descend into PSE and create the three extensions; capacity is just a display.",
+        "Confirm the diagnosis (PBX at extension cap), then hand off to the resize-and-build tier with the exact numbers; the resize move lives in YCM and is not a triage action.",
+        "Ring the customer and tell them they can't grow.",
+        "Delete an unused extension."
+      ],
+      "correct": 1,
+      "explanation": "Capacity is a YCM-allocated limit. At 50 / 50, PSE will refuse the next extension. The diagnosis is the triage job; the resize is intermediate territory. Handing off cleanly (specific numbers, specific PBX) is faster for the next tier than 'they can't add staff'."
+    },
+    {
+      "id": "q-event-threshold-tiers",
+      "type": "mcq",
+      "topic": "alarms",
+      "difficulty": "easy",
+      "prompt": "YCM's default capacity-style monitor alarms expose three threshold tiers as a ladder. Which set?",
+      "choices": [
+        "50% / 75% / 100%",
+        "70% / 85% / 100%",
+        "80% / 90% / 95%",
+        "60% / 80% / 100%"
+      ],
+      "correct": 2,
+      "explanation": "80% (early warning), 90% (yellow), 95% (actionable now). Custom thresholds can be created, but the 80 / 90 / 95 default ladder is what most MSPs work with. Reading the tier on an alarm row tells you how urgent the response is."
+    },
+    {
+      "id": "q-alarm-object-scope",
+      "type": "mcq",
+      "topic": "alarms",
+      "difficulty": "medium",
+      "prompt": "An alarm fires on object 'sbc-proxy-eu-a'. Whose problem is it likely to be first?",
+      "choices": [
+        "One specific customer's Cloud PBX is affected; check their tickets.",
+        "The infrastructure team, because a cluster-server object means platform-side scope and the whole region's customers could be downstream.",
+        "A Linkus user; the SBC Proxy handles client logins.",
+        "Nobody; cluster alarms self-recover."
+      ],
+      "correct": 1,
+      "explanation": "Cluster-server objects (SBC, SBC Proxy, PBXHub) are platform-side. An SBC Proxy alarm affects every PBX whose carrier-side trunks flow through that proxy. The right move is to log the alarm, surface it to the infra team, and watch whether it climbs."
+    },
+    {
+      "id": "q-backup-where",
+      "type": "mcq",
+      "topic": "records",
+      "difficulty": "easy",
+      "prompt": "Where in YCM do you confirm that last night's backup task ran for a specific Cloud PBX?",
+      "choices": [
+        "PSE Maintenance logs after passwordless-login.",
+        "The Cloud PBX detail's lastBackupTime field, and the Task list's last-run status for the scheduled backup task.",
+        "Repository Backup Files only (which doesn't show task status).",
+        "The Alarm list."
+      ],
+      "correct": 1,
+      "explanation": "Backup status is split across three places: lastBackupTime on the Cloud PBX detail (timestamp of last YCM-task-driven backup), the Task list (was the schedule met?), and Repository Backup Files (the actual file inventory). PSE doesn't hold the YCM-side backup schedule."
+    },
+    {
+      "id": "q-creator-role",
+      "type": "mcq",
+      "topic": "records",
+      "difficulty": "medium",
+      "prompt": "On a Cloud PBX's detail page, the Creator field shows role 'Hosting User'. What does that tell you?",
+      "choices": [
+        "The customer logs into YCM as a Hosting User.",
+        "The PBX was provisioned by a tenant-style sub-account under the Super Administrator; that user has a pbxCreationLimit capping how many PBXs they can own.",
+        "The PBX is on the Hosting Plan rather than Enterprise or Ultimate.",
+        "The PBX is in 'Hosted' mode, which differs from 'Cloud' mode."
+      ],
+      "correct": 1,
+      "explanation": "Hosting User is one of three creator roles (Super Administrator, Hosting User, My Colleague). A Hosting User is a sub-account, often a reseller or a partner, with its own creation limit. The customer never has a YCM identity at all; they're a Customer record on the PBX, not a user."
+    },
+    {
+      "id": "q-customer-record-location",
+      "type": "tf",
+      "topic": "records",
+      "difficulty": "easy",
+      "prompt": "In a BYOI white-label deployment, the end customer logs into YCM with a Customer account to manage their own PBX.",
+      "correct": false,
+      "explanation": "The customer never logs into YCM. They're a Customer record on the Cloud PBX (with company, contact, External ID), used for the MSP's bookkeeping and white-labelled communications. YCM identities are MSP-side: Super Administrator, Hosting Users, and Colleagues."
+    },
+    {
+      "id": "q-passwordless-audit",
+      "type": "tf",
+      "topic": "handoff",
+      "difficulty": "easy",
+      "prompt": "Passwordless-login from YCM into a customer's PBX leaves an entry in the PBX-side audit log identifying the YCM user and the time.",
+      "correct": true,
+      "explanation": "By design. The customer's audit trail records your MSP-side identity when you delegate in. That's how compliance survives the convenience of one-click delegation. Don't leave the PBX tab open all day; close it when you're done."
+    },
+    {
+      "id": "q-handoff-decision",
+      "type": "mcq",
+      "topic": "handoff",
+      "difficulty": "medium",
+      "prompt": "A ticket reads: 'Sarah from Able Moose says her transfer to an external number rejected with an error tone.' Which is the right next step from YCM?",
+      "choices": [
+        "Stay in YCM; this is a capacity question.",
+        "Open Able Moose's Cloud PBX in YCM, check the row is Running and capacity isn't tight, then passwordless-login into PSE for the CDR of that specific call and Sarah's extension page.",
+        "Coach Sarah on Linkus; the transfer button is in the app.",
+        "Open an alarm rule for 'failed transfers' on the PBX."
+      ],
+      "correct": 1,
+      "explanation": "A specific-call ticket on a specific extension needs PSE-side diagnosis. The YCM-side read confirms the PBX itself is healthy (Running, capacity OK) before you descend; that ten-second check rules out the surface-level explanations. Then descend for the CDR. PSE triage course covers what to do once inside."
+    },
+    {
+      "id": "q-escalation-order",
+      "type": "order",
+      "topic": "handoff",
+      "difficulty": "medium",
+      "prompt": "Put these YCM-side checks in the order an efficient triage tech runs them on an ambiguous 'something's wrong with our phones' ticket.",
+      "items": [
+        "Open the Cloud PBX list, find the customer's row",
+        "Read the row: Status, capacity, last backup",
+        "Glance at the Alarm list for anything tied to that PBX",
+        "Open the PBX detail if the row didn't answer the question",
+        "Decide: stay in YCM, descend into PSE, or coach the user on Linkus"
+      ],
+      "explanation": "Cheap reads first, expensive moves last. List view → row → alarms → detail → decide. The list view answers half the ambiguous tickets without a click into the detail, let alone a descent into PSE."
+    }
+  ]
+}

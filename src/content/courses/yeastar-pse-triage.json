@@ -1,0 +1,19 @@
+{
+  "slug": "yeastar-pse-triage",
+  "vendor": "yeastar",
+  "level": "l1",
+  "title": "Yeastar PSE, PBX-side triage",
+  "shortTitle": "PSE triage",
+  "summary": "Read-only orientation in the P-Series Software Edition admin portal: finding extensions and users, reading a CDR, playing back recordings and voicemail, and the triage moves for the three most common ticket shapes (can't make outbound, no audio, callflow goes to the wrong place).",
+  "estimatedMinutes": 38,
+  "prereqs": ["yeastar-foundations", "voip-fundamentals"],
+  "lessons": [
+    "01-pbx-portal-tour",
+    "02-finding-extensions-and-users",
+    "03-reading-a-cdr",
+    "04-recordings-and-voicemail-playback",
+    "05-day-one-triage-moves"
+  ],
+  "quiz": "yeastar-pse-triage-final",
+  "status": "live"
+}

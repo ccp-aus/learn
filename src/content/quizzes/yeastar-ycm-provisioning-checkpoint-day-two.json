@@ -1,0 +1,38 @@
+{
+  "slug": "yeastar-ycm-provisioning-checkpoint-day-two",
+  "course": "yeastar-ycm-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, day-two from YCM",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-day-two-restore-constraint",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "You need to restore a backup file taken on a PBX running firmware 84.21.0.66 onto a customer's current Cloud PBX. The current PBX is on 84.19.0.110 and is Running. What happens?",
+      "choices": [
+        "Restore succeeds; YCM handles firmware compatibility automatically.",
+        "Restore fails. The backup's firmware is higher than the target's, so YCM rejects it. Upgrade the target PBX firmware first or pick a different backup.",
+        "Restore succeeds but the PBX downgrades to match the backup.",
+        "Restore succeeds but only configuration data, not user data, migrates."
+      ],
+      "correct": 1,
+      "explanation": "Restore requires the backup firmware to be at or below the target PBX firmware. The file name encodes the firmware (PCE-Backup-{firmware}-{time}.bak) and YCM checks it before applying. Older backups onto newer PBXes work; the reverse doesn't."
+    },
+    {
+      "id": "ck-day-two-descend-decision",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer reports 'our IVR sent the 4pm caller to the after-hours branch by mistake'. Where does this ticket get diagnosed?",
+      "choices": [
+        "Stay in YCM; check the row and the alarm log.",
+        "Passwordless-login into PSE; open the CDR with Timeline View for that call, then read the time condition and the IVR configuration.",
+        "Resize the PBX; an IVR misroute means the customer is at capacity.",
+        "Restore from the most recent backup."
+      ],
+      "correct": 1,
+      "explanation": "Callflow surprises (time conditions, IVR routing) are PSE-side. YCM holds no per-callflow data. Descend, read the CDR for that specific call in Timeline View, then check the time condition's wall-clock range against the call's actual timestamp. PSE-triage course's pattern-3 covers this in detail."
+    }
+  ]
+}

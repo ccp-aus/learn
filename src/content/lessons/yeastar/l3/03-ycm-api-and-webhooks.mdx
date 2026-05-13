@@ -1,0 +1,317 @@
+---
+slug: 03-ycm-api-and-webhooks
+vendor: yeastar
+level: l3
+title: The YCM REST API, OAuth, and webhooks
+summary: "Enable the API, walk the OAuth client-credentials flow with real curl examples, script Cloud PBX provisioning end-to-end, subscribe to webhook events with HMAC-signed payloads, and lock the API down to your jump-host IPs."
+estimatedMinutes: 12
+order: 3
+topics: [ycm, api, oauth, webhook, automation]
+updated: 2026-05-13
+---
+
+There are two reasons an MSP's voice operation crosses into API territory. The first is volume: when Cloud PBX provisioning is happening fifty times a month, hand-driving the YCM portal becomes the bottleneck. The second is integration: the PSA opens the ticket, the API spins up the PBX, the activation email goes out, and a webhook tells the ticketing system the customer is live. Both reasons start with the same prerequisites: turn the API on, set up OAuth client credentials, lock down the source IPs, then call endpoints.
+
+This lesson walks the actual HTTP exchanges. Every example uses `curl` against `https://ycm.yeastar.com` (substitute your own YCM hostname). Every endpoint is the one Yeastar's developer documentation publishes; the shape on the wire is what your script will see.
+
+## Enable the API and capture credentials
+
+The API is off by default. You enable it once, capture the credentials once, and from then on it is a turn-on-and-go feature.
+
+<StepThrough>
+  <Step title="Enable the API on the YCM web interface">
+    Navigate to `System > API`. Toggle the **API** switch on at the top.
+  </Step>
+  <Step title="Read the API credentials">
+    The Credentials section now shows a **Client ID** and a **Client Secret**. Click the copy icon next to each. Store them in your secrets manager (1Password, Vault, AWS Secrets Manager). The Client Secret is shown in the clear here only; once you navigate away, only the Client ID is readable.
+  </Step>
+  <Step title="Set IP restrictions">
+    Tick **Client IP Restriction**, click Add, and enter the public IP and netmask of every machine that will call the API. Add up to five rules. **If you skip this step, your Client ID and Secret are valid from anywhere on the internet.**
+  </Step>
+  <Step title="Save">
+    Click Save. The API is live, restricted to the listed IPs, and ready for token requests.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/yeastar/ycm-api-credentials.png"
+  alt="YCM System > API page showing API toggle, Client ID, and Client Secret fields with copy icons."
+  caption="Once the toggle is on, the Client ID and Client Secret render with copy buttons. The Secret is the credential that signs your token requests; if it ever leaks, click the regenerate icon and update every script."
+>
+  <Hotspot client:load x={50} y={30} tone="warning" label="1" title="Client Secret" purpose="Copy immediately. This is the only time it is shown.">
+    Once you navigate away, the Secret is masked and the only recovery is to regenerate (which invalidates every existing token). Paste it straight into the password manager / vault entry for the script that needs it.
+  </Hotspot>
+  <Hotspot client:load x={20} y={70} tone="primary" label="2" title="Client IP Restriction" purpose="Do not skip.">
+    Restrict the API to the IPs of the scripts and PSA tools that need it. An open API with a leaked Client Secret is the worst case; restricting IPs reduces blast radius even if the Secret leaks.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+If the credentials ever get loose (a script leaked into a public repo, a contractor's laptop walked off), the regenerate icon next to Client Secret rotates it. Every existing token instantly becomes invalid; every script you control needs the new value.
+
+## OAuth client-credentials, the actual exchange
+
+YCM uses standard OAuth 2.0 with the client-credentials grant. Two facts to internalise before you write any script:
+
+- **Access tokens expire after 30 minutes.** Hard cutoff. Refresh proactively at ~25 minutes.
+- **Refresh tokens expire after 15 days.** They also die if not used, if the Client Secret is regenerated, or if you actively revoke them.
+
+The token request is `POST /dm/open_api/oauth/token` with form-urlencoded body. The mandatory `User-Agent` header is enforced; YCM rejects requests without it.
+
+```bash
+curl -X POST https://ycm.yeastar.com/dm/open_api/oauth/token \
+  -H "User-Agent: OpenAPI" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=kp9yyntmueXXXXXXXXX" \
+  -d "client_secret=Z7wC807wK9zR77FCOqsVXXXXX"
+```
+
+A successful response:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 1799,
+  "jti": "bf45be2c-28aa-4795-bd81-7c0cf6bac12c"
+}
+```
+
+`expires_in` is seconds (1799 = 30 minutes minus a one-second buffer). The `access_token` goes into the `Authorization: Bearer ...` header on every subsequent API request.
+
+When the access token nears expiry, refresh it instead of re-running the credentials exchange. Same endpoint, different `grant_type`:
+
+```bash
+curl -X POST https://ycm.yeastar.com/dm/open_api/oauth/token \
+  -H "User-Agent: OpenAPI" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=<the-refresh-token-from-step-1>"
+```
+
+Response carries a new `access_token` and a new `refresh_token`. Use both going forward; the old refresh_token is now consumed.
+
+If a refresh token is suspected stolen, revoke it explicitly:
+
+```bash
+curl -X DELETE https://ycm.yeastar.com/dm/open_api/oauth/token/refresh_token \
+  -H "User-Agent: OpenAPI" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=kp9yyntmueXXXXXXXXX" \
+  -d "client_secret=Z7wC807wK9zR77FCOqsVXXXXX"
+```
+
+<Callout type="warn" title="HTTPS only, and User-Agent is mandatory">
+YCM API is served over HTTPS. Plain HTTP requests are refused. Every request also requires a `User-Agent` header (the documentation suggests `User-Agent: OpenAPI`). Forget either and the request fails before authentication is checked.
+</Callout>
+
+## Listing Cloud PBXs
+
+The simplest sanity check after acquiring a token is to list Cloud PBXs. Pagination defaults to 10 per page, max 50.
+
+```bash
+ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+curl -X GET "https://ycm.yeastar.com/dm/open_api/v2/cloud_pbx/instances?pageSize=10&pageNumber=1&sort=cloudPbxId" \
+  -H "User-Agent: OpenAPI" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+The response shape (one entry, abbreviated):
+
+```json
+{
+  "data": {
+    "pageSize": 10,
+    "pageNumber": 1,
+    "total": 47,
+    "list": [
+      {
+        "cloudPbxId": 7738,
+        "pbxStatus": "Running",
+        "name": "Able Moose Group PBX",
+        "plan": "Ultimate Plan",
+        "extensionCapacity": 200,
+        "concurrentCallCapacity": 50,
+        "url": "amg.pbx.contoso.com",
+        "creatorRole": "My Colleague",
+        "passwordlessLogin": "Enabled",
+        "allowSuperiorPasswordlessLogin": "Enabled",
+        "lastBackupTime": 1729786748,
+        "pbxApi": "Enabled"
+      }
+    ]
+  },
+  "requestId": "5ed01d8b-44f2-44a7-a868-2c7ba3a090d4",
+  "status": "Success",
+  "time": 1639012740
+}
+```
+
+Filter by sub-user with `&userId=<id>` to retrieve only the Cloud PBXs owned by a specific Hosting User. That is the query a sub-reseller dashboard would run.
+
+## Creating a Cloud PBX from a script
+
+The interesting endpoint is the create-and-assign flow. Three calls in sequence:
+
+1. `GET /dm/open_api/v1/cluster/regions` to get the region ID for "Asia Pacific (Singapore)" or wherever you deploy.
+2. `GET /dm/open_api/v1/cluster/domains?regionIds=<id>` to get a domain to host the PBX under.
+3. `GET /dm/open_api/v1/firmware?type=pbx&regionIds=<id>` to pick a firmware version.
+4. `POST /dm/open_api/v1/cloud_pbx/instances` with the body assembled from those IDs.
+
+The create call body for a 50-extension Enterprise Plan PBX:
+
+```bash
+curl -X POST https://ycm.yeastar.com/dm/open_api/v1/cloud_pbx/instances \
+  -H "User-Agent: OpenAPI" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Holdings PBX",
+    "plan": "Enterprise Plan",
+    "extensionCapacity": 50,
+    "concurrentCallCapacity": 25,
+    "recordingStatus": "Enabled",
+    "recordingCapacity": 1000,
+    "regionId": 4,
+    "subDomain": "acme",
+    "domainId": 3,
+    "versionId": 217,
+    "type": "Commercial",
+    "transcriptionCapacity": 0,
+    "receptionistCapacity": 0
+  }'
+```
+
+The PBX URL composes from `subDomain` + the domain referenced by `domainId`. Returns the new `cloudPbxId` in the response data; capture it, write it to your provisioning record, and use it for every follow-up call.
+
+After creation, three operations typically follow: send the activation email, attach a customer record, and apply a provisioning template (covered in the provisioning course but listed here as their endpoints):
+
+```bash
+# Send the activation email
+curl -X POST "https://ycm.yeastar.com/dm/open_api/v1/cloud_pbx/instances/$NEW_PBX_ID/activation_email" \
+  -H "User-Agent: OpenAPI" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"customerIds":[50429524]}'
+
+# Update the customer association
+curl -X PUT "https://ycm.yeastar.com/dm/open_api/v1/cloud_pbx/instances/$NEW_PBX_ID/customers" \
+  -H "User-Agent: OpenAPI" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"customerIds":[50429524]}'
+```
+
+That is the entire onboarding flow as code: pool capacity check, region pick, PBX create, customer attach, activation email. The provisioning team's repeat work is now a function call.
+
+## Webhooks, the events your scripts react to
+
+Polling the API for changes is wasteful. Webhooks invert the model: tell YCM where to deliver notifications, subscribe to specific events, and your endpoint gets HTTP POSTs when things happen.
+
+The supported events expanded over the platform's life; the foundational ones are:
+
+| Event | Fires when |
+|---|---|
+| `did_change` (PCE DID Change) | DID numbers assigned to one or more Cloud PBXs change |
+| PCE Capacity Change | Capacity of one or more Cloud PBXs changes |
+
+YCM publishes new event types on each release; the developer guide's Events page is the source of truth. Up to 5 webhook subscriptions per YCM tenant, with Timeout (3-10s) and Retry Count to control delivery.
+
+To configure a webhook:
+
+<StepThrough>
+  <Step title="Get a webhook URL ready">
+    Stand up an HTTPS endpoint that returns 2xx within 10 seconds of receiving a POST. For testing, services like webhook.site work fine; for production, a small handler in your PSA or in a Lambda / Cloud Function is the usual pattern.
+  </Step>
+  <Step title="Add the webhook in YCM">
+    `System > API > Webhook Event Push`. Tick the checkbox. Click Add. Paste the Webhook URL. YCM auto-generates a 32-character **Secret** used to HMAC-sign every payload (see below).
+  </Step>
+  <Step title="Pick the events">
+    In Webhook Event Push, select All or pick specific event types. Set the Request Method (POST is the default for most receivers).
+  </Step>
+  <Step title="Test connectivity">
+    Click the test icon in Operations. YCM sends a `{"event":"test","message":"This is a webhook connectivity test."}` payload. Your endpoint should log it and return 2xx. If you do not see it land, your IP restriction or your firewall is in the way.
+  </Step>
+  <Step title="Tune timeout and retries">
+    Set Timeout(s) (3-10) and Retry Count (1-5). If your endpoint sometimes exceeds 3 seconds (cold-start serverless), bump it; the retries fire on non-2xx or timeout.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/yeastar/ycm-webhook-config.png"
+  alt="YCM Client Authentication page showing webhook configuration with URL, secret, request method POST, event type, timeout, and retry count fields."
+  caption="The webhook list shows each subscription's URL, secret, method, subscribed events, plus the Timeout and Retry Count knobs. Up to 5 webhook subscriptions per tenant; design them so each downstream system gets exactly the events it cares about, not every event."
+>
+  <Hotspot client:load x={50} y={50} tone="primary" label="1" title="Subscribed events column" purpose="One webhook per downstream system.">
+    The PSA wants `pce_capacity_change` to keep billing in sync; the alerting tool wants `pbx_event` for incident creation. Don't pile every event onto one URL; design separate webhooks per consumer so each receives only what it can act on.
+  </Hotspot>
+  <Hotspot client:load x={80} y={70} tone="warning" label="2" title="Timeout and retry" purpose="Tune for your endpoint, not Yeastar's defaults.">
+    Default 3-second Timeout works for fast endpoints. Cold-start serverless functions can blow that; bump Timeout to 8 or 10. Retry Count of 3 is a sane starting point; more wastes effort if your endpoint is genuinely down.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## The webhook payload, and how to verify it is genuine
+
+Every webhook delivery carries an `X-Signature` header. The value is the HMAC-SHA256 of the raw request body, keyed by the Secret YCM generated, then base64-encoded. Your handler should:
+
+1. Read the raw body bytes (do not deserialize and re-serialize, that changes whitespace and breaks the HMAC).
+2. Compute `base64(HMAC-SHA256(raw_body, your_secret))`.
+3. Compare against the `X-Signature` header. Constant-time compare.
+
+If they do not match, the request did not come from YCM and you reject it. This protects against an attacker who knows your webhook URL but does not have the Secret.
+
+A real DID-change payload looks like:
+
+```json
+{
+  "event": "did_change",
+  "companyId": 12345,
+  "data": {
+    "cloudPbxId": 7738,
+    "trunkId": 5111,
+    "trunkName": "MyCarrier",
+    "didList": [
+      {"didId": 28075, "did": "+61299990001"},
+      {"didId": 28076, "did": "+61299990002"}
+    ],
+    "updateTime": 1721036989
+  }
+}
+```
+
+The `companyId` is a stable identifier for the YCM tenancy, `cloudPbxId` is the affected PBX, and `data` carries the event-specific shape. Your handler parses on `event` and dispatches.
+
+## Per-Hosting-User rate limiting
+
+YCM also exposes API access to Hosting Users (so resellers can script their own provisioning). The platform protects itself against runaway sub-user scripts with a token-bucket rate limit per user. At `System > API > Rate Limit Settings`, for each Hosting User, set:
+
+- **Rate**: requests per interval (e.g. 25)
+- **Burst**: max bucket size (e.g. 100)
+- **Interval**: refill window in minutes (e.g. 5)
+
+A Hosting User who tries to burst 200 requests in a minute gets HTTP 429 after the bucket drains, and recovers as the bucket refills. The MSP-side Super Admin and Colleagues are not subject to these limits; they apply only to Hosting User accounts.
+
+## A worked production design
+
+For Able Moose Group's MSP, the API integration looks like:
+
+1. **PSA opens the ticket** for a new customer. Service desk fills in customer name, plan, expected extensions, region.
+2. **Provisioning script runs** (a small Python service in the MSP's automation stack):
+   - GETs the region ID and a domain ID.
+   - GETs the recommended firmware version.
+   - POSTs the create-PBX call.
+   - POSTs the customer record (`POST /dm/open_api/v1/customer`) to attach.
+   - POSTs the activation email to the customer admin's address.
+   - Writes the new `cloudPbxId`, the URL, and the customer email back to the PSA ticket.
+3. **Webhook subscriptions** push back into the PSA:
+   - Capacity Change, in case future resizes happen, the PSA tracks current usage.
+   - DID Change, so that when the porting team allocates a number to the PBX, the PSA's record updates without polling.
+4. **Per-Hosting-User rate limits** keep any one reseller's scripts from impacting MSP-side automations.
+
+The whole pipeline is small Python plus a webhook receiver, anchored by the OAuth flow and the half-dozen REST endpoints walked above.
+
+<Checkpoint slug="yeastar-ycm-scale-checkpoint-api" client:visible />
+
+Next lesson: connecting YCM to your existing NMS via SNMP, forwarding alarm events, and shipping Cloud PBX backups off-site to S3, GCS, FTP, or SFTP via the remote archive feature.

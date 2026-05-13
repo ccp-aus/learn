@@ -1,0 +1,181 @@
+{
+  "slug": "voip-fundamentals-final",
+  "course": "voip-fundamentals",
+  "kind": "final",
+  "title": "VoIP fundamentals, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-two-streams",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "Why is it useful to know that a VoIP call is two separate streams (SIP and RTP), not one?",
+      "choices": [
+        "Because SIP is the audio, RTP is the metadata",
+        "Because they can succeed or fail independently — SIP can complete cleanly while RTP fails, producing 'connected but no audio'",
+        "Because they always travel together so you only need to diagnose one",
+        "Because RTP is encrypted by default and SIP is not"
+      ],
+      "correct": 1,
+      "explanation": "SIP is the signalling (call setup, tear-down); RTP is the audio. The classic 'connected but no audio' ticket is when SIP succeeded and RTP didn't. A tech who treats VoIP as one thing blames 'the phone system' for what's actually a firewall / NAT issue on the RTP path."
+    },
+    {
+      "id": "q-port-usage",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "Which statement about SIP and RTP port usage is correct?",
+      "choices": [
+        "Both use port 5060 by default",
+        "SIP uses 5060 (or 5061 for TLS); RTP uses a dynamic range of high UDP ports negotiated during the handshake",
+        "Both use a dynamic range of UDP ports",
+        "SIP uses TCP only; RTP uses UDP only"
+      ],
+      "correct": 1,
+      "explanation": "SIP signalling lives at the well-known port 5060 (5061 for TLS). RTP media uses dynamic high UDP ports negotiated per call in the SDP body. This asymmetry is why a firewall that allows 5060 outbound but blocks high UDP causes 'connected but no audio'."
+    },
+    {
+      "id": "q-handshake-order",
+      "type": "order",
+      "topic": "sip",
+      "difficulty": "medium",
+      "prompt": "Put these messages from a happy-path INVITE in the correct order.",
+      "items": [
+        "Caller's UA → PBX: INVITE",
+        "PBX → Caller: 100 Trying",
+        "PBX → Callee: INVITE (relayed)",
+        "Callee → PBX: 180 Ringing",
+        "Callee → PBX: 200 OK with SDP",
+        "Caller → PBX: ACK"
+      ],
+      "explanation": "100 Trying is provisional; 180 Ringing tells the caller's client to play ringing; 200 OK is the success response with the answer-side SDP; ACK closes the three-way handshake. RTP begins after ACK."
+    },
+    {
+      "id": "q-response-classes",
+      "type": "multi",
+      "topic": "sip",
+      "difficulty": "medium",
+      "prompt": "Which of the following response codes indicate the called side specifically declined or couldn't take the call? (Select all that apply.)",
+      "choices": [
+        "100 Trying",
+        "486 Busy Here",
+        "480 Temporarily Unavailable",
+        "404 Not Found",
+        "503 Service Unavailable",
+        "200 OK"
+      ],
+      "correct": [1, 2, 3],
+      "explanation": "486 / 480 / 404 are all 4xx codes telling the caller why the called side said no. 100 is provisional progress. 503 is a server-side fault (often a trunk). 200 OK is success."
+    },
+    {
+      "id": "q-rtp-payload-types",
+      "type": "mcq",
+      "topic": "rtp",
+      "difficulty": "medium",
+      "prompt": "An RTP packet header carries a sequence number. What does the receiver use it for?",
+      "choices": [
+        "To identify the caller's IP address",
+        "To detect dropped packets and reorder packets that arrived out of order",
+        "To negotiate the codec",
+        "To encrypt the payload"
+      ],
+      "correct": 1,
+      "explanation": "Sequence numbers let the receiver spot gaps (dropped packets) and reorder packets that arrived out of sequence before playback. Codec is in the payload-type field. Encryption is SRTP, separate."
+    },
+    {
+      "id": "q-mos-bands",
+      "type": "mcq",
+      "topic": "quality",
+      "difficulty": "medium",
+      "prompt": "A customer reports 'the line sounded really bad.' You pull the CDR and find MOS = 4.2 on the affected call. What's the most reasonable next step?",
+      "choices": [
+        "Open a P1 with the ISP; MOS 4.2 is very bad",
+        "Accept their report; MOS isn't reliable",
+        "Treat the audio path as likely OK and investigate other causes (echo, sidetone, hardware, headset, perception)",
+        "Reboot the PBX"
+      ],
+      "correct": 2,
+      "explanation": "MOS 4.2 is solid audio quality, roughly indistinguishable from a landline. If the customer perceives bad audio at that MOS, the cause is usually outside the media path: bad headset, echo, sidetone, or simply a tense call they remember as 'bad'."
+    },
+    {
+      "id": "q-codecs",
+      "type": "mcq",
+      "topic": "rtp",
+      "difficulty": "easy",
+      "prompt": "An MSP tech in Australia is reviewing default codec settings for a customer's trunk. Which codec is the standard narrowband choice across Europe and Australia (vs the North American equivalent)?",
+      "choices": [
+        "G.711u (PCMU)",
+        "G.711a (PCMA)",
+        "Opus",
+        "G.729"
+      ],
+      "correct": 1,
+      "explanation": "G.711a / PCMA is the European and Australian narrowband default; G.711u / PCMU is the North American one. Both are 64 kbps lossless narrowband; the difference is in the companding algorithm. Opus and G.722 are wideband options; G.729 is legacy low-bandwidth."
+    },
+    {
+      "id": "q-mid-call-drop",
+      "type": "mcq",
+      "topic": "trace",
+      "difficulty": "medium",
+      "prompt": "A customer reports calls dropping after exactly 30 minutes. The SIP trace for an affected call shows the BYE arriving from the PBX with a Reason header citing a timer. What's the most likely cause?",
+      "choices": [
+        "Carrier-side hangup",
+        "Session timer expiry (RFC 4028) — the refresh INVITE didn't complete, often because a stateful middlebox aged out the UDP binding",
+        "Caller hung up",
+        "PBX crashed and recovered"
+      ],
+      "correct": 1,
+      "explanation": "A specific time interval (15, 30, 60 minutes) and a timer-related Reason header point to RFC 4028 session timer expiry. The usual root cause is a firewall or SBC ageing out a UDP binding, so the refresh INVITE never gets a response."
+    },
+    {
+      "id": "q-trace-shape",
+      "type": "mcq",
+      "topic": "trace",
+      "difficulty": "medium",
+      "prompt": "What's the difference between shape 2 (INVITE → 4xx) and shape 3 (INVITE → 200 OK but no RTP) in a SIP trace?",
+      "choices": [
+        "Shape 2 means the call connected; shape 3 means it failed",
+        "Shape 2 is signalling-layer (the call never set up); shape 3 is media-layer (the call set up but audio didn't flow)",
+        "They're the same thing",
+        "Shape 2 is for inbound calls; shape 3 is for outbound"
+      ],
+      "correct": 1,
+      "explanation": "Shape 2 is the call failing at SIP setup (4xx response). Shape 3 is SIP succeeding (200 OK) but RTP never arriving (NAT/firewall on the media path). Knowing which shape narrows the next diagnostic step."
+    },
+    {
+      "id": "q-network-blame",
+      "type": "tf",
+      "topic": "troubleshooting",
+      "difficulty": "easy",
+      "prompt": "If a user reports 'works at home, doesn't work at the office', the cause is almost certainly the PBX, not the network.",
+      "correct": false,
+      "explanation": "Environment-specific failures are nearly always network-side: SIP ALG enabled on the office router, aggressive firewall, deep packet inspection, blocked UDP, or symmetric NAT. Same Linkus, same PBX, different network = network's the suspect."
+    },
+    {
+      "id": "q-sip-alg",
+      "type": "tf",
+      "topic": "troubleshooting",
+      "difficulty": "easy",
+      "prompt": "SIP ALG (Application Layer Gateway) on a customer's router is a feature that generally helps SIP traffic and should usually be left enabled.",
+      "correct": false,
+      "explanation": "SIP ALG is supposed to help but in practice corrupts SDP and breaks NAT traversal more often than it helps. Industry consensus is to disable it on customer routers and let the PBX handle NAT directly."
+    },
+    {
+      "id": "q-one-way-audio",
+      "type": "mcq",
+      "topic": "rtp",
+      "difficulty": "medium",
+      "prompt": "Alice is on a call. She can hear Bob, but Bob can't hear Alice. SIP completed cleanly; SDP bodies are present. What's the most likely cause?",
+      "choices": [
+        "Codec mismatch",
+        "Alice's RTP is being dropped by a firewall or NAT on her side",
+        "PBX is overloaded",
+        "Bob's microphone is muted (assume hardware is fine)"
+      ],
+      "correct": 1,
+      "explanation": "One-way audio means RTP is flowing in one direction but not the other. If Alice can hear Bob, Bob's RTP reaches her. The failing leg is Alice's RTP not reaching Bob — almost always a NAT or firewall problem on Alice's side preventing her outbound RTP from being delivered."
+    }
+  ]
+}

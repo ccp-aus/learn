@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-ycm-triage-checkpoint-handoff",
+  "course": "yeastar-ycm-triage",
+  "kind": "checkpoint",
+  "title": "Quick check: stay or descend",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-handoff-stay",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer asks 'why was our nightly backup not produced last night?'. Which is the cleanest first read?",
+      "choices": [
+        "Passwordless-login into PSE and dig through Maintenance logs.",
+        "Read the Cloud PBX detail in YCM for lastBackupTime; check the Task list for the scheduled backup task's last-run status.",
+        "Ring the customer back and ask them to check their email.",
+        "Restore the previous backup so they have something."
+      ],
+      "correct": 1,
+      "explanation": "Backup status records live in YCM (Cloud PBX detail, Task list, Repository). YCM is where the backup task runs from; PSE doesn't hold that schedule. Stay-in-YCM territory."
+    },
+    {
+      "id": "ck-handoff-m365",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Microsoft 365 integration (extension sync, SSO) is configured in YCM at the fleet level, so YCM is the right place to start triaging M365-integration tickets.",
+      "correct": false,
+      "explanation": "M365 integration is configured per-PBX in PSE, not in YCM. YCM has no M365 surface. Setup is intermediate-course territory; permission and security pare-back is advanced-course territory. Don't search YCM for it."
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "slug": "yeastar-ycm-provisioning-final",
+  "course": "yeastar-ycm-provisioning",
+  "kind": "final",
+  "title": "YCM provisioning, final check",
+  "drawCount": 10,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-prov-actor-classes",
+      "type": "mcq",
+      "topic": "multi-tenant",
+      "difficulty": "easy",
+      "prompt": "Which actor never has a YCM login at all in the BYOI model?",
+      "choices": [
+        "Super Administrator",
+        "Hosting User",
+        "My Colleague",
+        "Customer"
+      ],
+      "correct": 3,
+      "explanation": "The Customer is a record on the Cloud PBX (with company, contact, External ID), used for white-labelled communications and the MSP's PSA cross-reference. They never log into YCM. They get a PSE-side identity (admin role or extension user) instead."
+    },
+    {
+      "id": "q-prov-permission-granularity",
+      "type": "tf",
+      "topic": "multi-tenant",
+      "difficulty": "easy",
+      "prompt": "Two Colleagues with the same job title ('support tech') will always see the same Cloud PBX action menu, because their role determines their permissions.",
+      "correct": false,
+      "explanation": "Colleague permissions are per-action checkboxes, not role-based. The Super Admin picks each permission tab and each action when creating the Colleague. Two Colleagues with the same job title can have completely different scopes depending on what their lead checked at create time."
+    },
+    {
+      "id": "q-prov-plan-included-minutes",
+      "type": "mcq",
+      "topic": "capacity",
+      "difficulty": "medium",
+      "prompt": "How many plan-included AI Transcription minutes does an Enterprise Plan Cloud PBX ship with?",
+      "choices": [
+        "60",
+        "120",
+        "240",
+        "500"
+      ],
+      "correct": 1,
+      "explanation": "Enterprise Plan includes 120 AI Transcription minutes (one-time); Ultimate Plan includes 240. Both plans include 60 AI Receptionist minutes. The plan-included pool is consumed first, then add-on, then monthly pack."
+    },
+    {
+      "id": "q-prov-create-five-decisions",
+      "type": "multi",
+      "topic": "create-form",
+      "difficulty": "medium",
+      "prompt": "Which of these are decisions a technician makes on the Cloud PBX create form? (Select all that apply.)",
+      "choices": [
+        "Plan (Enterprise or Ultimate)",
+        "Region and sub-domain (which together form the PBX URL)",
+        "Firmware version",
+        "Each user's extension number",
+        "Whether the PBX boots Activated (initial-config block) or Unactivated (activation-email flow)",
+        "Recording capacity in minutes"
+      ],
+      "correct": [0, 1, 2, 4, 5],
+      "explanation": "Plan, region+sub-domain, firmware version, initial-config (Activated vs Unactivated), and recording capacity are all create-form decisions. Individual extension numbers are not; extensions are built per-customer in PSE after the PBX exists. The create form is the wrapper, not the user list."
+    },
+    {
+      "id": "q-prov-template-not",
+      "type": "mcq",
+      "topic": "templates",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT carried by a Provisioning Template?",
+      "choices": [
+        "Allowed country codes for outbound dialling",
+        "Music on Hold (with its audio file)",
+        "The customer's inbound routes and IVR structure",
+        "Distinctive Caller ID Name format"
+      ],
+      "correct": 2,
+      "explanation": "Inbound routes and IVR structure are per-customer; they live in PSE, built after the PBX exists. Templates carry baseline settings (allowed IPs, country codes, music on hold, distinctive caller ID, contact visibility, device naming, speech-to-text) and nothing per-customer."
+    },
+    {
+      "id": "q-prov-template-edit-after-apply",
+      "type": "tf",
+      "topic": "templates",
+      "difficulty": "easy",
+      "prompt": "Editing a Provisioning Template after it has been applied to ten PBXes will retroactively update those ten PBXes.",
+      "correct": false,
+      "explanation": "Template apply is one-shot at apply time. Later edits to the template do not flow back to PBXes that already received it. This protects customer overrides from being clobbered by an MSP-side template change."
+    },
+    {
+      "id": "q-prov-trunk-assign-prereqs",
+      "type": "multi",
+      "topic": "trunks",
+      "difficulty": "medium",
+      "prompt": "Which prerequisites must be satisfied before you can assign a shared trunk and its DIDs onto a customer's Cloud PBX? (Select all that apply.)",
+      "choices": [
+        "The shared trunk and the Cloud PBX are in the same region",
+        "The DIDs have been added to that trunk in YCM",
+        "The Cloud PBX firmware is 84.19.0.22 or later",
+        "The customer's End User License Agreement is signed in YCM"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Region match, DIDs present on the trunk, and firmware 84.19.0.22+ are the three prerequisites. There is no per-customer EULA flow inside YCM; that's handled outside the platform. If any of the three prerequisites fails, the Add button on Assigned DIDs is greyed or the trunk dropdown is empty."
+    },
+    {
+      "id": "q-prov-shared-trunks-backup",
+      "type": "tf",
+      "topic": "trunks",
+      "difficulty": "medium",
+      "prompt": "Shared trunks are included in PBX system backups, so a restore from backup restores the trunk assignment too.",
+      "correct": false,
+      "explanation": "Shared trunks are centrally managed at YCM; PSE-side backups capture per-PBX state only. After a restore, the trunk and DIDs are gone from the restored PBX and the MSP reassigns them from the Cloud PBX detail's Assigned DIDs tab."
+    },
+    {
+      "id": "q-prov-activation-recipient",
+      "type": "mcq",
+      "topic": "onboarding",
+      "difficulty": "easy",
+      "prompt": "When you click Send Activation Email on a row, who receives the email by default?",
+      "choices": [
+        "The Super Administrator who created the PBX.",
+        "Every Colleague with the Cloud PBX permission tab ticked.",
+        "The customer record(s) attached to the Cloud PBX, whose email address sits on the Customer tab.",
+        "The Hosting User's billing contact."
+      ],
+      "correct": 2,
+      "explanation": "Customer records carry an email field; that's the default recipient. If multiple customer records are attached to one PBX (a customer with two IT contacts), tick each in the send pop-up. The Super Admin and Colleagues are MSP-side and never receive the activation email."
+    },
+    {
+      "id": "q-prov-day-two-recording-reduce",
+      "type": "tf",
+      "topic": "day-two",
+      "difficulty": "medium",
+      "prompt": "Recording capacity once allocated to a Cloud PBX can be reduced through the Resize Capacity action.",
+      "correct": false,
+      "explanation": "Recording minutes are paid-for through the period and the customer has the right to use them. The Resize pop-up will let you raise recording minutes but not lower them. The same rule applies to Hosting User recording allocations. Read the value twice before saving."
+    },
+    {
+      "id": "q-prov-restore-status-constraint",
+      "type": "mcq",
+      "topic": "day-two",
+      "difficulty": "medium",
+      "prompt": "You attempt to restore a backup onto a Cloud PBX that is currently in Stopped state. What happens?",
+      "choices": [
+        "Restore succeeds; Stopped is the safest state to restore from.",
+        "Restore fails. The target PBX must be in Running status before the restore action is accepted.",
+        "Restore puts the PBX into Restoring state; it auto-starts when complete.",
+        "Restore succeeds but with a warning about state."
+      ],
+      "correct": 1,
+      "explanation": "Restore requires the target PBX to be Running. A Stopped PBX rejects the restore with a clear error. Start the PBX first, wait for it to reach Running, then click Restore."
+    },
+    {
+      "id": "q-prov-stay-vs-descend-order",
+      "type": "order",
+      "topic": "day-two",
+      "difficulty": "medium",
+      "prompt": "Put these steps in the order a senior tech runs them when 'something's wrong with our phones' lands without specifics.",
+      "items": [
+        "Find the customer's row in the Cloud PBX list",
+        "Read the row's status, capacity, last backup",
+        "Glance at Alarms for events tied to that PBX or its cluster",
+        "Decide: answer from YCM, passwordless-login into PSE for per-call data, or coach on Linkus",
+        "If descent, passwordless-login from the row's action menu"
+      ],
+      "explanation": "Cheap reads first, expensive moves last. List view → row → alarms → decide → descend. Half of ambiguous tickets resolve at the row read; descent is the last move, not the first."
+    },
+    {
+      "id": "q-prov-handover-ownership",
+      "type": "mcq",
+      "topic": "onboarding",
+      "difficulty": "medium",
+      "prompt": "After onboarding handover, which surface does the MSP retain ownership of, while the customer's IT contact owns the other?",
+      "choices": [
+        "MSP keeps the trunks and platform; customer's IT keeps extensions, callflows, voicemail.",
+        "MSP keeps everything; customer is read-only.",
+        "Customer keeps everything; MSP only provides infrastructure.",
+        "Both share the Super Admin account."
+      ],
+      "correct": 0,
+      "explanation": "The clean line: MSP owns YCM-side platform (trunks, firmware, capacity, white-label config); customer's IT owns PSE-side per-customer config (extensions, callflows, voicemail, recording rules). Sharing the Super Admin account breaks the audit trail; the customer's IT typically gets a restricted Administrator role on PSE instead."
+    }
+  ]
+}

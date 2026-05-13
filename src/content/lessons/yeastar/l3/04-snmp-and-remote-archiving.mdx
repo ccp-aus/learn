@@ -1,0 +1,196 @@
+---
+slug: 04-snmp-and-remote-archiving
+vendor: yeastar
+level: l3
+title: SNMP monitoring and remote backup archiving
+summary: "Connecting YCM to your NMS via SNMPv3 (Get + Trap), the FRP tunnel pattern when NMS sits behind NAT, and the four remote archive targets (FTP, SFTP, Amazon S3, Google Cloud Storage) that put Cloud PBX backups in your existing backup estate."
+estimatedMinutes: 9
+order: 4
+topics: [ycm, snmp, monitoring, archiving, backup]
+updated: 2026-05-13
+---
+
+YCM sits in two ecosystems simultaneously. The voice-platform one (Yeastar's dashboard, alarms, native UI) is where day-to-day voice ops happens. The MSP-wide one (Datadog, Zabbix, PRTG, LogicMonitor, plus an S3 or SFTP backup estate) is where everything else lives. Bridging the two is what this lesson is about. SNMPv3 hands the platform's vitals to your NMS so on-call sees voice problems on the same pager as everything else. Remote archiving streams backups off the voice platform into the same storage you already trust.
+
+Both are wired once at the MSP-admin tier, then left running.
+
+## SNMP, the components
+
+If you have wired SNMP for anything else, the model is familiar:
+
+| Component | What it does | In YCM's world |
+|---|---|---|
+| **Manager / NMS** | The monitoring system that queries devices and receives traps | Your Datadog Agent, Zabbix proxy, PRTG probe, LogicMonitor collector |
+| **Managed device** | The thing being watched | YCM Server itself, plus optionally the cluster servers (SBC, SBC Proxy, PBXHub) and individual Cloud PBXs |
+| **Agent** | The SNMP daemon on the managed device | Built into YCM at version `87.14.0.31` or later; built into Cloud PBX at `84.15.0.22` or later |
+| **MIB** | The data dictionary that says what objects are available and what types they are | YCM ships a custom MIB you download from the UI and load into your NMS |
+| **SNMP Get** | NMS polls the agent for current values | CPU, memory, storage, cluster server health, Cloud PBX state |
+| **SNMP Trap** | The agent pushes unsolicited notifications when something happens | PBX trunk down, cluster server abnormal, certificate near expiry |
+
+YCM supports **SNMPv3 only**. v1 and v2c are unsupported. The choice matters: v3 ships with authentication and encryption, so credentials and trap payloads do not cross the network in cleartext.
+
+## Setting up SNMP on YCM
+
+The path is `System > SNMP`. Two blocks of settings:
+
+**Basic block** (used for SNMP Get from your NMS to YCM):
+
+| Field | What to set |
+|---|---|
+| SNMPv3 Username | A username your NMS will present (e.g. `monitoring`) |
+| Authentication Mode | `NoAuth` (username only), `Auth` (HMAC-MD5 password), or `Priv` (HMAC-MD5 plus CBC-DES encryption) |
+| Auth Password | The auth password if Mode is Auth or Priv |
+| Encrypted Password | The privacy password if Mode is Priv |
+| Port | UDP 161 default, change if your NMS expects something else |
+
+**Production rule: pick `Priv`.** It is the only mode that encrypts the payload. NoAuth is essentially anonymous read for whoever can reach the port; Auth proves identity but leaks the data; Priv proves identity and encrypts. The few extra characters you type once at setup time buy you confidentiality for the life of the platform.
+
+**SNMP Trap block** (used for YCM pushing notifications outward):
+
+- Toggle SNMP Trap on.
+- Set Trap Receiver IP Address to the IP of your NMS (or `127.0.0.1` if you are using the FRP tunnel pattern below).
+- Set Port to UDP 162 (the SNMP trap default).
+- Save.
+
+<AnnotatedScreenshot
+  src="/img/yeastar/ycm-snmp-settings.png"
+  alt="YCM SNMP configuration page with SNMPv3 Username, Auth Password, Encrypted Password, Port, and Authentication Mode fields."
+  caption="Authentication Mode set to Priv gives you HMAC-MD5 plus CBC-DES; the auth and encrypted passwords are the credentials your NMS presents. Port 161 default is fine for SNMP Get."
+>
+  <Hotspot client:load x={50} y={40} tone="primary" label="1" title="SNMPv3 credentials" purpose="Username, Auth Password, Encrypted Password.">
+    Three credentials together gate every SNMP Get from the NMS. Use a credential store; don't email these around. The Auth Password authenticates the NMS to YCM; the Encrypted Password keys the encryption applied when Auth Mode is set to Priv.
+  </Hotspot>
+  <Hotspot client:load x={50} y={70} tone="warning" label="2" title="Authentication Mode" purpose="Set to Priv in production.">
+    Auth-only sends SNMP traffic in cleartext over the wire (the auth credential is hashed, but the SNMP payload is plain). Priv adds CBC-DES encryption on top. SNMP carries operational data about the platform; encrypt it.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+Once both blocks are saved, the MIB File Download button in the page header gives you a `.mib` file. Load it into your NMS. The objects under the cmMib branch include:
+
+- **cmServerModules**: the YCM server itself (CPU, memory, storage).
+- **clusterServerModules**: SBC, SBC Proxy, PBXHub server health, port pool usage, resource utilization.
+- **pbxModules** + **pbxTraps**: per-Cloud-PBX vitals and trap definitions (account trunk down, registration loss, etc.).
+
+## The FRP tunnel pattern, when YCM is public and the NMS is private
+
+A common deployment shape: YCM sits on the public internet (it has to, because Cloud PBXs and Linkus clients reach it from anywhere), and the MSP's NMS sits on a private network behind a firewall and NAT. SNMP Get works fine in this direction: the NMS initiates the connection, YCM responds, NAT traversal is symmetric. SNMP Trap is the problem: YCM needs to push notifications *to* a private-network NMS, and the firewall does not allow inbound from the internet.
+
+Yeastar documents an FRP (Fast Reverse Proxy) pattern that solves this. FRPS (the server) runs on the YCM machine; FRPC (the client) runs on the NMS machine. FRPC dials out to FRPS, opening a persistent tunnel; FRPS then forwards SNMP Trap packets received on `127.0.0.1:162` through the tunnel to the NMS's local listener.
+
+The configuration shape (real values from Yeastar's docs):
+
+```toml
+# frps.toml on the YCM server (public network)
+bindPort = 7000
+kcpBindPort = 7000
+auth.token = "AuThP@SsW0rd"
+
+# frpc.toml on the NMS server (private network)
+serverAddr = "<YCM-public-IP>"
+serverPort = 7000
+auth.token = "AuThP@SsW0rd"
+
+[[proxies]]
+name = "snmp-trap-tcp"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 162
+remotePort = 162
+
+[[proxies]]
+name = "snmp-trap-udp"
+type = "udp"
+localIP = "127.0.0.1"
+localPort = 162
+remotePort = 162
+```
+
+With the tunnel up, set Trap Receiver IP on YCM to `127.0.0.1` (the FRPS endpoint of the tunnel). YCM's traps land at `127.0.0.1:162`, get tunnelled through to the NMS, and arrive in the NMS's trap receiver as if from a local host.
+
+Firewall ports the FRP pattern needs open:
+
+| Direction | Port | Why |
+|---|---|---|
+| NMS -> YCM (public) | 161/UDP | SNMP Get queries |
+| YCM -> NMS | 162/UDP | SNMP Trap (without FRP) |
+| YCM -> NMS | 7000/TCP | FRP control channel (with FRP) |
+| NMS -> YCM | 7000/TCP | FRP client connects back (with FRP) |
+
+If your NMS sits on the same network as YCM (both in your colo, both behind the same edge), skip FRP entirely. The pattern earns its place when there is genuine network separation.
+
+## What to monitor, and at what threshold
+
+Loading the MIB and configuring SNMP gets you a flood of OIDs. The shortlist your NMS actually alerts on:
+
+- **YCM Server CPU > 80%** for 5 minutes. Sustained high CPU means something is wrong (runaway script via API, ingest of a giant CDR set, an unhealthy upgrade in progress).
+- **YCM Server memory > 90%** for 10 minutes. Same idea.
+- **YCM Server storage > 85%**. Disk full at the management plane breaks backups and CDR ingestion; you want runway.
+- **Cluster server status != Running**. SBC Server, SBC Proxy Server, or PBXHub Server in `Lost Connection` or `Suspended` is a real outage; alert immediately.
+- **PBXHub data space > 80%**. A PBXHub Server's local disk holds recordings for hosted PBXs; full disk means recording fails silently for those customers.
+- **SBC Proxy port pool > 90%**. The 500-port limit for peer trunks is what register-side carriers consume; running out means trunk registration starts to fail.
+- **pbxAccountTrunkDown trap** (any). A customer's trunk is down. Coalesce by PBX so one PBX's flap does not page on-call for every trunk.
+
+YCM's own internal alarm system also covers many of these (the 80/90/95 threshold tiers from the triage course). SNMP is the layer that brings those alarms into your existing pager rotation, your existing escalation policies, your existing dashboards. Without SNMP, you have two pagers; with it, one.
+
+## Remote archiving, the four backends
+
+YCM's backup task ships backup files of Cloud PBXs and stores them in its Repository. That works fine until the management plane runs out of disk, or a YCM-host compromise gives an attacker both the platform and its own backups in one place. The remote archive feature streams every new backup file to an external storage system the same way an on-prem backup product would.
+
+Four backends are supported:
+
+| Backend | When to use | Credentials |
+|---|---|---|
+| **SFTP** | Most flexible. Any SSH-capable storage server, including on-prem NAS. | Username + password (or SSH key, depending on server config) |
+| **FTP** | Legacy storage that only speaks FTP. Avoid for new builds; SFTP is the same effort with encryption. | Username + password |
+| **Amazon S3** | If your MSP runs on AWS. Object lifecycle policies, retention rules, cross-region replication all become available for free. | Access Key ID + Secret Access Key + region + bucket |
+| **Google Cloud Storage** | If your MSP runs on GCP. Same lifecycle policies as S3, different vendor. | Service account JSON private key + bucket |
+
+The remote archive feature requires YCM `87.14.0.31` or later. **Only backup files generated by YCM backup tasks** can be archived. Backups created on the PBX side or manually uploaded into the Repository are not eligible.
+
+Limits to remember: up to 10 archive servers configured, up to 100 archive tasks.
+
+## A worked archive setup: SFTP target
+
+<StepThrough>
+  <Step title="Prepare the SFTP target">
+    On your SFTP server, create a user with write access to a single directory (e.g. `/srv/backups/yeastar/`). Generate a long random password or upload an SSH key. Test write access from a workstation; YCM will fail confusingly if it cannot land a file.
+  </Step>
+  <Step title="Add the archive server in YCM">
+    `System > Archive Server > Add`. Name it (e.g. "Primary SFTP backup"). Server Type: SFTP. Enter the FQDN or IP, port (default 22), username, authentication method (Password or Key), credential. Save.
+  </Step>
+  <Step title="Create an archive task that runs after every backup">
+    Open or create your existing Cloud PBX Backup task. In **Archive the Files After Backup**, tick the option. Select the archive server. Set the File Storage Path on the SFTP server (e.g. `/srv/backups/yeastar/{taskName}/`).
+  </Step>
+  <Step title="Optionally delete after archive">
+    The **Delete the Backup Files After Archiving** option, when ticked, removes the file from YCM Repository once SFTP write succeeds. This is how you stop YCM's own disk from filling. Files that fail to archive are kept in the Repository so you can retry.
+  </Step>
+  <Step title="Verify the first run">
+    Trigger the backup task manually. Watch the task execution log; you should see "Archive succeeded" and a corresponding `.bak` file on the SFTP server. From this point on, every scheduled backup archives the same way.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/yeastar/archive-task-config.png"
+  alt="YCM archive task configuration form with Task Type, Archive Server, Backup Files Range, File Storage Path, Repeat frequency, and execution time fields."
+  caption="The archive task's File Storage Path is the directory on the target where files land. Use `{taskName}` substitution so different PBX backups go into separate folders; flat storage gets unwieldy past a hundred backups."
+>
+  <Hotspot client:load x={50} y={30} tone="primary" label="1" title="Archive Server selector" purpose="Configured separately at System → Archive Server.">
+    The selector lists every Archive Server you've defined. Set up the FTP / SFTP / S3 / GCS connection there once, and it becomes selectable from every archive task. Same server can take archives from multiple Cloud PBXs.
+  </Hotspot>
+  <Hotspot client:load x={50} y={55} tone="warning" label="2" title="File Storage Path" purpose="Use folder substitution for cleanliness.">
+    Substitute `{taskName}` or `{pbxName}` so each PBX's backups land in their own folder. A flat directory of hundreds of `.bak` files makes recovery a hunting expedition; per-PBX folders make it instant.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## What "archived" actually buys you
+
+Archives sitting on S3 or SFTP do nothing for you on their own. The questions worth answering when you stand the archive pipeline up:
+
+- **Restore drill**. Pick a recent archived backup, download it from the storage backend, restore into a test PBX. Confirm the restore works. Repeat every quarter; an untested backup is a guess.
+- **Retention policy**. S3 and GCS lifecycle rules can move old backups to cheaper storage classes (S3 Glacier, GCS Coldline) and delete them after N months. Set the policy according to your customer contracts; some MSPs commit to 12 months of monthly backups, some to 7 years.
+- **Cross-region replication**. If your AWS bucket is in `ap-southeast-2` and a disaster takes out that region, your archive is gone with it. Enable replication to a second region.
+- **Access logging**. CloudTrail on S3, Audit Logs on GCS. You want a record of who downloaded a backup file, in case one ever needs to be invoked in a legal context.
+
+The archive is half the story. The other half is the muscle memory and the policies that make it useful when something has gone wrong.
+
+Next lesson: YCM's own HA topology (Primary/Secondary), cluster server health monitoring at depth, and the audit log discipline that keeps the platform's history visible across sub-users and Colleagues.

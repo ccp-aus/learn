@@ -1,0 +1,19 @@
+{
+  "slug": "voip-sip-in-practice",
+  "vendor": "voip",
+  "level": "l2",
+  "title": "VoIP, SIP and RTP in practice",
+  "shortTitle": "SIP in practice",
+  "summary": "SDP and codec negotiation, NAT traversal and the symmetric-RTP problem, the trunk-configuration patterns that drive PBX choices (registration vs peer trust, DTMF modes, P-Early-Media, DOD), DSCP / MOS / RTCP for quality, and how to capture a call for analysis.",
+  "estimatedMinutes": 50,
+  "prereqs": ["voip-fundamentals"],
+  "lessons": [
+    "01-sdp-and-codec-negotiation",
+    "02-nat-traversal",
+    "03-trunk-configuration-patterns",
+    "04-quality-of-service",
+    "05-capturing-with-wireshark-or-pcap"
+  ],
+  "quiz": "voip-sip-in-practice-final",
+  "status": "live"
+}

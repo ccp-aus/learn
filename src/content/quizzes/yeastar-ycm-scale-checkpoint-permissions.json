@@ -1,0 +1,32 @@
+{
+  "slug": "yeastar-ycm-scale-checkpoint-permissions",
+  "course": "yeastar-ycm-scale",
+  "kind": "checkpoint",
+  "title": "Quick check: actor classes and permission design",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-perm-actor-choice",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A regional IT consultancy is going to resell your MSP's voice service to its own customers, with its own capacity allocation and its own staff doing the day-to-day provisioning. Which YCM actor class fits?",
+      "choices": [
+        "A Colleague with the provisioning team permission profile",
+        "A Hosting User with a capacity allocation, plus Colleagues underneath that Hosting User for their staff",
+        "A Customer record linked to the MSP's pool",
+        "A Super Administrator on a separate YCM tenant"
+      ],
+      "correct": 1,
+      "explanation": "Hosting Users carry a capacity slice from the MSP pool and can have their own Colleagues underneath. Colleagues never own capacity. A Customer record is the end-company contact, not a login. A separate YCM tenant is for a different MSP entirely, not a reseller of yours."
+    },
+    {
+      "id": "ck-perm-branding-gate",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "The Branding permission on the System tab of YCM can be granted to a Hosting User so they can rebrand the MSP's YCM portal for their own customers.",
+      "correct": false,
+      "explanation": "Per Yeastar's documentation, Branding permission for the YCM portal itself can be granted only to a Colleague (for co-management of the MSP brand). Hosting Users brand their own subordinate Cloud PBXs via the PCE White Label flow; they never touch the YCM-level brand."
+    }
+  ]
+}
