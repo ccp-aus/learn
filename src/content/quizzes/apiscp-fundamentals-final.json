@@ -111,27 +111,27 @@
         "The Event ID on the customer's error page",
         "The Job Runner queue state for the customer's pending action",
         "The Storage Usage breakdown for the account",
-        "The 3-5-10 brute-force lockout when a customer can't log in",
+        "An Anvil rate-limit on the panel, or a Rampart jail block on a service, when the customer can't log in",
         "Running tcpdump on the server's mail port",
         "Restarting the entire ApisCP service"
       ],
       "correct": [0, 1, 2, 3],
-      "explanation": "Event ID, Job Runner, Storage Usage, and the 3-5-10 lockout cover most walk-up tickets. Tcpdump and full service restarts are deep-end moves that come after these signals point you somewhere specific."
+      "explanation": "Event ID, Job Runner, Storage Usage, and the Anvil/Rampart lockout cover most walk-up tickets. Tcpdump and full service restarts are deep-end moves that come after these signals point you somewhere specific."
     },
     {
       "id": "q-brute-force-lockout",
       "type": "mcq",
       "topic": "triage",
       "difficulty": "easy",
-      "prompt": "A customer complains they can't log in from their office, but a colleague at the same office is fine. What's the most likely cause?",
+      "prompt": "A customer complains they can't log into the ApisCP panel from their office, but a colleague at the same office is fine. What's the most likely cause?",
       "choices": [
         "The server has rejected the customer's IP from a different subnet",
-        "The customer triggered the 3-5-10 brute-force lockout by mistyping their password three times in five minutes",
+        "Anvil rate-limited their IP after repeated failed panel logins, and the backoff hasn't cleared yet",
         "Their account has been suspended and the colleague's hasn't",
         "Two-factor authentication is required and the customer hasn't enrolled"
       ],
       "correct": 1,
-      "explanation": "Same office (same IP) implies a per-IP block, and Rampart's default 3-5-10 deterrent fires after three failures in a five-minute window. Wait ten minutes or `cpcmd rampart:unban <ip> '*'` from admin."
+      "explanation": "Anvil rate-limits the panel and SOAP API per IP. The default tolerates around 20 failed attempts in 15 minutes with exponential backoff, so a few quick fat-fingers in a row will already feel like a lockout. Service-level brute force (mail, FTP, SSH) is the separate Rampart territory."
     },
     {
       "id": "q-deletable-paths",
@@ -156,6 +156,54 @@
       ],
       "correct": 1,
       "explanation": "Without the Event ID, you hunt through logs by timestamp. With it, you grep one line. Always ask the customer for the Event ID before retrying anything."
+    },
+    {
+      "id": "q-fortification-dual-user",
+      "type": "mcq",
+      "topic": "fortification",
+      "difficulty": "easy",
+      "prompt": "Under default Fortification, what user runs PHP for a customer's WordPress site?",
+      "choices": [
+        "The account's admin user (the same user that logs in via SFTP)",
+        "A separate system user named `apache` whose ACLs limit it to a small allow-list of writable paths",
+        "Root, with privileges dropped per request",
+        "A new user created for each plugin so plugins can't read each other's data"
+      ],
+      "correct": 1,
+      "explanation": "ApisCP's Fortification runs PHP as the system `apache` user, distinct from the account's admin user. Filesystem ACLs grant `apache` write access only to paths the app needs (uploads, cache). A popped plugin gets `apache`'s permissions; it can't rewrite the account's core files or pivot into another account."
+    },
+    {
+      "id": "q-cant-install-plugin",
+      "type": "mcq",
+      "topic": "fortification",
+      "difficulty": "medium",
+      "prompt": "A customer says \"WordPress wants my FTP password every time I try to install a plugin.\" They want to install one plugin right now. What's the right move?",
+      "choices": [
+        "Switch the site to Release Fortification so the customer never sees the dialog again",
+        "Switch the site to Web App Write Mode for one timed window, ask the customer to install the plugin, then let the mode revert automatically",
+        "Tell the customer ApisCP doesn't support plugin installs from wp-admin",
+        "Delete WordPress and reinstall it with snapshots disabled"
+      ],
+      "correct": 1,
+      "explanation": "Write Mode lifts Fortification on the document root for a short timed window (around 10 minutes by default), then snaps back. It's the right tool for a one-off install. Release Fortification turns protection off with no timer; it should not be the default response to a single-plugin ticket."
+    },
+    {
+      "id": "q-snapshot-cost",
+      "type": "tf",
+      "topic": "web-apps",
+      "difficulty": "medium",
+      "prompt": "Enabling snapshots on a Web App is free in disk terms because git deduplicates internally.",
+      "correct": false,
+      "explanation": "Snapshots are git commits of the document root. Over a few months a 500 MB WordPress site can grow to roughly 1 GB on disk once the repo holds enough prior versions. Snapshots are worth the cost on production sites where rollback safety matters; they are a real conversation for customers on tight quotas."
+    },
+    {
+      "id": "q-admin-portal-sso",
+      "type": "tf",
+      "topic": "web-apps",
+      "difficulty": "easy",
+      "prompt": "The ADMIN PORTAL link on a WordPress card in Web > Web Apps logs you into wp-admin as the first administrator on the site without a password handoff.",
+      "correct": true,
+      "explanation": "The link generates a one-time wp-cli login token via the wp-cli-login server plugin ApisCP ships with every WordPress install and drops you into wp-admin as the first administrator. No password handoff, no looking up old credentials. Treat it as admin-level access; everything you do inside wp-admin is logged inside WordPress."
     },
     {
       "id": "q-hotspot-revert-login-as",

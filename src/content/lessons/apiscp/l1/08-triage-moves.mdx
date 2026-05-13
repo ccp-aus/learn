@@ -1,11 +1,11 @@
 ---
-slug: 06-triage-moves
+slug: 08-triage-moves
 vendor: apiscp
 level: l1
 title: Triage moves, where to look when something breaks
 summary: Four signals tell you where the problem lives. The Event ID on the customer's error page, the Job Runner queue, the storage breakdown, and the Anvil panel rate-limit (or a Rampart jail block on a service). This lesson maps each signal to a confident next move.
 estimatedMinutes: 8
-order: 6
+order: 8
 topics: [triage, troubleshooting, lockout]
 updated: 2026-05-13
 ---
@@ -72,7 +72,7 @@ Quota tickets are the second-most-common ticket family after mailbox tickets. Ap
 <AnnotatedScreenshot
   src="/img/apiscp/storage-usage.png"
   alt="ApisCP Storage Usage dashboard. A pie chart shows the share of total space used by users vs system. Below it a table lists directories like /var/log and /var/www with their respective storage percentages."
-  caption="Three UIDs share the account: the account user (admin and any secondary users), the web user (apache, the PHP-FPM process), and root for system files. The warning slice is what Fortification creates; details in the Advanced course."
+  caption="Three UIDs share the account: the account user (admin and any secondary users), the web user (apache, the PHP-FPM process), and root for system files. The warning slice is what Fortification creates, as covered in the Fortification lesson."
 >
   <Hotspot client:load x={78} y={28} tone="primary" label="1" title="Account users" purpose="Files the admin user (and any secondary users) own.">
     Everything the customer uploads via SFTP, FTP, or the File Manager lands here, owned by the account's primary admin user (and any secondary users they've added).
