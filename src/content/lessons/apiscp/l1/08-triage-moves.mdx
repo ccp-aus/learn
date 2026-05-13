@@ -1,16 +1,16 @@
 ---
-slug: 06-triage-moves
+slug: 08-triage-moves
 vendor: apiscp
 level: l1
 title: Triage moves, where to look when something breaks
-summary: Four signals tell you where the problem lives. The Event ID on the customer's error page, the Job Runner queue, the storage breakdown, and the 3-5-10 brute-force lockout. This lesson maps each signal to a confident next move.
+summary: Four signals tell you where the problem lives. The Event ID on the customer's error page, the Job Runner queue, the storage breakdown, and the Anvil panel rate-limit (or a Rampart jail block on a service). This lesson maps each signal to a confident next move.
 estimatedMinutes: 8
-order: 6
+order: 8
 topics: [triage, troubleshooting, lockout]
 updated: 2026-05-13
 ---
 
-When a ticket says "the panel isn't working", the first job is figuring out which thing isn't working. ApisCP rarely returns a vague error; it returns an **Event ID**, a queue state, a storage breakdown, or a brute-force lockout. Each of those points at a different part of the platform.
+When a ticket says "the panel isn't working", the first job is figuring out which thing isn't working. ApisCP rarely returns a vague error; it returns an **Event ID**, a queue state, a storage breakdown, or a rate-limit lockout from Anvil or Rampart. Each of those points at a different part of the platform.
 
 ## The triage map
 
@@ -20,7 +20,7 @@ flowchart TD
     Q1 -- "I see an Event ID error page" --> EID[Read the Event ID;<br/>match it in admin logs]
     Q1 -- "Something I clicked never finished" --> JR[Job Runner;<br/>did the task error or queue?]
     Q1 -- "I can't upload, panel says quota" --> ST[Storage Usage;<br/>what's eating the disk?]
-    Q1 -- "I can't log in at all" --> BF[3-5-10 brute-force lockout;<br/>wait 10 min or remove IP from Rampart]
+    Q1 -- "I can't log in at all" --> BF[Anvil rate-limit on panel/API,<br/>or Rampart jail block on mail/FTP/SSH]
     Q1 -- "Everything is down" --> ADM[Admin Dashboard;<br/>platform health, not account]
 ```
 
@@ -72,10 +72,16 @@ Quota tickets are the second-most-common ticket family after mailbox tickets. Ap
 <AnnotatedScreenshot
   src="/img/apiscp/storage-usage.png"
   alt="ApisCP Storage Usage dashboard. A pie chart shows the share of total space used by users vs system. Below it a table lists directories like /var/log and /var/www with their respective storage percentages."
-  caption="The Storage Usage page is the first place to look when a customer hits a quota wall. The pie chart is a glance; the table tells you which directory to clean up."
+  caption="Three UIDs share the account: the account user (admin and any secondary users), the web user (apache, the PHP-FPM process), and root for system files. The warning slice is what Fortification creates, as covered in the Fortification lesson."
 >
-  <Hotspot client:load x={85} y={30} label="1" title="Pie chart" purpose="At-a-glance split of storage by category.">
-    Users vs system vs apache. A bulging `apache` slice means a web app (usually WordPress media uploads) is the culprit.
+  <Hotspot client:load x={78} y={28} tone="primary" label="1" title="Account users" purpose="Files the admin user (and any secondary users) own.">
+    Everything the customer uploads via SFTP, FTP, or the File Manager lands here, owned by the account's primary admin user (and any secondary users they've added).
+  </Hotspot>
+  <Hotspot client:load x={88} y={36} tone="warning" label="2" title="Web user (apache UID)" purpose="Files PHP wrote.">
+    PHP-FPM runs as the `apache` UID, separate from the account user. Anything a web app writes (WordPress media uploads, cache directories) shows up here. A bulging slice usually means a CMS plugin filling a cache.
+  </Hotspot>
+  <Hotspot client:load x={82} y={44} tone="success" label="3" title="System files" purpose="Files owned by root.">
+    Logs, mail spools, database files on the platform side. Off-limits for direct cleanup; database files are managed via MySQL Manager / PostgreSQL Manager, not by deleting from disk.
   </Hotspot>
 </AnnotatedScreenshot>
 
@@ -85,26 +91,31 @@ A handful of paths come up so often they're worth memorising:
 - `/var/log/httpd` is the access-log audit trail. Five days minimum retention; deletion is a support-ticket conversation.
 - `apache` user storage is the PHP-process owner, not the customer. Files uploaded by a CMS (WordPress media library) are credited here.
 
-## Signal 4: the 3-5-10 brute-force lockout
+## Signal 4: the lockout, panel or service
 
-Every ApisCP server runs a default brute-force deterrent on every login surface: **three** wrong passwords in a **five**-minute window blocks the IP for **ten** minutes. This applies to panel, FTP, terminal, mail, every authenticating service. Often the cause when a customer says "the server is down for me but my colleague can use it."
+Two different rate-limiters can lock a user out, and they apply to different surfaces:
+
+- **Anvil** rate-limits the **panel and SOAP API**. Default tuneables (in the `[anvil]` section of `config.ini`): 20 failed attempts per 15-minute TTL, with exponential backoff after the first few. A user who fat-fingers a panel password three or four times will start seeing backoff delays; a credential-stuffing script gets cut off long before reaching the limit.
+- **Rampart** wraps fail2ban around **service auth**: mail (`dovecot`, `postfix-sasl`), FTP (`vsftpd`), terminal (`sshd`), databases (`mysqld`, `pgsql`), and a handful of accumulator jails like `recidive` and `spambots`. Each service-jail default: 3 failed attempts in 5 minutes triggers a 10-minute ban for that IP on that jail.
+
+So if "I can't log in" is about the panel, look at Anvil. If it's about IMAP, SMTP submission, FTP, or SSH, look at Rampart. Often both fire together because the same wrong password is being retried by both a browser and a desktop mail client.
 
 <StepThrough client:load>
   <Step title="Confirm the symptom">
-    Customer says "I can't log in" but a different IP works. Likely a Rampart block, not an outage.
+    Customer says "I can't log in" but a different IP works. Likely a rate-limit, not an outage. Ask which surface fails: panel? mail? FTP?
   </Step>
   <Step title="Ask for their IP">
     The customer can Google "what's my IP" or you can pull it from the ticket headers if your PSA captures it.
   </Step>
   <Step title="Wait or unban">
-    Wait 10 minutes and the block expires automatically. Or, from admin, `cpcmd rampart:unban <ip> '*'` removes the block from every jail immediately.
+    The block expires automatically once the TTL elapses. To clear a Rampart jail block immediately, run `cpcmd rampart:unban <ip>` from admin (omit the jail argument to clear every jail at once). Anvil's TTL is shorter and clears on its own.
   </Step>
   <Step title="Send the right password">
     The trigger was wrong passwords. Send the right one via your normal credential-handoff process, not as plain text in the ticket reply.
   </Step>
 </StepThrough>
 
-The Advanced course covers Rampart's tuneables (the 3-5-10 numbers are defaults, not laws) and the Shield DOS handler that complements Rampart for web-side abuse.
+The Advanced course covers Anvil's and Rampart's tuneables (the numbers above are defaults, not laws) and how Shield, the DOS handler, complements them for web-side abuse.
 
 ## Signal 5 (the meta-signal): the admin Dashboard
 

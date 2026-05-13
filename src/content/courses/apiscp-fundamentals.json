@@ -4,8 +4,8 @@
   "level": "l1",
   "title": "ApisCP, panel fundamentals",
   "shortTitle": "ApisCP fundamentals",
-  "summary": "What ApisCP is, how it compares to cPanel, navigating the admin Nexus app, the Login-As move, the end-user panel a customer sees, and the triage moves a helpdesk tech needs when a ticket lands.",
-  "estimatedMinutes": 50,
+  "summary": "What ApisCP is, how it compares to cPanel, navigating the admin Nexus app, the Login-As move, the end-user panel a customer sees, Fortification and the Web Apps screen that operates most WordPress tickets, and the triage signals a helpdesk tech reads first.",
+  "estimatedMinutes": 67,
   "prereqs": [],
   "lessons": [
     "01-what-apiscp-is",
@@ -13,7 +13,9 @@
     "03-logging-in-as-a-customer",
     "04-the-end-user-panel-tour",
     "05-walking-a-client-through-it",
-    "06-triage-moves"
+    "06-fortification-basics",
+    "07-the-web-apps-screen",
+    "08-triage-moves"
   ],
   "quiz": "apiscp-fundamentals-final",
   "status": "live"

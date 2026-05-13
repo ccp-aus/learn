@@ -82,6 +82,15 @@ After writing the manifest, sign it (`webapp:manifest-sign $hostname $path`) so 
 
 Fortification is ApisCP's privilege-separation framework. Every web app runs under a user named `apache` that's different from the account's admin user. Files an attacker would target (`wp-config.php`, theme PHP, plugin PHP) are owned by the account user; files an attacker would write (`wp-content/uploads/`) are owned by `apache`. PHP can read its own configuration but can't overwrite it, can't overwrite the theme, can't escalate to the account user.
 
+```mermaid
+flowchart LR
+    Web["Web user (apache UID)<br/>runs PHP, writes wp-content/uploads/"]
+    Acct["Account user (e.g. myadmin UID)<br/>owns core PHP files<br/>FTP / SFTP login target"]
+    Web -- "ACL grants on specific paths" --> Acct
+```
+
+The boundary is the point. Mechanism (ACL specifics, the per-app profile, the unfortify escape hatch) is Advanced-course material; for now, treat the two boxes as separate Unix users that share a filesystem via narrowly-granted ACLs.
+
 Two operational settings the admin app exposes per Web App:
 
 - **`MIN` (default for most apps)** — Apache can write only to specified paths (uploads, cache directories). Application core files are read-only.
@@ -102,14 +111,22 @@ WordPress can update itself via FTP, prompting the user for FTP credentials at u
 
 ## Snapshots and Update Assurance
 
-Snapshots are per-Web-App backups taken at strategic moments. A snapshot stores the database, the file tree, and a marker for the app's manifest.
+Snapshots are **git-backed**. Each Web App with snapshots enabled gets a git repository attached to its document root; a snapshot is a commit. Enable snapshots from Web > Web Apps in the panel, or at install time via the `'[git:1]'` install flag.
 
 - **Manual**: `cpcmd webapp:snapshot $hostname $path` or the Snapshot button in the GUI.
-- **Auto via Update Assurance**: when an update is initiated through `webapp:update-all`, ApisCP snapshots before the update and confirms after. If the post-update health check fails, ApisCP rolls back to the snapshot automatically.
+- **Auto via Update Assurance**: when an update is initiated through `webapp:update-all`, ApisCP records the app's HTTP status code and content length before the update, takes a snapshot, runs the update, and re-evaluates the same probes afterward. If the post-update response is non-2XX, or the content length drifts past the `[webapps] => assurance_drift` tuneable, ApisCP rolls back to the snapshot automatically.
 
 This is the load-bearing safety mechanism for unattended updates. Without it, an MSP can't trust the platform-wide nightly `webapp:update-all` job not to break customer sites. With it, the rollback is automatic and the customer's site stays up.
 
-Snapshots live in the account's home directory under `mysql_backups/` (for database snapshots) and `web_backups/` (for file snapshots). The 5-day retention default is per-snapshot; longer retention is a Scope tweak.
+Tune the drift sensitivity via `cp.config`:
+
+```bash
+# Read the current drift tolerance (decimal fraction; 0.3 means 30% content-length swing)
+cpcmd scope:get cp.config webapps assurance_drift
+
+# Loosen for an app whose homepage legitimately changes a lot
+cpcmd scope:set cp.config webapps assurance_drift 0.5
+```
 
 ## The customer-side updates dance
 
@@ -129,9 +146,9 @@ The customer rarely uses these directly. The MSP either runs platform-wide updat
 Behind the scenes:
 
 1. ApisCP enumerates accounts with Web Apps.
-2. For each app: snapshot → run update → run health check.
-3. If health check passes: snapshot is retained for 5 days, app is on the new version.
-4. If health check fails: rollback to snapshot, mark the app for admin attention, notify the account contact and (if `crm.copy_admin` is set) the MSP.
+2. For each app: record HTTP status + content length → snapshot (a git commit on the app's repo) → run update → re-probe.
+3. If the response is 2XX and content length is within `assurance_drift`: the commit stays in the app's git history; the app is on the new version.
+4. If the response is non-2XX or drifts past tolerance: rollback to the prior commit, mark the app for admin attention, notify the account contact and (if `crm.copy_admin` is set) the MSP.
 
 Monday morning, the admin reviews the night's events on the Dashboard. Failed updates are an explicit list to act on; everything else proceeded without intervention.
 

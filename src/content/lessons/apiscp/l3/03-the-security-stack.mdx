@@ -2,41 +2,88 @@
 slug: 03-the-security-stack
 vendor: apiscp
 level: l3
-title: Rampart, Shield, ModSecurity, ClamAV, the layered security stack
-summary: Four security subsystems run by default on every ApisCP server, each catching a different attack class. The 3-5-10 brute-force lockout in detail, the jail/IP model, the DOS handler Shield, ModSecurity for application-layer attacks, ClamAV for malware. How to read them and where to intervene.
+title: Anvil, Rampart, Shield, ModSecurity, ClamAV, the layered security stack
+summary: Five security subsystems run by default on every ApisCP server, each catching a different attack class. Anvil rate-limits panel and API auth; Rampart wraps fail2ban for service brute-force (mail, FTP, SSH, DB) with a 3-5-10 jail default; Shield is the DOS handler; ModSecurity covers application-layer attacks; ClamAV catches malware. How to read them and where to intervene.
 estimatedMinutes: 9
 order: 3
 topics: [security, rampart, shield, modsecurity]
 updated: 2026-05-13
 ---
 
-A default ApisCP install ships with four security subsystems running and configured: **Rampart** for brute-force protection across every auth-bearing service, **Shield** as the DOS handler for the web tier, **ModSecurity** for application-layer attack rules, and **ClamAV** as the malware scanner. Each catches a different attack class. The defaults are sensible; the operational work is reading their state and intervening cleanly when needed.
+A default ApisCP install ships with five security subsystems running and configured: **Anvil** rate-limits panel and SOAP-API auth; **Rampart** wraps fail2ban around every other auth-bearing service (mail, FTP, SSH, databases); **Shield** is the DOS handler at the web tier; **ModSecurity** runs OWASP rules on every request body; **ClamAV** scans uploads and the filesystem for malware. Each catches a different attack class. The defaults are sensible; the operational work is reading their state and intervening cleanly when needed.
 
 ## The stack, one diagram
 
 ```mermaid
 flowchart TD
-    Internet[Internet traffic] --> Rampart[Rampart: per-IP rate limits + 3-5-10 lockout<br/>across panel, FTP, mail, terminal]
-    Rampart -->|allowed| Apache[Apache + PHP-FPM]
+    Internet[Internet traffic] --> Split{Auth surface?}
+    Split -- "panel / SOAP API" --> Anvil[Anvil: per-IP rate-limit<br/>default 20 attempts / 15 min TTL<br/>exponential backoff]
+    Split -- "mail / FTP / SSH / DB" --> Rampart[Rampart: fail2ban jails<br/>default 3 attempts / 5 min,<br/>10-min ban per jail]
+    Anvil -->|allowed| Apache[Apache + PHP-FPM]
+    Rampart -->|allowed| Apache
     Apache --> Shield[Shield: DOS handler<br/>per-site request thresholds]
     Shield --> ModSec[ModSecurity: OWASP rule set<br/>request body inspection]
     ModSec --> ClamAV[ClamAV: malware scanner<br/>uploads + scheduled fs scan]
     ClamAV --> Account[Customer account]
 ```
 
-Each layer rejects what shouldn't reach the next. The defaults: Rampart's 3-5-10, Shield's DOS thresholds, ModSec's CRS3 default rule set, ClamAV on every upload and a nightly full-fs scan.
+Each layer rejects what shouldn't reach the next. The defaults: Anvil's 20-in-15-minutes panel rate-limit, Rampart's 3-5-10 service-jail rule, Shield's DOS thresholds, ModSec's CRS3 default rule set, ClamAV on every upload and a nightly full-fs scan.
 
-## Rampart, the brute-force deterrent
+## Anvil, the panel and API rate-limiter
 
-Rampart is jail-based, conceptually similar to Fail2Ban. Each auth-bearing service has a **jail**: `apnscp` (the panel), `dovecot` (mail), `postfix-sasl` (mail submission), `proftpd` (FTP), `sshd` (terminal). A jail accumulates failures per source IP; when a threshold trips, the IP is added to a deny list for a fixed window.
+Anvil is the rate-limiter for **panel logins and SOAP API calls**. It's an in-process accumulator, not a fail2ban jail. The relevant tuneables live under `[anvil]` in `config.ini` and are reachable via the `cp.config` Scope:
 
-The default jail config is **three failures in five minutes = ten-minute block**. Same numbers apply to every jail. The 3-5-10 lockout the Beginner course mentioned isn't a single rule; it's the default of every Rampart jail.
+| Key | Default | What it controls |
+|---|---|---|
+| `limit` | 20 | Failed attempts that trip the limiter |
+| `ttl` | 900 | Sliding window, in seconds (15 minutes) |
+| `min_attempts` | 3 | Attempts before exponential backoff kicks in |
+
+```bash
+# Read the current ceiling
+cpcmd scope:get cp.config anvil limit
+
+# Tighten for a high-value tenant
+cpcmd scope:set cp.config anvil limit 10
+```
+
+The first few wrong attempts have no delay; once `min_attempts` is crossed, each subsequent attempt waits longer. By the time an attacker has reached `limit`, the wall-clock time spent backing off is large enough that credential-stuffing is impractical.
+
+## Rampart, the service-auth deterrent
+
+Rampart is a fail2ban wrapper. Each auth-bearing **service** (not the panel) has a jail; the jail accumulates failures per source IP, and tripping the threshold bans the IP from that service for a fixed window.
+
+Canonical jails on a default install:
+
+| Jail | What it watches |
+|---|---|
+| `dovecot` | IMAP / POP auth |
+| `postfix` | SMTP relay auth |
+| `postfix-sasl` | SMTP submission auth |
+| `vsftpd` | FTP auth |
+| `sshd` | Terminal auth |
+| `mysqld` | MySQL auth |
+| `pgsql` | PostgreSQL auth |
+| `evasive` | mod_evasive web-tier abuse |
+| `malware` | ClamAV-detected uploads |
+| `spambots` | Web form spam patterns |
+| `recidive` | Repeat offenders (IPs that keep tripping other jails) |
+
+There is no `apnscp` jail (that's Anvil's territory) and no `proftpd` jail (the FTP server is vsftpd). The service-accumulator defaults, set in `config.ini` and tunable per-jail:
+
+| Key | Default | What it controls |
+|---|---|---|
+| `f2b_maxretry` | 3 | Failed attempts before ban |
+| `f2b_findtime` | 300 | Sliding window, in seconds (5 minutes) |
+| `f2b_bantime` | 600 | Ban duration, in seconds (10 minutes) |
+
+"3-5-10" is the canonical shorthand: **3 attempts in 5 minutes, 10-minute ban**. That's the per-jail default; the `recidive` jail layers on top with longer bans for IPs that keep returning.
 
 The cpcmd surface:
 
 ```bash
-# Is this IP banned anywhere?
-cpcmd rampart:is-banned 203.0.113.42 '*'
+# Is this IP banned in this jail?
+cpcmd rampart:is-banned 203.0.113.42 sshd
 # returns boolean
 
 # Which jails has it tripped?
@@ -44,14 +91,16 @@ cpcmd rampart:list-bans
 # returns map of jail -> banned IPs
 
 # Unban from a specific jail
-cpcmd rampart:unban 203.0.113.42 apnscp
+cpcmd rampart:unban 203.0.113.42 sshd
 
 # Unban from every jail (the common move when a customer is locked out)
-cpcmd rampart:unban 203.0.113.42 '*'
+cpcmd rampart:unban 203.0.113.42
 
 # Add a permanent whitelist for an MSP office IP
 cpcmd rampart:whitelist 198.51.100.5
 ```
+
+`rampart:unban` takes `(string $ip, string $jail)`; omit the second argument to clear the IP from every jail. There is no wildcard like `'*'`; the wildcard idiom is "leave the jail argument off."
 
 Per-jail tuning is platform-level: change the failure count, the window, or the block duration via Scope. The defaults are right for nearly every MSP; tighten if you have a high-value tenant making noise, loosen if customers complain about being locked out for typos.
 
@@ -138,8 +187,8 @@ This is the "what happened on this customer today" view, useful when triaging a 
 Procedure:
 
 1. Get Sarah's source IP.
-2. `cpcmd rampart:list-bans` to check if her IP is in a jail. Highly likely.
-3. `cpcmd rampart:unban <ip> '*'` to remove the block.
+2. `cpcmd rampart:list-bans` to check which jails her IP has tripped. Likely several.
+3. `cpcmd rampart:unban <ip>` (no second arg) to clear the IP from every jail at once.
 4. Confirm Sarah can log in.
 5. Investigate the *cause* of the lockout. Three failures over five minutes across panel + mail + FTP means a misconfigured client somewhere. Most often a mail client (Outlook, Apple Mail) that was reconfigured with a wrong password and is retrying every 60 seconds.
 6. Walk Sarah through finding the offending client; have her update the password there before unbanning, otherwise she'll be banned again in two minutes.
