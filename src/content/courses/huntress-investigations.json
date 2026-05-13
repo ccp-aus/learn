@@ -1,0 +1,19 @@
+{
+  "slug": "huntress-investigations",
+  "vendor": "huntress",
+  "level": "l2",
+  "title": "Huntress, running the deployment",
+  "shortTitle": "Huntress investigations",
+  "summary": "Designing exclusions without blind spots, managing Defender from the Huntress console, enabling ITDR for a Microsoft 365 tenant, running an SAT campaign, and routing alerts into the PSA so nothing falls through the cracks.",
+  "estimatedMinutes": 47,
+  "prereqs": ["huntress-incident-triage"],
+  "lessons": [
+    "01-policy-and-exclusion-design",
+    "02-managed-defender",
+    "03-enabling-itdr-for-m365",
+    "04-running-an-sat-campaign",
+    "05-psa-and-rmm-integration"
+  ],
+  "quiz": "huntress-investigations-final",
+  "status": "live"
+}

@@ -1,0 +1,32 @@
+{
+  "slug": "exclaimer-portal-fundamentals-checkpoint-fields",
+  "course": "exclaimer-portal-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, fields and senders",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-fields-source",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A {JobTitle} field renders blank in a user's signature preview. Where does the value need to be set?",
+      "choices": [
+        "Hardcoded into the signature template",
+        "In the synced directory (Microsoft Entra ID or Google Directory) or via the User Details Editor",
+        "Inside the Senders tab as a per-user override",
+        "In the Brand Kit as a brand asset"
+      ],
+      "correct": 1,
+      "explanation": "Field elements pull per-user data from the synced directory at send time. Fix the directory record (or delegate via the User Details Editor); never hardcode user-specific values into the template."
+    },
+    {
+      "id": "ck-fields-senders-or",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If the Senders tab has both a group rule and a list of individual addresses, only users in both sets get the signature.",
+      "correct": false,
+      "explanation": "Senders rules are combined with OR, not AND. A user matched by either the group or the address list gets the signature. To exclude users, use the Exceptions tab."
+    }
+  ]
+}

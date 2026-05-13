@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-investigations-checkpoint-psa",
+  "course": "huntress-investigations",
+  "kind": "checkpoint",
+  "title": "Quick check, PSA integration",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-psa-1",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Huntress supports two PSA integrations active at the same time on a single account.",
+      "correct": false,
+      "explanation": "Per the Incident Report Integrations documentation, only one PSA integration is supported at a time. Multiple PSAs require alternative routing, e.g. one PSA + Email integration to a second team."
+    },
+    {
+      "id": "ck-psa-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Auto-Map for PSA Organization Mapping does what, exactly?",
+      "choices": [
+        "Suggests fuzzy-match candidates between Huntress Organizations and PSA companies",
+        "Maps Huntress Organizations to PSA companies on exact name matches",
+        "Renames PSA companies to match Huntress Organizations",
+        "Disables manual mapping until the auto-map run is complete"
+      ],
+      "correct": 1,
+      "explanation": "Auto-Map works on exact name matches per the documentation. Names that don't match exactly stay unmapped and are reviewed manually. The fix is usually to align the names, not to expect fuzzy matching."
+    }
+  ]
+}

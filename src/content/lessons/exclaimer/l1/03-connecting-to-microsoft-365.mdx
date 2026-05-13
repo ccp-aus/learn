@@ -33,9 +33,8 @@ Three objects in Exchange Online plus a set of Microsoft Entra app registrations
 Run by an Exclaimer admin who can also authenticate as a **Microsoft 365 Global Administrator**. Exclaimer doesn't cache the GA credentials; they're used once for the wizard and prompted for again if any step is rerun.
 
 <StepThrough client:load>
-  <Step title="Open the wizard">
-    Cogwheel icon on the header, Settings, Mail Flow, Connect to Microsoft 365. Decide whether the customer wants server-side for everyone or only a test group during phased rollout.
-    {/* TODO: capture screenshot of the wizard's initial pane */}
+  <Step title="Open the wizard" image="/img/exclaimer/connect-to-365.png" imageAlt="The Connect to Microsoft 365 panel with the 'Send all email to Exclaimer' checkbox, an empty Test Group Name field, and a one-time code to paste during Microsoft authentication">
+    Cogwheel icon on the header, Settings, Mail Flow, Connect to Microsoft 365. Decide whether the customer wants server-side for everyone (leave **Send all email to Exclaimer** ticked) or only a test group during phased rollout (untick it and name a mail-enabled security group in **Test Group Name**). The code shown is one-time; you'll paste it when Microsoft prompts.
   </Step>
   <Step title="Authenticate as Global Administrator">
     Sign in with the customer's Microsoft 365 GA. Accept the permissions request for Exclaimer to read Entra ID data and create the mail flow objects.

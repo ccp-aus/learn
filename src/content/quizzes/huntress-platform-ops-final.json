@@ -1,0 +1,184 @@
+{
+  "slug": "huntress-platform-ops-final",
+  "course": "huntress-platform-ops",
+  "kind": "final",
+  "title": "Huntress at MSP scale, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-l3-layers",
+      "type": "mcq",
+      "topic": "multi-tenancy",
+      "difficulty": "easy",
+      "prompt": "Which is the correct Huntress hierarchy for an MSP that purchases Huntress through a distributor?",
+      "choices": [
+        "Organization > Account > Reseller",
+        "Reseller > Account > Organization > Agent",
+        "Account > Reseller > Organization > Agent",
+        "Reseller > Organization > Agent"
+      ],
+      "correct": 1,
+      "explanation": "Resellers hold one or more Accounts; each Account holds Organizations; agents register against an Organization. Account is the unit of billing and roles; Organization is the unit of customer."
+    },
+    {
+      "id": "q-l3-rbac-anti",
+      "type": "multi",
+      "topic": "rbac",
+      "difficulty": "medium",
+      "prompt": "Which of these are RBAC anti-patterns in a Huntress deployment? (Select all that apply.)",
+      "choices": [
+        "A single shared MSP login used by all helpdesk staff",
+        "Per-tech named accounts with SSO from the MSP's IdP",
+        "Customer-side IT lead promoted to Account-level Admin",
+        "Two named Account-level Admins with their own MFA",
+        "A founder holding the only Account-level Admin role with no documented backup"
+      ],
+      "correct": [0, 2, 4],
+      "explanation": "Shared logins destroy the audit trail; customer admins at Account level cross the partner-isolation boundary; sole-Admin is a hostage scenario. Per-tech SSO and dual named Admins are correct patterns."
+    },
+    {
+      "id": "q-l3-billing-source",
+      "type": "tf",
+      "topic": "billing",
+      "difficulty": "easy",
+      "prompt": "The Billing Detail Report is the source-of-truth document for monthly agent-count reconciliation against the MSP's PSA contract.",
+      "correct": true,
+      "explanation": "The Billing Detail Report breaks down agents by Organization for the billed period. The portal shows current state; the report shows what was billed for. Reconciliation works against the report."
+    },
+    {
+      "id": "q-l3-itdr-bill",
+      "type": "mcq",
+      "topic": "billing",
+      "difficulty": "medium",
+      "prompt": "A customer's M365 user count drifted upward last month due to leavers not being removed from licensing. What's the cleanest reconciliation path?",
+      "choices": [
+        "Exclude the leaver accounts from ITDR billing on the Huntress side",
+        "Push the customer to clean up M365 licensing; ITDR billing follows what Microsoft bills",
+        "Manually reduce the rebill to the customer to match the previous month",
+        "Open a Huntress support ticket to dispute the count"
+      ],
+      "correct": 1,
+      "explanation": "Per the ITDR FAQ, Huntress doesn't allow per-user exclusion. ITDR bills follow what Microsoft bills. The customer's licensing hygiene is what needs cleaning up; Huntress will follow."
+    },
+    {
+      "id": "q-l3-onboarding-order",
+      "type": "order",
+      "topic": "onboarding",
+      "difficulty": "medium",
+      "prompt": "Put the onboarding phases in order, from Day 0 to Day 30.",
+      "items": [
+        "Pre-create the Huntress Organization with name matching the PSA company",
+        "Agent rollout to the customer estate",
+        "Defender Audit-then-Enforce + PSA mapping",
+        "ITDR enable + Identity Security Assessment",
+        "SAT pilot campaign after allowlisting",
+        "Day-30 customer baseline review"
+      ],
+      "explanation": "Each phase depends on the previous. Pre-create the Organization first, then agents, then management surfaces, then ITDR, then SAT, then the customer-facing review."
+    },
+    {
+      "id": "q-l3-isolate-bulk",
+      "type": "tf",
+      "topic": "incident-response",
+      "difficulty": "medium",
+      "prompt": "Bulk Host Isolation across an entire Organization is reserved to Account-level Admins.",
+      "correct": true,
+      "explanation": "Per the Bulk Host Isolation documentation, Account-level Admins can isolate all hosts in an Organization. The action is consequential, the role gating reflects that."
+    },
+    {
+      "id": "q-l3-isolation-vs-identity",
+      "type": "mcq",
+      "topic": "incident-response",
+      "difficulty": "medium",
+      "prompt": "An ITDR incident report describes a confirmed compromise of a user's M365 account. The SOC has already disabled the account. What's the partner-side scope for the next hour?",
+      "choices": [
+        "Re-enable the account; the SOC will isolate it again if needed",
+        "Walk the manual remediation steps in the report (token revocation, MFA reset, mailbox audit) and notify the customer",
+        "Initiate Bulk Host Isolation for the customer's whole Organization",
+        "Wait for the SOC to send a follow-up before doing anything else"
+      ],
+      "correct": 1,
+      "explanation": "The SOC's disable contains the immediate threat. The partner walks the manual remediation steps (rotate refresh tokens, invalidate session cookies, MFA factors, mailbox activity audit) and runs the customer communication template."
+    },
+    {
+      "id": "q-l3-api-auth",
+      "type": "mcq",
+      "topic": "api",
+      "difficulty": "easy",
+      "prompt": "What credentials does the Huntress REST API use?",
+      "choices": [
+        "Portal username and password",
+        "OAuth 2.0 client credentials grant",
+        "Basic Auth with Base64-encoded API Key (hk_) and API Secret (hs_)",
+        "A signed JWT issued by Huntress's identity service"
+      ],
+      "correct": 2,
+      "explanation": "The REST API uses Basic Auth with Base64-encoded API Key and Secret. Portal credentials are not accepted by the API."
+    },
+    {
+      "id": "q-l3-api-action-gate",
+      "type": "tf",
+      "topic": "api",
+      "difficulty": "medium",
+      "prompt": "Huntress has write endpoints for some escalation and Incident Report response actions, but MSPs should place them behind the same approval and evidence gates as portal actions.",
+      "correct": true,
+      "explanation": "Huntress has released write APIs for escalation and Incident Report response workflows. The safe pattern is not unattended auto-action; it is a runbook-gated action with human approval and PSA evidence."
+    },
+    {
+      "id": "q-l3-api-build",
+      "type": "multi",
+      "topic": "api",
+      "difficulty": "hard",
+      "prompt": "Which of the following are reasonable patterns to build on the Huntress API? (Select all that apply.)",
+      "choices": [
+        "A nightly pull of incidents into a cross-Account aggregation dashboard",
+        "An auto-resolver that closes incidents when an internal rule says so",
+        "A monthly billing reconciliation pipeline that pulls the Billing Detail Report",
+        "A SIEM forwarder for SIEMs Huntress doesn't natively integrate with",
+        "A real-time poll every 30 seconds of every Organization's incident list"
+      ],
+      "correct": [0, 2, 3],
+      "explanation": "Aggregation, billing reconciliation, and SIEM forwarding are good patterns. Auto-resolve removes the SOC's working assumption that resolved=resolved. High-frequency polling will hit rate limits and isn't the right shape; webhooks are the conversation to have with Huntress for that case."
+    },
+    {
+      "id": "q-l3-comm-template",
+      "type": "mcq",
+      "topic": "incident-response",
+      "difficulty": "medium",
+      "prompt": "During an active Critical incident, how often should the customer's primary contact get a status update, even if there's nothing materially new?",
+      "choices": [
+        "Once at the start; the next time you have material progress",
+        "Every 4 hours during the active incident, even if status is unchanged",
+        "Only when the incident is resolved",
+        "Only if the customer asks"
+      ],
+      "correct": 1,
+      "explanation": "Silence during an active critical incident is worse than a 'no change since last update' message. Regular intervals (the runbook's 4-hour cadence is a reasonable default) maintain the customer's confidence in your handling."
+    },
+    {
+      "id": "q-l3-offboarding-scope",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "hard",
+      "prompt": "A customer is leaving Huntress ITDR only, but keeping EDR agents. What should the MSP avoid?",
+      "choices": [
+        "Unmapping the customer's M365 tenant from the ITDR integration",
+        "Exporting retained ITDR reports before removal",
+        "Deleting the whole Huntress Organization",
+        "Documenting the billing handoff"
+      ],
+      "correct": 2,
+      "explanation": "Deleting the whole Organization removes services tied to that Organization. For a module-only exit, unmap or remove the specific integration path and leave the retained services intact."
+    },
+    {
+      "id": "q-l3-not-soc",
+      "type": "tf",
+      "topic": "incident-response",
+      "difficulty": "easy",
+      "prompt": "The MSP's incident runbook should include doing the SOC's analysis themselves to verify the SOC's report.",
+      "correct": false,
+      "explanation": "The SOC's analysis is the input. Re-doing it in parallel loses the speed advantage that's the whole point of the managed service. The runbook acts on the report; SOC Support is the channel for genuine doubts about the analysis."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "slug": "threatlocker-at-scale-checkpoint-hierarchy",
+  "course": "threatlocker-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, hierarchy",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-hierarchy-1",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "ThreatLocker policies inherit automatically from a parent organisation down to its children.",
+      "correct": false,
+      "explanation": "There's no implicit policy inheritance. Cross-tenant propagation is via the Copy Policies operation; a policy in the parent doesn't take effect on children unless explicitly copied (and deployed)."
+    },
+    {
+      "id": "ck-hierarchy-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An MSP tech leaves the company. Which is the most reliable cleanup move?",
+      "choices": [
+        "Disable their account at the top MSP organisation",
+        "Disable the account at the MSP layer AND audit child organisations to remove any direct grants",
+        "Change all customer policies that mention them",
+        "Wait for the next quarterly review"
+      ],
+      "correct": 1,
+      "explanation": "MSP-layer access is the main door, but customers can also have direct user grants (especially in older onboardings). A clean offboarding audits child orgs as well as disabling at the top, otherwise stale rights linger."
+    }
+  ]
+}

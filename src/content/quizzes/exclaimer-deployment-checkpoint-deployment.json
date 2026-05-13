@@ -1,0 +1,32 @@
+{
+  "slug": "exclaimer-deployment-checkpoint-deployment",
+  "course": "exclaimer-deployment",
+  "kind": "checkpoint",
+  "title": "Quick check, deployment-path choice",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-deployment-mobile",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A customer who needs signatures on iOS and Android can rely on the Outlook Add-in alone, without server-side configuration.",
+      "correct": false,
+      "explanation": "The Outlook Add-in does not run on iOS or Android. Mobile coverage requires server-side. Combined deployment is the typical answer when the customer also wants previews on Outlook for Windows."
+    },
+    {
+      "id": "ck-deployment-prevent-edit",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer says 'users must not be able to edit or delete the signature in Outlook'. Which deployment path enforces that?",
+      "choices": [
+        "Client-side via the Outlook Add-in",
+        "Client-side via the Signature Update Agent",
+        "Server-side",
+        "User Details Editor configuration"
+      ],
+      "correct": 2,
+      "explanation": "Only server-side prevents users from changing signatures. Client-side (either Add-in or Update Agent) gives users access to signatures before send, so they can edit or delete them."
+    }
+  ]
+}

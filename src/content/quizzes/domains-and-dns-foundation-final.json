@@ -1,0 +1,178 @@
+{
+  "slug": "domains-and-dns-foundation-final",
+  "course": "domains-and-dns-foundation",
+  "kind": "final",
+  "title": "Domains & DNS, the foundation: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-l1-resolution-order",
+      "type": "order",
+      "topic": "resolution",
+      "difficulty": "easy",
+      "prompt": "Put these resolution steps in the order they happen for a fresh DNS query.",
+      "items": [
+        "User's device asks its configured recursive resolver",
+        "Recursive resolver asks a root nameserver who handles the TLD",
+        "Recursive resolver asks the TLD nameservers who is authoritative for the domain",
+        "Recursive resolver asks the authoritative nameservers for the record",
+        "Authoritative nameserver returns the answer; resolver caches it for the TTL"
+      ],
+      "explanation": "DNS resolution walks the hierarchy from broadest (root) to most specific (authoritative). Caching at every step means most queries don't reach the authoritative server, but a fresh query does walk the chain."
+    },
+    {
+      "id": "q-l1-registrant-vs-registrar",
+      "type": "mcq",
+      "topic": "registration",
+      "difficulty": "easy",
+      "prompt": "What is the relationship between the registrar and the registrant?",
+      "choices": [
+        "The registrar owns the domain; the registrant is hired to manage it",
+        "The registrar is the company selling and renewing the lease; the registrant is the legal owner of the lease",
+        "Registrar and registrant mean the same thing",
+        "The registrant runs the nameservers; the registrar handles billing"
+      ],
+      "correct": 1,
+      "explanation": "Registrars are the retail layer: they sell, renew, and provide the management portal. Registrants are the customers named on the lease. Confusing the two is how MSPs end up working on domains the customer doesn't actually control."
+    },
+    {
+      "id": "q-l1-ns-vs-registrar",
+      "type": "tf",
+      "topic": "nameservers",
+      "difficulty": "medium",
+      "prompt": "Editing a TXT record at the registrar's DNS panel is always sufficient to make the change live, even if the domain's nameservers point at a different DNS host.",
+      "correct": false,
+      "explanation": "DNS records are read from whichever nameservers the NS delegation points at. If the delegation points at Cloudflare and you edit a record in the registrar's panel, the registrar's zone is no longer being read. Always check NS first."
+    },
+    {
+      "id": "q-l1-cname-purpose",
+      "type": "mcq",
+      "topic": "records",
+      "difficulty": "easy",
+      "prompt": "When would you use a CNAME record?",
+      "choices": [
+        "To map a name to an IPv4 address",
+        "To make a subdomain an alias for another hostname",
+        "To set the priority of a mail server",
+        "To delegate a subdomain to a different nameserver"
+      ],
+      "correct": 1,
+      "explanation": "CNAME makes a name into an alias for another hostname. The resolver follows the alias and uses whatever the target resolves to. A maps to IPv4; MX has priority; NS does subdomain delegation."
+    },
+    {
+      "id": "q-l1-mx-priority",
+      "type": "mcq",
+      "topic": "records",
+      "difficulty": "medium",
+      "prompt": "A domain has two MX records: priority 10 and priority 20. What does the priority mean?",
+      "choices": [
+        "The mail server with priority 20 is tried first because higher numbers are preferred",
+        "The mail server with priority 10 is tried first because lower numbers are preferred",
+        "Both are tried in parallel and the faster one wins",
+        "Priority is just a label and has no effect on routing"
+      ],
+      "correct": 1,
+      "explanation": "MX priority is lowest-first. The priority 10 server is tried first; priority 20 is the fallback if 10 is unreachable. This is how mail providers list multiple servers for redundancy."
+    },
+    {
+      "id": "q-l1-multi-record-purposes",
+      "type": "multi",
+      "topic": "records",
+      "difficulty": "medium",
+      "prompt": "Which of the following are commonly stored as TXT records? (Select all that apply.)",
+      "choices": [
+        "SPF policy for the domain",
+        "DMARC policy at _dmarc",
+        "Service ownership verification (M365, Google, etc.)",
+        "The IPv4 address of a web server",
+        "DKIM public key (for some providers)"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "SPF, DMARC, ownership verification, and DKIM (when not published as a CNAME) all live in TXT records. The IPv4 address of a web server is an A record."
+    },
+    {
+      "id": "q-l1-ttl-meaning",
+      "type": "mcq",
+      "topic": "ttl",
+      "difficulty": "medium",
+      "prompt": "A DNS record has TTL 3600. You change the record. What does the TTL tell you about the change?",
+      "choices": [
+        "The change is rejected for the next 3600 seconds",
+        "The new value will be visible to every resolver within 3600 seconds, guaranteed",
+        "Resolvers that already cached the old answer will hold it for up to 3600 seconds before re-querying",
+        "The change applies to recursive resolvers but not to the authoritative server until the TTL expires"
+      ],
+      "correct": 2,
+      "explanation": "The authoritative server serves the new value immediately. Resolvers that cached the old answer hold it for up to the old TTL, then refresh from the authoritative. This is what 'propagation' really is: cached answers timing out."
+    },
+    {
+      "id": "q-l1-stale-cache-fix",
+      "type": "order",
+      "topic": "ttl",
+      "difficulty": "medium",
+      "prompt": "A user sees a stale website after a DNS change. Put these troubleshooting steps in order.",
+      "items": [
+        "Confirm the authoritative answer with nslookup against the actual nameservers",
+        "Compare to what the user's resolver returns (1.1.1.1, 8.8.8.8)",
+        "Flush local DNS cache (ipconfig /flushdns) and restart the browser",
+        "If still stale, wait the remainder of the old TTL"
+      ],
+      "explanation": "Top-down: prove the authoritative is correct, prove the resolver is or isn't already updated, fix what's local, then accept that the rest of the wait is a TTL countdown."
+    },
+    {
+      "id": "q-l1-tld-registry",
+      "type": "tf",
+      "topic": "registration",
+      "difficulty": "medium",
+      "prompt": "Registries (like Verisign for .com or PIR for .org) sell domains directly to the public.",
+      "correct": false,
+      "explanation": "Registries operate the master database for a TLD but do not sell to the public. Retail sales happen through registrars. The registry sets the rules; the registrar holds the customer relationship."
+    },
+    {
+      "id": "q-l1-multi-cname-rules",
+      "type": "multi",
+      "topic": "records",
+      "difficulty": "medium",
+      "prompt": "Which of the following are true about CNAME records? (Select all that apply.)",
+      "choices": [
+        "A CNAME makes one hostname an alias for another",
+        "A CNAME can coexist with an MX record on the same name",
+        "Resolvers follow the alias and use whatever the target resolves to",
+        "CNAME records are commonly used to point a subdomain at a third-party platform"
+      ],
+      "correct": [0, 2, 3],
+      "explanation": "CNAMEs are aliases, resolvers follow them, and they're heavily used for subdomains pointing at SaaS platforms. The one wrong choice: CNAMEs cannot share a name with most other record types, including MX. This is the rule that breaks 'CNAME at the apex' requests, covered in the Advanced course."
+    },
+    {
+      "id": "q-l1-ns-records",
+      "type": "mcq",
+      "topic": "nameservers",
+      "difficulty": "medium",
+      "prompt": "What does an NS record at the apex of a zone tell a resolver?",
+      "choices": [
+        "Which mail server to deliver mail to",
+        "Which IP address the website lives on",
+        "Which nameservers are authoritative for this zone",
+        "Which CA can issue TLS certificates for the domain"
+      ],
+      "correct": 2,
+      "explanation": "NS records list the authoritative nameservers for the zone. The records at the registrar level are the delegation that resolvers actually follow; the in-zone NS records are usually the same hostnames for consistency."
+    },
+    {
+      "id": "q-l1-soa-purpose",
+      "type": "mcq",
+      "topic": "records",
+      "difficulty": "hard",
+      "prompt": "Why does every DNS zone include an SOA (Start of Authority) record?",
+      "choices": [
+        "Because every zone must have an admin contact and metadata about itself, and SOA is where that lives",
+        "Because the SOA record is what holds the IP addresses for the apex",
+        "Because the SOA record is what serves email for the domain",
+        "Because SOA is what enables DNSSEC signing"
+      ],
+      "correct": 0,
+      "explanation": "The SOA carries zone metadata: the primary nameserver, an admin email, and the timing values nameservers use to coordinate refreshes. It's the marker that this zone is authoritative for the apex name."
+    }
+  ]
+}

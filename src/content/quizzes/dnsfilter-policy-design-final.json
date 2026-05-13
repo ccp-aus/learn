@@ -1,0 +1,161 @@
+{
+  "slug": "dnsfilter-policy-design-final",
+  "course": "dnsfilter-policy-design",
+  "kind": "final",
+  "title": "DNSFilter policy design, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-l2-policy-layer-shape",
+      "type": "mcq",
+      "topic": "policy-design",
+      "difficulty": "medium",
+      "prompt": "Three different customers in the same vertical have all asked for the same allowlist entry on their override layer. What's the right next move?",
+      "choices": [
+        "Add the entry to the Universal Allow list",
+        "Promote the entry to the vertical overlay policy and remove the per-customer copies",
+        "Leave the per-customer entries in place, duplication is fine",
+        "Block the request because three asks isn't enough signal"
+      ],
+      "correct": 1,
+      "explanation": "Three same-vertical asks is a vertical signal. Promote to the vertical overlay; remove the per-customer copies. Universal Allow is too wide, it would apply to other verticals too."
+    },
+    {
+      "id": "q-l2-policy-allow-wins",
+      "type": "tf",
+      "topic": "policy-design",
+      "difficulty": "easy",
+      "prompt": "In DNSFilter, a Universal Allow list entry overrides a Block list entry on the same policy.",
+      "correct": true,
+      "explanation": "Allow lists always win, both Universal and per-policy. That's why scope discipline matters so much: a misplaced Universal Allow opens the door for every customer in the org."
+    },
+    {
+      "id": "q-l2-categories-bucket",
+      "type": "multi",
+      "topic": "categories",
+      "difficulty": "medium",
+      "prompt": "Which categories are 'always-block' (no customer conversation needed)? (Select all that apply.)",
+      "choices": [
+        "Malware",
+        "Social Networking",
+        "Phishing",
+        "Cryptomining",
+        "Cloud Storage",
+        "Botnet / C2"
+      ],
+      "correct": [0, 2, 3, 5],
+      "explanation": "The threat-category set (Malware / Phishing / Cryptomining / Botnet) is non-negotiable for any business customer. Social Networking and Cloud Storage depend on the customer's business."
+    },
+    {
+      "id": "q-l2-categories-vpn",
+      "type": "tf",
+      "topic": "categories",
+      "difficulty": "medium",
+      "prompt": "If a customer needs a sanctioned VPN, the right pattern is to unblock the entire 'Anonymising proxies / VPNs' category for that customer.",
+      "correct": false,
+      "explanation": "Unblocking the category opens the door to all VPN/anonymiser domains. The correct pattern is to leave the category blocked and add the specific sanctioned VPN domain to the policy's Allow list."
+    },
+    {
+      "id": "q-l2-blockpage-https",
+      "type": "tf",
+      "topic": "block-page",
+      "difficulty": "medium",
+      "prompt": "DNSFilter's hosted block page is reliably displayed in the browser for blocked HTTPS queries.",
+      "correct": false,
+      "explanation": "For HTTPS the browser sees a certificate mismatch and shows a TLS error instead of the block page. The hosted page is reliable for HTTP; HTTPS behaviour is browser-dependent and usually shows an error, not the block page."
+    },
+    {
+      "id": "q-l2-blockpage-bypass",
+      "type": "mcq",
+      "topic": "block-page",
+      "difficulty": "medium",
+      "prompt": "A customer's older playbook tells techs to enable a 'Bypass Password' on the DNSFilter block page so users can click through. What's the correct response in 2026?",
+      "choices": [
+        "Enable it, it's still a supported feature",
+        "Enable it but cap the password length",
+        "Update the playbook. DNSFilter removed the Bypass Password in late 2024 over security concerns; the supported paths now are Allow-list entries and the block page's notice email",
+        "Build a custom external block page that re-implements the bypass"
+      ],
+      "correct": 2,
+      "explanation": "DNSFilter removed the Bypass Password feature in late 2024. There is no direct replacement; access requests now go through the block page's embedded notice form, and exceptions are handled via Allow-list entries (per-policy or Universal)."
+    },
+    {
+      "id": "q-l2-onboarding-decision",
+      "type": "mcq",
+      "topic": "onboarding",
+      "difficulty": "medium",
+      "prompt": "A customer's office has a residential-grade connection, the public IP changes every few weeks. How do you identify the Site to DNSFilter?",
+      "choices": [
+        "Add a new Site each time the IP changes",
+        "Use a Dynamic DNS hostname; DNSFilter rechecks the DDNS record automatically",
+        "Skip the Site and rely on Roaming Clients only",
+        "Enter a /24 subnet that probably contains the changing IP"
+      ],
+      "correct": 1,
+      "explanation": "DNSFilter supports Dynamic DNS hostnames as a Site identifier and rechecks the record automatically, so even residential-grade connections work cleanly."
+    },
+    {
+      "id": "q-l2-onboarding-encrypted",
+      "type": "multi",
+      "topic": "onboarding",
+      "difficulty": "hard",
+      "prompt": "After a Site rollout, the Query Log shows zero queries from the Site's IP. Which of the following are plausible causes? (Select all that apply.)",
+      "choices": [
+        "Browser DNS-over-HTTPS bypassing the network resolver",
+        "Apple iCloud Private Relay tunnelling DNS",
+        "User device manually configured to use 8.8.8.8",
+        "DNSFilter has automatically suspended the Site for low usage"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Zero queries means traffic isn't reaching DNSFilter. Common causes are encrypted-DNS paths (DoH, iCloud Private Relay) or users overriding DNS locally. DNSFilter doesn't auto-suspend Sites for low usage."
+    },
+    {
+      "id": "q-l2-onboarding-test",
+      "type": "order",
+      "topic": "onboarding",
+      "difficulty": "medium",
+      "prompt": "Put the Intermediate-level site rollout steps in the correct order.",
+      "items": [
+        "Create the Site (or push the Roaming Client) and assign a policy",
+        "Test on one device with example test domains",
+        "Cut the network DNS over to DNSFilter in a maintenance window",
+        "Watch the Query Log live for the first 30 minutes"
+      ],
+      "explanation": "Always single-device test first; then the cutover; then watch for spikes. DNSFilter's own docs call out the single-device test as best practice before rolling out to the rest of the network."
+    },
+    {
+      "id": "q-l2-rollout-emergency",
+      "type": "tf",
+      "topic": "audit",
+      "difficulty": "medium",
+      "prompt": "Emergency threat blocks during an active phishing campaign should still be phased through one device first.",
+      "correct": false,
+      "explanation": "Emergency threat blocks reverse the normal cost equation: a missed legitimate site is a ticket, but a clicked phishing link is an incident. Push immediately to all affected sites."
+    },
+    {
+      "id": "q-l2-audit-log",
+      "type": "mcq",
+      "topic": "audit",
+      "difficulty": "medium",
+      "prompt": "What does DNSFilter's Policy Audit Log actually record?",
+      "choices": [
+        "Every DNS query and its verdict for the past year",
+        "Every change to filtering policies, who, what, when",
+        "Every authentication event for the dashboard",
+        "Every Roaming Client install and uninstall"
+      ],
+      "correct": 1,
+      "explanation": "The Policy Audit Log is a record of policy *changes*, what was edited, by whom, and when. Per-query data lives in the DNS Query Log; auth events are separate."
+    },
+    {
+      "id": "q-l2-audit-monitor",
+      "type": "tf",
+      "topic": "audit",
+      "difficulty": "hard",
+      "prompt": "DNSFilter offers an 'audit-only' or 'monitor only' mode that you can apply to a category to log matches without blocking them.",
+      "correct": false,
+      "explanation": "DNSFilter doesn't document a category-level audit-only mode. The phased-rollout discipline (test domains, single-device test, watch the Query Log live) is the documented substitute."
+    }
+  ]
+}

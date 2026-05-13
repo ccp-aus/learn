@@ -1,0 +1,223 @@
+{
+  "slug": "huntress-incident-triage-final",
+  "course": "huntress-incident-triage",
+  "kind": "final",
+  "title": "Huntress incident triage, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-fund-managed",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "What does the 'managed' in Huntress Managed EDR refer to?",
+      "choices": [
+        "Huntress manages the customer's entire endpoint estate, including patching",
+        "Huntress's 24x7 SOC investigates suspicious signals on the partner's behalf and produces incident reports",
+        "Huntress manages the partner's other security products through a single pane of glass",
+        "Huntress automatically remediates everything without partner involvement"
+      ],
+      "correct": 1,
+      "explanation": "The 'managed' part is the SOC. Per the platform overview, the 24x7 SOC reviews events of interest, takes containment actions, and produces incident reports. Patching, remediation actioning, and stack management remain the partner's job."
+    },
+    {
+      "id": "q-fund-not-siem",
+      "type": "tf",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "Huntress is a SIEM that ingests arbitrary log sources and lets the partner write correlation rules.",
+      "correct": false,
+      "explanation": "Huntress consumes a focused telemetry set and the SOC writes the detections. Managed SIEM is a separate module that extends the data plane, but classical SIEM correlation work is a different product class."
+    },
+    {
+      "id": "q-portal-tenant-check",
+      "type": "tf",
+      "topic": "portal",
+      "difficulty": "easy",
+      "prompt": "Confirming which Organization the portal is showing before taking action on an agent is a recommended habit.",
+      "correct": true,
+      "explanation": "Acting on the wrong customer's agent because the tenant switcher landed somewhere else is the most common avoidable MSP mistake. The header / breadcrumb is the canonical check."
+    },
+    {
+      "id": "q-portal-roles-visibility",
+      "type": "mcq",
+      "topic": "portal",
+      "difficulty": "medium",
+      "prompt": "A new helpdesk colleague says 'I can't see the customer Able Moose Accounting in my portal'. What's the most likely cause?",
+      "choices": [
+        "The customer hasn't paid this month's invoice",
+        "Their portal user role isn't Account Admin or Security Engineer, so they're scoped to assigned organizations only",
+        "Able Moose Accounting needs to be reactivated by Huntress support",
+        "The portal hasn't synced yet from the agent telemetry"
+      ],
+      "correct": 1,
+      "explanation": "Account-level Admin and Security Engineer can access any organization under the account. Other account-level roles see what their role allows. Role visibility is the right thing to check first."
+    },
+    {
+      "id": "q-incidents-pipeline",
+      "type": "order",
+      "topic": "incidents",
+      "difficulty": "medium",
+      "prompt": "Put the SOC pipeline in order from raw telemetry to a partner-facing report.",
+      "items": [
+        "Events analysed",
+        "Signals",
+        "Signals investigated",
+        "Incidents reported"
+      ],
+      "explanation": "Tens of thousands of events become a smaller set of signals; a fraction of those signals get investigated by a human analyst; only the confirmed-malicious investigations become reports."
+    },
+    {
+      "id": "q-incidents-resolve",
+      "type": "tf",
+      "topic": "incidents",
+      "difficulty": "medium",
+      "prompt": "An incident report with a Manual Remediation plan can be resolved before each manual step is marked complete.",
+      "correct": true,
+      "explanation": "Marking each manual step is optional. The report does require the remediation plan to be reviewed and approved before resolution; once approved, the technician can resolve. Huntress strongly recommends completing the steps first, but doesn't enforce it."
+    },
+    {
+      "id": "q-incidents-soc-support",
+      "type": "mcq",
+      "topic": "incidents",
+      "difficulty": "medium",
+      "prompt": "Which Huntress contact path is restricted to Account Admin and Security Engineer roles?",
+      "choices": [
+        "Email Product Support at support@huntress.com",
+        "Live Chat with Product Support from the Help icon",
+        "Request SOC Support button inside an incident report",
+        "Reading the public Huntress Help Center"
+      ],
+      "correct": 2,
+      "explanation": "The Request SOC Support button (Email / Chat / Callback) is gated to Account-level Admin and Security Engineer per the documentation. Non-Admin roles escalate internally to a colleague who has the access."
+    },
+    {
+      "id": "q-agent-keys",
+      "type": "multi",
+      "topic": "agent",
+      "difficulty": "medium",
+      "prompt": "Which of the following are true about Huntress Account and Organization Keys? (Select all that apply.)",
+      "choices": [
+        "The Account Key is a long opaque secret tied to the MSP's billing",
+        "The Account Key is shareable; it doesn't grant billing-relevant authority",
+        "Spaces in the Organization Key are stripped or converted to dashes during install",
+        "An unknown Organization Key creates a new Organization automatically",
+        "The Account Key is rotated every 90 days automatically"
+      ],
+      "correct": [0, 2, 3],
+      "explanation": "The Account Key is an opaque credential tied to the MSP's account; every install with that key bills against the MSP. Treat it as a secret. Org Key whitespace is sanitised by the install path. Unknown Org Keys auto-create Organizations. Account Key rotation is manual via Regenerate, not on a schedule."
+    },
+    {
+      "id": "q-agent-edr-version",
+      "type": "tf",
+      "topic": "agent",
+      "difficulty": "medium",
+      "prompt": "On an endpoint that supports Process Insights, the EDR Version field on the Agent Overview can take about an hour to populate after the base agent install.",
+      "correct": true,
+      "explanation": "The EDR component (Rio) installs after the base agent. The roughly one-hour lag is documented and expected; an empty EDR Version on a freshly-registered agent is not a problem on its own."
+    },
+    {
+      "id": "q-agent-uninstall-tp",
+      "type": "mcq",
+      "topic": "agent",
+      "difficulty": "medium",
+      "prompt": "An MSP needs to uninstall the agent from a Windows endpoint that's still online. The endpoint has Tamper Protection enabled. What's the cleanest path?",
+      "choices": [
+        "Force-stop the HuntressRio service and delete the install directory",
+        "Use Remote Uninstallation from the Huntress portal",
+        "Run the uninstaller locally and ignore the Tamper Protection warning",
+        "Restart the endpoint into Safe Mode and remove the agent files"
+      ],
+      "correct": 1,
+      "explanation": "Remote Uninstallation from the portal is the recommended path on Tamper-Protected machines. Local uninstall requires Tamper Protection disabled for ~30 minutes first; the portal route avoids that whole sequence."
+    },
+    {
+      "id": "q-escalate-channel",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The PSA integration has stopped creating tickets for new incident reports. Where does this go?",
+      "choices": [
+        "Request SOC Support inside the next incident report",
+        "Wait for the next monthly summary report to confirm",
+        "Product Support via Help icon -> Live Chat -> Product Support",
+        "Cell-phone SMS escalation channel"
+      ],
+      "correct": 2,
+      "explanation": "Platform problems (PSA integration, agent install issues, portal bugs) go to Product Support. SOC Support is reserved for incident-related questions; using it for platform issues delays resolution."
+    },
+    {
+      "id": "q-escalate-not-customer",
+      "type": "tf",
+      "topic": "escalation",
+      "difficulty": "easy",
+      "prompt": "Huntress automatically contacts the end customer when an incident is confirmed.",
+      "correct": false,
+      "explanation": "Huntress contacts the partner (the MSP) via the configured integrations. Whether and how the MSP contacts the end customer is the MSP's runbook decision."
+    },
+    {
+      "id": "q-low-risk-creds-mechanism",
+      "type": "mcq",
+      "topic": "low-risk-triage",
+      "difficulty": "easy",
+      "prompt": "A Potentially Unsecured Credentials report flags `secure_password_guide.pdf` on a customer's machine. What did Huntress actually inspect to raise it?",
+      "choices": [
+        "The file's contents, which contain credential-shaped strings",
+        "The filename, which contains the word 'password'",
+        "The file's hash, matched against a known leaked-credentials database",
+        "The user's M365 password vault, exported by the agent"
+      ],
+      "correct": 1,
+      "explanation": "Huntress matches on filename only; per the documentation, file content is not collected or analysed. That is exactly why the triage starts with reading the filename: an instructional PDF with 'password' in the name is a false positive, while a file genuinely named like a password store is worth a customer conversation."
+    },
+    {
+      "id": "q-low-risk-unauthorized-side-effect",
+      "type": "tf",
+      "topic": "low-risk-triage",
+      "difficulty": "medium",
+      "prompt": "Setting an Unwanted Access rule to Unauthorized is a quiet tagging action that doesn't disturb the affected user.",
+      "correct": false,
+      "explanation": "Unauthorized triggers an immediate Critical alert and Incident Report, plus a logout-and-disable on the affected identity. It's the right action for confirmed compromise and the wrong tool for 'this looks a bit off'. Defer to a senior before reaching for it."
+    },
+    {
+      "id": "q-components-managed-prefix",
+      "type": "mcq",
+      "topic": "components",
+      "difficulty": "easy",
+      "prompt": "Several Huntress products start with 'Managed' (Managed EDR, Managed ITDR, Managed SIEM, Managed Antivirus). What does the prefix actually mean?",
+      "choices": [
+        "Huntress takes over administration of the customer's entire security stack",
+        "A 24x7 SOC reviews the telemetry on the partner's behalf and produces incident reports",
+        "The product is offered through a managed-services provider rather than direct",
+        "Pricing is on a fixed monthly subscription rather than usage"
+      ],
+      "correct": 1,
+      "explanation": "'Managed' means the SOC is on the other end. It is the MDR delivery model applied to each component: the agent collects, the platform automates, and a human analyst confirms before a report lands in the helpdesk's queue."
+    },
+    {
+      "id": "q-components-siem-role",
+      "type": "tf",
+      "topic": "components",
+      "difficulty": "medium",
+      "prompt": "Managed SIEM runs containment actions like host isolation when it detects a threat in firewall or syslog data.",
+      "correct": false,
+      "explanation": "SIEM doesn't run containment itself. Its job is to ingest, filter, and correlate logs so the SOC can enrich a finding from EDR or ITDR. Containment (isolation, identity disable) flows back through the EDR or ITDR side."
+    },
+    {
+      "id": "q-components-itdr-vs-edr",
+      "type": "mcq",
+      "topic": "components",
+      "difficulty": "medium",
+      "prompt": "A customer's Microsoft 365 user starts auto-forwarding their inbox to an external address. Which Huntress component is built to catch this?",
+      "choices": [
+        "Managed EDR (the endpoint agent)",
+        "Managed ITDR",
+        "Managed Antivirus",
+        "Managed Security Awareness Training"
+      ],
+      "correct": 1,
+      "explanation": "Inbox auto-forwarding is an identity-layer attack. Managed ITDR watches mailbox rules and sign-ins on Microsoft 365 and Google Workspace. EDR sees the endpoint, not the cloud mailbox; AV scans files; SAT trains people."
+    }
+  ]
+}

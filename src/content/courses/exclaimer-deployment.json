@@ -1,0 +1,19 @@
+{
+  "slug": "exclaimer-deployment",
+  "vendor": "exclaimer",
+  "level": "l2",
+  "title": "Exclaimer, designing for one customer",
+  "shortTitle": "Exclaimer deployment",
+  "summary": "Templating with dynamic fields, signature rules and folder organisation, sender management and the deployment-path choice, brand kits and campaigns, and testing rule combinations end to end.",
+  "estimatedMinutes": 48,
+  "prereqs": ["exclaimer-portal-fundamentals"],
+  "lessons": [
+    "01-templates-and-dynamic-fields",
+    "02-signature-rules-and-folders",
+    "03-sender-management-and-mail-flow",
+    "04-brand-kits-and-campaigns",
+    "05-tester-at-scale-and-disclaimers"
+  ],
+  "quiz": "exclaimer-deployment-final",
+  "status": "live"
+}

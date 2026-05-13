@@ -1,0 +1,32 @@
+{
+  "slug": "dnsfilter-helpdesk-fundamentals-checkpoint-console",
+  "course": "dnsfilter-helpdesk-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, the console",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-console-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "You're about to add an Allow list entry for a customer. What's the very first thing to verify?",
+      "choices": [
+        "That the customer has approved the change in writing",
+        "That the dashboard header shows the correct organisation name",
+        "That the user's Roaming Client is online",
+        "That the domain is currently blocked"
+      ],
+      "correct": 1,
+      "explanation": "The most expensive MSP mistake is editing the wrong customer's policy because the tenant switcher landed on a different organisation. Confirm the org name in the header before clicking anything."
+    },
+    {
+      "id": "ck-console-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A Network Site can be defined by a Dynamic DNS hostname, not just a static IP.",
+      "correct": true,
+      "explanation": "DNSFilter supports static IPs, IP subnets, and Dynamic DNS hostnames so customers on residential-grade connections with changing egress IPs can still be recognised."
+    }
+  ]
+}

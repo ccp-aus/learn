@@ -1,0 +1,19 @@
+{
+  "slug": "threatlocker-policy-rollout",
+  "vendor": "threatlocker",
+  "level": "l2",
+  "title": "ThreatLocker, policy design and rollout",
+  "shortTitle": "TL rollout",
+  "summary": "Designing application policies, ringfences, storage and elevation rules, and the Learning-to-Secured cutover for a single customer.",
+  "estimatedMinutes": 48,
+  "prereqs": ["threatlocker-helpdesk-fundamentals"],
+  "lessons": [
+    "01-application-policy-design",
+    "02-ringfencing-design",
+    "03-storage-and-elevation-design",
+    "04-rollout-and-cutover",
+    "05-psa-and-cyber-hero-workflow"
+  ],
+  "quiz": "threatlocker-policy-rollout-final",
+  "status": "live"
+}

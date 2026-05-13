@@ -1,0 +1,32 @@
+{
+  "slug": "dnsfilter-helpdesk-fundamentals-checkpoint-roaming",
+  "course": "dnsfilter-helpdesk-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check. Roaming Client",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-roaming-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user on a corporate full-tunnel VPN is no longer being filtered by DNSFilter. The agent service is running and was working before VPN connect. What's the most likely cause?",
+      "choices": [
+        "The agent's Site key is wrong",
+        "Full-tunnel VPN routes DNS through the VPN's own resolver, bypassing the Roaming Client",
+        "The user's Allow list was deleted",
+        "The user is on a different organisation"
+      ],
+      "correct": 1,
+      "explanation": "Full-tunnel VPNs send all traffic, including DNS, through the VPN's resolvers, so the local Roaming Client never sees the queries. The fix is split-tunnel, or pointing the VPN's DNS at 127.0.0.2 to route through the agent."
+    },
+    {
+      "id": "ck-roaming-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "DNSFilter's Roaming Client is supported on Windows Server, shared-desktop environments, and Windows 365 Cloud PC.",
+      "correct": false,
+      "explanation": "DNSFilter explicitly does not support Windows Server, shared desktop environments, or Windows 365 Cloud PC. Supported is Windows 10/11 x64 or ARM64 (and macOS / mobile via their respective clients)."
+    }
+  ]
+}

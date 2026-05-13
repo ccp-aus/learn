@@ -1,0 +1,32 @@
+{
+  "slug": "printix-at-scale-checkpoint-migration",
+  "course": "printix-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, print-server migration",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-migration-server-pause",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Printix's recommended sequence for retiring a legacy print server is:",
+      "choices": [
+        "Decommission the server immediately once Printix discovery is complete",
+        "Take the server offline (unplug network cable), wait about a week, and only fully decommission if no users report a missing legacy queue",
+        "Leave the server running indefinitely as a fallback",
+        "Reformat the server immediately and rebuild as a Printix gateway"
+      ],
+      "correct": 1,
+      "explanation": "Documented procedure: unplug but don't decommission, wait a quiet period, then decommission if there are no complaints. The pause is what catches forgotten dependencies on the legacy server."
+    },
+    {
+      "id": "ck-migration-shift-workers",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "For shift workers who close their laptops and walk to the printer, customer-managed cloud storage (Azure Blob Storage or Google Cloud Storage) should be in place before they're cut over.",
+      "correct": true,
+      "explanation": "Default Print Later storage is on the user's computer. If the laptop's offline at release time, the job is stranded. Customer-managed cloud storage decouples Print Later from local storage, which is what shift-worker scenarios need."
+    }
+  ]
+}

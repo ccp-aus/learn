@@ -1,0 +1,41 @@
+{
+  "slug": "dnsfilter-multi-tenant-ops-checkpoint-offboarding",
+  "course": "dnsfilter-multi-tenant-ops",
+  "kind": "checkpoint",
+  "title": "Quick check, DNSFilter offboarding",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-dnsfilter-offboard-order",
+      "type": "order",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "Put the DNSFilter customer-exit steps in the safest order.",
+      "items": [
+        "Export required reports and deployment evidence",
+        "Uninstall Roaming Clients through supported device paths",
+        "Clean stale Users and deployment records",
+        "Remove access, SSO exceptions, and API keys",
+        "Review lists and integrations",
+        "Record billing and service handoff"
+      ],
+      "explanation": "Evidence comes first because retention is limited. Uninstall comes before dashboard deletion because a live agent can recreate records. Access and integration cleanup happen once the technical state is known."
+    },
+    {
+      "id": "ck-dnsfilter-api-owner",
+      "type": "mcq",
+      "topic": "api",
+      "difficulty": "medium",
+      "prompt": "A departing MSP technician owns a DNSFilter API key used by a customer integration. What is the cleanest offboarding action?",
+      "choices": [
+        "Ask the technician to revoke or delete the key, replace the integration with a least-privilege service-owned key, then remove their dashboard access",
+        "Remove the technician's dashboard user first; the key disappears with the user",
+        "Leave the key active until it expires because admins cannot see it",
+        "Move the key to the customer Owner account"
+      ],
+      "correct": 0,
+      "explanation": "DNSFilter API keys are user-owned. Owners and admins cannot revoke another user's key from their own view, so key cleanup must happen before final access removal."
+    }
+  ]
+}

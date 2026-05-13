@@ -14,22 +14,14 @@ Exclaimer's portal organises everything around the **menu sidebar** on the left 
 
 ## The five surfaces
 
-```mermaid
-flowchart LR
-    H[Header bar] --> C[Cogwheel<br/>Settings]
-    H --> Q[Question mark<br/>Help]
-    H --> I[Initials<br/>Account]
-    M[Menu sidebar] --> S[Signatures]
-    M --> ST[Signatures Tester]
-    M --> A[Analytics]
-    M --> CA[Campaigns / Disclaimers]
-    M --> MB[Meeting Branding]
-    C --> SM[Sender Management,<br/>Mail Flow, Brand Kits,<br/>Integrations]
-    Q --> D[Diagnostic Logs,<br/>Message Capture,<br/>Support Ticket]
-    I --> SU[Subscriptions,<br/>Audit Log,<br/>Account]
-```
+<AnnotatedScreenshot src="/img/exclaimer/homepage-dashboard.png" alt="The Exclaimer portal Home page with the menu sidebar on the left and three icons in the top-right of the header bar" caption="The portal Home page. Day-to-day work hangs off the left sidebar; account-level controls hide behind the three header-bar icons in the top right.">
+  <Hotspot client:load x={6} y={28} label="1" title="Menu sidebar" purpose="Signatures, Signatures Tester, Analytics, Campaigns, Disclaimers, Meeting Branding — where every customer ticket starts." />
+  <Hotspot client:load x={87} y={5} label="2" title="Question mark — Help" purpose="Diagnostic Logs, Message Capture, Signatures Tester shortcut, Raise a support ticket." />
+  <Hotspot client:load x={92} y={5} label="3" title="Cogwheel — Settings" purpose="Sender Management, Mail Flow, Brand Kits, Integrations. Configuration lives here." />
+  <Hotspot client:load x={96} y={5} label="4" title="Initials — Account" purpose="Change Subscription (the MSP switcher), Audit Log, Account profile, Subscriptions portal." />
+</AnnotatedScreenshot>
 
-The home page is a dashboard with shortcuts and an onboarding checklist that disappears once a subscription is live. Everything else lives behind one of the four entry points above.
+The home page is a dashboard with shortcuts and an onboarding checklist that disappears once a subscription is live. Everything else lives behind the sidebar or one of the three header icons.
 
 ## Menu sidebar, the day-to-day work
 
@@ -88,7 +80,7 @@ Sarah at Able Moose Accounting opens a ticket: *"My signature changed overnight,
   </Step>
 </StepThrough>
 
-<Checkpoint slug="exclaimer-l1-checkpoint-portal" client:load />
+<Checkpoint slug="exclaimer-portal-fundamentals-checkpoint-portal" client:load />
 
 <Callout type="info" title="Sources">
 [Home page](https://support.exclaimer.com/hc/en-gb/articles/360050567952-Home-page), [Welcome to the Exclaimer Online Guide](https://support.exclaimer.com/hc/en-gb/articles/360050643051-Welcome-to-the-Exclaimer-Online-Guide), [Exclaimer Account tab](https://support.exclaimer.com/hc/en-gb/articles/360019993618-Exclaimer-Account-tab), [Manage your subscription](https://support.exclaimer.com/hc/en-gb/articles/360019111298-Manage-your-subscription), [Audit Log](https://support.exclaimer.com/hc/en-gb/articles/15555615448093-Audit-Log).

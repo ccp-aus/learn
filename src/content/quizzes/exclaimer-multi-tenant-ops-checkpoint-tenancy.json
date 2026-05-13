@@ -1,0 +1,32 @@
+{
+  "slug": "exclaimer-multi-tenant-ops-checkpoint-tenancy",
+  "course": "exclaimer-multi-tenant-ops",
+  "kind": "checkpoint",
+  "title": "Quick check, the subscription model",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-tenancy-isolation",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "An Admin role in customer A's Exclaimer subscription gives the user visibility into customer B's subscription as long as they share the same MSP reseller account.",
+      "correct": false,
+      "explanation": "Exclaimer subscriptions are fully self-contained. Roles apply per subscription. The reseller portal launches between subscriptions but doesn't grant cross-subscription visibility from a role inside one of them."
+    },
+    {
+      "id": "ck-tenancy-reseller-portal",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Where does an MSP go to see all their active customer subscriptions in one place?",
+      "choices": [
+        "The Audit Log inside any one customer's subscription",
+        "The reseller portal at portal.exclaimer.com",
+        "The Diagnostic Logs",
+        "The Sender Management screen"
+      ],
+      "correct": 1,
+      "explanation": "The reseller portal is the launcher. It lists active customer subscriptions, lets the MSP launch any of them, and lets the MSP add new customer subscriptions or view archived ones for 90 days."
+    }
+  ]
+}

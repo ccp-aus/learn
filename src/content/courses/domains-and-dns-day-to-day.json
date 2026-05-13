@@ -1,0 +1,19 @@
+{
+  "slug": "domains-and-dns-day-to-day",
+  "vendor": "domains-and-dns",
+  "level": "l2",
+  "title": "Domains & DNS, managing it day-to-day",
+  "shortTitle": "DNS day-to-day",
+  "summary": "Where DNS actually gets edited (registrar vs DNS host), driving Microsoft 365 and Cloudflare DNS panels, the SPF/DKIM/DMARC stack, and the verification and SRV records that show up in every onboarding.",
+  "estimatedMinutes": 50,
+  "prereqs": ["domains-and-dns-foundation"],
+  "lessons": [
+    "01-registrar-vs-dns-host",
+    "02-dns-in-microsoft-365",
+    "03-dns-in-cloudflare",
+    "04-spf-dkim-dmarc",
+    "05-verification-and-srv-records"
+  ],
+  "quiz": "domains-and-dns-day-to-day-final",
+  "status": "live"
+}

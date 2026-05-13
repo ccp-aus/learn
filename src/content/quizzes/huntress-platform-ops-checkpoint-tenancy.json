@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-platform-ops-checkpoint-tenancy",
+  "course": "huntress-platform-ops",
+  "kind": "checkpoint",
+  "title": "Quick check, multi-tenant architecture",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-tenancy-1",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "An Account-level Read-only role can see the Integrations and Tools > Data Export tabs.",
+      "correct": false,
+      "explanation": "Per the Huntress Portal User Permissions docs, Read-only hides Integrations and Tools > Data Export tabs. View-only across the rest, but those two surfaces are not exposed to Read-only."
+    },
+    {
+      "id": "ck-tenancy-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer-side IT lead asks for Account-level Admin access in your Huntress portal so they can self-serve. What's the correct response?",
+      "choices": [
+        "Grant Account-level Admin so they can see everything they need",
+        "Grant Account-level Security Engineer as a compromise",
+        "Grant Organization-level Admin on their own Organization only",
+        "Refuse all access; only MSP staff use the Huntress portal"
+      ],
+      "correct": 2,
+      "explanation": "Account-level Admin or Security Engineer would give them visibility into every other customer in the MSP's portfolio, a confidentiality breach. The correct shape is Organization-level Admin on their own Organization, which preserves isolation."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "slug": "dnsfilter-multi-tenant-ops-checkpoint-sso",
+  "course": "dnsfilter-multi-tenant-ops",
+  "kind": "checkpoint",
+  "title": "Quick check. SSO and identity",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-l3-sso-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which protocol does DNSFilter SSO use?",
+      "choices": [
+        "SAML",
+        "OpenID Connect (OIDC)",
+        "Kerberos",
+        "LDAP"
+      ],
+      "correct": 1,
+      "explanation": "DNSFilter SSO is OIDC. It works with any IdP supporting the generic OIDC flow and has explicit guides for Entra ID, Okta, Google Workspace, and Active Directory."
+    },
+    {
+      "id": "ck-l3-sso-2",
+      "type": "tf",
+      "difficulty": "medium",
+      "prompt": "When SSO is enabled, the Account Owner can no longer log in with username and password.",
+      "correct": false,
+      "explanation": "Owners always retain username/password login as the IdP-failure escape hatch. Super Admins can be configured to keep that fallback too. This is what unlocks the account during an IdP outage."
+    }
+  ]
+}

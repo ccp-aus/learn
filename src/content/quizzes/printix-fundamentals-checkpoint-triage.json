@@ -1,0 +1,23 @@
+{
+  "slug": "printix-fundamentals-checkpoint-triage",
+  "course": "printix-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, ticket triage",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-triage-question-order",
+      "type": "order",
+      "difficulty": "medium",
+      "prompt": "Put the four-question Printix triage in the correct order.",
+      "items": [
+        "Can the user sign in to the Printix Client?",
+        "Is the Printix Client online on their computer?",
+        "Can they see the right print queue?",
+        "Did the job actually reach the printer?"
+      ],
+      "explanation": "Each question gates the next. No point checking queue visibility if the agent isn't online; no point checking job delivery if the user can't even sign in."
+    }
+  ]
+}

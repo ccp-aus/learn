@@ -1,0 +1,32 @@
+{
+  "slug": "threatlocker-policy-rollout-checkpoint-elevation",
+  "course": "threatlocker-policy-rollout",
+  "kind": "checkpoint",
+  "title": "Quick check, elevation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-elevation-1",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "When elevation expires before the underlying permit policy does, the application can keep running, just not as administrator.",
+      "correct": true,
+      "explanation": "ThreatLocker creates two policies in this case: one with elevation enabled until the elevation expires, and one without elevation that continues to permit the app. The app keeps working as a standard user."
+    },
+    {
+      "id": "ck-elevation-2",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A bookkeeper needs admin to install a quarterly QuickBooks update. Which combination is the most defensible default?",
+      "choices": [
+        "Permanent local-admin on the machine, no ringfence",
+        "Per-app elevation with a 4-24h expiration, plus ringfence denying PowerShell / cmd spawn",
+        "Silent elevation with no expiration",
+        "Force the app to run as standard user"
+      ],
+      "correct": 1,
+      "explanation": "Time-bounded elevation plus a ringfence is the right default. Permanent local-admin removes the bound. Silent + no-expiration removes the user-awareness and the bound. Forcing standard-user defeats the install."
+    }
+  ]
+}

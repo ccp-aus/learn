@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-incident-triage-checkpoint-low-risk-reports",
+  "course": "huntress-incident-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, low-risk triage",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-low-risk-filename",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Huntress reads the contents of a file flagged as a Potentially Unsecured Credential to confirm it really contains passwords before raising the report.",
+      "correct": false,
+      "explanation": "The detection runs on the filename only. The Huntress docs are explicit: file content is not collected or analysed. The triage starts with reading the filename and asking whether it suggests a real password store or just contains the word 'password'."
+    },
+    {
+      "id": "ck-low-risk-unauthorized",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "What does setting an Unwanted Access rule to Unauthorized do?",
+      "choices": [
+        "Quietly tags future logins from that location or VPN for SOC review",
+        "Immediately raises a Critical alert plus an Incident Report and logs out and disables the associated identity",
+        "Blocks future logins from that location or VPN at the network layer",
+        "Adds the location or VPN to a denylist that the customer's IT team can review and approve"
+      ],
+      "correct": 1,
+      "explanation": "Unauthorized is a real, immediate action: a Critical alert and Incident Report are generated, and the identity is logged out and disabled. It's the right tool for confirmed compromise; the wrong tool for 'I think this looks suspicious'."
+    }
+  ]
+}

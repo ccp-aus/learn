@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-investigations-checkpoint-defender",
+  "course": "huntress-investigations",
+  "kind": "checkpoint",
+  "title": "Quick check, Managed Defender",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-def-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An endpoint shows status Not Protected (red) in Managed AV but the customer says it's healthy. What's the most likely benign explanation?",
+      "choices": [
+        "The agent has lost connectivity",
+        "Windows Update is running",
+        "The endpoint is running a third-party AV with Defender disabled (Defender's status, not the endpoint's overall protection)",
+        "The Account Key has expired"
+      ],
+      "correct": 2,
+      "explanation": "Managed AV reports on Defender's status. A third-party AV that has Defender disabled produces Not Protected because Defender is not active, even though the endpoint may still be protected by the third-party product."
+    },
+    {
+      "id": "ck-def-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "In Audit Mode, Huntress applies Recommended Defaults to endpoints automatically.",
+      "correct": false,
+      "explanation": "Audit Mode reports the current Defender configuration without modifying it. Recommended Defaults take effect at Account level only when Enforce Mode is on."
+    }
+  ]
+}

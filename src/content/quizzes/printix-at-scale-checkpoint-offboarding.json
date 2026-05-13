@@ -1,0 +1,35 @@
+{
+  "slug": "printix-at-scale-checkpoint-offboarding",
+  "course": "printix-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, Printix offboarding",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-printix-partner-vs-tenant",
+      "type": "multi",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "An MSP technician leaves. Which Printix access paths should you check? (Select all that apply.)",
+      "choices": [
+        "Partner Portal Users",
+        "Direct System manager seats inside customer tenants",
+        "Customer printer toner levels",
+        "Site manager role assignments",
+        "Printix Go firmware versions"
+      ],
+      "correct": [0, 1, 3],
+      "explanation": "Partner Portal access and tenant roles are separate. A technician may have both partner access and direct System manager or Site manager access in a customer tenant."
+    },
+    {
+      "id": "ck-printix-delete-tenant",
+      "type": "tf",
+      "topic": "tenant",
+      "difficulty": "medium",
+      "prompt": "Deleting a Printix tenant from the Partner Portal is a reversible cleanup step after subscription cancellation.",
+      "correct": false,
+      "explanation": "Tenant deletion is permanent and requires the System manager role plus Partner Portal access per the Delete tenant procedure. Treat it as a final data-removal step, not routine cleanup."
+    }
+  ]
+}

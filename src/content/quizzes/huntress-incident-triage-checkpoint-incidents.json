@@ -1,0 +1,31 @@
+{
+  "slug": "huntress-incident-triage-checkpoint-incidents",
+  "course": "huntress-incident-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, incident reports",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-incidents-1",
+      "type": "order",
+      "difficulty": "easy",
+      "prompt": "Put the SOC pipeline stages in order, from raw telemetry to a ticket on your desk.",
+      "items": [
+        "Events analysed (full telemetry stream)",
+        "Signals (interesting events flagged by automation)",
+        "Signals investigated (a SOC analyst takes a look)",
+        "Incidents reported (confirmed compromise, sent to the partner)"
+      ],
+      "explanation": "Most events never become incidents. The SOC promotes what looks worth a human's attention into an investigation, and only the confirmed-malicious investigations become reports."
+    },
+    {
+      "id": "ck-incidents-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "An incident report can be resolved before its remediation plan has been reviewed and approved.",
+      "correct": false,
+      "explanation": "A report with a remediation plan that hasn't been reviewed and approved is not eligible for resolution. Approve or acknowledge the plan first, then resolve."
+    }
+  ]
+}

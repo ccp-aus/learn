@@ -1,0 +1,32 @@
+{
+  "slug": "printix-fundamentals-checkpoint-console",
+  "course": "printix-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, the Administrator",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-console-tenant-header",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Before changing anything in the Printix Administrator for a customer, MSP staff should confirm the Printix Home name in the header.",
+      "correct": true,
+      "explanation": "The most expensive MSP mistake is editing the wrong tenant. The header (e.g. ablemoose.printix.net) is the canonical check before any change."
+    },
+    {
+      "id": "ck-console-where-is-state",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A user's job submitted but didn't print. Which Administrator page first shows whether their workstation's agent is online?",
+      "choices": [
+        "Settings",
+        "Computers",
+        "Authentication",
+        "Subscription"
+      ],
+      "correct": 1,
+      "explanation": "Computers lists every workstation with the Printix Client and shows Online or Offline status, plus a Diagnostics tab with per-machine counters."
+    }
+  ]
+}

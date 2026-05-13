@@ -1,0 +1,181 @@
+{
+  "slug": "domains-and-dns-migrations-and-security-final",
+  "course": "domains-and-dns-migrations-and-security",
+  "kind": "final",
+  "title": "Domains & DNS, migrations and security: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-l3-five-questions",
+      "type": "order",
+      "topic": "diagnosis",
+      "difficulty": "medium",
+      "prompt": "Put the change-impact pattern's five questions in the order you'd ask them.",
+      "items": [
+        "What records does the request want changed?",
+        "What ELSE on the same name or zone might be affected?",
+        "What services depend on those records right now?",
+        "What's the rollback, and how long will it take?",
+        "Does the requester have authority for this change?"
+      ],
+      "explanation": "The pattern walks from narrow (the literal request) to broad (impact, dependencies, rollback) and ends with authorisation. Each question can stop the change before damage is done."
+    },
+    {
+      "id": "q-l3-cutover-prestage",
+      "type": "mcq",
+      "topic": "migration",
+      "difficulty": "medium",
+      "prompt": "You're cutting over a customer's website on Tuesday morning. The current A-record TTL is 3600. What's the right pre-stage?",
+      "choices": [
+        "Don't pre-stage; the cutover takes 1 hour either way",
+        "Drop the TTL to 300 on Monday morning, save, cutover Tuesday morning",
+        "Drop the TTL to 60 a week ahead, save, cutover Tuesday morning",
+        "Increase the TTL to 86400 to make caching more reliable"
+      ],
+      "correct": 1,
+      "explanation": "Dropping TTL to 300 the day before lets every cache refresh to the new short TTL by cutover time. The actual cutover then propagates within 5 minutes, including any rollback. Dropping a week ahead is unnecessary; the existing TTL caps the wait."
+    },
+    {
+      "id": "q-l3-records-preserve",
+      "type": "multi",
+      "topic": "migration",
+      "difficulty": "medium",
+      "prompt": "During a web-host migration (changing the apex A and AAAA records), which records must NOT be changed? (Select all that apply.)",
+      "choices": [
+        "MX records at the apex",
+        "SPF TXT at the apex",
+        "DKIM CNAMEs",
+        "DMARC TXT at _dmarc",
+        "The apex A and AAAA records"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "The migration only changes the records that point at the new web host. Mail flow records (MX, SPF, DKIM, DMARC) and verification records have nothing to do with the website and must remain untouched."
+    },
+    {
+      "id": "q-l3-transfer-lock-ns",
+      "type": "tf",
+      "topic": "transfers",
+      "difficulty": "hard",
+      "prompt": "Initiating a registrar transfer changes which DNS host is authoritative for the domain.",
+      "correct": false,
+      "explanation": "Transfers change the registrar (the company holding the lease). The NS delegation and DNS host are unchanged unless you change them separately. The trap is when DNS is hosted at the losing registrar; in that case, plan a DNS-host move first."
+    },
+    {
+      "id": "q-l3-cname-apex",
+      "type": "mcq",
+      "topic": "apex",
+      "difficulty": "hard",
+      "prompt": "A web designer requests 'a CNAME at the apex of example.com pointing to apex.host.example'. The customer is on Cloudflare. What's the cleanest response?",
+      "choices": [
+        "Refuse; CNAME at the apex is illegal",
+        "Add the CNAME at the apex in Cloudflare; CNAME flattening serves the right A/AAAA at query time",
+        "Move DNS to a host that allows raw apex CNAMEs",
+        "Add the CNAME at www and 301-redirect the apex"
+      ],
+      "correct": 1,
+      "explanation": "Cloudflare supports CNAME flattening at the apex: the panel accepts the CNAME, but resolvers see valid A and AAAA records that Cloudflare resolves on the customer's behalf. This works without breaking apex MX, SPF, or DMARC. (b) is the best general answer; (d) is the fallback when flattening isn't available."
+    },
+    {
+      "id": "q-l3-coexist",
+      "type": "mcq",
+      "topic": "apex",
+      "difficulty": "medium",
+      "prompt": "Why can't a CNAME coexist with an MX or TXT record on the same name?",
+      "choices": [
+        "It can; the rule was deprecated in 2020",
+        "DNS specifications say a CNAME excludes all other record types at the same name",
+        "Only the apex disallows this",
+        "Because CNAMEs use port 443 and other records use port 53"
+      ],
+      "correct": 1,
+      "explanation": "RFC 1912 and the underlying spec say a CNAME means 'this name is purely an alias; any other records are invalid'. The rule applies at any name, not just the apex; the apex case is just where most people first hit it because the apex always has SOA and NS."
+    },
+    {
+      "id": "q-l3-dnssec-chain",
+      "type": "order",
+      "topic": "dnssec",
+      "difficulty": "hard",
+      "prompt": "Put these DNSSEC enablement steps in the right order.",
+      "items": [
+        "Enable DNSSEC signing at the DNS host (host generates keys, signs every record set)",
+        "Copy the DS record values from the DNS host",
+        "Publish the DS record at the registrar's DNSSEC area",
+        "Wait for the parent zone to serve the DS",
+        "Verify with dig +dnssec that resolvers see RRSIG records"
+      ],
+      "explanation": "Sign first, then publish DS, then verify. Publishing DS before signing makes resolvers expect signatures that don't exist; resolvers reject everything as bogus until the chain is consistent."
+    },
+    {
+      "id": "q-l3-caa",
+      "type": "mcq",
+      "topic": "security",
+      "difficulty": "hard",
+      "prompt": "A customer publishes a CAA record listing only Let's Encrypt as authorised. What does this prevent?",
+      "choices": [
+        "Mail spoofing",
+        "Other CAs from issuing TLS certificates for the domain",
+        "Domain transfers to other registrars",
+        "DDoS attacks against the website"
+      ],
+      "correct": 1,
+      "explanation": "CAA tells CAs which of them are allowed to issue certs for the domain. CAs check it before issuing. Other CAs that respect the record refuse. CAA doesn't address mail, transfers, or DDoS; those are separate layers."
+    },
+    {
+      "id": "q-l3-rollback",
+      "type": "mcq",
+      "topic": "diagnosis",
+      "difficulty": "medium",
+      "prompt": "What's the rollback time for an A-record change made with no TTL pre-stage, where the original TTL was 86400?",
+      "choices": [
+        "Up to 1 minute",
+        "Up to 1 hour",
+        "Up to 24 hours",
+        "Up to 7 days"
+      ],
+      "correct": 2,
+      "explanation": "Caches that picked up the new value will hold it for up to the new TTL before refreshing. If the original TTL was 86400 (1 day), the rollback takes up to a day to flush. This is the operational reason to pre-stage TTL down to 300 before any cutover."
+    },
+    {
+      "id": "q-l3-hijack-multi",
+      "type": "multi",
+      "topic": "security",
+      "difficulty": "hard",
+      "prompt": "Which of these are required to make a domain hard to hijack? (Select all that apply.)",
+      "choices": [
+        "MFA on the registrar account (TOTP or hardware, not SMS)",
+        "Transfer lock at the registrar",
+        "DNSSEC at both DNS host and registrar (DS record)",
+        "CAA records limiting CA issuance",
+        "Cert transparency log monitoring",
+        "DMARC at p=reject"
+      ],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation": "The first five are the layered defences against the hijack chain. DMARC at p=reject defends mail spoofing; valuable, but the hijack control set is the others. (And in practice, all six should be in place.)"
+    },
+    {
+      "id": "q-l3-spf-replace",
+      "type": "tf",
+      "topic": "diagnosis",
+      "difficulty": "easy",
+      "prompt": "When a SaaS wizard says 'replace your SPF record with this one', it's safe to delete the existing SPF and add the new value as written.",
+      "correct": false,
+      "explanation": "The new value rarely includes every legitimate sender the customer already has. Replacing without merging breaks SPF for whichever services aren't covered by the new wizard. Merge into one record covering all senders."
+    },
+    {
+      "id": "q-l3-cert-transparency",
+      "type": "mcq",
+      "topic": "security",
+      "difficulty": "hard",
+      "prompt": "Why is monitoring certificate transparency logs a useful detection layer?",
+      "choices": [
+        "Because CT logs reveal which DNS records are signed by DNSSEC",
+        "Because every public TLS cert is logged within minutes; an unexpected cert from a CA the customer doesn't use is a signal of a compromise upstream of the customer",
+        "Because CT logs replace the need for DNSSEC",
+        "Because CT logs allow CAs to issue certs faster"
+      ],
+      "correct": 1,
+      "explanation": "Certificate Transparency requires public CAs to log every cert they issue. Free monitoring services watch the logs and alert on new certs for a customer's domain. A cert appearing from a CA the customer doesn't use is one of the earliest signals of an in-progress hijack."
+    }
+  ]
+}

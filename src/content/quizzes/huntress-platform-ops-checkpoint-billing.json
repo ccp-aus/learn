@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-platform-ops-checkpoint-billing",
+  "course": "huntress-platform-ops",
+  "kind": "checkpoint",
+  "title": "Quick check, billing reconciliation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-bill-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Which document is the source of truth for monthly agent counts billed?",
+      "choices": [
+        "The Huntress portal's current agent count",
+        "The PSA's contract module",
+        "The Billing Detail Report emailed to the configured Billing Emails",
+        "The monthly threat summary report"
+      ],
+      "correct": 2,
+      "explanation": "The Billing Detail Report is the per-Organization breakdown that matches what was billed. The portal shows current state, which can drift slightly from the billed snapshot."
+    },
+    {
+      "id": "ck-bill-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Decommissioned endpoints stop being billed automatically when they go offline for 45 days.",
+      "correct": false,
+      "explanation": "Endpoints become Unresponsive after 45 days but they are still billed. Remote-uninstalling them via the portal is the action that removes them from billing. Bulk-uninstall of Unresponsive agents is the documented hygiene step."
+    }
+  ]
+}

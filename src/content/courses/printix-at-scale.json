@@ -1,0 +1,20 @@
+{
+  "slug": "printix-at-scale",
+  "vendor": "printix",
+  "level": "l3",
+  "title": "Printix, multi-tenant and migration",
+  "shortTitle": "Printix at scale",
+  "summary": "Running Printix across many customers via the Partner Portal, hybrid topologies, Printix Go, automation, print-server migration, and clean user / tenant offboarding.",
+  "estimatedMinutes": 63,
+  "prereqs": ["printix-deployment"],
+  "lessons": [
+    "01-multi-tenant-administration",
+    "02-hybrid-topologies",
+    "03-printix-go-rollout",
+    "04-integration-and-automation",
+    "05-print-server-migration",
+    "06-user-tenant-and-partner-offboarding"
+  ],
+  "quiz": "printix-at-scale-final",
+  "status": "live"
+}

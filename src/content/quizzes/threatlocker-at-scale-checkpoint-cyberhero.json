@@ -1,0 +1,26 @@
+{
+  "slug": "threatlocker-at-scale-checkpoint-cyberhero",
+  "course": "threatlocker-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, escalation matrix",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-cyberhero-1",
+      "type": "multi",
+      "difficulty": "medium",
+      "prompt": "Which artefacts together provide a defensible audit trail for an approval request? (Select all that apply.)",
+      "choices": [
+        "The original request in the Response Center",
+        "The reviewer's username on the resulting policy",
+        "The PSA ticket linking the request to a customer ticket",
+        "The justification in the policy notes",
+        "The customer comms confirming an out-of-scope authorisation",
+        "A guess at what the user might have wanted"
+      ],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation": "The first five together form the chain of custody auditors and IR teams want. Anything reconstructed after the fact is a sign the trail is broken."
+    }
+  ]
+}

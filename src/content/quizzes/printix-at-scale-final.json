@@ -1,0 +1,191 @@
+{
+  "slug": "printix-at-scale-final",
+  "course": "printix-at-scale",
+  "kind": "final",
+  "title": "Printix at scale, final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-tenancy-portal-vs-tenant",
+      "type": "mcq",
+      "topic": "multi-tenancy",
+      "difficulty": "medium",
+      "prompt": "Which of these tasks happens in the Partner Portal rather than inside a customer's Printix Home?",
+      "choices": [
+        "Adding a printer to a Site",
+        "Creating a new tenant for a newly-onboarded customer",
+        "Configuring an Microsoft Entra group for printer access",
+        "Setting Print 2-sided as a print queue default"
+      ],
+      "correct": 1,
+      "explanation": "Tenant creation is a Partner Portal operation. Once the tenant exists, in-tenant work (printers, sites, groups, defaults) happens inside the customer's Printix Home Administrator."
+    },
+    {
+      "id": "q-tenancy-anti-pattern",
+      "type": "multi",
+      "topic": "multi-tenancy",
+      "difficulty": "hard",
+      "prompt": "Which of these are documented anti-patterns for an MSP running Printix across many customers? (Select all that apply.)",
+      "choices": [
+        "Sharing a single MSP login across all technicians",
+        "Bookmarking individual customer.printix.net URLs and skipping the Partner Portal",
+        "Adding MSP technicians to the customer's Microsoft Entra ID groups so they appear inside the customer's tenant",
+        "Each technician having their own per-person Partner Portal account",
+        "Searching for tenants by name in the Partner Portal"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "Shared logins and URL-bookmark workflows destroy audit trails or risk wrong-tenant changes. Adding MSP staff to the customer's Entra groups is operator-experience guidance: Partner Portal access plus a tenant System manager seat is the right tool. Per-tech accounts and Partner-Portal search are the correct patterns."
+    },
+    {
+      "id": "q-hybrid-redirector",
+      "type": "mcq",
+      "topic": "hybrid",
+      "difficulty": "medium",
+      "prompt": "When does the Printix Hybrid Cloud Print Enabler (Printix Redirector) earn its place in a deployment?",
+      "choices": [
+        "When the customer needs to add new printers via QR code",
+        "When migrating off an existing on-prem follow-print system (PaperCut, SafeCom, Equitrac, PrinterLogic) without a flag-day cutover",
+        "When the customer wants to disable Microsoft Entra group sync",
+        "When the customer needs Power BI reporting"
+      ],
+      "correct": 1,
+      "explanation": "The Hybrid Cloud Print Enabler bridges Printix to existing on-prem follow-print systems. Use case is letting both run in parallel during a phased migration, not as a permanent design."
+    },
+    {
+      "id": "q-hybrid-universal-print",
+      "type": "tf",
+      "topic": "hybrid",
+      "difficulty": "medium",
+      "prompt": "Printix can integrate with Microsoft Universal Print so a customer keeps Universal-Print-published printers while gaining Printix's secure release on top.",
+      "correct": true,
+      "explanation": "Documented integration: enable Universal Print on the Microsoft Entra ID tab in Printix Authentication. The two stacks coexist with Printix providing the secure-release layer Universal Print lacks."
+    },
+    {
+      "id": "q-go-supported-vendors",
+      "type": "multi",
+      "topic": "printix-go",
+      "difficulty": "medium",
+      "prompt": "Which of these vendors are listed as Printix Go supported? (Select all that apply.)",
+      "choices": [
+        "Brother",
+        "Konica Minolta",
+        "Ricoh",
+        "Lexmark",
+        "Tektronix"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Brother, Canon, Epson, Fujifilm, HP, HP Workpath, Konica Minolta, Kyocera, Lexmark, Ricoh, and Xerox are documented Printix Go vendors. Tektronix is not."
+    },
+    {
+      "id": "q-go-fleet-rollout",
+      "type": "mcq",
+      "topic": "printix-go",
+      "difficulty": "medium",
+      "prompt": "What's the safest pattern for installing Printix Go across a customer's fleet?",
+      "choices": [
+        "Install on every printer in one weekend window so users have a consistent experience the next Monday",
+        "Pilot on a representative printer per vendor; verify sign-in, release, capture, and access control as a User; then wave by site or vendor",
+        "Install only on the highest-usage printers; leave the rest as App-only",
+        "Install only after every user has registered a card"
+      ],
+      "correct": 1,
+      "explanation": "Pilot, then waves, is the documented playbook. One-weekend mass installs surface UI quirks per vendor model only after the change is live; pilots catch them first."
+    },
+    {
+      "id": "q-integration-cloud-print-api",
+      "type": "mcq",
+      "topic": "integration",
+      "difficulty": "medium",
+      "prompt": "What is the Printix Cloud Print API designed for?",
+      "choices": [
+        "Configuring Sites and Networks programmatically inside a tenant",
+        "Pushing print jobs in printer-native or PDF format into a Printix print queue from a line-of-business application",
+        "Provisioning new tenants from an MSP's CRM",
+        "Replacing the Printix Client on user computers"
+      ],
+      "correct": 1,
+      "explanation": "Documented purpose: applications push print jobs in printer-native or PDF format into a Printix queue. Tenant provisioning is the Partner API; in-tenant configuration is the Administrator UI."
+    },
+    {
+      "id": "q-integration-connector-hmac",
+      "type": "tf",
+      "topic": "integration",
+      "difficulty": "medium",
+      "prompt": "The Capture Connector API uses HMAC-signed HTTPS requests with X-Printix-Timestamp, X-Printix-Request-Id, and X-Printix-Signature headers so the destination can verify the request's authenticity.",
+      "correct": true,
+      "explanation": "Documented headers in the Capture Connector API. The destination computes the expected signature from the shared secret and compares to X-Printix-Signature."
+    },
+    {
+      "id": "q-integration-partner-api-scope",
+      "type": "multi",
+      "topic": "integration",
+      "difficulty": "medium",
+      "prompt": "Which of these are supported operations in the Printix partner API? (Select all that apply.)",
+      "choices": [
+        "Create new tenant",
+        "Get a single tenant including basic billing information",
+        "Cancel a tenant's subscription",
+        "Discover printers inside a tenant",
+        "Configure capture workflows in a tenant"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "The partner API is documented as supporting create-tenant, get-tenant, and cancel-subscription. In-tenant operations like printer discovery and capture-workflow configuration are not exposed there."
+    },
+    {
+      "id": "q-migration-phases-order",
+      "type": "order",
+      "topic": "migration",
+      "difficulty": "hard",
+      "prompt": "Put the Printix print-server migration phases in the correct order.",
+      "items": [
+        "Plan: design document, scope, identity decisions, site mapping",
+        "Discover: install Printix Client on print servers; printers and drivers register",
+        "Deploy: push Printix Client to user computers via Endpoint Manager",
+        "Cutover in waves: low-risk users first, watch for issues, expand",
+        "Decommission: take legacy server offline, wait quiet period, retire"
+      ],
+      "explanation": "Plan, discover, deploy, cutover, decommission. Each phase has a gate that must pass before the next begins."
+    },
+    {
+      "id": "q-migration-server-quiet-period",
+      "type": "tf",
+      "topic": "migration",
+      "difficulty": "medium",
+      "prompt": "Printix's documented decommissioning pattern is to take the legacy print server fully offline (cable unplugged) and wait about a week before final retirement.",
+      "correct": true,
+      "explanation": "Direct quote from the migration documentation. The quiet period catches forgotten legacy-queue dependencies before final decommission."
+    },
+    {
+      "id": "q-migration-failure-shift-workers",
+      "type": "mcq",
+      "topic": "migration",
+      "difficulty": "hard",
+      "prompt": "Shift workers in a warehouse keep reporting that they 'released a job from the printer but it never printed.' What's the most likely cause and the correct mitigation?",
+      "choices": [
+        "Their Printix Client is the wrong version; force-reinstall",
+        "Default Print Later storage is on the user's computer, which goes offline when they walk away. Enable customer-managed cloud storage so jobs persist.",
+        "Microsoft Entra Conditional Access is silently blocking releases; disable Conditional Access",
+        "The printer needs more RAM; replace the device"
+      ],
+      "correct": 1,
+      "explanation": "Default storage is the user's computer. For shift workers who close laptops, jobs become unreachable. Azure Blob Storage or Google Cloud Storage as customer-managed storage is the documented fix."
+    },
+    {
+      "id": "q-offboarding-partner-tenant",
+      "type": "multi",
+      "topic": "offboarding",
+      "difficulty": "hard",
+      "prompt": "Which checks belong in a Printix MSP-staff offboarding? (Select all that apply.)",
+      "choices": [
+        "Delete or disable the Partner Portal user",
+        "Check for direct System manager seats inside customer tenants",
+        "Check Site manager assignments",
+        "Delete every tenant the technician created",
+        "Remove the user from customer IdP groups where the MSP had been added"
+      ],
+      "correct": [0, 1, 2, 4],
+      "explanation": "Partner Portal access and tenant roles are separate. Deleting tenants is a customer-exit action, not a staff-leaver cleanup step."
+    }
+  ]
+}

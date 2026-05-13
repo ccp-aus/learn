@@ -1,0 +1,40 @@
+{
+  "slug": "exclaimer-multi-tenant-ops-checkpoint-offboarding",
+  "course": "exclaimer-multi-tenant-ops",
+  "kind": "checkpoint",
+  "title": "Quick check, Exclaimer offboarding",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-exclaimer-portal-vs-sender",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "A former MSP technician must lose Exclaimer access, while the customer's mail signatures keep working. Which action matches the problem?",
+      "choices": [
+        "Remove the technician from subscription User Management",
+        "Remove the technician as a signature sender",
+        "Disable the Microsoft 365 transport rule",
+        "Cancel the Exclaimer subscription"
+      ],
+      "correct": 0,
+      "explanation": "Subscription User Management controls who can sign in to the Exclaimer portal. Sender Management controls whose mail receives signatures. Those are separate surfaces."
+    },
+    {
+      "id": "ck-exclaimer-server-side-exit",
+      "type": "order",
+      "topic": "mail-flow",
+      "difficulty": "medium",
+      "prompt": "Put the permanent Microsoft 365 server-side Exclaimer exit steps in order.",
+      "items": [
+        "Export audit and current mail-flow evidence",
+        "Stop or remove the transport rule in a controlled change window",
+        "Remove connectors and Microsoft 365 uninstall artefacts as required",
+        "Send real internal and external test mail",
+        "Cancel or hand over the subscription"
+      ],
+      "explanation": "You need evidence before removal and real mail tests before billing closure. Cancellation does not prove mail stopped routing through Exclaimer."
+    }
+  ]
+}

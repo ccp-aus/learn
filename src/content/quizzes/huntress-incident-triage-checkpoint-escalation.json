@@ -1,0 +1,32 @@
+{
+  "slug": "huntress-incident-triage-checkpoint-escalation",
+  "course": "huntress-incident-triage",
+  "kind": "checkpoint",
+  "title": "Quick check, escalation paths",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-esc-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which contact path is correct for a Critical incident requiring a phone callback during the active investigation?",
+      "choices": [
+        "Email support@huntress.com",
+        "Call the main Huntress sales line",
+        "Use Request SOC Support inside the Critical incident report and choose Callback",
+        "Open a ticket on the partner portal status page"
+      ],
+      "correct": 2,
+      "explanation": "Critical reports unlock the Request SOC Support button, which offers Email, Chat, and Callback. Callback is reserved for Critical reports and the call comes from 1-833-486-8669."
+    },
+    {
+      "id": "ck-esc-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "A platform problem (failed PSA integration, agent install loop) should go to SOC Support.",
+      "correct": false,
+      "explanation": "SOC Support handles incident-related questions. Platform problems go to Product Support via the Help icon's Live Chat path or the standard support channels."
+    }
+  ]
+}
