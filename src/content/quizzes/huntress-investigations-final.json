@@ -1,8 +1,8 @@
 {
-  "slug": "huntress-l2-final",
-  "course": "huntress-l2",
+  "slug": "huntress-investigations-final",
+  "course": "huntress-investigations",
   "kind": "final",
-  "title": "Huntress for the engineer running the deployment, final check",
+  "title": "Huntress investigations, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

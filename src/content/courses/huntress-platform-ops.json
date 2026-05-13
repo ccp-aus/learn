@@ -1,11 +1,12 @@
 {
-  "slug": "huntress-l3",
+  "slug": "huntress-platform-ops",
   "vendor": "huntress",
   "level": "l3",
   "title": "Huntress at MSP scale",
+  "shortTitle": "Huntress at scale",
   "summary": "Multi-tenant portal architecture, billing reconciliation, onboarding, custom API integrations, incident runbooks, and product offboarding for customer exits.",
   "estimatedMinutes": 63,
-  "prereqs": ["huntress-l2"],
+  "prereqs": ["huntress-investigations"],
   "lessons": [
     "01-multi-tenant-portal-architecture",
     "02-billing-and-usage-reconciliation",
@@ -14,6 +15,6 @@
     "05-incident-handling-runbooks",
     "06-product-offboarding-and-customer-exit"
   ],
-  "quiz": "huntress-l3-final",
+  "quiz": "huntress-platform-ops-final",
   "status": "live"
 }
