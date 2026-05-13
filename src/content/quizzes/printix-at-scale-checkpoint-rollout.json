@@ -1,6 +1,6 @@
 {
-  "slug": "printix-l3-checkpoint-rollout",
-  "course": "printix-l3",
+  "slug": "printix-at-scale-checkpoint-rollout",
+  "course": "printix-at-scale",
   "kind": "checkpoint",
   "title": "Quick check, Printix Go rollout",
   "drawCount": 0,

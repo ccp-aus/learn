@@ -1,8 +1,8 @@
 {
-  "slug": "printix-l1-final",
-  "course": "printix-l1",
+  "slug": "printix-fundamentals-final",
+  "course": "printix-fundamentals",
   "kind": "final",
-  "title": "Printix Beginner, final check",
+  "title": "Printix fundamentals, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

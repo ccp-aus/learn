@@ -1,8 +1,8 @@
 {
-  "slug": "printix-l3-final",
-  "course": "printix-l3",
+  "slug": "printix-at-scale-final",
+  "course": "printix-at-scale",
   "kind": "final",
-  "title": "Printix Advanced, final check",
+  "title": "Printix at scale, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

@@ -1,6 +1,6 @@
 {
-  "slug": "printix-l2-checkpoint-auth",
-  "course": "printix-l2",
+  "slug": "printix-deployment-checkpoint-auth",
+  "course": "printix-deployment",
   "kind": "checkpoint",
   "title": "Quick check, authentication and groups",
   "drawCount": 0,
