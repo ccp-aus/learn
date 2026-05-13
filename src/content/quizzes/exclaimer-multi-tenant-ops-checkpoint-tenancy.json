@@ -1,6 +1,6 @@
 {
-  "slug": "exclaimer-l3-checkpoint-tenancy",
-  "course": "exclaimer-l3",
+  "slug": "exclaimer-multi-tenant-ops-checkpoint-tenancy",
+  "course": "exclaimer-multi-tenant-ops",
   "kind": "checkpoint",
   "title": "Quick check, the subscription model",
   "drawCount": 0,

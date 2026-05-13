@@ -1,6 +1,6 @@
 {
-  "slug": "exclaimer-l3-checkpoint-troubleshooting",
-  "course": "exclaimer-l3",
+  "slug": "exclaimer-multi-tenant-ops-checkpoint-troubleshooting",
+  "course": "exclaimer-multi-tenant-ops",
   "kind": "checkpoint",
   "title": "Quick check, the diagnostic chain",
   "drawCount": 0,

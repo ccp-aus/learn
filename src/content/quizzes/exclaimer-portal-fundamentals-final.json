@@ -1,8 +1,8 @@
 {
-  "slug": "exclaimer-l1-final",
-  "course": "exclaimer-l1",
+  "slug": "exclaimer-portal-fundamentals-final",
+  "course": "exclaimer-portal-fundamentals",
   "kind": "final",
-  "title": "Exclaimer Beginner, final check",
+  "title": "Exclaimer portal fundamentals, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

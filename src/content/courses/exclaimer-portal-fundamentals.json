@@ -1,8 +1,9 @@
 {
-  "slug": "exclaimer-l1",
+  "slug": "exclaimer-portal-fundamentals",
   "vendor": "exclaimer",
   "level": "l1",
-  "title": "Exclaimer Beginner, helpdesk fundamentals",
+  "title": "Exclaimer, portal fundamentals",
+  "shortTitle": "Exclaimer fundamentals",
   "summary": "What Exclaimer is, the portal layout, how it connects to Microsoft 365, how to assign a signature, and how to verify deployment with the Signatures Tester.",
   "estimatedMinutes": 38,
   "prereqs": [],
@@ -13,6 +14,6 @@
     "04-creating-a-signature",
     "05-using-the-signatures-tester"
   ],
-  "quiz": "exclaimer-l1-final",
+  "quiz": "exclaimer-portal-fundamentals-final",
   "status": "live"
 }
