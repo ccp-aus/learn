@@ -1,0 +1,137 @@
+---
+slug: 03-plans-and-defaults
+vendor: apiscp
+level: l2
+title: Plans, the inheritance template for accounts
+summary: How the built-in basic plan works, how to create custom plans with artisan, the thin-plan inheritance pattern that keeps custom plans terse, and the operations that catch new techs out (the default plan, plan reassignment, the diff and verify flags).
+estimatedMinutes: 8
+order: 3
+topics: [plans, artisan, inheritance]
+updated: 2026-05-13
+---
+
+A plan is a named bundle of service defaults. When `AddDomain -p starter` runs, the server reads the `starter` plan's service files and applies their values to the new account. Every value the customer doesn't override falls through to the plan; every plan that doesn't override a service falls through to the base plan. Two levels of inheritance, no surprises.
+
+## What a plan is, on disk
+
+Plans live under `resources/templates/plans/<plan-name>/`. Each plan is a directory; each directory contains one INI file per service it wants to override.
+
+```
+resources/templates/plans/
+├── .skeleton/              # the base plan all plans inherit from
+│   ├── siteinfo
+│   ├── mysql
+│   ├── mail
+│   └── ... (every service)
+├── basic/                  # the shipped default; full plan
+│   └── ...
+├── agency/                 # custom MSP plan, thin
+│   ├── diskquota           # overrides quota = 50000
+│   └── users               # overrides max = 50
+└── dns-only/               # custom plan, even thinner
+    └── ssh                 # only disables ssh
+```
+
+When `AddDomain -p agency` runs, the server reads `.skeleton/*` for every service, layers `basic/*` on top, then layers `agency/*` on top. The result is the effective service configuration applied to the new account.
+
+## Built-in: the basic plan
+
+`basic` ships with ApisCP and is the default unless changed. It's a sensible starting point for a low-touch hosting customer:
+
+- Mail enabled, MySQL enabled, PostgreSQL disabled by default.
+- 1000 MB quota, 1 GB bandwidth/month.
+- SSH disabled (no terminal access).
+- 5 users max.
+- SSL via Let's Encrypt automated if `letsencrypt.auto_bootstrap` is true.
+
+An MSP can use `basic` as-is for small accounts, or define plans tiered above it.
+
+## Creating a plan, the artisan way
+
+`artisan opcenter:plan` is the entry point. From `/usr/local/apnscp`:
+
+```bash
+./artisan opcenter:plan --new agency
+```
+
+Creates `resources/templates/plans/agency/` with every service file (a "thick" plan). Most plans start as a copy of basic with the differences tweaked:
+
+```bash
+./artisan opcenter:plan --new agency --base basic
+```
+
+For a thin plan that only overrides specific services, create the directory with just the files you care about:
+
+```bash
+mkdir -p resources/templates/plans/agency
+cat > resources/templates/plans/agency/diskquota <<'EOF'
+[DEFAULT]
+quota = 50000
+EOF
+```
+
+Every other service inherits from `.skeleton` (and through it, from `basic` if `basic` is the base plan).
+
+## The supporting commands
+
+| Command | What it does |
+|---|---|
+| `./artisan opcenter:plan --list` | List every plan on the server |
+| `./artisan opcenter:plan agency --verify` | Run the validator against the plan; reports missing required fields, type mismatches, conflicting values |
+| `./artisan opcenter:plan agency --diff basic` | Show fields where `agency` differs from `basic` |
+| `./artisan opcenter:plan --default agency` | Make `agency` the default plan for new accounts |
+| `./artisan opcenter:plan agency --remove` | Delete the plan. Refuses if any account is currently assigned to it |
+| `./artisan opcenter:plan agency --edit -c diskquota,quota=80000` | Edit a plan in place using the same `-c flag` system as `AddDomain` |
+
+`--verify` is non-negotiable before promoting a new plan to default. A misconfigured plan that publishes accounts in a partially valid state is harder to undo than to catch.
+
+## A worked tiered plan structure
+
+> *The MSP wants three customer tiers. `starter` for sole-traders (low quota, no databases). `agency` for small teams (medium quota, full features). `enterprise` for larger customers (high quota, MySQL+PostgreSQL, more users).*
+
+```bash
+# Start from basic and trim
+./artisan opcenter:plan --new starter --base basic
+# Then edit the starter to disable MySQL and lower the quota
+./artisan opcenter:plan starter --edit \
+  -c mysql,enabled=0 \
+  -c diskquota,quota=500
+
+# Agency is the most common plan; mostly basic with quota and users bumped
+./artisan opcenter:plan --new agency --base basic
+./artisan opcenter:plan agency --edit \
+  -c diskquota,quota=10000 \
+  -c users,max=20
+
+# Enterprise is agency with PostgreSQL on and more headroom
+./artisan opcenter:plan --new enterprise --base agency
+./artisan opcenter:plan enterprise --edit \
+  -c pgsql,enabled=1 \
+  -c diskquota,quota=50000 \
+  -c users,max=50
+
+# Promote agency as the default for new signups
+./artisan opcenter:plan --default agency
+```
+
+The plans now compose: a customer on `enterprise` inherits `agency`'s overrides on top of `basic`, with `enterprise`'s extras on top of that. Edit `agency` and `enterprise` accounts pick up the change on their next `EditDomain --reset` (or any `--reconfig`).
+
+<Callout type="info" title="Plan reassignment is non-destructive">
+`EditDomain -c siteinfo,plan=enterprise ablemoose.example` reassigns Able Moose to the enterprise plan. Service values *currently overridden on the account* (e.g. someone bumped Able Moose's quota manually) are preserved; only fields with the plan's previous value get the new plan's default. Use `--reset` to wipe per-account overrides and snap fully to the new plan.
+</Callout>
+
+## When custom plans bite
+
+Three failure shapes worth knowing:
+
+- **Removing a plan an account is still on.** `--remove` refuses, but a forced removal would orphan accounts with a phantom plan name. Reassign first, then remove.
+- **Forgetting `--verify` before `--default`.** Promoting a broken plan to default means *new* accounts fail at creation time. Always verify before defaulting.
+- **Edit that re-writes a plan over a hand-edited file.** If someone has hand-edited a plan's INI file on disk, `./artisan opcenter:plan agency --edit` will rewrite it, possibly losing the manual edit. Treat plans as artisan-managed; don't hand-edit unless you intend to keep the hand-edit and re-run `--verify`.
+
+## What this is NOT
+
+- **Not a permission system.** Plans don't give users different abilities to act on an account. Per-user permissions are inside the `users` service; plans set the defaults but don't model role-based access.
+- **Not a billing tier.** The billing software decides what each plan costs. Plans are technical capability bundles; the price tag is the billing system's call.
+- **Not retroactive.** Editing a plan changes the *defaults*. Existing accounts on that plan keep whatever values they currently have until you `EditDomain --reset` them.
+
+Next lesson: SSL and DNS for accounts. Let's Encrypt auto-bootstrap, DNS provider selection, and the IP pool.

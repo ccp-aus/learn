@@ -114,7 +114,7 @@ Newer firmwares (v83.22.0.139 and later) added `AI Receptionist` as an IVR desti
 
 Able Moose's main number `+61398889100` rings into reception during business hours, an after-hours IVR after 6pm and on weekends, and a "we're closed for the holiday" message on declared holidays.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Set up the inbound route">
     Call Control → Inbound Routes → Add. Name: "Sydney Main Inbound". Trunk: the Sydney trunk. DID Pattern: `+61398889100` (DID Pattern matching mode, single pattern). Time Condition: enable, Time Zone: Australia/Sydney.
   </Step>

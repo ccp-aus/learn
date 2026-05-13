@@ -29,13 +29,13 @@ Most calls are diagnosed at step 2 or 3. PCAP is the deep dive, used when someth
   alt="CDR call-leg breakdown showing three inbound call legs across a ring group, with Call Leg ID, Status, Ring Duration, Hold Duration, Caller IP Address, and Source Trunk fields"
   caption="A CDR row expands into call legs. Each leg has its own Status, Ring Duration, and IP context. Read the legs left-to-right to follow the call's path."
 >
-  <Hotspot client:load x={20} y={35} tone="primary" label="1" title="Leg 1" purpose="External caller arrives at the Ring Group.">
+  <Hotspot client:load x={20} y={20} tone="primary" label="1" title="Leg 1" purpose="External caller arrives at the Ring Group.">
     The first leg always carries the inbound trunk and the DID/DDI that matched. If the caller's number doesn't show, check the carrier-side caller ID delivery and any Inbound Caller ID Reformatting on the trunk.
   </Hotspot>
-  <Hotspot client:load x={50} y={35} tone="primary" label="2" title="Leg 2" purpose="Ring Group dispatches to the first member.">
+  <Hotspot client:load x={20} y={50} tone="primary" label="2" title="Leg 2" purpose="Ring Group dispatches to the first member.">
     Each ring group member produces a leg when the strategy reaches them. Status NO ANSWER on this leg means that member's phone rang but they didn't pick up; the ring group then moved on to the next.
   </Hotspot>
-  <Hotspot client:load x={80} y={35} tone="primary" label="3" title="Leg 3" purpose="Second member answered the call.">
+  <Hotspot client:load x={20} y={80} tone="primary" label="3" title="Leg 3" purpose="Second member answered the call.">
     Status ANSWERED on this leg with a real Ring Duration tells you who finally picked up. The leg's Caller IP shows where their Linkus client / deskphone was; useful for "the wrong office answered" tickets.
   </Hotspot>
 </AnnotatedScreenshot>
@@ -138,20 +138,20 @@ Maintenance → Troubleshooting → Ethernet Capture Tool
   alt="Ethernet Capture Tool interface with fields for Ethernet Interface, IP Address, and Port, plus a Start button"
   caption="The capture tool captures everything on the chosen interface. Set an IP filter to scope to one extension or trunk; leave it blank to capture all SIP and RTP."
 >
-  <Hotspot client:load x={20} y={35} tone="primary" label="1" title="Interface" purpose="Any / LAN / WAN.">
+  <Hotspot client:load x={10} y={55} tone="primary" label="1" title="Interface" purpose="Any / LAN / WAN.">
     Any captures both interfaces. Use LAN or WAN when you know which side the issue is on (LAN = Linkus client side; WAN = trunk / public Internet side). Cuts noise dramatically.
   </Hotspot>
-  <Hotspot client:load x={20} y={55} tone="primary" label="2" title="IP filter" purpose="Scope by remote endpoint.">
+  <Hotspot client:load x={60} y={55} tone="primary" label="2" title="IP filter" purpose="Scope by remote endpoint.">
     Enter the customer's egress IP, the carrier's SBC IP, or the troubled extension's source IP. Captures only packets to/from that address. Critical for keeping the pcap small and readable.
   </Hotspot>
-  <Hotspot client:load x={20} y={75} tone="warning" label="3" title="Port filter" purpose="Optional. 5060 captures SIP only.">
+  <Hotspot client:load x={10} y={80} tone="warning" label="3" title="Port filter" purpose="Optional. 5060 captures SIP only.">
     Leave blank when you need RTP too (for no-audio diagnostics). Set 5060 (or 5061 for TLS) when you only need the SIP signalling and want to keep the pcap small.
   </Hotspot>
 </AnnotatedScreenshot>
 
 The procedure:
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Set the capture scope">
     Pick Ethernet Interface (Any captures all interfaces and the loopback; LAN or WAN scopes to one). Optionally set an IP Address to filter to packets to or from one endpoint. Optionally set a Port (5060 for SIP signalling only, blank for everything).
   </Step>

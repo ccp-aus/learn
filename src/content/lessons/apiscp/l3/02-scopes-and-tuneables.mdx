@@ -1,0 +1,145 @@
+---
+slug: 02-scopes-and-tuneables
+vendor: apiscp
+level: l3
+title: Scopes and Tuneables, the config governance layer
+summary: "Scopes are the platform-wide config-knob system; Tuneables are the per-component subset. Read with scope:get, write with scope:set, list with scope:list. The handful of scopes a senior admin touches monthly, and why hand-editing config.ini stopped being the right move years ago."
+estimatedMinutes: 8
+order: 2
+topics: [scopes, config, governance]
+updated: 2026-05-13
+---
+
+ApisCP has hundreds of config knobs. A few decide what every new account inherits (the default plan, the auto-SSL behaviour). A few decide platform-level posture (firewall behaviour, brute-force thresholds, the DOS handler). The rest are component-specific tuneables. **Scopes** is the unified surface for reading and writing all of them.
+
+## scope:get / scope:set / scope:list
+
+```bash
+# What's the default DNS provider?
+cpcmd scope:get dns.default-provider
+# 'builtin'
+
+# Change it
+cpcmd scope:set dns.default-provider cloudflare
+
+# List every scope on the server
+cpcmd scope:list
+
+# List every scope matching a pattern
+cpcmd scope:list "letsencrypt.*"
+```
+
+Each scope has a name (`<namespace>.<key>`), a default, a documented info string, and a type constraint (bool, int, string, array, mixed). Writes that don't match the type constraint fail at scope:set time, not at the next read.
+
+## A scope is a function call, not a file edit
+
+The legacy mental model from cPanel-land is "edit /etc/apiscp.conf with vim". That's not how ApisCP works. Scopes are *callable*: setting `dns.default-provider` to `cloudflare` triggers a configuration cascade (re-render the per-account default, re-run the Bootstrapper's relevant tasks, restart anything that depends on it). A hand-edit to a config file *does not* trigger this cascade; the resulting state is partial and the next Bootstrapper run will revert your edit anyway.
+
+This is the most important sentence in the lesson: **hand-editing config.ini is wrong, even though it works for the next 60 seconds**. Use Scopes.
+
+## Common scopes the admin actually touches
+
+| Scope | What it controls | Default |
+|---|---|---|
+| `cp.update-policy` | How aggressive ApisCP's auto-updates are: `edge` / `minor` / `major` / `all` / `false` | `major` |
+| `cp.update-schedule` | When the update window runs | `system` |
+| `cp.nightly-updates` | Whether ApisCP itself runs unattended updates | `false` |
+| `cp.headless` | Disables the ApisCP frontend (admin app off) | `false` |
+| `dns.default-provider` | DNS provider for new accounts | `builtin` |
+| `dns.ip4-pool` | The IP pool name-based accounts allocate from | `[<server-ip>]` |
+| `letsencrypt.auto_bootstrap` | LE issuance on every AddDomain | varies |
+| `system.update-policy` | Underlying yum update policy | `default` |
+| `system.virus-scanner` | Which AV scanner runs | `clamav` |
+| `system.watchdog-load` | Load average that triggers watchdog | `50` |
+| `opcenter.default_plan` | Plan applied to new accounts when `-p` is omitted | `basic` |
+| `cron.start-range` | Hours of the day cron jobs may start | `3-22` |
+| `cron.notify` | Email for nightly cron failures | `root` |
+| `fs.tmp-mount` | Mount options for /tmp (size, inodes, flags) | (set) |
+
+The full list is in `cpcmd scope:list` and the `admin/Scopes-list.md` reference doc.
+
+## cp.config, the config.ini wrapper
+
+Some settings (mostly per-component knobs ApisCP didn't promote to first-class scopes) live in `config.ini` style. `cp.config` is the Scope wrapper for those:
+
+```bash
+# Read the [auth] suspended_login value
+cpcmd scope:get cp.config auth suspended_login
+
+# Set [auth] suspended_login to true
+cpcmd scope:set cp.config auth suspended_login true
+
+# Same thing via the cp.config short-form
+cpcmd cp.config:set auth suspended_login true
+```
+
+These are the things that used to live in `config.ini` and that you'd edit by hand on a cPanel-style panel. The `cp.config` Scope wrapper is the correct way to do those edits on ApisCP.
+
+## A worked tuneable change
+
+> *MSP policy: suspended accounts should not be able to log in to the panel either; they should be redirected to a billing-status page instead. Default behaviour is "yes, panel login allowed during suspension."*
+
+```bash
+# Confirm current state
+cpcmd scope:get cp.config auth suspended_login
+# 'true'  -- panel login allowed when suspended
+
+# Flip to false
+cpcmd scope:set cp.config auth suspended_login false
+
+# Confirm
+cpcmd scope:get cp.config auth suspended_login
+# 'false'
+
+# Test: SuspendDomain a test account, attempt to log in, confirm redirect
+```
+
+The scope:set triggers the relevant config write and any restart the change needs. The hand-edit alternative would mean editing `/usr/local/apnscp/config/config.ini`, restarting `apnscpd`, and praying you got the section header right. Don't.
+
+## Per-account scopes via cpcmd -d
+
+A handful of scopes have per-account variants. The pattern is the same: `cpcmd -d <site> scope:set <scope> <value>`:
+
+```bash
+# Set the per-account auto-update window for one customer
+cpcmd -d ablemoose.example scope:set cp.update-schedule "sun 04:00"
+```
+
+Most operational scopes are platform-wide; per-account is reserved for cases where one customer needs to deviate from the default.
+
+## When to write a custom Scope
+
+The Customizing reference covers writing your own Scopes. The trigger: the MSP has a tuneable that should be one shell-callable thing across every server. A custom Scope is a PHP class that implements `get`/`set` and registers under a namespace.
+
+For example, if the MSP wants to expose a "marketing banner text" knob that shows up on every customer's panel:
+
+1. Create a class under `config/custom/scopes/` registering as `branding.banner-text`.
+2. `get` returns the current banner.
+3. `set` writes the banner and refreshes the cached value.
+4. Now `cpcmd scope:set branding.banner-text "Maintenance window Sunday"` works across every server.
+
+This is platform-development work. Most admins never write a custom Scope; reading existing ones is the load-bearing skill.
+
+<Callout type="info" title="Tuneables vs Scopes, the terminology">
+"Tuneable" is the older term for any knob in `config.ini`. "Scope" is the unified read/write surface. In modern docs they often appear together: "the auth.suspended_login tuneable, accessed via the cp.config scope". Treat them as the same concept exposed through one consistent interface.
+</Callout>
+
+## Reading a scope's metadata
+
+`scope:list` with `--format=json` returns the metadata (default, type, description):
+
+```bash
+cpcmd --format=json scope:list "letsencrypt.*" | jq
+```
+
+You get the structured definition: name, default, info string, settings (the valid values for enum-like scopes). Use this when deciding what a scope expects before setting it; saves a round of "I set it but it's not behaving right."
+
+<Checkpoint slug="apiscp-at-scale-checkpoint-scopes" client:visible />
+
+## What this is NOT
+
+- **Not the place for application-level config.** WordPress site settings, mailbox forwarders, DNS records; those are per-account business, not Scopes.
+- **Not append-only.** Setting a scope replaces the prior value. For array-valued scopes (`dns.ip4-pool`), set the full intended array; there's no "append" mode at this layer.
+- **Not silent.** Scope writes that affect long-lived services trigger restarts. The `cpcmd scope:set` return value indicates success of the write *and* the cascade; failure means something downstream choked.
+
+Next lesson: the security stack. Rampart, Shield, ModSecurity, ClamAV and how they layer.

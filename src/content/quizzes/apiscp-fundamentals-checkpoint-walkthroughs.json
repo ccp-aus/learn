@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-fundamentals-checkpoint-walkthroughs",
+  "course": "apiscp-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, customer walkthroughs",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-walkthrough-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "A customer wants to host their new domain ablebookkeeping.example in their existing ApisCP account. The right surface is:",
+      "choices": [
+        "Web > Subdomains",
+        "DNS > Addon Domains",
+        "Account > Settings > Domains",
+        "Nexus > Add Account"
+      ],
+      "correct": 1,
+      "explanation": "Addon Domains is for a different registered domain in the same account. Subdomains is for names beneath an existing domain. A new Nexus account would create a separate billing/storage envelope, which isn't what the customer asked for."
+    },
+    {
+      "id": "ck-walkthrough-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "ApisCP's 1-click WordPress installer will write into a document root that already contains a placeholder index.html.",
+      "correct": false,
+      "explanation": "The destination must be empty. The customer's placeholder file blocks the install. Move or delete it first via Files > File Manager, then run the install."
+    }
+  ]
+}

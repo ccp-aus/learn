@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/site/Breadcrumb.astro";
 import { CurationPanel, type VendorOption } from "@/components/curate/CurationPanel";
 
 const allVendors = (await getCollection("vendors")).sort(
-  (a, b) => a.data.order - b.data.order,
+  (a, b) => a.data.name.localeCompare(b.data.name),
 );
 const allCourses = await getCollection("courses");
 const allLessons = await getCollection("lessons");

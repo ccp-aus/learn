@@ -54,25 +54,6 @@ These genuinely depend on the customer. Don't decide for them.
 - **Personal Email**, depends on the customer's data-handling posture.
 - **Online Games**, context-dependent.
 
-<AnnotatedScreenshot
-  src="/img/dnsfilter/threats-tab.png"
-  alt="DNSFilter Filtering Policy Threats tab listing categories such as Malware, Phishing, Botnet, Cryptomining, with toggle controls per category and a Save action."
-  caption="The Threats tab is where the always-block bucket lives. Toggle each category, save, and you've covered six of the eight always-blocks in one screen."
->
-  <Hotspot client:load x={20} y={30} label="1" title="Malware" purpose="Always block. No customer conversation needed.">
-    Verified-malicious domain reputation. The cost of an Allow-list mistake here is an incident, not a ticket.
-  </Hotspot>
-  <Hotspot client:load x={20} y={45} label="2" title="Phishing" purpose="Always block.">
-    Credential-harvesting infrastructure. DNSFilter's heuristic engine flags newly registered phishing kits before traditional reputation feeds catch them.
-  </Hotspot>
-  <Hotspot client:load x={20} y={60} label="3" title="Botnet / C2" purpose="Always block.">
-    Beaconing destinations for known command-and-control infrastructure. A query here is an alert in its own right.
-  </Hotspot>
-  <Hotspot client:load x={88} y={8} label="4" title="Save" purpose="Writes the toggles to the policy.">
-    Toggling categories doesn't apply until Save commits the change. Watch for the Audit Log entry to confirm.
-  </Hotspot>
-</AnnotatedScreenshot>
-
 <Callout type="info" title="Filtering Schedule is its own thing">
 Filtering Schedule lets a category block during specific hours (Social Networking outside lunch, for example). It's a separate console area with its own time-window rules, not a property on the Filtering Policy. When this lesson's worked example mentions a "schedule" for Able Moose, that schedule lives under Filtering Schedule and is referenced from the policy.
 </Callout>

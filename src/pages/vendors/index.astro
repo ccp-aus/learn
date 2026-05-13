@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/site/Breadcrumb.astro";
 import { Badge } from "@/components/ui/badge";
 
 const vendors = (await getCollection("vendors")).sort(
-  (a, b) => a.data.order - b.data.order,
+  (a, b) => a.data.name.localeCompare(b.data.name),
 );
 const courses = await getCollection("courses");
 
@@ -24,7 +24,12 @@ const levelLabel: Record<"l1" | "l2" | "l3", string> = {
   l3: "Advanced",
 };
 
-const vendorEntries = vendors.filter((v) => v.data.kind !== "concept");
+const vendorEntries = vendors.filter(
+  (v) => v.data.kind !== "concept" && v.data.status !== "planned",
+);
+const plannedVendorEntries = vendors.filter(
+  (v) => v.data.kind !== "concept" && v.data.status === "planned",
+);
 const conceptEntries = vendors.filter((v) => v.data.kind === "concept");
 ---
 
@@ -126,6 +131,45 @@ const conceptEntries = vendors.filter((v) => v.data.kind === "concept");
         }
       </div>
     </section>
+
+    {
+      plannedVendorEntries.length > 0 && (
+        <section aria-labelledby="planned-vendors-heading" class="mt-14">
+          <h2
+            id="planned-vendors-heading"
+            class="mb-4 text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+          >
+            Coming soon
+          </h2>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {plannedVendorEntries.map((v) => (
+              <a
+                href={`/vendors/${v.data.slug}/`}
+                class="group flex flex-col rounded-xl border border-dashed border-border bg-card/60 p-5 transition-all hover:border-primary/40 hover:bg-card"
+                data-astro-prefetch
+                data-curate-vendor={v.data.slug}
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div
+                    class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold opacity-70"
+                    style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                  >
+                    {v.data.name[0]}
+                  </div>
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
+                    Planned
+                  </Badge>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold tracking-tight text-muted-foreground group-hover:text-primary">
+                  {v.data.name}
+                </h3>
+                <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
 
     {
       conceptEntries.length > 0 && (

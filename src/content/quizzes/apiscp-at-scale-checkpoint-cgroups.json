@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-at-scale-checkpoint-cgroups",
+  "course": "apiscp-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, resource enforcement",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-cgroups-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "A customer's site is hammering the server. The MSP wants to stop it immediately but investigate before killing anything. Which command fits?",
+      "choices": [
+        "kill -9 every process owned by the account user",
+        "SuspendDomain the account",
+        "cpcmd cgroup:freeze <site>",
+        "EditDomain -c cgroup,cpu=0 <domain>"
+      ],
+      "correct": 2,
+      "explanation": "cgroup:freeze pauses every process in the account's cgroup without killing them. State is preserved; you can investigate, then kill the specific offender, then thaw the rest. The other options either kill state or take longer effect."
+    },
+    {
+      "id": "ck-cgroups-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Disk quota in ApisCP is per cgroup (per account), not per Unix user.",
+      "correct": false,
+      "explanation": "Disk quota is per Unix user (account user, with a separately tracked apache-user tally that ApisCP aggregates). cgroups bound CPU, memory, and I/O; storage quota is a different kernel mechanism."
+    }
+  ]
+}

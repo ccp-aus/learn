@@ -16,7 +16,7 @@ Welcome. This site is open for vendor- and community-authored training content.
 | `src/content/quizzes/` | Question banks (final per course + inline checkpoints) |
 | `src/content/glossary/` | Glossary terms, auto-linked into lessons |
 | `src/content/paths/` | Curated cross-vendor learning sequences |
-| `src/components/learning/` | The MDX vocabulary (`<Callout>`, `<StepThrough>`, `<AnnotatedScreenshot>`, etc.) |
+| `src/components/learning/` | The MDX vocabulary (`<Callout>`, `<StepThrough client:load>`, `<AnnotatedScreenshot>`, etc.) |
 | `src/components/curate/` | Stack-curation UI |
 | `src/lib/` | Helpers (progress, quiz, curation, glossary remark, **`courseRoute.ts`** for URL/suffix derivation) |
 | `src/pages/` | Astro routes — note that the per-course directory is `[course]` (not `[level]`) |
@@ -81,7 +81,7 @@ Every lesson file under `src/content/lessons/` automatically gets these componen
 - `<Term>` — glossary hovercard. Most known terms auto-link via the glossary remark plugin; explicit `<Term>` tagging is rarely needed.
 - `<Kbd>` — keyboard chip
 - `<AnnotatedScreenshot src="..." alt="..." caption="...">` with `<Hotspot client:load x={N} y={N} tone="primary|warning|success" label="1" title="..." purpose="...">body</Hotspot>` children. **Hotspots require `client:load` and a numeric `label`**; the long descriptive text goes in `title` / `purpose` / children. The `<AnnotatedScreenshot>` wrapper itself must NOT carry a hydration directive (it conflicts with the nested Hotspot islands and breaks the popovers). See [docs/course-authoring-conventions.md §6](docs/course-authoring-conventions.md#6-annotatedscreenshot--hotspot--the-canonical-pattern) for the full pattern.
-- `<StepThrough>` with `<Step title="...">...</Step>` children
+- `<StepThrough client:load>` with `<Step title="...">...</Step>` children
 - `<DecisionTree client:load startId="..." nodes={[...]} />` — config-prop API; `nodes` is an array of `question` and `outcome` objects, not children
 - `<Checkpoint slug="<course-slug>-checkpoint-<topic>" client:visible />`
 - Mermaid code fences (` ```mermaid ... ``` `) — render client-side. **Avoid extra colons inside sequence-diagram arrow messages** (the parser treats the first `:` as the participant/message separator and trips on subsequent colons in recent mermaid releases).

@@ -56,7 +56,7 @@ Linkus clients, IP phones, and SIP trunks register against the Virtual IP. They 
 
 ### Failover mechanics: what happens in the moment
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Primary stops responding">
     The Primary crashes, the OS hangs, the LAN cable comes loose. The Secondary's heartbeat detector stops getting acknowledgements.
   </Step>
@@ -239,7 +239,7 @@ Already mentioned in the security lesson; worth reiterating here because they're
 
 A customer reports "all our outbound calls failed for 20 minutes around 14:00 yesterday". CDR shows the calls failed with status "FAILED" but no detailed reason; trunk status now shows Registered.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Operation Logs first">
     Maintenance -> Operation Logs, filter to yesterday 13:50-14:20. Was a config change applied? Did someone toggle a trunk off and on? If yes, that's probably the cause; stop here.
   </Step>

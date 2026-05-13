@@ -64,7 +64,11 @@
         "DID Matching Mode: DID Number to Specific Extension, 50 explicit mappings",
         "Create 50 separate inbound routes, one per DID"
       ],
-      "correct": [1, 2, 3],
+      "correct": [
+        1,
+        2,
+        3
+      ],
       "explanation": "Match DID Range to Extension Range is the cleanest (one rule covers all 50). Match DID Pattern to Extensions with the {{.Ext}} placeholder also works for sequential DIDs. DID Number to Specific Extension works but is verbose. Fifty separate routes works but is even more verbose. The first option (DID Pattern with 50 patterns) is theoretically possible but unmaintainable."
     },
     {
@@ -93,18 +97,17 @@
     },
     {
       "id": "q-ivr-design",
-      "type": "mcq",
+      "type": "order",
       "topic": "ivr",
       "difficulty": "medium",
-      "prompt": "An IVR is being built for a public-facing main number. Which Dial Extensions setting is the safest default?",
-      "choices": [
-        "All Extensions, so callers can reach anyone they need",
-        "Allowed Extensions, with only the published staff directory selected",
-        "Disable, no extension dialling at all from the IVR",
-        "Restricted Extensions, with internal service extensions excluded"
-      ],
-      "correct": 1,
-      "explanation": "Allowed Extensions with the published directory matches the customer's actual intent: callers reach the staff who should be reachable, and nobody else. All Extensions exposes service extensions (intercom, printer) which can be abused. Disable removes a useful feature. Restricted Extensions is a maintenance burden as new internal extensions are added."
+      "prompt": "Sort the four PSE IVR 'Dial Extensions' modes from most restrictive (least caller reach) to least restrictive (most caller reach).",
+      "explanation": "Disable is the absolute floor (no extension reachable). Allowed Extensions is a tight allowlist. Restricted Extensions is a denylist (everything reachable minus the named exceptions), which is more permissive because anything not on the list is open by default. All Extensions exposes every extension including service extensions (intercom, printer) which is the common abuse vector. The right default for most customers is Allowed Extensions tied to the published staff directory.",
+      "items": [
+        "Disable (callers cannot dial any extension from the IVR)",
+        "Allowed Extensions (only the curated list is reachable)",
+        "Restricted Extensions (everything is reachable except the curated deny list)",
+        "All Extensions (every extension on the PBX is reachable)"
+      ]
     },
     {
       "id": "q-ring-strategy",
@@ -123,17 +126,21 @@
     },
     {
       "id": "q-queue-vs-rg",
-      "type": "order",
+      "type": "multi",
       "topic": "queues",
       "difficulty": "medium",
-      "prompt": "Put these scenarios in order from 'ring group is the right tool' to 'queue is the right tool'.",
-      "items": [
+      "prompt": "Select the scenarios that need a queue rather than a ring group. (Select all that apply.)",
+      "explanation": "Queues are the right tool when wait time, answered rate, callers-in-queue announcements, or agent skill tagging are part of the operational model. Ring groups handle the simpler 'a fixed set of people, anyone can pick up' or 'sequential ringing with a delay' patterns without queue overhead. Reception backline = ring group. On-call rota with sequential delay = ring group with the right strategy. SLA-bound customer support and skill-routed multi-language teams need queue features.",
+      "choices": [
         "Three-person reception backline in one office, anyone can pick up, no metrics needed",
         "After-hours on-call rota with two engineers, second engineer rings 15s after first",
         "Customer-facing support service with SLA on answer rate; MoH and position announcements expected",
         "Multi-language customer service with skill-tagged agents and skill-based routing"
       ],
-      "explanation": "Ring groups fit when membership is fixed and metrics don't matter. Queues fit when wait time, answered rate, and agent skill levels are part of the operational model. Customer-facing services almost always need queues."
+      "correct": [
+        2,
+        3
+      ]
     },
     {
       "id": "q-recording-scope",
@@ -164,15 +171,15 @@
       "type": "mcq",
       "topic": "diagnostics",
       "difficulty": "hard",
-      "prompt": "An outbound call connects, the customer can hear the called party, but the called party can't hear the customer. SIP trace shows symmetric SDP from both ends with public IPs in the c= lines, codec G.711 agreed. RTP packets leave PBX toward the public IP of the called party. What's the next thing to investigate?",
+      "prompt": "An outbound call connects, the customer can hear the called party, but the called party can't hear the customer. SIP trace shows symmetric SDP from both ends with public IPs in the c= lines, codec G.711 agreed. RTP packets leave PBX toward the public IP of the called party. What's the most likely cause to investigate next?",
       "choices": [
         "Recompile the trunk codec list to remove G.729",
-        "Check whether the customer's office firewall is rate-limiting outbound UDP packets in the RTP port range",
+        "SIP ALG (or 'SIP helper') on an in-path NAT router rewriting SDP or mangling RTP port translations",
         "Switch the trunk's DTMF Mode to Auto",
-        "Increase the trunk's Maximum Concurrent Calls"
+        "The customer's office firewall rate-limiting outbound UDP packets in the RTP port range"
       ],
       "correct": 1,
-      "explanation": "The signalling and SDP look fine, codec is agreed, RTP is leaving PBX. If audio is one-way at this point, the suspect is the customer's network: firewall or router rate-limiting / dropping the outbound RTP toward the carrier or called endpoint. Not codec (already agreed), not DTMF (separate concern), not concurrent calls (call is connected)."
+      "explanation": "One-way audio with clean SDP is the canonical NAT-traversal symptom and SIP ALG is the most common cause. An ALG can rewrite the c= line so it looks correct in the trace, yet still close the RTP pinhole prematurely or reassign source ports so the far end drops packets on symmetric-RTP checks. First move: identify NAT routers between the PBX and the trunk and disable SIP ALG (it should always be off for a SIP trunk). UDP rate-limiting is technically possible but rare; codec and DTMF are already-agreed concerns; concurrent calls don't apply because the call is up."
     },
     {
       "id": "q-pcap-tool",

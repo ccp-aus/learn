@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 const vendors = (await getCollection("vendors"))
   .filter((v) => v.data.kind === "concept")
-  .sort((a, b) => a.data.order - b.data.order);
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
 const courses = await getCollection("courses");
 
 function vendorLevels(vendorSlug: string) {

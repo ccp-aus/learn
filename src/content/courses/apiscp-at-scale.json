@@ -1,0 +1,20 @@
+{
+  "slug": "apiscp-at-scale",
+  "vendor": "apiscp",
+  "level": "l3",
+  "title": "ApisCP, platform operations and governance",
+  "shortTitle": "ApisCP at scale",
+  "summary": "Running the ApisCP platform itself: cpcmd and the API surface, Scopes and Tuneables for config governance, the Rampart / Shield / ModSecurity security stack, the Fortification privilege model, cgroup resource enforcement, and backup / billing / reseller integration.",
+  "estimatedMinutes": 60,
+  "prereqs": ["apiscp-account-provisioning"],
+  "lessons": [
+    "01-cpcmd-and-the-api",
+    "02-scopes-and-tuneables",
+    "03-the-security-stack",
+    "04-fortification-deep-dive",
+    "05-resource-enforcement",
+    "06-backups-billing-and-resellers"
+  ],
+  "quiz": "apiscp-at-scale-final",
+  "status": "live"
+}

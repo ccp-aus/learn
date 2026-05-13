@@ -35,23 +35,17 @@ A configured hosted block page looks like this:
   alt="A configured DNSFilter hosted block page rendered for a blocked HTTPS request, showing org logo, block reason, the blocked domain, a notice email link, a policy and source IP line, and a UTC timestamp."
   caption="Every visible field on the block page is a teaching beat. Logo and org name set trust; block reason and domain explain the call; the notice email is the user's escape hatch; the diagnostic line is for the tech."
 >
-  <Hotspot client:load x={50} y={8} label="1" title="Org logo" purpose="Tells the user the block came from their MSP, not the public internet.">
+  <Hotspot client:load x={50} y={30} label="1" title="Org logo" purpose="Tells the user the block came from their MSP, not the public internet.">
     Hosted block pages render the org's uploaded logo. End-users should recognise it as their filter, not a generic error page.
   </Hotspot>
-  <Hotspot client:load x={50} y={20} label="2" title="Block reason" purpose="Tells the user why the page was blocked, in plain English.">
+  <Hotspot client:load x={50} y={55} label="2" title="Block reason" purpose="Tells the user why the page was blocked, in plain English.">
     Pulls from the matching filter category (e.g. Adult Content) or threat (Phishing). Don't override this with marketing copy.
   </Hotspot>
-  <Hotspot client:load x={50} y={40} label="3" title="Domain blocked" purpose="Verifies the call.">
+  <Hotspot client:load x={20} y={60} label="3" title="Domain blocked" purpose="Verifies the call.">
     Confirms the FQDN the user actually requested. Frontline techs paste this back into the Query Log filter to find the matching event.
   </Hotspot>
-  <Hotspot client:load x={50} y={55} label="4" title="Notice email link" purpose="User self-serve escalation.">
+  <Hotspot client:load x={65} y={75} label="4" title="Notice email link" purpose="User self-serve escalation.">
     Mailto link routed to the org's notice address. Stops the helpdesk getting paged for false positives.
-  </Hotspot>
-  <Hotspot client:load x={50} y={70} label="5" title="Policy ID + IP" purpose="Diagnostic line for the tech.">
-    Policy name and source IP. Match this against the Sites table to pin the blocking surface.
-  </Hotspot>
-  <Hotspot client:load x={85} y={90} label="6" title="Timestamp" purpose="For audit.">
-    UTC timestamp of the block. Same value the Query Log records, so a paste-and-search lands the same row.
   </Hotspot>
 </AnnotatedScreenshot>
 

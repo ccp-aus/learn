@@ -106,7 +106,7 @@ The Monthly Quota Pack model is use-it-or-lose-it. A PBX assigned 60 receptionis
 
 A practical finance reconciliation, run on the first business day of each month:
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Snapshot the subscription state">
     Hit `GET /dm/open_api/v1/subscription` and `GET /dm/open_api/v2/cloud_pbx/instances` (paginated through all). Save the JSON. This is the source of truth for the month that just ended.
   </Step>

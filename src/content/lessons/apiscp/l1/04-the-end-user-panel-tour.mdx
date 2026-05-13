@@ -1,0 +1,82 @@
+---
+slug: 04-the-end-user-panel-tour
+vendor: apiscp
+level: l1
+title: The end-user panel, what a customer sees
+summary: Once you Login-As, you're inside the customer's view of ApisCP. Eight sidebar sections, one Summary page that answers most "what do I have?" questions, and a different sidebar per account depending on which services are enabled.
+estimatedMinutes: 8
+order: 4
+topics: [end-user, navigation, summary]
+updated: 2026-05-13
+---
+
+When the customer (or you, mid-Login-As) opens ApisCP, the sidebar lists the things their account can do. ApisCP groups them by what you're managing, not by what you're doing to it. Mail belongs to Mail, files belong to Files, databases belong to Databases. The Account section is the one to anchor on first.
+
+## The sidebar, eight or so sections
+
+The exact set varies per account: a customer with mail disabled has no Mail section, a customer without shell access has no Dev section. The full map:
+
+| Section | What's there | When the customer opens it |
+|---|---|---|
+| **Account** | Summary (general info), Settings, Users, Login History | "Where's my IP / storage / contact email?" "Reset my password" |
+| **Mail** | Manage Mailboxes, Mail Routing, Spam Filter, Webmail | "Add a mailbox", "set up forwarding", "log in to webmail" |
+| **Web** | Web Apps (WordPress, Drupal, etc.), Subdomains, SSL, .htaccess | "Install WordPress", "add a subdomain blog.mydomain", "force HTTPS" |
+| **Files** | File Manager, Storage Usage, File Listing | "Upload an HTML file", "what's eating my storage?" |
+| **Databases** | MySQL Manager, PostgreSQL Manager, phpMyAdmin link | "Create a database for WordPress", "restore a database to last week" |
+| **DNS** | DNS Manager, Addon Domains | "Add a TXT record for Google verification", "host a second domain in this account" |
+| **Dev** | Terminal (SSH), API Keys, Editor | "I need shell access" (only some plans), "create a Beacon API key" |
+| **Reports** | Bandwidth, account events, audit | "Why am I being told my account is at 90% bandwidth?" |
+| **Help** | Trouble Tickets, KB | The customer's escape hatch when something is genuinely broken |
+
+This list is stable across accounts; only the *visibility* of a section changes with which services are enabled.
+
+## What the top bandwidth bar is telling you
+
+ApisCP shows a thin notification header at the top with bandwidth usage and a notification bell.
+
+<AnnotatedScreenshot
+  src="/img/apiscp/notification-header.png"
+  alt="ApisCP web panel notification header with a bandwidth usage indicator showing 0% (1023 GB) used, a notification bell icon, and a site icon labelled 'demosite' with a dropdown arrow."
+  caption="The notification header tells the customer their headroom and any platform events. The bell glows when something needs attention; the bandwidth bar is the at-a-glance allowance."
+>
+  <Hotspot client:load x={31} y={50} label="1" title="Bandwidth indicator" purpose="The customer's at-a-glance traffic allowance.">
+    Visible on every page in the customer's panel. The actual number lives under Reports > Bandwidth.
+  </Hotspot>
+  <Hotspot client:load x={58} y={50} label="2" title="Notification bell" purpose="System events the customer should see.">
+    Web app update completed, backup ran, certificate renewed. Most of these are informational; the bell glow is the prompt.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## The five sections most tickets touch
+
+In order of how often they come up at the helpdesk:
+
+1. **Mail > Manage Mailboxes.** Adding a mailbox, changing a password, redirecting an address. The single most common customer-side action.
+2. **Web > Web Apps.** Installing or updating WordPress and friends. 1-click installs are surprisingly reliable; the failure mode is usually a directory that already has files in it.
+3. **DNS > Addon Domains.** A customer with a second domain wants it hosted under the same account. Different from a subdomain.
+4. **Files > File Manager.** Uploading a file, fixing a permission. The customer rarely opens this except when troubleshooting; *you* will open it constantly when reading logs or fixing a `wp-config.php`.
+5. **Account > Settings.** Resetting a password, changing the contact email. Self-service surface for the customer.
+
+The rest (Reports, Dev, Databases, Help) come up less often per shift, but knowing they exist saves you from looking in the wrong section.
+
+## Customer-side terminology to know
+
+A handful of words show up everywhere in the end-user panel:
+
+- **Primary domain.** The single domain the account is named after. Cannot be changed without an Edit; renaming is a one-shot operation.
+- **Addon domain.** A second (or third, or tenth) domain hosted under the same account. Has its own document root, its own DNS, its own mailboxes.
+- **Subdomain.** A name beneath a primary or addon domain (`blog.ablemoose.example`). Lives in the same account; usually points at a different document root for a different web app.
+- **Document root.** The folder on the server from which web content is served. Primary domain default is `/var/www/html`; addon domains default to `/var/www/<domain>`.
+- **The admin user (account).** The customer's login to *their* account. Don't confuse this with the platform admin (you).
+
+<Callout type="info" title="Two users on one account, no surprise">
+A customer's account can have **secondary users** (e.g. a separate mailbox-only user for `helen@ablemoose.example`). Login-As targets the account's *admin user* by default. A ticket about "I logged in but I can't see X" sometimes turns out to be the customer logged in as a secondary user with reduced permissions.
+</Callout>
+
+## What this is NOT
+
+- **Not a website builder.** The Web Apps section installs a CMS; what the customer does inside WordPress, ApisCP doesn't manage.
+- **Not a SaaS mailbox provider.** The mailboxes live on this server. Outlook / Apple Mail / mobile clients connect via IMAP/SMTP to the server, not to a SaaS service. Outbound mail is the platform's responsibility, deliverability is partly the platform's, partly the customer's DNS.
+- **Not consistent across plans.** The sidebar is plan-shaped. A customer on a DNS-only plan sees a heavily reduced panel.
+
+Next lesson: walking a client through three of the most common tasks (adding a mailbox, adding an addon domain, installing WordPress).

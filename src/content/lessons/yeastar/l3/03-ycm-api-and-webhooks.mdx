@@ -18,7 +18,7 @@ This lesson walks the actual HTTP exchanges. Every example uses `curl` against `
 
 The API is off by default. You enable it once, capture the credentials once, and from then on it is a turn-on-and-go feature.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Enable the API on the YCM web interface">
     Navigate to `System > API`. Toggle the **API** switch on at the top.
   </Step>
@@ -221,7 +221,7 @@ YCM publishes new event types on each release; the developer guide's Events page
 
 To configure a webhook:
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Get a webhook URL ready">
     Stand up an HTTPS endpoint that returns 2xx within 10 seconds of receiving a POST. For testing, services like webhook.site work fine; for production, a small handler in your PSA or in a Lambda / Cloud Function is the usual pattern.
   </Step>

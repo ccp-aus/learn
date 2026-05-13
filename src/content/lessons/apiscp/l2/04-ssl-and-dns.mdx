@@ -1,0 +1,122 @@
+---
+slug: 04-ssl-and-dns
+vendor: apiscp
+level: l2
+title: SSL and DNS, automating the boring parts
+summary: Let's Encrypt auto-bootstrap as the default state, DNS provider selection (built-in vs Cloudflare vs Katapult vs Hetzner), wildcard certificates, and the IP pool that decides where new accounts land.
+estimatedMinutes: 8
+order: 4
+topics: [ssl, dns, letsencrypt]
+updated: 2026-05-13
+---
+
+Two systems run quietly under every account: SSL automation and DNS hosting. Get them right at plan-default level and 95% of accounts never need a manual touch. Get them wrong and every onboarding becomes a ticket.
+
+## Let's Encrypt is the default story
+
+ApisCP bundles Let's Encrypt directly. A new account with `--bootstrap` triggers a cert issuance at creation; renewal is automated; the customer doesn't see any of it.
+
+The default behaviour is controlled by a Scope (full Scopes coverage is the Advanced course; for now, treat scopes as a server-wide config key):
+
+```bash
+# Make every new account try to bootstrap a cert on creation
+cpcmd scope:set letsencrypt.auto_bootstrap true
+```
+
+With `auto_bootstrap = true`, the `--bootstrap` flag on `AddDomain` is implied. You can still override per-account:
+
+```bash
+AddDomain --bootstrap=false ...        # skip SSL on this account
+AddDomain -c ssl,enabled=0 ...         # equivalent
+```
+
+The renewal job runs on the platform's cron. As long as DNS for the domain resolves to this server, renewal succeeds silently. The failure modes are predictable: a domain whose A record points elsewhere can't renew (ACME validation fails), an expired account can't renew, a manually issued cert in the way blocks renewal of the LE one. Each of these surfaces as a notification on the admin Dashboard.
+
+## DNS, who hosts the zone
+
+A new account's DNS lives wherever the platform's default DNS provider says it lives. The scope is `dns.default-provider`:
+
+```bash
+cpcmd scope:get dns.default-provider
+# → 'builtin'
+```
+
+The choices that ship:
+
+| Provider | When to use it |
+|---|---|
+| `builtin` | The ApisCP server runs an authoritative nameserver for the customer's zone. Simplest; requires customer to point their domain's nameservers at the MSP's nameservers |
+| `null` | DNS is managed elsewhere (registrar's nameservers, an existing cloud DNS). ApisCP doesn't manage records for this account |
+| `cloudflare` | DNS hosted at Cloudflare, ApisCP manages records via the Cloudflare API |
+| `katapult` | DNS hosted at Katapult |
+| `hetzner` | DNS hosted at Hetzner's DNS console |
+| `digitalocean`, `linode`, `aws` | Major cloud providers; one provider plugin each |
+
+For each non-built-in provider, the auth token lives in a paired scope:
+
+```bash
+cpcmd scope:set dns.default-provider cloudflare
+cpcmd scope:set dns.default-provider-key '<api-token>'
+```
+
+Once set, every new account's `AddDomain` provisions its zone in the chosen provider. Existing accounts can be migrated to a different provider per-account (`EditDomain -c dns,provider=cloudflare ablemoose.example`), but the migration is non-trivial when records exist; better to set the right provider at the platform level and let new accounts inherit.
+
+<Callout type="info" title="Why DNS provider choice matters for SSL">
+Wildcard Let's Encrypt certificates (`*.ablemoose.example`) require DNS-01 validation, which means the ACME client must add a TXT record to the zone. That only works when ApisCP can write to the DNS zone. If the customer keeps DNS at their registrar (`dns.default-provider = null`), wildcards aren't possible; per-FQDN HTTP-01 certificates are.
+</Callout>
+
+## The IP pool
+
+Every name-based account on a server resolves to a public IP that ApisCP allocates from a configured pool:
+
+```bash
+cpcmd scope:get dns.ip4-pool
+# → ['136.37.24.241']
+cpcmd scope:get dns.ip6-pool
+# → ['2001:48f8:9021:f2d:825:ccf1:8013:b6ab']
+```
+
+A single-IP server hosts every name-based account on the same IP. SNI-aware HTTPS makes that fine for nearly every modern client. Customers who need a **dedicated IP** (legacy clients, niche SSL constraints, regulatory) get one allocated separately:
+
+```bash
+EditDomain -c ipinfo,ipaddrs=['203.0.113.42'] ablemoose.example
+```
+
+The pool can hold multiple IPs; new accounts round-robin across them. Adding IPs to the pool is server-side networking work (the OS needs to have the IPs bound to the right interface first).
+
+## Wildcards, when they pay off
+
+Wildcards cover every subdomain under a domain without enumerating them. Two cases where this matters:
+
+- **Multi-tenant SaaS on a customer's domain.** `*.ablemoose.example` covers `app.ablemoose.example`, `staff.ablemoose.example`, anything the customer adds later. Each wouldn't need a manual cert.
+- **Customer with frequent subdomain churn.** Marketing keeps spinning up `campaign-XYZ.ablemoose.example`. A wildcard means no LE issuance per campaign.
+
+The trade-off is one cert for many names. If the wildcard cert is compromised, every subdomain is exposed. For most MSP customers, per-FQDN HTTP-01 is fine; wildcards are a per-customer call when there's a reason.
+
+## When to switch DNS provider per-account
+
+The default DNS provider is right ~95% of the time. Three reasons to override per-account:
+
+- **Customer already has DNS at a specific provider** (Cloudflare, AWS Route 53) and doesn't want to migrate. Set `dns.provider = null` and have them manage records themselves; coordinate any required records via ticket.
+- **Customer wants ApisCP to manage DNS but the provider plugin doesn't ship** (their existing host is on a niche provider). Either move them to a supported provider, or set `null` and run records manually.
+- **Wildcard cert needed and the customer's existing DNS host doesn't support API automation.** Migrate the zone to a provider with API support, or run that customer on `builtin`.
+
+## A worked DNS-side onboarding
+
+> *Able Moose's primary domain `ablemoose.example` is currently parked at a registrar with the registrar's default nameservers. The MSP wants to host both web and DNS for them.*
+
+1. `AddDomain` with the default DNS provider (`builtin`). DNS zone is created on this ApisCP server. The platform's nameservers (`ns1.<mspdomain>`, `ns2.<mspdomain>`) are now authoritative for `ablemoose.example`.
+2. Send Able Moose's office manager an email: "Please change `ablemoose.example`'s nameservers at your registrar to `ns1.<mspdomain>` and `ns2.<mspdomain>`."
+3. Wait for DNS propagation (TTL-bound; usually 24-48 hours).
+4. Once nameservers have switched and the platform sees DNS resolving correctly, Let's Encrypt issues the cert automatically (it was queued at `AddDomain --bootstrap` time).
+5. The customer's site is live with SSL, with no further action from the MSP.
+
+The Beginner course's lesson on walking a client through DNS changes covers what to say to the customer.
+
+## What this is NOT
+
+- **Not a registrar.** ApisCP hosts DNS *zones*; it doesn't register domains. The customer (or the MSP's registrar integration) handles registration separately.
+- **Not a CDN.** ApisCP serves traffic directly from the account's IP. Sitting Cloudflare or another CDN in front is fine, but ApisCP doesn't automate that wiring.
+- **Not the place to issue customer-purchased EV/OV certificates.** ApisCP supports manually installing a third-party cert per account, but the LE path is the default. EV/OV is a per-customer exception, not the standard.
+
+Next lesson: Web Apps with Fortification. Installing, snapshotting, and the privilege-isolation system that makes 1-click installs safe.

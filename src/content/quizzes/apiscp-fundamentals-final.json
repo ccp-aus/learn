@@ -1,0 +1,172 @@
+{
+  "slug": "apiscp-fundamentals-final",
+  "course": "apiscp-fundamentals",
+  "kind": "final",
+  "title": "ApisCP, panel fundamentals: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-apiscp-core",
+      "type": "mcq",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "What is ApisCP, in one sentence?",
+      "choices": [
+        "A cloud platform that hosts customer websites on a multi-tenant SaaS service operated by Apis Networks",
+        "A self-hosted multi-tenant hosting control panel an MSP installs on its own Linux servers",
+        "A reseller billing system that wraps cPanel and Plesk to standardise account creation",
+        "An RMM agent that monitors customer websites and sends uptime alerts"
+      ],
+      "correct": 1,
+      "explanation": "ApisCP is the panel the MSP installs and operates on its own servers. There is no Apis Networks-managed service; the MSP runs the platform end-to-end."
+    },
+    {
+      "id": "q-licensing-comparison",
+      "type": "tf",
+      "topic": "fundamentals",
+      "difficulty": "easy",
+      "prompt": "ApisCP charges a recurring per-account fee, similar to cPanel/WHM's per-account licensing tiers.",
+      "correct": false,
+      "explanation": "ApisCP licenses per server with a one-time purchase. Per-account costs (storage, bandwidth, support time) are a function of the MSP's hosting plan, not the panel licence."
+    },
+    {
+      "id": "q-nexus-vs-end-user",
+      "type": "multi",
+      "topic": "nexus",
+      "difficulty": "medium",
+      "prompt": "Which of these are things the admin does in Nexus, not in the customer-facing panel? (Select all that apply.)",
+      "choices": [
+        "Create a new customer account",
+        "Add a mailbox to an existing account",
+        "Suspend a customer account",
+        "Launch a Login-As session into a customer's account",
+        "Install WordPress on a customer's domain",
+        "Delete a customer account"
+      ],
+      "correct": [0, 2, 3, 5],
+      "explanation": "Create, suspend, delete, and Login-As are all Nexus actions. Adding a mailbox and installing WordPress are done inside the customer's account (either by the customer or by the admin after Login-As)."
+    },
+    {
+      "id": "q-login-as-purpose",
+      "type": "mcq",
+      "topic": "login-as",
+      "difficulty": "easy",
+      "prompt": "What does Login-As do?",
+      "choices": [
+        "Resets the customer's password to a temporary value so the admin can log in",
+        "Creates an authenticated session as the customer's admin user without a password handoff",
+        "Mirrors the customer's session into a read-only admin view",
+        "Sends the admin a one-time password the customer has to approve"
+      ],
+      "correct": 1,
+      "explanation": "Login-As is server-side impersonation via `admin:hijack`. The admin gets a real session as the customer's admin user. No password is exposed or changed."
+    },
+    {
+      "id": "q-revert-login-as",
+      "type": "tf",
+      "topic": "login-as",
+      "difficulty": "easy",
+      "prompt": "The most common Login-As mistake is forgetting to click Revert Login-As before opening the next customer's account.",
+      "correct": true,
+      "explanation": "Without Revert, the impersonated session carries into the next admin action and you end up acting as the wrong customer. Always Revert before moving on."
+    },
+    {
+      "id": "q-mailbox-add-order",
+      "type": "order",
+      "topic": "walkthroughs",
+      "difficulty": "medium",
+      "prompt": "Put these steps in the correct order for adding a new mailbox under an existing account.",
+      "items": [
+        "Open Users > Create User and fill in username, full name, password, storage limit",
+        "Open Mail > Manage Mailboxes",
+        "Under Add a New Address, type the local part and pick the domain",
+        "Set Type to Single User and assign the new user as the destination",
+        "Click Add Address and send a test message"
+      ],
+      "explanation": "ApisCP separates users from addresses. Create the user first so they exist as a delivery destination, then create the address that delivers to them."
+    },
+    {
+      "id": "q-addon-vs-subdomain",
+      "type": "mcq",
+      "topic": "domains",
+      "difficulty": "medium",
+      "prompt": "A customer wants their second registered domain hosted in the same ApisCP account. Which surface is correct?",
+      "choices": [
+        "Web > Subdomains, with the new domain typed as a single-word subdomain",
+        "DNS > Addon Domains, with the new domain typed as an FQDN",
+        "Account > Settings > Add Domain",
+        "A new Nexus account, since each domain needs its own account"
+      ],
+      "correct": 1,
+      "explanation": "Addon Domains is the surface for a *different* registered domain inside the same account. Subdomains are names beneath an existing domain. A new account is wrong because addon domains share the account's resources and login."
+    },
+    {
+      "id": "q-triage-signals",
+      "type": "multi",
+      "topic": "triage",
+      "difficulty": "medium",
+      "prompt": "Which of these are first-look triage signals the lesson lists for an ApisCP ticket? (Select all that apply.)",
+      "choices": [
+        "The Event ID on the customer's error page",
+        "The Job Runner queue state for the customer's pending action",
+        "The Storage Usage breakdown for the account",
+        "The 3-5-10 brute-force lockout when a customer can't log in",
+        "Running tcpdump on the server's mail port",
+        "Restarting the entire ApisCP service"
+      ],
+      "correct": [0, 1, 2, 3],
+      "explanation": "Event ID, Job Runner, Storage Usage, and the 3-5-10 lockout cover most walk-up tickets. Tcpdump and full service restarts are deep-end moves that come after these signals point you somewhere specific."
+    },
+    {
+      "id": "q-brute-force-lockout",
+      "type": "mcq",
+      "topic": "triage",
+      "difficulty": "easy",
+      "prompt": "A customer complains they can't log in from their office, but a colleague at the same office is fine. What's the most likely cause?",
+      "choices": [
+        "The server has rejected the customer's IP from a different subnet",
+        "The customer triggered the 3-5-10 brute-force lockout by mistyping their password three times in five minutes",
+        "Their account has been suspended and the colleague's hasn't",
+        "Two-factor authentication is required and the customer hasn't enrolled"
+      ],
+      "correct": 1,
+      "explanation": "Same office (same IP) implies a per-IP block, and Rampart's default 3-5-10 deterrent fires after three failures in a five-minute window. Wait ten minutes or `cpcmd rampart:unban <ip> '*'` from admin."
+    },
+    {
+      "id": "q-deletable-paths",
+      "type": "tf",
+      "topic": "triage",
+      "difficulty": "medium",
+      "prompt": "When a customer is over storage quota, deleting files from /var/lib/mysql is a safe way to reclaim space.",
+      "correct": false,
+      "explanation": "/var/lib/mysql contains live database files. Direct deletion corrupts the database. Drop databases from MySQL Manager instead. Same rule for /var/lib/pgsql (PostgreSQL) and /var/log/httpd (audit logs)."
+    },
+    {
+      "id": "q-event-id-purpose",
+      "type": "mcq",
+      "topic": "triage",
+      "difficulty": "hard",
+      "prompt": "Why is the Event ID the most important piece of information on an ApisCP error page?",
+      "choices": [
+        "It tells the customer which web app caused the error",
+        "It is the unique lookup key in the admin's panel log; grepping for it surfaces the full stack trace",
+        "It identifies which platform release is running",
+        "It is the support ticket reference the customer should quote"
+      ],
+      "correct": 1,
+      "explanation": "Without the Event ID, you hunt through logs by timestamp. With it, you grep one line. Always ask the customer for the Event ID before retrying anything."
+    },
+    {
+      "id": "q-hotspot-revert-login-as",
+      "type": "hotspot",
+      "topic": "login-as",
+      "difficulty": "easy",
+      "prompt": "Click the menu item that returns you from an impersonated session back to your admin session.",
+      "image": "/img/apiscp/login-as-dropdown.png",
+      "imageAlt": "ApisCP top-right dropdown with items: Settings, Help Center, App Index, Revert Login-As, Logout.",
+      "target": { "x": 50, "y": 62, "r": 7 },
+      "explanation": "Revert Login-As is the fourth item in the dropdown. The presence of this item is also the tell that you're currently impersonating an account."
+    }
+  ]
+}

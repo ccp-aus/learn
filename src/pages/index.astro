@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Sparkles, Map, BookOpen, ShieldCheck } from "lucide-react";
 
 const vendors = (await getCollection("vendors")).sort(
-  (a, b) => a.data.order - b.data.order,
+  (a, b) => a.data.name.localeCompare(b.data.name),
 );
 const paths = await getCollection("paths");
 ---
@@ -93,7 +93,7 @@ const paths = await getCollection("paths");
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {
-        vendors.slice(0, 6).map((v) => (
+        vendors.filter((v) => v.data.status !== "planned").slice(0, 6).map((v) => (
           <a
             href={`${v.data.kind === "concept" ? "/concepts/" : "/vendors/"}${v.data.slug}/`}
             class="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"

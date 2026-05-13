@@ -151,7 +151,7 @@ Limits to remember: up to 10 archive servers configured, up to 100 archive tasks
 
 ## A worked archive setup: SFTP target
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Prepare the SFTP target">
     On your SFTP server, create a user with write access to a single directory (e.g. `/srv/backups/yeastar/`). Generate a long random password or upload an SSH key. Test write access from a workstation; YCM will fail confusingly if it cannot land a file.
   </Step>

@@ -93,7 +93,7 @@ YCM monitors the validity of every cluster server domain certificate. At 30 days
 
 The way to remove that risk is the DNS Provider integration. YCM supports DNS-01 ACME challenges against an extensive provider list (Cloudflare, Route 53, AliDNS, Akamai EdgeDNS, DNSimple, DigitalOcean, Gandi, Namecheap, Hetzner, OVH, plus the rest in the documented list). Add your provider once at `System > DNS Provider`, supply the API credentials, and on each certificate add or update you can tick **Automatically refresh the certificate** with that provider selected. YCM then renews 7 days before expiry without anyone touching it.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Add the DNS provider authentication">
     `System > DNS Provider > Add`. Name it (e.g. "Cloudflare prod"), pick the provider from the flag-name dropdown, enter the credentials (for Route 53: AccessKeyId, SecretAccessKey, Region, HostedZoneId; for Cloudflare: API token; varies by provider). Save.
   </Step>
