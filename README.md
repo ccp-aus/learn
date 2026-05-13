@@ -75,7 +75,7 @@ Lessons can drop these components inline:
 - `<Term>` — glossary hovercard (also auto-inserted by remark plugin)
 - `<Kbd>` — keyboard shortcut chip
 - `<AnnotatedScreenshot>` with `<Hotspot>` children — numbered hotspots over an image
-- `<StepThrough>` with `<Step>` children — frame-by-frame UI walkthrough
+- `<StepThrough client:load>` with `<Step>` children — frame-by-frame UI walkthrough
 - `<DecisionTree startId="…">` with `<Question>` / `<Choice>` / `<Outcome>` children — branching troubleshooting flow
 - `<Checkpoint slug="…">` — inline 1-3 question quiz
 

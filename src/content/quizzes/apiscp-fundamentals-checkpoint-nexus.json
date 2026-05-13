@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-fundamentals-checkpoint-nexus",
+  "course": "apiscp-fundamentals",
+  "kind": "checkpoint",
+  "title": "Quick check, Nexus and the admin view",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-nexus-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "An admin needs to find the account for ablemoose.example. Which app do they open?",
+      "choices": [
+        "Dashboard",
+        "Nexus",
+        "Job Runner",
+        "App Index"
+      ],
+      "correct": 1,
+      "explanation": "Nexus is the per-account management app. Dashboard is platform-wide health; Job Runner is the background-task queue; App Index is the search catalogue."
+    },
+    {
+      "id": "ck-nexus-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Every row in the Nexus account list corresponds to exactly one customer-registered domain on the server.",
+      "correct": false,
+      "explanation": "Each Nexus row is an account, identified by its primary domain. A single account can host many addon domains (and subdomains) under the same login; those don't get their own Nexus rows."
+    }
+  ]
+}

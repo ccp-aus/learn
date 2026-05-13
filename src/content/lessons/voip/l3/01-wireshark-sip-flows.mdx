@@ -49,7 +49,7 @@ A B2BUA's outbound INVITE shows its own Contact (the B2BUA's address), its own V
 
 `Telephony → SIP Flows` lists every SIP dialog in the capture by Call-ID. For a single-hop call you see one row; for a typical enterprise call you see three or four. The ladder-diagram preview shows each leg independently.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Identify the affected call">
     Run `sip` as a display filter. Find the call by time, by extension in the Request-URI, or by From/To. The customer ticket usually gives you the rough window and the called number.
   </Step>

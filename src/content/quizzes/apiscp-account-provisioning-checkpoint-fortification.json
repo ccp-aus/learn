@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-account-provisioning-checkpoint-fortification",
+  "course": "apiscp-account-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, Fortification and Web Apps",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-fortification-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "Why does ApisCP run PHP under a separate 'apache' user instead of the account's admin user?",
+      "choices": [
+        "Performance optimisation; the apache user has higher CPU priority",
+        "Privilege separation; if a PHP app is compromised, the attacker has apache's permissions only, not the account user's",
+        "Logging; PHP logs to a different file when run as apache",
+        "It's a legacy decision from earlier ApisCP versions, kept for backwards compatibility"
+      ],
+      "correct": 1,
+      "explanation": "Fortification's core idea is that a compromised web app shouldn't compromise the whole account. PHP runs as apache; the account user owns the core files; apache can write only to specified paths."
+    },
+    {
+      "id": "ck-fortification-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Update Assurance takes a snapshot before every Web App update so a failed update can roll back automatically.",
+      "correct": true,
+      "explanation": "Pre-update snapshot + post-update health check = automatic rollback on failure. This is what makes platform-wide scheduled updates safe to run unattended."
+    }
+  ]
+}

@@ -40,7 +40,7 @@ Use a host or span capture when:
 
 Both sources benefit from the same discipline. Untargeted captures fill with traffic that's irrelevant to the symptom and the resulting file is harder to read than the original problem.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Filter at capture time when you can">
     The tcpdump-style capture filter on the PBX or on `dumpcap` reduces what hits disk. Examples for a call to/from `203.0.113.5` on the typical SIP and RTP ports:
     ```

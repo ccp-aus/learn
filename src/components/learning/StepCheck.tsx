@@ -27,7 +27,7 @@ interface Props {
  * submit before the StepThrough lets them advance. Wrong answers give a
  * gentle shake and (optional) hint; correct answers lock the choices,
  * highlight the right ones, and dispatch a `step-challenge-solved` event
- * up the DOM so the parent <StepThrough> re-enables its Next button.
+ * up the DOM so the parent <StepThrough client:load> re-enables its Next button.
  *
  * Communication is via DOM (data attribute + bubbling event) rather than
  * React context so it survives Astro 5's StaticHtml children pre-render.

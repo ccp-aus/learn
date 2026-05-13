@@ -1,0 +1,134 @@
+---
+slug: 05-walking-a-client-through-it
+vendor: apiscp
+level: l1
+title: Walking a client through everyday tasks
+summary: Three of the most common customer-side tasks, framed as guided walkthroughs the helpdesk can paste into a ticket. Adding a mailbox, adding an addon domain, installing WordPress.
+estimatedMinutes: 9
+order: 5
+topics: [end-user, walkthroughs, helpdesk]
+updated: 2026-05-13
+---
+
+Most ApisCP tickets are not bugs. They are walk-through tickets: the customer doesn't know where to click. The helpdesk tech who can turn that into a four-step reply with screenshots wraps the ticket in five minutes; the one who can't ends up in a 20-message thread. The three tasks below cover roughly two thirds of walk-through volume.
+
+## Task 1: adding a mailbox
+
+> *Sarah at Able Moose Accounting opens a ticket: "We just hired a new bookkeeper, can you add bookkeeping2@ablemoose.example for her?"*
+
+The tech can do this in two clicks via Login-As, but the better answer is to teach Sarah's office manager how to do it themselves. The reply template:
+
+<StepThrough client:load>
+  <Step title="Log in to the control panel">
+    Open `https://server-name:2083` and sign in with the account's admin username and password. (You can also paste their server hostname here; we'll add it in the ticket reply.)
+  </Step>
+  <Step title="Open Mail > Manage Mailboxes">
+    Sidebar left, **Mail**, then **Manage Mailboxes**. The page lists every mailbox on the account.
+  </Step>
+  <Step title="Add a new address">
+    Under **Add a New Address**, type the address before the `@` (e.g. `bookkeeping2`). Select the domain (`ablemoose.example`) from the dropdown.
+  </Step>
+  <Step title="Choose a destination">
+    Set **Type** to *Single User* and assign it to a user. New mailbox? Use the **Create User** flow first under **Users > Create User**.
+  </Step>
+  <Step title="Set the password">
+    The new user form prompts for username, full name, and password. The 50 MB mail storage default is fine for a starting mailbox; raise it under General Service Configuration > Email > Advanced if needed.
+  </Step>
+  <Step title="Confirm and test">
+    Click **Add Address**. Send a test message from another mailbox to the new address; it should land in the new mailbox within seconds.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/apiscp/create-mail-user.png"
+  alt="ApisCP Users > Create User form with fields for username (myd.info), full name (info@mydomain.example), password and confirm password. Below: General Service Configuration with Email storage limit set to 50 MB and Advanced email settings enabled."
+  caption="The Create User form is the new-mailbox surface. Username + storage limit are the two fields that decide what the mailbox can do; the rest are sensible defaults."
+>
+  <Hotspot client:load x={35} y={10} label="1" title="Username" purpose="Decides the mail-login string the user will type into Outlook.">
+    Login format is `username@primarydomain`. Pick something the user will recognise (their name, not a random string).
+  </Hotspot>
+  <Hotspot client:load x={45} y={56} label="2" title="Storage limit" purpose="Hard cap on the mailbox.">
+    50 MB is the default; raise it now for a customer who has a year of archives to import. Raising later requires another edit.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+<Callout type="tip" title="The 'separate the username from the address' move">
+ApisCP separates *users* from *addresses*. The Users surface decides who can log in; Manage Mailboxes decides which addresses deliver to which user. You can have `info@ablemoose.example` deliver to the same user across three domains, or to different users on different domains. For a 15-person firm, one user per mailbox is usually right. The Intermediate course covers when namespacing pays off.
+</Callout>
+
+## Task 2: adding an addon domain
+
+> *Sarah's ticket: "We just bought ablebookkeeping.example, can you host it on the same plan?"*
+
+Addon domains are a different surface than subdomains. Pick the right one:
+
+- **Addon domain** = a *different* domain in the same account. Different URL, possibly different document root, its own DNS, its own mailboxes. Use for "we bought another domain."
+- **Subdomain** = a name beneath an existing domain (`blog.ablemoose.example`). Same account, lives under the same DNS, separate document root. Use for "we want a blog on our existing site."
+
+For the new domain:
+
+<StepThrough client:load>
+  <Step title="Open DNS > Addon Domains">
+    Sidebar left, **DNS**, then **Addon Domains**.
+  </Step>
+  <Step title="Enter the new domain">
+    Type the FQDN (`ablebookkeeping.example`) into the domain field.
+  </Step>
+  <Step title="Choose a document root">
+    Three options: **Site Root** (`/var/www/ablebookkeeping.example`), **User Home**, **Subdomain** (alias to an existing subdomain). For a separate website, pick Site Root. This is the standard and avoids the `.htaccess` collision risk that comes from nesting two domains under the same root.
+  </Step>
+  <Step title="Decide whether mail flows to this server">
+    Tick **Enable e-mail for this domain** if the customer wants mailboxes at `@ablebookkeeping.example` to land here. Leave it unticked if they use Microsoft 365 or Google Workspace for mail on that domain.
+  </Step>
+  <Step title="Confirm ownership if needed">
+    If the domain currently has DNS pointed elsewhere, ApisCP asks you to prove ownership before adding it. The fastest path is the **upload verification file** option; the **change nameservers** option works but can take hours to propagate.
+  </Step>
+  <Step title="Update nameservers at the registrar">
+    Once added, change the domain's nameservers (at the registrar) to point at the MSP's nameservers. ApisCP cannot do this for the customer; the registrar login is theirs.
+  </Step>
+</StepThrough>
+
+## Task 3: installing WordPress
+
+> *Sarah's ticket: "We want a blog at blog.ablemoose.example. Can you set up WordPress?"*
+
+Because the customer wants the blog at a subdomain (`blog.ablemoose.example`), the order is: create the subdomain first, then install WordPress into it.
+
+<StepThrough client:load>
+  <Step title="Create the subdomain">
+    **Web > Subdomains**, type `blog`, pick `ablemoose.example` as the parent, set the document root to `/var/www/blog` (or accept the default), click Add.
+  </Step>
+  <Step title="Open Web > Web Apps">
+    Sidebar left, **Web**, then **Web Apps**. The page lists every domain and subdomain on the account.
+  </Step>
+  <Step title="Pick the subdomain">
+    Find `blog.ablemoose.example` in the dropdown. If the document root is a subfolder, click the row's dropdown and select **Edit Subdir** to point WordPress at the right folder.
+  </Step>
+  <Step title="Click Install WordPress">
+    Under the row's **Actions**, click **Install WordPress**. ApisCP creates a database, downloads WordPress, configures `wp-config.php`, and installs the latest release.
+  </Step>
+  <Step title="Confirm and hand over">
+    A confirmation email with the WordPress admin login goes to the account's contact address. Open the admin portal link to confirm the install worked; pass the credentials back to Sarah via the ticket.
+  </Step>
+</StepThrough>
+
+<AnnotatedScreenshot
+  src="/img/apiscp/webapp-install.png"
+  alt="ApisCP Web > Web Apps page showing actions to Install WordPress, Install Drupal, and Install Magento for a domain. App Meta box shows TYPE: Unknown, PATH: /var/www/html, URL: http://debug.com/."
+  caption="The 1-click Install panel. Domain dropdown decides where the app installs; the Install button for the chosen CMS does the rest. The App Meta box reports what's currently in that document root."
+>
+  <Hotspot client:load x={30} y={35} label="1" title="App actions" purpose="One click installs the chosen CMS into the selected document root.">
+    The destination must be empty. If the customer already uploaded files, the install will refuse; clear or move the files first via File Manager.
+  </Hotspot>
+  <Hotspot client:load x={75} y={45} label="2" title="App Meta" purpose="What's currently at this document root.">
+    Reads the existing files. Useful for "did I install WordPress here or not?" because the panel detects it from the filesystem; you don't have to remember.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+<Callout type="warn" title="The 'destination must be empty' gotcha">
+The 1-click WordPress install refuses to run if the document root has any files in it. The customer's "Welcome to our new site" placeholder counts. Move or delete the placeholder via Files > File Manager first, *then* run the install.
+</Callout>
+
+<Checkpoint slug="apiscp-fundamentals-checkpoint-walkthroughs" client:visible />
+
+Next lesson: triage moves. When something does break, four signals tell you where to look.

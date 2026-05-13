@@ -1,0 +1,20 @@
+{
+  "slug": "apiscp-account-provisioning",
+  "vendor": "apiscp",
+  "level": "l2",
+  "title": "ApisCP, account provisioning",
+  "shortTitle": "Account provisioning",
+  "summary": "Designing and creating customer accounts on an ApisCP platform: the siteinfo and service model, AddDomain workflows, plans, SSL and DNS automation, Web Apps with Fortification, and the suspend / activate / edit / delete lifecycle.",
+  "estimatedMinutes": 55,
+  "prereqs": ["apiscp-fundamentals"],
+  "lessons": [
+    "01-account-model",
+    "02-creating-an-account",
+    "03-plans-and-defaults",
+    "04-ssl-and-dns",
+    "05-web-apps-and-fortification",
+    "06-suspend-activate-edit"
+  ],
+  "quiz": "apiscp-account-provisioning-final",
+  "status": "live"
+}

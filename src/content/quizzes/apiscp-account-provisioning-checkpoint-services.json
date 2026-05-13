@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-account-provisioning-checkpoint-services",
+  "course": "apiscp-account-provisioning",
+  "kind": "checkpoint",
+  "title": "Quick check, services and -c flags",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-services-1",
+      "type": "mcq",
+      "difficulty": "easy",
+      "prompt": "Which flag pattern disables SSH on an account during AddDomain?",
+      "choices": [
+        "--no-ssh",
+        "-c ssh,enabled=0",
+        "--service ssh=off",
+        "-disable ssh"
+      ],
+      "correct": 1,
+      "explanation": "Every service toggle follows -c <service>,<parameter>=<value>. ssh,enabled=0 says 'configure the ssh service's enabled parameter to false'."
+    },
+    {
+      "id": "ck-services-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "If a plan and a -c flag both specify a value for diskquota,quota, the -c flag wins.",
+      "correct": true,
+      "explanation": "Per-account overrides via -c always trump plan defaults. The plan supplies the baseline; explicit overrides take precedence."
+    }
+  ]
+}

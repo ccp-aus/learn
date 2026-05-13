@@ -256,8 +256,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  display: block;
-  overflow-x: auto;
+  display: table;
 }
 .lesson-prose thead {
   background: color-mix(in oklab, var(--muted) 60%, transparent);

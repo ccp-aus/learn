@@ -1,0 +1,181 @@
+{
+  "slug": "apiscp-at-scale-final",
+  "course": "apiscp-at-scale",
+  "kind": "final",
+  "title": "ApisCP, platform operations: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "q-cpcmd-shape",
+      "type": "mcq",
+      "topic": "cpcmd",
+      "difficulty": "easy",
+      "prompt": "What is the difference between `cpcmd common:get-load` and `cpcmd -d ablemoose.example common:get-load`?",
+      "choices": [
+        "They are identical; -d is decorative",
+        "The first runs in admin context (server load); the second runs in Able Moose's account context (the account's reported load via their available counters)",
+        "The first reads from the panel; the second reads from the CLI",
+        "The first is synchronous; the second is asynchronous"
+      ],
+      "correct": 1,
+      "explanation": "-d sets the call's authentication context to the named site. The same module:function executes against different scopes depending on whether -d is set."
+    },
+    {
+      "id": "q-admin-hijack",
+      "type": "tf",
+      "topic": "api",
+      "difficulty": "medium",
+      "prompt": "The Login-As button in Nexus is a UI wrapper for the admin:hijack API call.",
+      "correct": true,
+      "explanation": "admin:hijack($site, $user, $gate) is the backend call. Nexus's button invokes it; cpcmd admin:hijack does the same; SOAP API consumers do the same. One backing call, three rendering surfaces."
+    },
+    {
+      "id": "q-scope-vs-config-edit",
+      "type": "mcq",
+      "topic": "scopes",
+      "difficulty": "hard",
+      "prompt": "Why is hand-editing /usr/local/apnscp/config/config.ini wrong even if the resulting state looks correct?",
+      "choices": [
+        "Config.ini is encrypted; hand-edits corrupt it",
+        "Setting a Scope triggers a cascade (re-render dependent config, restart services); a hand-edit doesn't, leaving partial state, and the next Bootstrapper run reverts the edit",
+        "ApisCP licensing forbids hand-edits to config files",
+        "Config.ini is symlinked to a remote file; local edits are not persistent"
+      ],
+      "correct": 1,
+      "explanation": "Scopes are callable; they trigger configuration cascades and service restarts that hand-edits don't. The Bootstrapper is idempotent and reverts drift, so hand-edits also don't survive the next platform update. Use cpcmd scope:set or cp.config:set."
+    },
+    {
+      "id": "q-security-layers",
+      "type": "multi",
+      "topic": "security",
+      "difficulty": "medium",
+      "prompt": "Which of these are independent default-on security subsystems in an ApisCP install? (Select all that apply.)",
+      "choices": [
+        "Rampart (jail-based brute-force deterrent)",
+        "Shield (Apache-layer DOS handler)",
+        "ModSecurity (request-body inspection with OWASP CRS)",
+        "ClamAV (malware scanning)",
+        "Fortification (filesystem ACL privilege separation)",
+        "An nftables ruleset that blocks all non-residential IPs"
+      ],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation": "Rampart, Shield, ModSec, ClamAV, and Fortification all run by default; the nftables blanket block is fabricated. Fortification is an isolation layer rather than an attack-detection layer, but it's part of the default-on security posture."
+    },
+    {
+      "id": "q-rampart-whitelist",
+      "type": "mcq",
+      "topic": "rampart",
+      "difficulty": "easy",
+      "prompt": "MSP helpdesk techs are getting locked out of customer accounts from the office IP whenever they typo a password. What's the right fix?",
+      "choices": [
+        "Raise the Rampart failure threshold platform-wide",
+        "Whitelist the MSP office IP with `cpcmd rampart:whitelist <ip>`",
+        "Tell the techs to use a different IP",
+        "Turn off Rampart entirely"
+      ],
+      "correct": 1,
+      "explanation": "Whitelist the trusted source IPs (office, RMM/PSA outbound). Don't slacken the threshold platform-wide because of a known-trusted source; that loosens protection for everyone else."
+    },
+    {
+      "id": "q-fortification-acl",
+      "type": "mcq",
+      "topic": "fortification",
+      "difficulty": "hard",
+      "prompt": "Under Fortification MIN on a WordPress install, the apache user has which set of permissions to /var/www/wp/wp-config.php?",
+      "choices": [
+        "Read-write, the same as the account user",
+        "Read-only (apache can read it for the DB credentials but can't modify it)",
+        "No access at all (only the account user can read it)",
+        "Execute-only"
+      ],
+      "correct": 1,
+      "explanation": "PHP needs to read wp-config.php to know the DB credentials, so apache has read. PHP shouldn't be able to overwrite the file (RCE → backdoor would write here), so apache lacks write. Read-only ACL captures both constraints."
+    },
+    {
+      "id": "q-cgroup-freeze",
+      "type": "order",
+      "topic": "cgroups",
+      "difficulty": "medium",
+      "prompt": "Put these steps in the correct order for a runaway-process triage on a customer's account.",
+      "items": [
+        "Freeze the account's cgroup so processes pause without dying",
+        "Read `ps -u <account-user>` and the access log to identify the offending process",
+        "Kill the specific offending process",
+        "Thaw the cgroup so the rest of the account resumes"
+      ],
+      "explanation": "Freeze first (so the picture stops moving while you investigate), identify the offender, kill that specific process, thaw to resume the rest. Kill-then-investigate kills more than it should."
+    },
+    {
+      "id": "q-backup-paths",
+      "type": "multi",
+      "topic": "backups",
+      "difficulty": "hard",
+      "prompt": "Which of these paths MUST be in a complete ApisCP account backup? (Select all that apply.)",
+      "choices": [
+        "/home/virtual/site*/shadow",
+        "/home/virtual/site*/info",
+        "/var/log/mailer_table*",
+        "/var/lib/mysql/mysql-grants*",
+        "/var/lib/mysql (the live MySQL data files)",
+        "/var/lib/pgsql/*/backups"
+      ],
+      "correct": [0, 1, 2, 3, 5],
+      "explanation": "Shadow (data), info (metadata), mailer_table (mailbox mapping), mysql-grants and pgsql backups directory (the logical exports). The live /var/lib/mysql directory is NOT to be backed up directly; it produces inconsistent snapshots. Use the logical exports written nightly by backup_dbs.php."
+    },
+    {
+      "id": "q-billing-invoice-grouping",
+      "type": "mcq",
+      "topic": "resellers",
+      "difficulty": "medium",
+      "prompt": "An MSP wants to model a sub-reseller relationship. Which field set creates the master/subordinate hierarchy ApisCP exposes?",
+      "choices": [
+        "siteinfo,parent on each subordinate, pointing to the master's domain",
+        "billing,invoice=<id> on the master, and billing,parent_invoice=<same-id> on each subordinate",
+        "users,parent=<master-user> on each subordinate account",
+        "Create a custom Reseller Scope and write each subordinate's parent into it"
+      ],
+      "correct": 1,
+      "explanation": "billing,invoice on the master + billing,parent_invoice on each subordinate is the canonical pattern. Suspend/Activate/Delete operations accept the master's invoice ID and apply across the group; the same field is the join key for billing system integration."
+    },
+    {
+      "id": "q-admin-collect",
+      "type": "mcq",
+      "topic": "cpcmd",
+      "difficulty": "medium",
+      "prompt": "What's the cleanest cpcmd call to get every account's primary domain plus their currently-applied plan?",
+      "choices": [
+        "cpcmd admin:list-accounts",
+        "cpcmd admin:collect '[siteinfo.domain,siteinfo.plan]'",
+        "cpcmd webapp:list-sites",
+        "cpcmd misc:list-accounts --plan"
+      ],
+      "correct": 1,
+      "explanation": "admin:collect is the bulk-reader. First argument is the fields to read (dot-notation through the service.parameter shape); optional second argument is a filter. Returns a map of site -> requested fields."
+    },
+    {
+      "id": "q-unfortify-risk",
+      "type": "tf",
+      "topic": "fortification",
+      "difficulty": "easy",
+      "prompt": "A Web App left in the unfortify state long-term has the same attack surface as a normal hosting panel with no privilege separation.",
+      "correct": true,
+      "explanation": "Unfortify is a one-shot escape hatch for maintenance. Leaving it on means a compromised PHP process can write anywhere in the account, including core files; the privilege separation Fortification gives you is gone."
+    },
+    {
+      "id": "q-watchdog-tuning",
+      "type": "mcq",
+      "topic": "resources",
+      "difficulty": "hard",
+      "prompt": "A 4-core ApisCP server is on the default `system.watchdog-load` of 50. What's the right operational response?",
+      "choices": [
+        "Leave it; the default works on every server",
+        "Lower the threshold (e.g. to 8 or 10) so the watchdog reacts before the small server is saturated",
+        "Raise the threshold so the watchdog never intervenes",
+        "Disable the watchdog entirely on small servers"
+      ],
+      "correct": 1,
+      "explanation": "Load-average thresholds scale with core count. A load of 50 on a 32-core server is workable; on a 4-core server it's catastrophic. The right operational move is to tune the threshold to the actual hardware; a rough heuristic is 1-2× the core count."
+    }
+  ]
+}

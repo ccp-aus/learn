@@ -1,0 +1,32 @@
+{
+  "slug": "apiscp-at-scale-checkpoint-scopes",
+  "course": "apiscp-at-scale",
+  "kind": "checkpoint",
+  "title": "Quick check, Scopes",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-scopes-1",
+      "type": "mcq",
+      "difficulty": "medium",
+      "prompt": "An admin wants to make every new account try Let's Encrypt issuance at creation time. What's the right move?",
+      "choices": [
+        "Edit /usr/local/apnscp/config/config.ini and set auto_bootstrap = true",
+        "cpcmd scope:set letsencrypt.auto_bootstrap true",
+        "Manually pass --bootstrap to every future AddDomain invocation",
+        "Set a cron job to retry SSL issuance for every account daily"
+      ],
+      "correct": 1,
+      "explanation": "Setting a Scope is the right surface. Hand-editing config.ini misses the cascade and gets reverted by the Bootstrapper. Per-account --bootstrap works but doesn't generalise. A retry cron is a workaround for a setting that exists."
+    },
+    {
+      "id": "ck-scopes-2",
+      "type": "tf",
+      "difficulty": "easy",
+      "prompt": "Setting a Scope value can trigger service restarts and configuration cascades; a hand-edit to the underlying file does not.",
+      "correct": true,
+      "explanation": "That's the central reason Scopes exist as a callable interface. A Scope write knows what depends on it and re-renders / restarts accordingly. A hand-edit is silent."
+    }
+  ]
+}

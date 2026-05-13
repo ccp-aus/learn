@@ -88,7 +88,7 @@ If you have backup archiving enabled to S3 / GCS / SharePoint (covered in the HA
 
 Able Moose Group runs HubSpot for their finance teams' client-relationship management (every accountant has a HubSpot pipeline of their book of clients) and HaloPSA for their internal IT helpdesk (the IT team supports 1,800 internal users across 14 sub-firms). Both need integrations.
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="HubSpot, sales side">
     Integration → CRM → HubSpot → Authorize. Log into the Able Moose HubSpot account with the Super Admin account, grant consent. Set contact sync to pull from a specific HubSpot list ("Clients-Active"); excluding lead lists keeps the PSE phonebook clean. Screen-pops on inbound calls open the matched contact's HubSpot record in the user's browser via the HubSpot Marketplace extension. Call journaling writes a `Call from <caller> to <agent>, <duration>` line to the contact's activity timeline. Recording sync OFF for client-call recordings (compliance + simpler permission model).
   </Step>

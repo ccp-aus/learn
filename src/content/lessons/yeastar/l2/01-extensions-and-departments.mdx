@@ -84,7 +84,7 @@ Yeastar reworked the M365 integration so the entire setup runs from the PBX side
 Integration → Collaboration → Microsoft → Microsoft Entra ID
 ```
 
-<StepThrough>
+<StepThrough client:load>
   <Step title="Start the integration from PSE">
     Open Integration → Collaboration → Microsoft → Microsoft Entra ID. Click Authorize. PSE opens a Microsoft sign-in popup.
   </Step>
@@ -112,11 +112,14 @@ Integration → Collaboration → Microsoft → Microsoft Entra ID
   alt="PSE Microsoft 365 user sync Map section showing checkboxes for First Name, Last Name, Email Address, Mobile Number, and Job Title alongside the matching Entra ID attribute names givenName, surname, mail, mobilePhone, and jobTitle"
   caption="The Map section. Each extension field has a checkbox; check it to sync from Entra ID, uncheck to keep the PSE-side value editable."
 >
-  <Hotspot client:load x={28} y={20} tone="primary" label="1" title="Field map" purpose="One row per syncable field, with a checkbox.">
+  <Hotspot client:load x={25} y={7} tone="primary" label="1" title="PBX Field" purpose="One row per syncable field, with a checkbox.">
     Check a row to pull the field from Entra ID on every sync. Uncheck it to keep the PSE-side value editable and ignore Entra ID for that field.
   </Hotspot>
-  <Hotspot client:load x={28} y={60} tone="warning" label="2" title="Mobile Number row" purpose="The most common one to leave unchecked.">
-    Customers often want PSE-side mobile numbers (the user's work mobile, not their personal one in Entra ID). Unchecking here lets the MSP enter the value on the extension page without it being overwritten on the next sync.
+  <Hotspot client:load x={67} y={7} tone="primary" label="2" title="Active Directory Field" purpose="Active Directory Field to pull the value from">
+    If the row is checked, use this active directory value to sync through to the related PBX Field.
+  </Hotspot>
+  <Hotspot client:load x={38} y={70} tone="warning" label="3" title="Unmapped fields" purpose="Unmapped fields can be filled out manually.">
+    Unchecking a value, means you can enter the value manually on the extension page without it being overwritten on the next sync.
   </Hotspot>
 </AnnotatedScreenshot>
 

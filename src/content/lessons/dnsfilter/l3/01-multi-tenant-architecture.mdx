@@ -21,20 +21,12 @@ The MSP dashboard is the entry point. The Organizations sidebar lists every sub-
   alt="DNSFilter MSP dashboard with an Organizations sidebar listing sub-orgs, an Add Organization button, a globe icon at the top indicating MSP-wide context, a Find organization search bar, and a header confirming the current tenant scope."
   caption="The Organizations sidebar is the tenant switcher; the globe icon tells you when you're at MSP layer; the header is the safety check before any save."
 >
-  <Hotspot client:load x={5} y={30} label="1" title="Organizations sidebar" purpose="Lets MSP techs jump between sub-orgs without re-login.">
-    The list shows every sub-org the MSP manages. Clicking flips the dashboard's tenant context.
-  </Hotspot>
-  <Hotspot client:load x={5} y={55} label="2" title="Add Organization" purpose="Self-serve sub-org creation.">
-    Owner or Super Admin only. Plan tier is selected per-sub-org at creation; subscriptions roll into the MSP master.
-  </Hotspot>
-  <Hotspot client:load x={30} y={8} label="3" title="Globe icon" purpose="Indicates you're at MSP layer, not inside a single sub-org.">
+  
+  <Hotspot client:load x={5} y={30} label="1" title="Globe icon" purpose="Indicates you're at MSP layer, not inside a single sub-org.">
     Settings made under the globe affect Global Policies and Global Universal Lists. Clicking a sub-org swaps the icon.
   </Hotspot>
-  <Hotspot client:load x={60} y={8} label="4" title="Find organization" purpose="Across-fleet jump for fleets above ten sub-orgs.">
-    Type-ahead search of every managed org. Useful when a frontline ticket only names the customer, not the org slug.
-  </Hotspot>
-  <Hotspot client:load x={80} y={30} label="5" title="Tenant header confirms scope" purpose="Stops cross-tenant edits.">
-    Always verify this header before saving. The single most-common MSP mistake is editing the wrong sub-org.
+  <Hotspot client:load x={5} y={71} label="2" title="Add Organization" purpose="Self-serve sub-org creation.">
+    Owner or Super Admin only. Plan tier is selected per-sub-org at creation; subscriptions roll into the MSP master.
   </Hotspot>
 </AnnotatedScreenshot>
 

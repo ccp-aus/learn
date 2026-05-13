@@ -1,0 +1,149 @@
+---
+slug: 05-resource-enforcement
+vendor: apiscp
+level: l3
+title: Resource enforcement, cgroups and quotas
+summary: "ApisCP uses Linux cgroups to bound each account's CPU, memory, and I/O. Disk quotas bound storage. The watchdog kicks in when the platform itself is straining. This lesson covers the levers and the cgroup:freeze move that lets you stop a runaway account dead while preserving its state."
+estimatedMinutes: 8
+order: 5
+topics: [cgroups, quotas, resource-enforcement]
+updated: 2026-05-13
+---
+
+A multi-tenant server with no resource limits is a server where one customer's bad day is everyone's bad day. ApisCP uses Linux cgroups (one per account) and disk quotas (per account user) to bound each account's footprint. The defaults are sane; the operational work is reading the limits, raising them when a customer needs more, and using the cgroup:freeze move when a runaway process needs to be paused without killing it.
+
+## What gets bounded
+
+| Resource | Mechanism | Scope |
+|---|---|---|
+| **CPU** | cgroup CPU weight + (optional) hard limit | Per account |
+| **Memory** | cgroup memory limit | Per account |
+| **Disk I/O** | cgroup blkio weight + (optional) bandwidth limit | Per account |
+| **Disk storage** | EXT4/XFS quota | Per account user (not per account) |
+| **Bandwidth** (network) | ApisCP-tracked counter; no hard kernel limit | Per account |
+| **Process count** | cgroup pids.max | Per account |
+
+The four cgroup-bounded resources are enforced by the kernel; an account can't exceed its memory cgroup, period. Disk quota is enforced at write time: the write fails with ENOSPC.
+
+## Reading an account's resource settings
+
+```bash
+cpcmd -d ablemoose.example admin:collect '[cgroup.memory,cgroup.cpu,cgroup.cpu_weight,cgroup.io_weight,users.pid_max]'
+# Returns the current cgroup parameters
+```
+
+The defaults come from the account's plan. Editing them per-account follows the `-c flag` pattern from the Intermediate course:
+
+```bash
+# Raise the memory limit for one customer
+EditDomain -c cgroup,memory=4096 ablemoose.example
+
+# Or, full plan reassignment
+EditDomain -c siteinfo,plan=enterprise ablemoose.example
+```
+
+Values:
+
+- **cgroup,memory** is in MB. Default is plan-defined (often 1024 for small plans, 4096 for enterprise).
+- **cgroup,cpu_weight** is a relative weight (default 100). Higher means more CPU when contended; doesn't mean *more* CPU than the system has, just preferential scheduling.
+- **cgroup,io_weight** is the analogous knob for disk I/O.
+- **cgroup,cpu** is the hard CPU limit (in CPU-percent, where 100 = one full core). Set this to cap an account at e.g. 50% of one core; otherwise no hard cap.
+
+## Disk quota
+
+Disk quota is per Unix user, not per cgroup. Setting `diskquota,quota=10000` (10 GB) on Able Moose's account applies the quota to Able Moose's account user. The apache user (which writes PHP uploads) is counted in a separate apache-side tally that ApisCP aggregates into the account's reported total.
+
+Quota writes are enforced at the moment the write would push over the limit. The customer sees write failures (file manager reports ENOSPC; mail rejects with quota exceeded; database INSERTs fail). The Beginner course's Storage Usage page surfaces this from the customer side; from admin, `cpcmd -d ablemoose.example quota:get-usage` returns the live number.
+
+## cgroup:freeze, the runaway-process move
+
+The most useful cgroup operation an admin runs is `cgroup:freeze`. It pauses every process in an account's cgroup without killing them. The processes stay in memory, file handles stay open, but they make no progress until you `cgroup:thaw`.
+
+When to use it:
+
+- A customer's site is hammering the server (runaway WordPress cron, a misconfigured PHP loop). You need to stop it *immediately* but you want to investigate before you kill anything.
+- You're about to take an atomic snapshot of an account; freezing prevents in-flight writes that would corrupt the snapshot.
+
+```bash
+# Freeze every process in Able Moose's account
+cpcmd cgroup:freeze site42
+
+# (Investigate, snapshot, profile, whatever)
+
+# Resume
+cpcmd cgroup:thaw site42
+```
+
+While frozen, the customer's site returns nothing (or Shield's "we're working on it" page if you have it configured). The processes don't die. Compare with `kill -9 $(pgrep -u ablemoose-au)`, which kills the processes and leaves the customer with whatever half-written state they had.
+
+<Callout type="tip" title="Freeze before you investigate, not after">
+The instinct is "I'll log in and look at top first, then figure out what to do." Freeze first; the running process is changing state while you read top. With the cgroup frozen, the picture stops moving and you can read CPU history, file handles, network connections without them changing under you.
+</Callout>
+
+## The watchdog
+
+The platform watchdog monitors the system load average. When the system is under sustained pressure (load average above `system.watchdog-load`, default 50), it can take preemptive action: throttle the highest-CPU cgroup, restart a stuck service, alert.
+
+Reading the watchdog's state:
+
+```bash
+cpcmd scope:get system.watchdog-load
+# 50
+
+cpcmd watchdog:status
+# Returns the current load and any active watchdog interventions
+```
+
+Tune the threshold based on the server's profile. A 32-core server should tolerate a load of 50; a 4-core server shouldn't. The default isn't a per-server-size default; the admin tunes it for the actual hardware.
+
+## When a customer needs more headroom
+
+The Intermediate course covered plan reassignment as the way to give a customer more resources. For one-off bumps (a customer running an annual campaign), per-account overrides are fine:
+
+```bash
+# Temporary bump
+EditDomain -c cgroup,memory=8192 ablemoose.example
+
+# After the campaign
+EditDomain -c cgroup,memory=4096 ablemoose.example
+# (Or use --reset to snap back to plan defaults)
+EditDomain --reset -c siteinfo,plan=agency ablemoose.example
+```
+
+Track which accounts have per-account cgroup overrides. They drift from plan over time; an audit every quarter prevents the "we have 30 customers with manual quota bumps and nobody remembers why" state.
+
+## A worked runaway-process triage
+
+> *Monitoring alerts: site42 (Able Moose) is consuming 95% CPU on one core for fifteen minutes. The platform is starting to feel slow for other accounts.*
+
+```bash
+# 1. Freeze immediately, before investigating
+cpcmd cgroup:freeze site42
+
+# 2. Look at what was running
+ps -u ablemoose-au -o pid,pcpu,pmem,etime,cmd
+# Identify the offender: maybe a runaway PHP cron, maybe a misbehaving WordPress plugin
+
+# 3. Read the recent access log to confirm
+tail -100 /var/log/httpd/sites/site42/access_log
+
+# 4. Decide:
+#    - If the cause is a customer-controlled thing (a plugin), kill the specific process and document for the customer
+#    - If the cause is platform-side (a cron loop that ApisCP launched), file an internal bug
+
+# 5. Thaw or kill
+kill <pid>            # specific process; cgroup stays frozen
+cpcmd cgroup:thaw site42   # let the rest of the account resume
+```
+
+The freeze gives you time to read the situation; the targeted kill stops the offender; the thaw resumes normal operation. Most importantly: you didn't kill the customer's entire account context, which would have logged out their panel session, killed their FTP transfers, and broken anything else in flight.
+
+<Checkpoint slug="apiscp-at-scale-checkpoint-cgroups" client:visible />
+
+## What this is NOT
+
+- **Not a substitute for capacity planning.** If half your customers are pushing their cgroup memory limits, the answer is bigger plans (or moving them to a bigger server), not "raise everyone's cgroups". The cgroup is the bound; the actual provisioned memory has to exist.
+- **Not visible to the customer in fine detail.** The customer sees a generic "request limit reached" or quota-exceeded message; they don't see "you exceeded your 1024 MB cgroup memory limit". Translate before replying to the ticket.
+- **Not a complete isolation story.** cgroups bound resource consumption; they don't isolate processes from each other (Fortification does, via filesystem ACLs). A customer with a stable resource footprint but a compromised PHP app is a Fortification problem, not a cgroup problem.
+
+Next lesson: backups (Bacula vs Duplicity), billing integration, and reseller hierarchy.

@@ -136,11 +136,17 @@ Call Control → Inbound Routes → Add → DID Pattern → DID Matching Mode
   alt="Call Flow Designer canvas showing two inbound routes, each with a different DID pattern routing to a different queue destination"
   caption="The DID Pattern mode (the most common) sends each matched DID to one chosen destination. Here, two DIDs route to two different queues."
 >
-  <Hotspot client:load x={28} y={50} tone="primary" label="1" title="Inbound route A" purpose="DID 88866608 routes to the Sales queue.">
-    Each inbound route ties one DID pattern to one destination. The Sales queue handles the inbound caller from this DID with whatever ring strategy and agent set the queue is configured with.
+  <Hotspot client:load x={18} y={20} tone="primary" label="A1" title="Caller A" purpose="Someone dials 88866608.">
+    An external person calls 88866608, the number they dialled will be checked when it reaches the PBX.
   </Hotspot>
-  <Hotspot client:load x={72} y={50} tone="primary" label="2" title="Inbound route B" purpose="DID 88866609 routes to the Support queue.">
-    Two DIDs, two routes, two destinations. PSE evaluates inbound routes in priority order; both routes here match a single specific number, so order doesn't matter, but it would for wildcard patterns.
+  <Hotspot client:load x={72} y={20} tone="primary" label="A2" title="Inbound Route A" purpose="The number routes to the sales queue">
+    When the call reaches the PBX, if there is a route with a matching did pattern assigned it follows that inbound route, in this case to the sales queue.
+  </Hotspot>
+  <Hotspot client:load x={18} y={65} tone="warning" label="B1" title="Inbound route B" purpose="Someone dials 88866609.">
+    An external person calls 88866609, the number they dialled will be checked when it reaches the PBX.
+  </Hotspot>
+  <Hotspot client:load x={72} y={65} tone="warning" label="B2" title="Inbound route B" purpose="The number routes to the support queue">
+    In this case, we have a second inbound route, with a did pattern assigned as "88866609", which has a destination set to the support queue.
   </Hotspot>
 </AnnotatedScreenshot>
 

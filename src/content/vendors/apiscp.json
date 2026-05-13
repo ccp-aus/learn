@@ -1,0 +1,10 @@
+{
+  "slug": "apiscp",
+  "name": "ApisCP",
+  "tagline": "Self-hosted multi-tenant hosting control panel for an MSP-run platform.",
+  "summary": "ApisCP (formerly apnscp) is an open-source hosting control panel that runs the MSP's own server estate as a multi-tenant hosting platform. The MSP operates the platform from an admin app called Nexus; each customer gets a per-account end-user panel for mail, DNS, files, databases, and 1-click web apps; security and isolation are enforced by ApisCP's own subsystems (Fortification, Rampart, Shield). The day-to-day surface area is closer to cPanel/WHM than to a cloud-orchestration tool, but the operational model is heavily command-line (cpcmd, Scopes, Ansible Bootstrapper) once you go past the panel.",
+  "accent": "oklch(0.66 0.15 180)",
+  "website": "https://apiscp.com/",
+  "status": "live",
+  "order": 70
+}
