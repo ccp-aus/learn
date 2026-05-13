@@ -1,6 +1,6 @@
 {
-  "slug": "printix-l3-checkpoint-migration",
-  "course": "printix-l3",
+  "slug": "printix-at-scale-checkpoint-migration",
+  "course": "printix-at-scale",
   "kind": "checkpoint",
   "title": "Quick check, print-server migration",
   "drawCount": 0,

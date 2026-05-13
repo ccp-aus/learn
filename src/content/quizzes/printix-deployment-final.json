@@ -1,8 +1,8 @@
 {
-  "slug": "printix-l2-final",
-  "course": "printix-l2",
+  "slug": "printix-deployment-final",
+  "course": "printix-deployment",
   "kind": "final",
-  "title": "Printix Intermediate, final check",
+  "title": "Printix deployment, final check",
   "drawCount": 8,
   "passThreshold": 0.7,
   "questions": [

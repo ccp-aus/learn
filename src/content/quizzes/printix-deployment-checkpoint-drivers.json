@@ -1,6 +1,6 @@
 {
-  "slug": "printix-l2-checkpoint-drivers",
-  "course": "printix-l2",
+  "slug": "printix-deployment-checkpoint-drivers",
+  "course": "printix-deployment",
   "kind": "checkpoint",
   "title": "Quick check, driver delivery",
   "drawCount": 0,

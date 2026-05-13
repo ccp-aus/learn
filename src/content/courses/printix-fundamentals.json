@@ -1,8 +1,9 @@
 {
-  "slug": "printix-l1",
+  "slug": "printix-fundamentals",
   "vendor": "printix",
   "level": "l1",
-  "title": "Printix Beginner, helpdesk fundamentals",
+  "title": "Printix, helpdesk fundamentals",
+  "shortTitle": "Printix fundamentals",
   "summary": "Five mental models and console moves a helpdesk technician needs to triage Printix tickets confidently, from the Administrator portal to the Printix App.",
   "estimatedMinutes": 38,
   "prereqs": [],
@@ -13,6 +14,6 @@
     "04-secure-release-basics",
     "05-common-end-user-tickets"
   ],
-  "quiz": "printix-l1-final",
+  "quiz": "printix-fundamentals-final",
   "status": "live"
 }
