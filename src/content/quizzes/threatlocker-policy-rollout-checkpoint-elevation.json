@@ -1,6 +1,6 @@
 {
-  "slug": "threatlocker-l2-checkpoint-elevation",
-  "course": "threatlocker-l2",
+  "slug": "threatlocker-policy-rollout-checkpoint-elevation",
+  "course": "threatlocker-policy-rollout",
   "kind": "checkpoint",
   "title": "Quick check, elevation",
   "drawCount": 0,

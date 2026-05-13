@@ -1,6 +1,6 @@
 {
-  "slug": "threatlocker-l2-checkpoint-policydesign",
-  "course": "threatlocker-l2",
+  "slug": "threatlocker-policy-rollout-checkpoint-policydesign",
+  "course": "threatlocker-policy-rollout",
   "kind": "checkpoint",
   "title": "Quick check, policy structure",
   "drawCount": 0,

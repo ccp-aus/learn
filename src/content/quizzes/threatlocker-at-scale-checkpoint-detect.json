@@ -1,6 +1,6 @@
 {
-  "slug": "threatlocker-l3-checkpoint-detect",
-  "course": "threatlocker-l3",
+  "slug": "threatlocker-at-scale-checkpoint-detect",
+  "course": "threatlocker-at-scale",
   "kind": "checkpoint",
   "title": "Quick check, Detect rule design",
   "drawCount": 0,
