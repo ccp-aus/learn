@@ -1,0 +1,10 @@
+{
+  "slug": "exclaimer",
+  "name": "Exclaimer",
+  "tagline": "Centrally managed email signatures for Microsoft 365 and Google Workspace.",
+  "summary": "Exclaimer applies consistent, brand-managed email signatures across Microsoft 365 and Google Workspace, server-side via a mail-flow connector or client-side via the Outlook Add-in. MSPs use it to standardise signatures, disclaimers, and campaign banners across many tenants without touching individual mailboxes.",
+  "accent": "oklch(0.7 0.18 25)",
+  "website": "https://exclaimer.com/",
+  "status": "planned",
+  "order": 60
+}

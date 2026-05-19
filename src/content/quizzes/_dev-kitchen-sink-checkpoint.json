@@ -1,0 +1,25 @@
+{
+  "slug": "_dev-kitchen-sink-checkpoint",
+  "course": "_dev-kitchen-sink",
+  "kind": "checkpoint",
+  "title": "Kitchen sink checkpoint",
+  "drawCount": 0,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "checkpoint-mcq",
+      "type": "mcq",
+      "prompt": "Which Callout variant uses the ShieldAlert icon?",
+      "choices": ["tip", "info", "warn", "danger"],
+      "correct": 3,
+      "explanation": "danger maps to ShieldAlert; warn maps to AlertTriangle."
+    },
+    {
+      "id": "checkpoint-tf",
+      "type": "tf",
+      "prompt": "AnnotatedScreenshot itself needs client:load.",
+      "correct": false,
+      "explanation": "Only the nested Hotspot components do. The wrapper stays bare; adding client:load to the wrapper breaks nested island attachment."
+    }
+  ]
+}

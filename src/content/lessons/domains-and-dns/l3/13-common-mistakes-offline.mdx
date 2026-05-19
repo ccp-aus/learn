@@ -1,0 +1,86 @@
+---
+slug: 13-common-mistakes-offline
+vendor: domains-and-dns
+level: l3
+title: 'Common mistakes that take clients offline'
+summary: 'Four failure patterns that show up across MSPs year after year. Each has a recognisable early signal in the ticket description.'
+estimatedMinutes: 7
+order: 13
+topics: ['judgement', 'outage-patterns']
+---
+
+The cardinal sins are a checklist of *don't do this*. The common mistakes are a checklist of *watch for this*. They're the failure modes that show up across multiple MSPs, multiple clients, year after year.
+
+Pattern-matching the symptoms quickly lets you stop the damage before it spreads, or recognise that an in-flight ticket is heading toward a known cliff.
+
+## The four common mistakes
+
+| Mistake | Early signal in the ticket | First diagnostic |
+|---|---|---|
+| **1. Missed renewal** | "Our website is suddenly down and we didn't change anything" | `whois example.com` → check status flags (`redemptionPeriod`, `pendingDelete`) |
+| **2. NS change without dual-provisioning** | "Right after we moved DNS to a new provider" | `dig NS example.com` to confirm current NS, then query the new host directly for records |
+| **3. DNSSEC mishandled at transfer** | "Some networks see it, others don't" (validating vs non-validating split) | `dig DS example.com` and `dig +dnssec A example.com @8.8.8.8` |
+| **4. Deleted-and-rebuilt SPF or MX mid-flow** | "Right after we updated email records, mail broke" | Compare current SPF / MX to recent change history |
+
+The *right after we did X* pattern is the strongest single signal. A working domain that broke immediately after a specific change usually had something done in that change.
+
+## Reading the signals in detail
+
+**Missed renewal.** Auto-renew fails (expired card, card removed, billing email not received). Domain enters grace, then redemption, then pending delete. The client doesn't notice because services keep working through grace. Then redemption hits and everything stops.
+
+**NS change without dual-provisioning.** The tech changes nameservers at the registrar to a new DNS host before the new host has the zone built. Resolvers query the new host, get nothing, services stop as caches expire.
+
+**DNSSEC mishandled at transfer.** The tech doesn't notice DNSSEC is on, changes nameservers (or disables DNSSEC without the DS-TTL wait). The zone goes dark at every validating resolver. *Some networks but not others* is the validating vs non-validating fingerprint.
+
+**Deleted-and-rebuilt SPF or MX.** The tech is *cleaning up* mail records and decides to delete before adding the new ones. While there's no SPF, receivers see unauthenticated mail and score harshly. While there's no MX, inbound mail bounces. Both effects are immediate.
+
+## What this is NOT
+
+- "These won't happen to me; I'm careful." They happen to everyone eventually. The protection is the *reflex* to check before clicking, not the *intent* to be careful.
+- "The signal will be obvious." The signal is often masked by what the client thought happened. *We didn't do anything* usually means *I don't remember doing anything*.
+- "Recovery is always possible." For redemption, partially — at significant cost. For pending delete, no. For some others, recovery is hours of degraded state.
+
+## Decision walkthrough
+
+A client emails Monday morning: *we did a DNS migration over the weekend (Saturday afternoon). The new host's tech said everything was set up. Now the website is unreachable for some of our customers but works fine for me. Help.*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="First hypothesis from the signal"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Which mistake fits the signal?",
+      choices: [
+        { label: "Missed renewal.", next: "renewal" },
+        { label: "DNSSEC mishandled during the migration. 'Works for me but not for some customers' matches validating vs non-validating resolvers.", next: "dnssec" },
+        { label: "NS change without dual-provisioning.", next: "ns" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "renewal",
+      label: "Wrong fingerprint",
+      tone: "bad",
+      body: "Missed renewal is 'everyone is down.' The 'some customers see it, some don't' qualifier is the DNSSEC fingerprint, not the renewal one.",
+    },
+    {
+      type: "outcome",
+      id: "dnssec",
+      label: "Validating vs non-validating split",
+      tone: "success",
+      body: "Right. Verify with `dig DS example.com` (DS records still at the parent?) and `dig +dnssec A example.com @8.8.8.8` (SERVFAIL or missing ad flag?). If DS records exist with old keys and the new host serves with its own keys, validation breaks for users behind validating resolvers.",
+    },
+    {
+      type: "outcome",
+      id: "ns",
+      label: "Would be more uniform",
+      tone: "warn",
+      body: "Possible, but 'works for me' suggests resolution succeeds *somewhere*. Dual-provisioning failure would be a more uniform 'nothing works' experience. The validating-vs-non-validating split points at DNSSEC.",
+    },
+  ]}
+/>
+
+When the diagnostic confirms DNSSEC mishandled (DS records still at the registrar from the old host's keys, new host signing with different keys), the fastest recovery is removing the DS records at the registrar immediately. Within the DS TTL, validating resolvers stop expecting signed responses and the zone resolves normally again. DNSSEC can be re-enabled later at the new host as a separate signed-off operation.

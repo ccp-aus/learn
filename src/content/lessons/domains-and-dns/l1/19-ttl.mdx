@@ -1,0 +1,125 @@
+---
+slug: 19-ttl
+vendor: domains-and-dns
+level: l1
+title: 'TTL: what it controls and what it does not'
+summary: 'TTL is the cache lifetime for a record. It shapes how long old values persist after a change, not how fast new ones propagate.'
+estimatedMinutes: 8
+order: 19
+topics: ['dns-fundamentals', 'ttl']
+---
+
+Every DNS record has a TTL, and every TTL-related *propagation isn't working* ticket comes back to the same misunderstanding. TTL is the cache lifetime, not a propagation timer.
+
+A short TTL doesn't make the change happen faster at the authoritative server; it makes resolvers re-query *sooner after their current cache expires*. Lowering the TTL after a change has been made is too late to help that change. Setting TTL properly *before* a change is what shapes the propagation experience for users.
+
+## What TTL is, in motion
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Auth as Authoritative server
+    participant Resolver
+    participant User
+    User->>Resolver: A record for example.com?
+    Resolver->>Auth: query
+    Auth-->>Resolver: 203.0.113.10, TTL 3600
+    Note over Resolver: caches for 3600 seconds
+    Resolver-->>User: 203.0.113.10
+    Note over Auth: You change the A record to 198.51.100.42
+    User->>Resolver: A record for example.com? (within the TTL)
+    Resolver-->>User: 203.0.113.10 (stale, from cache)
+    Note over Resolver: TTL expires
+    User->>Resolver: A record for example.com?
+    Resolver->>Auth: query (cache expired)
+    Auth-->>Resolver: 198.51.100.42, TTL 3600
+    Resolver-->>User: 198.51.100.42 (now current)
+```
+
+The authoritative server serves the new value the moment you save. Resolvers that had the old value cached continue to serve the old value for up to the TTL of the *old* record. New resolvers querying for the first time see the new value immediately.
+
+## What TTL controls
+
+Two things, exactly:
+
+1. **How long resolvers cache the record.** A resolver receiving TTL 3600 holds for an hour.
+2. **How long after a change it takes for caches to expire.** If you change a record whose old TTL was 3600, downstream caches keep returning the old value for up to an hour after the change.
+
+The key insight: **TTL controls how long the *old* value can persist**, not how fast the *new* value propagates.
+
+## Common TTL values
+
+| Value | Use case |
+|---|---|
+| 60 sec | Below most resolver floors; overkill, adds load |
+| 300 sec (5 min) | Standard cutover TTL during active migrations |
+| 3600 sec (1 hour) | Common operational default; reasonable middle ground |
+| 86400 sec (24 hours) | Stable records (MX of a long-stable provider, SOA, NS) |
+| 604800 sec (1 week) | Records that essentially never change |
+
+## The pre-flight TTL drop
+
+<Callout type="info" title="Pre-flight is what makes cutovers snappy">
+For any planned DNS change where propagation speed matters:
+
+1. **Lower the TTL** on the records that will change (300 is the standard pre-flight value).
+2. **Wait at least one current-TTL duration** so resolvers re-pull and pick up the lower TTL.
+3. **Make the change.** Resolvers will now cache the new value for only 5 minutes.
+4. **Verify** with `dig` against the authoritative and a public resolver.
+5. **Restore a sensible TTL** (3600 or higher) after the change settles.
+
+If you skip steps 1 and 2, the change still propagates, but caches with the old TTL hold the old value for the old duration (potentially 24 hours). The drop step is the difference between *5-minute cutover* and *day-long inconsistency*.
+</Callout>
+
+## What this is NOT
+
+- "TTL controls propagation." TTL controls cache lifetime. Propagation is the effect of caches expiring. The TTL that matters for a specific change is the *old* TTL on the *old* record.
+- "Setting TTL to 1 second means changes are instant." Most resolvers floor at 30-60 seconds; sub-30s TTLs don't deliver what they imply, and they put load on the authoritative server.
+- "After I set TTL low, the next change will propagate fast." Only if the low TTL has been in place long enough for downstream caches to have picked it up.
+
+## Decision walkthrough
+
+A client says: *we're moving our website to a new web host on Thursday at 9pm. We want minimal downtime visible to users.* Today is Tuesday. The current A record has TTL 86400 (24 hours).
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What do you do today?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Tuesday. Cutover scheduled Thursday 9pm. Current TTL 86400. Plan?",
+      choices: [
+        { label: "Wait until Thursday 9pm and make the change with TTL 86400 as-is.", next: "no-preflight" },
+        { label: "Lower the TTL on the A and AAAA records to 300 today.", next: "preflight-now" },
+        { label: "Lower the TTL on Thursday morning.", next: "too-late" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "no-preflight",
+      label: "Day-long inconsistency",
+      tone: "bad",
+      body: "Downstream caches will hold the old IP for up to 24 hours after the change. Users will hit the old server through Friday evening.",
+    },
+    {
+      type: "outcome",
+      id: "preflight-now",
+      label: "Pre-flight done right",
+      tone: "success",
+      body: "Right. 48+ hours before Thursday is plenty for the lower TTL to spread through downstream caches. At cutover, the new value propagates within 5 minutes for most users.",
+    },
+    {
+      type: "outcome",
+      id: "too-late",
+      label: "Drop too late",
+      tone: "warn",
+      body: "By Thursday morning, downstream caches with the current 86400 TTL won't have re-queried yet; they're still holding the high-TTL entry. The drop is too late to matter for the 9pm change.",
+    },
+  ]}
+/>
+
+After the cutover, restore TTL to 3600 (or higher) so the authoritative server isn't fielding queries every 5 minutes for a record that won't change for months.
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-ttl" client:visible />

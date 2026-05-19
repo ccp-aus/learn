@@ -1,0 +1,119 @@
+---
+slug: 05-lookup-tools
+vendor: domains-and-dns
+level: l2
+title: 'Lookup tools: dig, nslookup, Resolve-DnsName, online'
+summary: 'The four ways to query DNS from the helpdesk, and the diagnostic split between authoritative and cached.'
+estimatedMinutes: 9
+order: 5
+topics: ['tools', 'dig', 'nslookup']
+---
+
+The lookup tools are the eyes of all the DNS work in this course. Every diagnostic, every verification after a change, every *is the record set right* check uses one of these tools.
+
+`dig` is the standard; learn it first. The others are fallbacks for specific environments.
+
+## The four tools
+
+<AnnotatedCode
+  client:load
+  filename="four ways to ask DNS"
+  lang="bash"
+  code={`# 1. dig — the gold standard (Linux, macOS, WSL on Windows)
+dig A example.com
+dig +short MX example.com
+dig A example.com @8.8.8.8                  # query a specific resolver
+dig A example.com @ns1.cloudflare.com        # query the authoritative directly
+dig +trace example.com                       # recursive resolution from root
+dig -x 198.51.100.42                         # reverse lookup (PTR)
+
+# 2. nslookup — universal fallback (older, less verbose; ships everywhere)
+nslookup example.com
+nslookup -type=MX example.com
+nslookup example.com 8.8.8.8
+
+# 3. Resolve-DnsName — PowerShell on Windows; structured output
+Resolve-DnsName example.com -Type A
+Resolve-DnsName example.com -Type MX -Server 8.8.8.8
+
+# 4. Online lookup tools — when no terminal is available`}
+  marks={[
+    { line: 4, tone: "primary", label: "1", title: "@8.8.8.8 syntax", body: "Sends the query to that resolver instead of the system default. Useful for seeing what cached state lives in major public resolvers." },
+    { line: 5, tone: "success", label: "2", title: "@<authoritative ns>", body: "Bypasses all caches. Returns what the authoritative server holds right now. The single most useful dig pattern in this course." },
+    { line: 6, tone: "primary", label: "3", title: "Recursive resolution debug", body: "Shows the full chain from root → TLD → authoritative. Useful when delegation is suspect." },
+    { line: 7, tone: "primary", label: "4", title: "PTR shortcut", body: "Equivalent to dig PTR 42.100.51.198.in-addr.arpa. Faster to type." },
+  ]}
+/>
+
+## Authoritative vs cached: which to query
+
+The most common diagnostic split: **is the record correct at the authoritative server, or is the cached state stale?**
+
+- **Authoritative** (`dig A example.com @ns1.cloudflare.com`): bypasses caches; returns the canonical value the authoritative holds now.
+- **Public resolver** (`dig A example.com @8.8.8.8`): goes through Google's cache; returns what end-users with that resolver would see.
+
+If the authoritative result is correct and the public-resolver result is stale: change is fine, propagation in flight. If the authoritative is also stale: change didn't save; check the panel.
+
+## When to use which tool
+
+| Tool | When |
+|---|---|
+| `dig` | Default for any Linux / macOS / WSL session. Most verbose, most flexible. |
+| `nslookup` | Windows machines without WSL or BIND tools, where `dig` isn't installed. |
+| `Resolve-DnsName` | PowerShell scripting; structured output you can pipe to `Where-Object` etc. |
+| Online lookup | Locked-down client environment with no terminal. Filtered through whichever resolvers the service uses; you can't pick an authoritative server the same way `dig @ns1...` lets you. |
+
+## What this is NOT
+
+- "The default resolver shows the truth." It shows cached state. Always query the authoritative for the canonical answer.
+- "Nameservers and resolvers are the same thing." `dig @ns1.cloudflare.com` asks the authoritative. `dig @8.8.8.8` asks a recursive resolver. Different roles; different answers when caches diverge.
+- "Read `dig` output from the bottom up." The ANSWER section is what matters for most lookups. The AUTHORITY and ADDITIONAL sections are diagnostic colour.
+
+## When to escalate
+
+- `dig +trace` shows delegation problems at the TLD level (the TLD nameserver doesn't have the right NS for the domain). Registrar-level issue; may indicate unauthorised delegation changes.
+- Queries against the authoritative server fail to connect entirely. DNS-host outage.
+- The authoritative returns `SERVFAIL` or `REFUSED`. Zone misconfigured at the authoritative side; often beyond the helpdesk-tech ceiling to fix.
+
+## Decision walkthrough
+
+You changed a client's A record 30 minutes ago. The client emails: *our office still sees the old server*.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Which command tells you where the staleness is?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "First diagnostic command?",
+      choices: [
+        { label: "dig A example.com (uses your default resolver).", next: "default" },
+        { label: "dig A example.com @<authoritative ns of the zone> — confirm the change is correct at the source.", next: "authoritative" },
+        { label: "Ask the client to ping the new IP.", next: "client-action" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "default",
+      label: "Quick but not diagnostic",
+      tone: "warn",
+      body: "Uses your default resolver, whose cache state you don't know. Confirms the answer matches what your resolver has, not whether the authoritative is correct.",
+    },
+    {
+      type: "outcome",
+      id: "authoritative",
+      label: "Source of truth first",
+      tone: "success",
+      body: "Right. The authoritative gives you the canonical state. If it returns the new IP, your change is correct and the staleness is downstream cache. Run a second dig against 8.8.8.8 to see what one specific public cache holds; the comparison tells you the chain.",
+    },
+    {
+      type: "outcome",
+      id: "client-action",
+      label: "Defers the diagnostic",
+      tone: "bad",
+      body: "Pings confirm reachability of the IP; they don't verify the DNS record. You're not answering the question being asked.",
+    },
+  ]}
+/>

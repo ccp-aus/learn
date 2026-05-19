@@ -1,0 +1,70 @@
+---
+slug: 15-a-and-aaaa-records
+vendor: domains-and-dns
+level: l1
+title: 'A and AAAA records'
+summary: 'A maps a name to IPv4; AAAA does the same for IPv6. When the two disagree, the site is half-broken for the IPv4 vs IPv6 split of users.'
+estimatedMinutes: 7
+order: 15
+topics: ['dns-fundamentals', 'a-records', 'aaaa-records']
+---
+
+A records are the workhorse of DNS: a domain name to an IPv4 address. Nearly every "website" ticket touches an A record at some point.
+
+AAAA records are the IPv6 equivalent and increasingly show up on managed hosts (Cloudflare, M365, modern hosting platforms). When A and AAAA disagree about which server they point at, the IPv6-capable half of users reaches a different server than the other half. The visible symptom is *the site is broken for some users, working for others*.
+
+## The two record types
+
+<AnnotatedCode
+  client:load
+  filename="zone snippet"
+  lang="text"
+  code={`example.com.        3600   IN   A      198.51.100.42
+example.com.        3600   IN   AAAA   2001:db8::42
+www.example.com.    3600   IN   A      198.51.100.42
+www.example.com.    3600   IN   AAAA   2001:db8::42`}
+  marks={[
+    { line: 1, tone: "primary", label: "1", title: "Name to IPv4", body: "Most MSP work still runs through IPv4. The IP is 4 dotted decimals; the resolver returns it when the client asks for an A record on this name." },
+    { line: 2, tone: "primary", label: "2", title: "Name to IPv6", body: "Pronounced 'quad-A'. IPv6 address (128-bit, colon-separated hex). Modern OSes and browsers prefer IPv6 when both A and AAAA exist; they fall back to IPv4 if IPv6 fails." },
+    { line: 3, tone: "success", label: "3", title: "Same shape at any name", body: "A and AAAA work on the apex (example.com) and on subdomains (www, mail, app). The record type doesn't care about apex-vs-subdomain (unlike CNAME)." },
+  ]}
+/>
+
+A domain can have multiple A records on the same name (DNS round-robin: the resolver receives all of them and clients pick one). For most MSP work, a single A per name is the norm.
+
+## When A and AAAA disagree
+
+A common failure mode: someone updates the A record to point at a new web host but forgets the AAAA, or vice versa. Now:
+
+- IPv6-capable clients (modern Mac / Windows / Linux with IPv6 connectivity, increasingly common) reach the AAAA target.
+- IPv4-only clients reach the A target.
+
+If A and AAAA point at different servers, the site is half-working. The same user can flip between them depending on which DNS resolution they got. Diagnosing this without a mental model of both records leads to *the site works for me, not for the client* exchanges that go nowhere.
+
+The clean rule: **always update A and AAAA together**, or remove one entirely when you migrate.
+
+<Callout type="info" title="Dual-stack diagnostic">
+When a client says *the site works for some users and not others*, query both record types against the authoritative server:
+
+```text
+dig A example.com @ns1.cloudflare.com
+dig AAAA example.com @ns1.cloudflare.com
+```
+
+If the answers point at different IPs, you've found the bug. The fix depends on whether the new host serves IPv6: update AAAA to match, or delete AAAA entirely.
+</Callout>
+
+## What this is NOT
+
+- "AAAA is optional; IPv4 is enough." Increasingly less true. Mobile networks are increasingly IPv6-preferred. AAAA is part of the standard set for most managed hosts now.
+- "A round-robin distributes traffic evenly." It doesn't, really. Resolvers and clients pick orderings inconsistently; the distribution is rough. For real distribution, use a load balancer or geo-DNS.
+- "I changed the A record so the AAAA must have updated too." Separate records; you have to update both.
+
+## Migration checklist
+
+When you migrate a site to a new server:
+
+1. Confirm whether the new host serves IPv6 (most managed hosts: yes; most shared hosts: no).
+2. If yes, update both A and AAAA at the same time.
+3. If no, update A and either delete AAAA or leave AAAA only if you're sure the IPv6 target is still right.
+4. Verify both record types against the authoritative server after the change.

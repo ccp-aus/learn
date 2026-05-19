@@ -1,0 +1,23 @@
+{
+  "slug": "_dev-kitchen-sink",
+  "vendor": "_dev",
+  "level": "l1",
+  "title": "Kitchen Sink",
+  "shortTitle": "Kitchen Sink",
+  "summary": "Reference course that uses one of every coursework element. Edit lessons here to iterate on element design, debug hydration, and trial new components in the real lesson chrome.",
+  "estimatedMinutes": 52,
+  "lessons": [
+    "01-text-and-callouts",
+    "02-screenshots-and-hotspots",
+    "03-step-throughs",
+    "04-decision-trees",
+    "05-mermaid-diagrams",
+    "06-checkpoint-and-layout",
+    "07-annotated-text-artefacts",
+    "08-tickets-and-estimates",
+    "09-procedural-and-reference",
+    "10-recall-and-retention"
+  ],
+  "quiz": "_dev-kitchen-sink-final",
+  "status": "live"
+}

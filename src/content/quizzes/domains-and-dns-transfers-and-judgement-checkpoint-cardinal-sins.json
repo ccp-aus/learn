@@ -1,0 +1,55 @@
+{
+  "slug": "domains-and-dns-transfers-and-judgement-checkpoint-cardinal-sins",
+  "course": "domains-and-dns-transfers-and-judgement",
+  "kind": "checkpoint",
+  "title": "Quick check: cardinal sins",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-cardinal-renewal-toggle",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "renewal-toggle",
+      "prompt": "You're at the registrar's domain-management panel, about to toggle auto-renew off for a domain the client decided to drop. The panel shows 30 client domains in a scrollable list. What's the reflex?",
+      "choices": [
+        "Click the toggle on the row you scrolled to; the panel knows which domain it's for.",
+        "Verify the row by reading the domain name twice before clicking. The wrong-row click schedules the wrong domain for non-renewal, and the damage only appears at the renewal cycle months later.",
+        "Disable auto-renew on all 30 domains and re-enable the ones you want to keep.",
+        "Toggle auto-renew off then re-enable to test."
+      ],
+      "correct": 1,
+      "explanation": "Position in the scroll isn't reliable; misalignment between the row label and the toggle is the documented failure mode. The 10-second pause to verify by name (not position) prevents the slow-motion failure that doesn't surface until much later."
+    },
+    {
+      "id": "ck-cardinal-caa-current-issuers",
+      "type": "mcq",
+      "difficulty": "hard",
+      "topic": "caa-mistake",
+      "prompt": "A security consultant recommends adding `CAA 0 issue \"digicert.com\"`. The client uses DigiCert for their wildcard. What's the cardinal-sin check?",
+      "choices": [
+        "TTL: confirm the CAA TTL is appropriate.",
+        "Check what's currently issuing for the domain via Certificate Transparency logs. If other CAs are auto-issuing (Let's Encrypt via a managed platform, for example) and you publish CAA listing only DigiCert, those other issuances will fail silently at the next renewal.",
+        "Sign-off from the security consultant is enough.",
+        "Just publish; CA enforcement is loose."
+      ],
+      "correct": 1,
+      "explanation": "Cardinal sin 7. The consultant didn't necessarily check current issuance. CAA is enforced by every major CA; missing a current issuer means cert renewal fails weeks later, after the tech has forgotten the change. CT log search (`crt.sh/?q=example.com`) is the fast check."
+    },
+    {
+      "id": "ck-cardinal-unexpected-transfer",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "unexpected-transfer",
+      "prompt": "A registrar approval email arrives in the MSP's shared inbox: 'A transfer of `important-client.com` has been initiated. Click here to approve.' You don't recall authorising any transfer. What do you do?",
+      "choices": [
+        "Click approve to keep the queue moving; the email is from the registrar.",
+        "Verify out-of-band: contact the client (via phone or the contact on file, not by reply to the email) and confirm the transfer was authorised. If not, this is a hijacking attempt.",
+        "Forward the email to the client and ask them to handle it.",
+        "Ignore the email; if it was legitimate the client will follow up."
+      ],
+      "correct": 1,
+      "explanation": "Cardinal sin 9. Approving an unauthorised transfer-out lets a hijacker take the domain. Out-of-band confirmation through a known channel is the verification step. Forwarding lets the client be deceived too; ignoring is passive but slow."
+    }
+  ]
+}

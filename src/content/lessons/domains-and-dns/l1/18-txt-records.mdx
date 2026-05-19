@@ -1,0 +1,82 @@
+---
+slug: 18-txt-records
+vendor: domains-and-dns
+level: l1
+title: 'TXT records: the catch-all'
+summary: 'The general-purpose record. Two rules that trip techs up: multiple TXTs on a name are additive, and a single string caps at 255 characters.'
+estimatedMinutes: 8
+order: 18
+topics: ['dns-fundamentals', 'txt']
+---
+
+TXT records are the all-purpose carrier in DNS. They hold email authentication (SPF, DKIM, DMARC, covered in the next course), domain ownership verification for hundreds of vendor onboarding flows (Google Search Console, Microsoft 365, Stripe, Slack), and miscellaneous metadata.
+
+They also have rules that don't apply to other record types. Most of the time you'll touch TXT to paste in a value a vendor gave you. Knowing the rules means the paste actually works.
+
+## What a TXT record is
+
+```text
+example.com.   3600   IN   TXT   "v=spf1 include:_spf.google.com ~all"
+```
+
+The value is quoted in the wire format. Most DNS host panels accept unquoted text and quote it on save.
+
+## Rule 1: multiple TXTs on a name are additive
+
+For A records, multiple records on the same name produce round-robin. For MX, priority-based selection. For TXT, multiple records on the same name are **all returned together** as separate strings.
+
+<AnnotatedCode
+  client:load
+  filename="zone snippet"
+  lang="text"
+  code={`example.com.   IN   TXT   "v=spf1 include:_spf.google.com ~all"
+example.com.   IN   TXT   "google-site-verification=abc123def..."
+example.com.   IN   TXT   "MS=ms12345"`}
+  marks={[
+    { line: 1, tone: "primary", label: "1", title: "Email auth: 'v=spf1' prefix", body: "Read by every receiving mail server's SPF check. Only one v=spf1 record is allowed per domain (SPF protocol rule on top of the TXT rule)." },
+    { line: 2, tone: "primary", label: "2", title: "Vendor verification", body: "Read by Google Search Console's domain-ownership verifier. Google polls DNS, finds this line, confirms ownership." },
+    { line: 3, tone: "primary", label: "3", title: "M365 onboarding", body: "Same pattern for the Microsoft 365 onboarding wizard. Each vendor's verifier reads only the line it cares about." },
+  ]}
+/>
+
+Each consuming service reads only the line it cares about. The TXTs coexist fine.
+
+<Callout type="info" title="SPF is the exception">
+The TXT rule allows multiple records on a name. SPF adds a protocol-level rule on top: only one TXT starting with `v=spf1` per domain. Two SPF records break the SPF check entirely (the receiver returns `permerror`). You merge SPF policies into a single TXT; you don't add a second one. Covered in lesson 4.2 (SPF in DNS).
+</Callout>
+
+## Rule 2: the 255-character limit
+
+Each TXT string is limited to 255 characters in the wire format. For longer records (long DKIM keys, complex SPF includes, base64-encoded values), the value is split into multiple strings the resolver concatenates:
+
+```text
+"first chunk up to 255 chars..." "second chunk continues here..."
+```
+
+DNS host panels handle this differently. Some accept a long single string and split it on save; some require you to split manually; some accept either form. The wire-level reality is always: multiple strings, concatenated at the resolver.
+
+When a DKIM key is too long for a single string and the panel doesn't split automatically, the record fails to save, gets truncated, or saves with the chunks visible but malformed. The fix is using a panel that handles long values, splitting manually, or (for DKIM specifically) using a CNAME that points at the vendor's own TXT host. Microsoft 365 and several others publish the DKIM record on their own infrastructure and ask clients to CNAME to it; the CNAME doesn't have the 255-character problem because the target is a hostname, not the TXT value.
+
+## What this is NOT
+
+- "Only one TXT record per name." Allowed at the TXT level; multiple TXTs on a name are normal. The one-per-domain rule applies only to SPF.
+- "TXT records can be any length." Single strings cap at 255 characters. Longer values are concatenated multi-string values.
+- "TXT records can hold any characters." They hold opaque text, treated as bytes. Most real-world values are ASCII; non-ASCII works at the protocol level but is rare and risky in practice.
+
+## Verifying after a TXT change
+
+```text
+dig TXT example.com
+dig TXT _dmarc.example.com
+dig TXT selector1._domainkey.example.com
+```
+
+The returned value should match what the vendor gave you (modulo whitespace and quoting differences). The vendor's verifier will confirm a few minutes after the record propagates.
+
+## Worked example
+
+A client is onboarding to Microsoft 365. The wizard gives them several DNS records including a TXT at the apex with value `MS=ms12345678` to prove ownership. The client's apex already has an SPF TXT: `"v=spf1 include:somecrm.example.com ~all"`.
+
+You don't replace the SPF — the apex can hold multiple TXTs. Add a second TXT at the apex with the `MS=` value. The M365 verifier reads the line starting with `MS=`; the SPF receiver reads the line starting with `v=spf1`. They coexist fine.
+
+For the DKIM record M365 also provides, the wizard offers a CNAME target (`selector1._domainkey.example.com` → M365's published DKIM hostname). This is the canonical M365 DKIM setup and avoids the 255-character problem because what you publish is a CNAME pointing at the vendor's record, not a long TXT value on your domain.

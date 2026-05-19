@@ -1,0 +1,120 @@
+---
+slug: 13-availability-and-whois
+vendor: domains-and-dns
+level: l1
+title: 'Availability checking: WHOIS and RDAP'
+summary: 'How to check whether a domain is available in five seconds, what WHOIS / RDAP actually returns, and why REDACTED is normal.'
+estimatedMinutes: 8
+order: 13
+topics: ['registration', 'whois', 'rdap']
+---
+
+Domain availability is the most common single check you'll run in this course. A client asks for a name; you need to know whether it's available, registered, premium-priced, or reserved. The registrar's panel will tell you, but it's worth knowing how to check from a terminal in 5 seconds without logging into anything.
+
+WHOIS is the classic tool. RDAP is the modern replacement. Web-based lookups are the universal fallback.
+
+## WHOIS, the classic tool
+
+WHOIS is a protocol from the 1980s for querying domain registration information. The command-line tool is also called `whois` and is installed on most Linux/macOS systems. On Windows it's available via Sysinternals `whois.exe`, in WSL, or via online services.
+
+<AnnotatedCode
+  client:load
+  filename="terminal"
+  lang="text"
+  code={`$ whois example.com
+   Domain Name: EXAMPLE.COM
+   Registry Domain ID: 2336799_DOMAIN_COM-VRSN
+   Registrar WHOIS Server: whois.iana.org
+   Registrar URL: http://res-dom.iana.org
+   Updated Date: 2024-08-14T07:01:34Z
+   Creation Date: 1995-08-14T04:00:00Z
+   Registry Expiry Date: 2025-08-13T04:00:00Z
+   Registrar: RESERVED-Internet Assigned Numbers Authority
+   Domain Status: clientDeleteProhibited
+   Domain Status: clientTransferProhibited
+   Domain Status: clientUpdateProhibited
+   Name Server: A.IANA-SERVERS.NET
+   Name Server: B.IANA-SERVERS.NET
+   Registrant Name: REDACTED FOR PRIVACY
+   Registrant Email: Please query the RDDS service of the Registrar of Record`}
+  marks={[
+    { line: 7, tone: "primary", label: "1", title: "Registry Expiry Date", body: "Tells you the current paid term. If this is in the past, check status flags for lifecycle stage (lesson 08)." },
+    { line: 9, tone: "primary", label: "2", title: "Domain Status", body: "Multiple flags can appear. clientTransferProhibited is the default anti-theft lock; redemptionPeriod, pendingDelete, and friends signal lifecycle." },
+    { line: 12, tone: "primary", label: "3", title: "Authoritative nameservers", body: "Which company runs Layer 2 (the DNS host). For example.com these are IANA's own; for a client domain you'd see Cloudflare, Route 53, the registrar's defaults, etc." },
+    { line: 14, tone: "warning", label: "4", title: "REDACTED FOR PRIVACY", body: "Normal post-GDPR behaviour for individual registrants on common gTLDs. Not an error; not a sign anything is wrong. The data still exists at the registry; it's just hidden in public lookups." },
+  ]}
+/>
+
+For most days, WHOIS gives you four useful things at a glance: registrar, status flags, registration and expiry dates, and nameservers.
+
+## RDAP, the modern replacement
+
+RDAP (Registration Data Access Protocol) is the post-GDPR replacement for WHOIS. Structured JSON output, standardised across registries, supports authentication and access control, designed to handle GDPR-style redaction cleanly.
+
+Many registries publish RDAP services at predictable URLs. The IANA RDAP bootstrap registry maps TLDs to RDAP servers. Most modern `whois` tools fall through to RDAP automatically if WHOIS is unavailable or restricted; you only reach for RDAP directly when you're scripting against the data.
+
+## Web-based lookups when terminal isn't available
+
+When you don't have a terminal handy (working in a client's locked-down environment, on someone else's machine), most registrars expose a search box on their site. The registrar's *check availability* search is the same query in a friendlier wrapper. The data is the same; the presentation often layers marketing on top of the result (*would you like to register alternatives?*).
+
+## The GDPR redaction reality
+
+<Callout type="info" title="REDACTED means registered, not available">
+Since GDPR (2018), most public WHOIS / RDAP responses for `.com`, `.net`, `.org`, and the common new gTLDs redact individual contact data by default. The data still exists at the registry; it's hidden in public lookups.
+
+- You can't assume WHOIS gives you the registrant's email or address.
+- A redacted WHOIS for a `.com` is **normal**, not a sign anything is wrong.
+- Organisation registrants (companies, charities, government entities) typically still appear in full.
+- ccTLDs vary: some redact everything, some show full data for everyone, some redact only for individuals.
+</Callout>
+
+## What this is NOT
+
+- "REDACTED means available." Opposite. Redacted means registered with hidden contacts. Available means no registration exists.
+- "The registrar's search alone is enough." The registrar's panel will show *not available* for premium, reserved, and registered domains without distinguishing. WHOIS / RDAP is what you check when you need the *why*.
+- "WHOIS contact data is always current." Even when not redacted, the contact data is what the registrant last set. Stale data is common.
+
+## Decision walkthrough
+
+A client emails: *we want `bestcoffee.com`. Can you check if it's available? Also tell us who owns it if it's taken; we might want to buy it.*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Check availability and ownership"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "What's your first step?",
+      choices: [
+        { label: "Open the registrar's check-availability search and report what it says.", next: "registrar-only" },
+        { label: "Run `whois bestcoffee.com` from the terminal. Read the response.", next: "whois" },
+        { label: "Tell the client you can't check ownership because of GDPR.", next: "refuse" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "registrar-only",
+      label: "Misses the ownership data",
+      tone: "warn",
+      body: "Defensible for a quick check, but the registrar's search will say 'not available' without showing you the registration record. The client also asked about ownership; one extra command gets both.",
+    },
+    {
+      type: "outcome",
+      id: "whois",
+      label: "One command, both answers",
+      tone: "success",
+      body: "Right. 'No match' means available; reply with availability and pricing. A registration record means registered; capture the registrar, dates, and status flags, and check whether the registrant data is redacted or visible.",
+    },
+    {
+      type: "outcome",
+      id: "refuse",
+      label: "Overstates the GDPR effect",
+      tone: "bad",
+      body: "GDPR redacts individual registrant contacts in some TLDs. The registrar is always visible, the dates are always visible, and corporate registrants often still appear in full. You can give the client a useful answer even when individual contact data is hidden.",
+    },
+  ]}
+/>
+
+Follow-up: WHOIS shows `bestcoffee.com` registered since 2003, registrant redacted, registrar GoDaddy, expiry 2027. The client asks you to reach out to the owner. The redaction blocks direct WHOIS-based contact; legitimate outreach paths exist. Surface the options: contact form via the domain's own site if it has one, GoDaddy's domain-broker service (paid, GoDaddy reaches out on the client's behalf), a third-party broker, or back-order for 2027 expiry. Get the client's decision on which path before acting.

@@ -1,0 +1,107 @@
+---
+slug: 11-cardinal-sins
+vendor: domains-and-dns
+level: l3
+title: 'Cardinal sins of domain and DNS work'
+summary: 'The nine actions that cause the worst client outages. Memorise them so the reflex pauses the click long enough for the two-question test to run.'
+estimatedMinutes: 8
+order: 11
+topics: ['judgement', 'cardinal-sins']
+---
+
+Cardinal sins are different from common mistakes. Common mistakes cause minor disruption; cardinal sins cause significant, sometimes irreversible damage.
+
+Knowing them by name builds a reflex: when you find yourself about to do one, the reflex pauses the click long enough for the two-question test to run.
+
+## The nine cardinal sins
+
+| Sin | Blast radius |
+|---|---|
+| **1. Changing nameservers on a DNSSEC-enabled zone without prior DS removal** | Zone dark at every validating resolver for hours |
+| **2. Deleting an active NS record at the parent** | Entire delegated subtree stops resolving |
+| **3. Setting TTL very high just before a planned change** | Pins old value into caches for the higher TTL |
+| **4. Transferring a registrar without confirming the admin contact is live** | Transfer stalls at the approval-email step |
+| **5. Deleting an SPF or MX record while mail is flowing** | Immediate mail-auth or routing failure in the delete window |
+| **6. Clicking "do not renew" or "cancel domain" in the wrong row** | Wrong domain quietly expires months later |
+| **7. Modifying CAA on a domain that's currently issuing certs from a CA you didn't list** | Cert renewals fail silently; site goes dark when current cert expires |
+| **8. Bulk editing without snapshotting** | Slow recovery if the bulk paste was wrong |
+| **9. Approving an unexpected transfer-out without out-of-band verification** | Domain hijacked if the transfer was unauthorised |
+
+## The reflex callouts
+
+<Callout type="danger" title="The DNSSEC-then-nameserver-change sin">
+Sin 1. Every transfer, every nameserver change, `dig DS example.com` first. If DS records exist, the safe-disable sequence (lesson 06) is mandatory before any nameserver change.
+</Callout>
+
+<Callout type="danger" title="The delete-then-rebuild SPF/MX sin">
+Sin 5. Mail-record edits are replace-in-place, not delete-then-add. The delete window is where mail bounces or gets marked spam. Edit the record's value; don't delete and recreate.
+</Callout>
+
+<Callout type="warn" title="The wrong-row sin">
+Sin 6. When toggling renewal settings, verify the row by name, not by position in the scroll. Read the domain name twice. The damage from this sin doesn't surface until the renewal cycle months later — easy to miss until it's too late.
+</Callout>
+
+## What this is NOT
+
+- "The panel will warn me before I do something irreversible." Some do. Most don't. The *do not renew* toggle doesn't trigger a confirmation that the domain is critical; it just toggles.
+- "The cardinal sins only matter if I don't know what I'm doing." They matter regardless. A senior making a change in a rush makes the same mistakes; the reflex catches them before the click.
+- "I'll remember to check DNSSEC before nameserver changes." Probably not, under time pressure. Build it into routine: `dig DS` before any nameserver work, every time.
+
+## The 10-second pre-click checklist
+
+Before any DNS change on a live domain:
+
+- Nameserver change? Check DNSSEC.
+- NS record edit at the parent? Confirm what's delegated under it.
+- TTL change? Confirm direction (lower for upcoming changes, restore after).
+- Registrar transfer? Run the pre-flight (admin contact, 60-day window).
+- Mail-related delete? Confirm what replaces it and when (replace-in-place pattern).
+- Renewal toggle? Verify the row by name.
+- CAA change? Check Certificate Transparency for current issuers.
+- Bulk operation? Snapshot first.
+- Unexpected transfer-approval email? Verify out-of-band.
+
+## Decision walkthrough
+
+A client emails: *the previous MSP set up DNSSEC on our domain `example.com`. We don't need it. Please disable it and move our DNS to Cloudflare in the same change so we can use their analytics.*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Which cardinal sin does the request trigger?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Which sin?",
+      choices: [
+        { label: "Sin 1 — changing nameservers on a DNSSEC-enabled zone without prior DS removal (and the DS-TTL wait).", next: "one" },
+        { label: "Sin 5 — deleting an SPF or MX.", next: "five" },
+        { label: "No cardinal sin; this is routine.", next: "none" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "one",
+      label: "Sin 1, exactly",
+      tone: "success",
+      body: "Right. The client is asking for the exact sequence that takes the zone dark. Even if 'disable DNSSEC' comes first in the click order, doing both in one operation skips the DS-TTL wait. Decline the same-day combined approach; offer the safe sequence: today disable DS with sign-off, wait at least 24 hours for the DS TTL, verify insecure, then change nameservers tomorrow.",
+    },
+    {
+      type: "outcome",
+      id: "five",
+      label: "Wrong category",
+      tone: "bad",
+      body: "Sin 5 is about mail records (SPF, MX). The question here is DNS host plus DNSSEC; the right reflex is sin 1.",
+    },
+    {
+      type: "outcome",
+      id: "none",
+      label: "DNSSEC + nameserver change is the canonical danger",
+      tone: "bad",
+      body: "The DNSSEC and nameserver-change combination is the headline cardinal sin. Recognise and stop before clicking.",
+    },
+  ]}
+/>
+
+<Checkpoint slug="domains-and-dns-transfers-and-judgement-checkpoint-cardinal-sins" client:visible />

@@ -1,0 +1,140 @@
+---
+slug: 12-calibrated-uncertainty
+vendor: domains-and-dns
+level: l3
+title: 'Calibrated uncertainty: escalate before or after'
+summary: 'Sometimes escalate before; sometimes escalate-after-with-documentation. The framing rule resolves edge cases: senior time is cheaper than client-outage time.'
+estimatedMinutes: 7
+order: 12
+topics: ['judgement', 'escalation']
+---
+
+Most failed change tickets fail in the gap between *I should escalate* and *I'll just try it*. The two-question test is one lens; calibrated uncertainty about *when* to escalate is the next.
+
+Sometimes the right move is escalate-before. Sometimes escalate-after-with-documentation. Knowing which keeps you fast without crossing the line into damage.
+
+## The two timing choices
+
+**Escalate before acting** when:
+
+- The action is in the irreversible / high-blast-radius column (DNSSEC, registrant change, redemption recovery, anything you can't undo within a TTL or two).
+- The action is outside any runbook you have access to.
+- You don't understand the *why* of the action. *The senior said do it* with no rationale; *the client asked for it* with no clear end state; *the vendor's instructions say so* with no understanding of consequences.
+
+**Escalate after acting (with documentation)** when:
+
+- The action was in-scope per the runbook or the explicit instruction you had.
+- Something surprised you mid-action (a panel field labelled differently, a vendor's verification step revealing additional requirements, a TTL behaviour that didn't match prediction).
+- The action is recoverable within a TTL or two; the surprise is informational, not destructive.
+
+The *document* part of escalate-after matters. Write what surprised you, what you decided, what you'd do differently next time. The senior reads the ticket later and either confirms your call or coaches you.
+
+## The framing rule
+
+<Callout type="info" title="Senior time is cheaper than client-outage time">
+When you're hesitating between *escalate* or *proceed* on a borderline action:
+
+- Senior's time to confirm or correct: minutes.
+- Client outage from a wrong action you didn't escalate: hours.
+- Multiplied by reputation cost: often days of recovery and lost trust.
+
+Escalation usually costs less than the alternative. Seniors prefer *interrupted by a tech with a calibrated question* to *discovering a tech took an unauthorised action mid-incident*. Interruption is the right call.
+</Callout>
+
+## Choosing the channel
+
+| Channel | When |
+|---|---|
+| **Synchronous** (chat, phone, walk over) | Time-sensitive in-progress actions; senior is busy but you need an answer now. |
+| **Asynchronous** (ticket comment, email) | Actions that can wait an hour or two. Name the decision the senior needs to make and when you need the answer. |
+| **Documented escalate-after** | Actions you took within scope but want a senior to confirm. Ticket note describing the action, the surprise, the decision, the outcome. |
+
+## What this is NOT
+
+- "Escalation is a sign of weakness." Seniors expect escalation on the right work. Hiding uncertainty looks worse than asking.
+- "Documentation-after is paperwork." It's how the team's collective knowledge accumulates. A well-written *what surprised me* note is more valuable than a clean ticket close.
+- "Ask once and you're done for the shift." Each high-stakes action gets its own calibration call.
+
+## Decision walkthrough
+
+You're given two scenarios. The same tech response shape (proceed, ask, document) applies differently to each.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Same action shape, different calibration"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "The senior asks you to lower TTL on a client's A record from 86400 to 300, ahead of Friday's planned web host migration. Escalate before or after?",
+      choices: [
+        { label: "Escalate before — confirm with the senior in writing first.", next: "ttl-before" },
+        { label: "Run the change and document the result; the action is in-scope and well-runbooked.", next: "ttl-after" },
+        { label: "Refuse; the change should be the senior's to make.", next: "ttl-refuse" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "ttl-before",
+      label: "Wrong cost-benefit",
+      tone: "bad",
+      body: "TTL drop is fully reversible, in-scope, well-runbooked, and the why is clear (preparing for Friday's planned change). The senior already told you what to do; re-confirming is friction.",
+    },
+    {
+      type: "outcome",
+      id: "ttl-after",
+      label: "Right calibration",
+      tone: "success",
+      body: "Right. Note in the ticket: 'TTL lowered to 300 ahead of Friday's web migration per lesson 5.5; verified dig shows the new TTL; will restore to 3600 after cutover settles.' That's escalate-after-with-documentation working correctly.",
+    },
+    {
+      type: "outcome",
+      id: "ttl-refuse",
+      label: "Wrong scope",
+      tone: "bad",
+      body: "TTL drops are exactly the kind of routine work the helpdesk handles. Refusing offloads work the role is meant to do.",
+    },
+  ]}
+/>
+
+Now flip: the senior asks you to *disable DNSSEC and move nameservers* in one operation.
+
+<DecisionTree
+  client:load
+  startId="root2"
+  title="Same shape, different blast radius"
+  nodes={[
+    {
+      type: "question",
+      id: "root2",
+      prompt: "DNSSEC disable + nameserver change in one op. Calibration?",
+      choices: [
+        { label: "Run the action as instructed; the senior is the authority.", next: "dnssec-do" },
+        { label: "Pause and surface: 'The action as described skips the DS-TTL wait, which would take the zone dark. The safe sequence is remove DS, wait DS TTL, verify, then change nameservers. Want me to run that and confirm sign-off in writing?'", next: "dnssec-pause" },
+        { label: "Refuse and stop work.", next: "dnssec-refuse" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "dnssec-do",
+      label: "Senior may have spoken loosely",
+      tone: "bad",
+      body: "The action as stated is the zone-dark scenario. Don't run it. Sometimes seniors speak loosely; the constructive escalation is what catches that.",
+    },
+    {
+      type: "outcome",
+      id: "dnssec-pause",
+      label: "Constructive escalate-before",
+      tone: "success",
+      body: "Right. Names the issue (cardinal sin), offers the right path, requests durable sign-off. Constructive framing — not a refusal, an alternative.",
+    },
+    {
+      type: "outcome",
+      id: "dnssec-refuse",
+      label: "Wrong tone",
+      tone: "warn",
+      body: "The work is legitimate; the sequence is the issue. Refusing flatly leaves the senior to figure out the right path on their own. Naming the safe sequence is better.",
+    },
+  ]}
+/>

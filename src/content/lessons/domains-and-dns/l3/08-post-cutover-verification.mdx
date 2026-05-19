@@ -1,0 +1,111 @@
+---
+slug: 08-post-cutover-verification
+vendor: domains-and-dns
+level: l3
+title: 'Post-cutover verification'
+summary: 'The five-step routine that catches what the panel save doesn''t. Saves the discovery from being the client''s job.'
+estimatedMinutes: 7
+order: 8
+topics: ['transfers', 'verification']
+---
+
+The change is in the DNS host's panel; the question is whether it's *visible everywhere it needs to be* and the service is *actually working*.
+
+Verification is the difference between *I changed the record* and *the change works*. Skipping verification means the client discovers the breakage instead of you.
+
+## The verification sequence
+
+<StepThrough client:load>
+  <Step title="1. Authoritative server">
+    ```text
+    dig <record-type> example.com @<authoritative-ns>
+    ```
+
+    The new value should appear immediately. If it doesn't, the change didn't save — go back to the panel and check.
+  </Step>
+  <Step title="2. Two public resolvers">
+    ```text
+    dig <record-type> example.com @8.8.8.8
+    dig <record-type> example.com @1.1.1.1
+    ```
+
+    Two public resolvers catch cases where one resolver's cache is briefly out of sync. After the lowered TTL window has passed, both should show the new value.
+  </Step>
+  <Step title="3. Online propagation check (optional)">
+    Online tools poll multiple resolvers globally and show a propagation map. Useful when the change matters for users in regions you don't have local visibility into.
+  </Step>
+  <Step title="4. End-to-end service test">
+    DNS resolves correctly is necessary but not sufficient. Confirm the service works:
+
+    - **Web (A change)**: load the website in a fresh private browser window. Confirm it serves from the new host.
+    - **Mail (MX change)**: send a test email to a recipient at the affected domain. Confirm it arrives at the new mail provider (visible in the receiving mailbox, with delivery headers showing the route).
+    - **Email auth (SPF/DKIM/DMARC change)**: send a test email from the affected domain to Gmail. Open the message, view headers, confirm `Authentication-Results:` shows `spf=pass dkim=pass dmarc=pass`.
+
+    The destination is the only ground truth that the records *work*, not just *exist*.
+  </Step>
+  <Step title="5. Set the monitoring window">
+    Watch for delayed propagation issues. The window depends on the **previous** TTL:
+
+    - Previous TTL 300 → watch for 1-2 hours.
+    - Previous TTL 3600 → watch for 4-8 hours.
+    - Previous TTL 86400 → watch for 24-48 hours.
+
+    If you did the TTL drop pre-flight, the window matches the lowered TTL, not the original.
+  </Step>
+</StepThrough>
+
+## What this is NOT
+
+- "The panel saved the change, so it's done." Saving and propagating are different events. Verify after both.
+- "Default resolver shows the truth." Your default resolver may have a stale cache. Query the authoritative directly to confirm the change is at the source.
+- "DNS resolves so the service works." The destination may not yet be configured. End-to-end testing catches *DNS correct, destination not yet deployed*.
+- "Set an arbitrary monitoring window." Calibrate to the previous TTL. *Watch for 24 hours* is wrong if the TTL was 300.
+
+## When to escalate
+
+- The authoritative server returns the wrong value after the change (the panel didn't apply). Try saving again; if it fails repeatedly, the DNS host's support is next.
+- A public resolver shows the old value well past the previous TTL plus margin. May indicate cache poisoning or a misconfigured resolver; limited fix from your side.
+- The end-to-end test fails despite DNS being correct. Destination-side issue; different escalation path.
+
+## Decision walkthrough
+
+You just completed an A record migration. The previous TTL was 300 (you did the pre-flight TTL drop). About to close the ticket. The client emails 30 minutes later: *I'm still seeing the old website on my office desktop.*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Calibrated reply to 'still seeing old site'"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Previous TTL was 300. 30 minutes after cutover, client sees old. What do you say?",
+      choices: [
+        { label: "'DNS propagation takes 24-48 hours; please wait.'", next: "uncalibrated" },
+        { label: "'The previous TTL was 5 minutes, so most users should see the new site within minutes. If your office desktop is still showing the old, it's likely a local cache (browser, OS, or office router). Try a hard refresh and clearing the browser cache; if that doesn't fix it, the office network may have a local DNS forwarder caching longer — let me know and we'll dig in.'", next: "calibrated" },
+        { label: "'I'll re-do the DNS change.'", next: "redo" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "uncalibrated",
+      label: "Wrong calibration",
+      tone: "bad",
+      body: "Previous TTL was 300; most users should see the new site within 5 minutes. 30 minutes is well past that, so the issue isn't standard propagation. The generic answer trains the client to ignore your timelines.",
+    },
+    {
+      type: "outcome",
+      id: "calibrated",
+      label: "Calibrated + actionable",
+      tone: "success",
+      body: "Right. Calibrated to the actual TTL and offers actionable next steps. Most 'still seeing old' reports at this point are local cache (browser, OS, office DNS forwarder), not propagation.",
+    },
+    {
+      type: "outcome",
+      id: "redo",
+      label: "Wrong fix",
+      tone: "bad",
+      body: "The DNS change is in place; re-doing it doesn't help local cache issues. Diagnose the actual cache layer first.",
+    },
+  ]}
+/>

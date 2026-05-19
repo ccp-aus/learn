@@ -1,0 +1,145 @@
+---
+slug: 08-spf-in-dns
+vendor: domains-and-dns
+level: l2
+title: 'SPF in DNS'
+summary: 'The two firm rules helpdesk techs trip over: only one SPF per domain, and a 10-DNS-lookup limit on evaluation. Both violations silently turn SPF off.'
+estimatedMinutes: 9
+order: 8
+topics: ['email-auth', 'spf']
+---
+
+SPF is the email-authentication record helpdesk techs touch most. Every M365, Google Workspace, CRM, or newsletter-platform onboarding adds something to SPF. Every mail provider migration changes it.
+
+The two rules that trip techs up are subtle: *one SPF* sounds like *one TXT*, but the TXT layer allows multiple records while SPF itself only allows one starting with `v=spf1`. The *10-lookup limit* isn't visible in the SPF string; you have to count it. Both rules produce `permerror` outcomes that look like mail-auth working fine until you look at a receiver's DMARC report.
+
+## What an SPF record looks like
+
+<AnnotatedCode
+  client:load
+  filename="apex SPF"
+  lang="text"
+  code={`example.com.   IN  TXT  "v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com -all"`}
+  marks={[
+    { line: 1, tone: "primary", label: "1", title: "Version", body: "Always this for SPF. Receivers identify the SPF record by this prefix. Any TXT not starting with v=spf1 is something else (vendor verification, DMARC, etc.)." },
+    { line: 1, tone: "primary", label: "2", title: "Delegate to vendor SPF", body: "Pulls in Microsoft's published SPF (effectively any IP Microsoft says is M365's mail). Each include: counts as one DNS lookup against the 10-lookup limit, and any includes inside that target count too (recursively summed)." },
+    { line: 1, tone: "warning", label: "3", title: "Policy: hard fail", body: "Anything not matching the above is rejected. Other terms: ~all (soft fail), ?all (neutral), +all (everyone allowed, almost always a mistake)." },
+  ]}
+/>
+
+The mechanisms inside an SPF string are how it matches sending IPs: `ip4:`, `ip4:.../24`, `a`, `mx`, `include:`, `exists:`. In MSP work, `include:` is what you see most.
+
+## Rule 1: only one SPF per domain
+
+<Callout type="danger" title="Two SPF records = permerror = no SPF protection">
+The DNS TXT layer allows multiple TXTs on the same name. SPF adds a rule on top: **only one TXT starting with `v=spf1` per domain.**
+
+Two SPF records produce `permerror` — receivers treat the domain as if SPF protection isn't in place. Add a CRM that wants "its SPF added"? Don't create a second TXT. Merge into a single TXT.
+
+Wrong:
+```text
+example.com. IN TXT "v=spf1 include:spf.protection.outlook.com -all"
+example.com. IN TXT "v=spf1 include:_spf.salesforce.com ~all"
+```
+
+Right:
+```text
+example.com. IN TXT "v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com -all"
+```
+</Callout>
+
+## Rule 2: the 10-DNS-lookup limit
+
+SPF specifies a limit of 10 DNS lookups during evaluation. Each `include:`, `a`, `mx`, `ptr`, `exists` mechanism counts as one. Includes count recursively (an include whose target uses 5 lookups counts 5 against your limit, not 1).
+
+How to count, roughly:
+
+| Vendor include | Lookups it uses |
+|---|---|
+| `spf.protection.outlook.com` (M365) | ~5 |
+| `_spf.google.com` (Google Workspace) | ~3 |
+| `sendgrid.net` (SendGrid) | ~4 |
+
+You can quickly hit 10 by combining a few vendor includes. Over-limit = `permerror` = no SPF protection, even though the record is published.
+
+The fix at the *design* level is **SPF flattening**: replacing `include:` mechanisms with explicit `ip4:` and `ip6:` ranges, which don't count as lookups. Done manually it's brittle (vendors change IPs); done with a managed SPF service it's automatic. Either way, flattening is design territory and escalation, not helpdesk.
+
+## When to escalate
+
+This lesson stops at identify-and-apply. The following are escalation:
+
+- **SPF flattening** when the lookup count exceeds 10.
+- **Adding a new sender** when the SPF is already at or near the limit.
+- **DMARC enforcement showing SPF failures** with no clear cause.
+- **Conflicts between policy terms** (`~all` vs `-all`) where the right choice depends on the client's risk posture.
+
+## What to do with this
+
+When asked to add a sender to a client's SPF:
+
+1. Locate the existing TXT starting with `v=spf1`.
+2. Get the new include from the vendor's setup docs.
+3. Merge into the existing TXT (don't create a second one).
+4. Count lookups (MXToolbox's SPF lookup count, EasyDMARC's checker, or `dig` recursively).
+5. Publish and verify with `dig TXT example.com`.
+
+If the lookup count would exceed 10, stop and escalate.
+
+## Decision walkthrough
+
+A client onboards a new marketing-email platform. The platform's instructions say: *add `include:_spf.example-marketing.example` to your SPF*. The client's current SPF is:
+
+```text
+example.com. IN TXT "v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com include:sendgrid.net ~all"
+```
+
+The first three already total around 12 lookups (M365 ~5 + Salesforce ~3 + SendGrid ~4).
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="SPF over the limit. Now what?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "The current SPF is already at 12 lookups. The client wants a fourth sender. What do you do?",
+      choices: [
+        { label: "Publish the four-include version anyway; many receivers don't strictly enforce.", next: "publish-anyway" },
+        { label: "Escalate to your senior; the current SPF is already broken. SPF flattening or vendor consolidation is design work, outside helpdesk scope.", next: "escalate" },
+        { label: "Remove SendGrid silently to free up lookup budget.", next: "remove" },
+        { label: "Set the policy term to +all to bypass the limit.", next: "all" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "publish-anyway",
+      label: "Major receivers do enforce",
+      tone: "bad",
+      body: "Most major receivers enforce the limit. The SPF will permerror and provide no protection. Not a real workaround.",
+    },
+    {
+      type: "outcome",
+      id: "escalate",
+      label: "Right escalation",
+      tone: "success",
+      body: "Right. Lookup-limit excess is the design line. Surface the situation cleanly; senior or the client's email-security lead decides between flattening, vendor consolidation (is the client still using all senders?), or a managed SPF service.",
+    },
+    {
+      type: "outcome",
+      id: "remove",
+      label: "Breaks an active sender",
+      tone: "bad",
+      body: "Removing an active sender without confirming with the client breaks their mail authentication for that sender. The senior or client decides which senders stay.",
+    },
+    {
+      type: "outcome",
+      id: "all",
+      label: "Defeats SPF entirely",
+      tone: "bad",
+      body: "+all authorises everyone including attackers. Not a workaround; it removes the protection altogether.",
+    },
+  ]}
+/>
+
+<Checkpoint slug="domains-and-dns-records-and-mail-checkpoint-spf-rules" client:visible />

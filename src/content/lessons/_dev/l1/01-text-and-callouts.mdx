@@ -1,0 +1,53 @@
+---
+slug: 01-text-and-callouts
+vendor: _dev
+level: l1
+title: Text, terms, and callouts
+summary: Inline elements (Term, Kbd) and all five Callout variants in one place.
+estimatedMinutes: 5
+order: 1
+topics:
+  - callouts
+  - glossary
+  - kbd
+---
+
+This lesson exists to exercise the inline element library. If something looks off here, it will look off in every real lesson.
+
+## Glossary autolinks
+
+The remark plugin should auto-wrap common terms. <Term slug="dns">DNS</Term> is the lookup layer underneath every web request. A <Term slug="dns-resolver">resolver</Term> sits between the client and authoritative servers, caching answers so the next lookup is cheap. <Term slug="policy">Policy</Term> decides what gets through; an <Term slug="allowlist">allowlist</Term> overrides it for specific domains.
+
+Above are explicit `<Term>` wrappers. The autolink plugin should produce the same hovercard for unwrapped occurrences of DNS, policy, allowlist, and so on, anywhere they appear in body text.
+
+## Keyboard chips
+
+Press <Kbd>Ctrl+S</Kbd> to save. Use <Kbd>/</Kbd> to focus the search palette. The chip should sit on the baseline of surrounding text and stay readable in both themes.
+
+## Callouts
+
+Five variants. Each must render its own icon and tone.
+
+<Callout type="tip" title="Tip">
+Lightbulb icon, info-blue tone. Used for shortcuts, conventions, and the kind of pointer a senior tech would slip into a handoff note.
+</Callout>
+
+<Callout type="info" title="Heads up">
+Info icon, primary tone. Neutral context the reader needs to make sense of the next paragraph.
+</Callout>
+
+<Callout type="warn" title="Watch this">
+AlertTriangle icon, amber tone. Reader can still proceed, but a wrong move here costs an hour of debugging.
+</Callout>
+
+<Callout type="danger" title="Stop">
+ShieldAlert icon, destructive tone. Reader can break production by skipping this. Used sparingly.
+</Callout>
+
+<Callout type="success" title="Done right">
+Check icon, success tone. Confirms a checkpoint and reinforces what good looks like.
+</Callout>
+
+## Smoke test
+
+If all of the above renders cleanly in both light and dark themes, the inline + callout layer is healthy.

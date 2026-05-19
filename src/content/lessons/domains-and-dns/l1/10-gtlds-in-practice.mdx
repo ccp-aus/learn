@@ -1,0 +1,60 @@
+---
+slug: 10-gtlds-in-practice
+vendor: domains-and-dns
+level: l1
+title: 'gTLDs in practice'
+summary: 'The mature original gTLDs, the post-2013 new-gTLD landscape, and the look-before-you-leap check before recommending a name for a client''s primary brand.'
+estimatedMinutes: 7
+order: 10
+topics: ['registration', 'gtlds']
+---
+
+A client emails: *register `cool-startup.cloud` for us.* The TLD looks fine, the registration price is reasonable, the registrar's panel accepts it. Six months later, the registry behind `.cloud` triples its wholesale price, or imposes a new eligibility rule, or has a service outage.
+
+Mature gTLDs (`.com`, `.net`, `.org`) rarely behave this way. They have long operating histories at well-resourced registries with established policy. Newer gTLDs are a much wider spread, from rock-solid operators down to single-investor projects with little resilience. The right advice up front saves the client a brand migration later.
+
+## The original gTLDs
+
+| TLD | Registry | What it's for |
+|---|---|---|
+| `.com` | Verisign | Default commercial; the one clients reach for first |
+| `.net` | Verisign | Originally network providers; mostly a "if .com is taken" fallback |
+| `.org` | Public Interest Registry | Originally non-profits; now open to anyone |
+| `.edu` / `.gov` / `.mil` | Various | Restricted to US education / government / military |
+| `.info` / `.biz` / `.name` | Various | Older alternative gTLDs; rare in MSP practice |
+
+`.com`, `.net`, and `.org` carry most of the registrations you'll see in routine MSP work. Pricing is stable and predictable; the registries have run for decades.
+
+## The new gTLD landscape (post-2013)
+
+In 2013 ICANN opened applications for new gTLDs. Since then, more than 1,500 have launched: generic-meaning (`.app`, `.dev`, `.cloud`, `.agency`, `.online`, `.site`, `.store`), geographic (`.london`, `.berlin`, `.nyc`), industry-specific (`.law`, `.bank`, `.pharmacy`, often with strict eligibility), and vanity TLDs run by single companies (`.google`, `.bmw`).
+
+The new gTLDs vary widely on the dimensions that matter to a client:
+
+- **Pricing.** Wholesale prices range from a couple of dollars to hundreds per year. Some registries reserve the right to reclassify a registered name as *premium* at renewal and quote a much higher price.
+- **Eligibility.** Open for most; restricted for some (`.bank` only for regulated financial institutions, `.pharmacy` for licensed pharmacies). The registrar checks at registration time.
+- **Stability.** A handful of new gTLDs have been retired (the registry exited; ICANN moved the TLD to a successor). Rare but real. Single-registry-investor TLDs carry more of this risk.
+- **Recognition.** Some new gTLDs are widely understood (`.app`, `.dev`); others aren't, and a client's customers may not type the right TLD.
+
+`.io` deserves a footnote: technically a ccTLD for the British Indian Ocean Territory, but used in practice as a generic TLD by the tech industry. It carries some ccTLD-specific policy risk that doesn't apply to true gTLDs.
+
+## What this is NOT
+
+- "All gTLDs are basically the same." They aren't. Pricing, eligibility, renewal-policy surprises, and registry resilience vary widely across new gTLDs. Mature originals are predictable; newer ones need a look-before-you-leap.
+- "If the registrar lets me register it, it must be safe." The registrar accepts anything the registry permits. Neither layer does an *is this a wise choice for the client* check. You do.
+- "`.io` is a generic TLD." A ccTLD whose registry chooses to operate it like a generic. Most of the time that works; the policy is set outside ICANN, which has implications most clients won't care about until they do.
+
+## The 30-second check before registering on a new gTLD
+
+1. **Who runs the registry?** A well-known operator (Verisign, PIR, Identity Digital, GoDaddy Registry) is lower-risk. A single-purpose entity or unrecognised operator is higher-risk.
+2. **What's the renewal price?** Confirm the price at registration is the price at renewal; some registries reclassify names as premium at renewal time.
+3. **Are there eligibility rules?** If yes, make sure the client qualifies before submitting.
+4. **Is this the client's primary brand identity?** If yes, recommend pairing with `.com` so the brand isn't single-sourced on a less-mature TLD. Document the conversation either way.
+
+## Worked example
+
+A small marketing agency client asks you to register `awesome-agency.agency` for their primary brand. Available, reasonable price.
+
+Run the four checks: `.agency` is operated by Identity Digital (large operator, low retirement risk), the renewal pricing pattern is stable, no eligibility rules, but it's the primary brand. Surface the trade-off to the client: *available, no eligibility concerns, here's the renewal price profile. The TLD is fine, but for the primary brand it's worth pairing with `.com` so you're not single-sourced. Want me to register both?*
+
+Most clients agree to the dual registration once the framing is in front of them. The few who decline have made an informed call; document it in the client notes and move on.

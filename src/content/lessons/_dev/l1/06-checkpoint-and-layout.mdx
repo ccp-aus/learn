@@ -1,0 +1,30 @@
+---
+slug: 06-checkpoint-and-layout
+vendor: _dev
+level: l1
+title: Checkpoints and end-of-lesson chrome
+summary: Inline Checkpoint plus a wrap-up that exercises LessonProgress, prev/next, and the final-quiz CTA.
+estimatedMinutes: 4
+order: 6
+topics:
+  - checkpoint
+  - navigation
+---
+
+This is the last lesson in the kitchen-sink course. It checks two things at once: that the inline `Checkpoint` element hydrates and accepts answers, and that the end-of-lesson chrome (LessonProgress, prev/next nav, final-quiz CTA) wires through to the final quiz.
+
+## Inline checkpoint
+
+Checkpoints are tiny mid-lesson quizzes. They use the same renderer as the final quiz but render compactly and do NOT persist scores. Wrong answers explain themselves, then let you try again.
+
+<Checkpoint slug="_dev-kitchen-sink-checkpoint" client:visible />
+
+## End-of-lesson wrap-up
+
+When you scroll past this line, you should see:
+
+- The **LessonProgress** card with a "Mark complete" button. Clicking it ticks completion in localStorage and offers a Continue link to the next lesson.
+- A **prev / next** navigation row. Previous should link back to `05-mermaid-diagrams`. Next should link forward to `07-annotated-text-artefacts`.
+- A breadcrumb up top that points back through course → vendor → home.
+
+If any of those three pieces are missing or pointing at the wrong place, the lesson layout has regressed.

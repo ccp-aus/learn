@@ -1,0 +1,97 @@
+---
+slug: 01-srv-records
+vendor: domains-and-dns
+level: l2
+title: 'SRV records'
+summary: 'The service-locator record: structure, where helpdesk techs meet them (Teams, SIP, autodiscover), and the format mistakes that break vendor onboardings.'
+estimatedMinutes: 7
+order: 1
+topics: ['records', 'srv']
+---
+
+SRV records aren't routine work the way A and MX are. They show up in specific vendor setups (Teams, SIP, autodiscover), the format is fiddly, and the panels at most DNS hosts don't always make it easy. When a vendor's setup wizard tells you to add an SRV and you make a small format mistake, the service fails to discover and the client says *the migration to Teams isn't working*.
+
+## The SRV structure
+
+```text
+_service._protocol.name.   TTL   IN   SRV   priority weight port target.
+```
+
+| Piece | What it is |
+|---|---|
+| `_service` | Service name, prefixed with underscore (`_sip`, `_xmpp-server`, `_sipfederationtls`, `_autodiscover`) |
+| `_protocol` | `_tcp` or `_udp`, prefixed with underscore |
+| `name` | Domain the service is for (`example.com.`) |
+| `priority` | Like MX: lower = preferred |
+| `weight` | Load balancing among same-priority records |
+| `port` | Port number the service runs on |
+| `target` | Hostname providing the service (must have A/AAAA, never a CNAME) |
+
+Example:
+
+```text
+_sip._tls.example.com.   3600   IN   SRV   100 1 443 sipdir.online.lync.com.
+```
+
+SIP-over-TLS for `example.com` is provided at `sipdir.online.lync.com` on port 443, with priority 100 and weight 1.
+
+The panel at most DNS hosts splits the fields. Read each panel field label carefully; some want the underscore-prefixed `_service` literally, others add the underscore for you.
+
+## Where you'll actually meet SRV
+
+The cases where you add an SRV are limited but specific:
+
+- **Microsoft 365 / Teams / Skype federation.** The M365 setup wizard provides SRV records for SIP and federation discovery (`_sip._tls`, `_sipfederationtls._tcp`).
+- **SIP / VoIP.** Hosted VoIP providers publish SIP-domain records via SRV. The client's phone system discovers the SIP server by querying `_sip._udp.example.com` or `_sip._tcp`.
+- **Mail autodiscover for non-Microsoft providers.** Fastmail, Apple iCloud, and similar publish autodiscover via SRV records (`_caldavs._tcp`, `_imaps._tcp`). M365 uses a `CNAME autodiscover.example.com → autodiscover.outlook.com` approach instead.
+
+You won't write SRV records from scratch. The vendor's wizard tells you exactly what to publish.
+
+## What this is NOT
+
+- "SRV is just like MX." Similar priority semantics; different structure (adds weight, port, service.protocol naming). Same "target must be a hostname with A/AAAA, not CNAME or IP" rule applies.
+- "All vendors use SRV." Some do (Teams, SIP). M365 mail uses CNAMEs for autodiscover. The vendor's documentation tells you what to publish.
+- "SRV at the apex." The format requires `_service._protocol.name`. You're publishing at `_sip._tls.example.com`, not at the apex itself.
+
+## Decision walkthrough
+
+A client onboarded Teams. You published the two SRVs from the M365 wizard. M365's verification check returns *SRV records not found or incorrect*. `dig SRV _sip._tls.example.com` returns the record but the target field looks like `sipdir.online.lync.com.example.com.` instead of `sipdir.online.lync.com.`.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="The target got mangled. What happened?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "What's the cause?",
+      choices: [
+        { label: "TTL is wrong.", next: "ttl" },
+        { label: "The panel treated the target as a relative name and appended .example.com to it.", next: "relative" },
+        { label: "M365's verification is broken; ignore it.", next: "ignore" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "ttl",
+      label: "Wrong cause",
+      tone: "bad",
+      body: "TTL has nothing to do with target validation. The mangled target is the actual bug.",
+    },
+    {
+      type: "outcome",
+      id: "relative",
+      label: "The classic SRV mistake",
+      tone: "success",
+      body: "Most DNS hosts have a way to indicate 'this is an absolute name' (typically the trailing dot in the target) or a checkbox / FQDN-mode option. Re-enter the target with explicit absolute-name handling: either with the trailing dot (sipdir.online.lync.com.) or via the panel's FQDN toggle.",
+    },
+    {
+      type: "outcome",
+      id: "ignore",
+      label: "Wrong attitude",
+      tone: "bad",
+      body: "The verifier is correctly telling you something is wrong. The target field is the problem; trust the verification and fix the record.",
+    },
+  ]}
+/>

@@ -1,0 +1,178 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { CourseProgressBar } from "@/components/learning/CourseProgressBar";
+import { Clock, ArrowRight, Lock } from "lucide-react";
+import { courseUrl, vendorOfCourse, levelLabel } from "@/lib/courseRoute";
+import { isPublic } from "@/lib/dev-only";
+
+export async function getStaticPaths() {
+  const vendors = (await getCollection("vendors")).filter(isPublic);
+  return vendors
+    .filter((v) => v.data.kind === "concept")
+    .map((v) => ({
+      params: { concept: v.data.slug },
+      props: { vendor: v },
+    }));
+}
+
+const { vendor } = Astro.props;
+const allCourses = (await getCollection("courses")).filter(isPublic);
+const allLessons = await getCollection("lessons");
+const allVendors = (await getCollection("vendors")).filter(isPublic);
+
+const levelOrder: Record<"l1" | "l2" | "l3", number> = { l1: 0, l2: 1, l3: 2 };
+const statusOrder = (s: string) => (s === "live" ? 0 : 1);
+
+const courses = allCourses
+  .filter((c) => {
+    const ref = c.data.vendor;
+    const slug = typeof ref === "string" ? ref : ref?.id;
+    return slug === vendor.data.slug;
+  })
+  .sort((a, b) => {
+    const sa = statusOrder(a.data.status);
+    const sb = statusOrder(b.data.status);
+    if (sa !== sb) return sa - sb;
+    const la = levelOrder[a.data.level as "l1" | "l2" | "l3"] ?? 99;
+    const lb = levelOrder[b.data.level as "l1" | "l2" | "l3"] ?? 99;
+    if (la !== lb) return la - lb;
+    return a.data.title.localeCompare(b.data.title);
+  });
+
+function publishableLessonSlugs(course: (typeof courses)[number]): string[] {
+  return course.data.lessons.filter((slug) => {
+    const l = allLessons.find(
+      (ls) =>
+        ls.data.slug === slug &&
+        (typeof ls.data.vendor === "string"
+          ? ls.data.vendor
+          : ls.data.vendor?.id) === vendor.data.slug,
+    );
+    return l && !l.data.draft;
+  });
+}
+---
+
+<BaseLayout
+  title={vendor.data.name}
+  description={vendor.data.summary}
+>
+  <div class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/concepts/", label: "Concepts" },
+        { label: vendor.data.name },
+      ]}
+    />
+
+    <header class="mt-6 mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <div
+          class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-md text-lg font-semibold"
+          style={`background:${vendor.data.accent}; color: oklch(0.14 0.01 260);`}
+        >
+          {vendor.data.name[0]}
+        </div>
+        <h1 class="text-4xl font-semibold tracking-tight">
+          {vendor.data.name}
+        </h1>
+        <p class="mt-2 text-lg text-primary/90">{vendor.data.tagline}</p>
+        <p class="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
+          {vendor.data.summary}
+        </p>
+      </div>
+    </header>
+
+    {courses.length === 0 ? (
+      <div class="rounded-xl border border-border bg-card p-8 text-center">
+        <Lock className="mx-auto h-5 w-5 text-muted-foreground" />
+        <p class="mt-3 text-sm text-muted-foreground">
+          Courses are planned for this concept track. Check back soon.
+        </p>
+      </div>
+    ) : (
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {courses.map((c) => {
+          const level = c.data.level as "l1" | "l2" | "l3";
+          return (
+            <article
+              class="flex flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              data-curate-vendor={vendor.data.slug}
+              data-curate-level={level}
+            >
+              <div class="mb-3 flex items-center justify-between">
+                <Badge variant={level} className="text-[10px] uppercase tracking-widest">
+                  {levelLabel[level]}
+                </Badge>
+                {c.data.status === "live" ? (
+                  <span class="text-[11px] uppercase tracking-wider text-emerald-500">
+                    Live
+                  </span>
+                ) : (
+                  <span class="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <Lock className="h-3 w-3" /> Planned
+                  </span>
+                )}
+              </div>
+              <h2 class="text-base font-semibold tracking-tight">
+                {c.data.title}
+              </h2>
+              <p class="mt-1 text-sm text-muted-foreground line-clamp-3">
+                {c.data.summary}
+              </p>
+
+              <div class="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
+                <span class="inline-flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> ~{c.data.estimatedMinutes} min
+                </span>
+                <span>·</span>
+                <span>{c.data.lessons.length} lessons</span>
+              </div>
+              {c.data.lessons.length > 0 && (
+                <CourseProgressBar
+                  lessonSlugs={publishableLessonSlugs(c)}
+                  className="mt-3"
+                  client:idle
+                />
+              )}
+              {c.data.prereqs.length > 0 && (
+                <div class="mt-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  Builds on:{" "}
+                  {c.data.prereqs.map((p, i) => {
+                    const prereq = allCourses.find((cc) => cc.data.slug === p);
+                    if (!prereq) return null;
+                    const prereqVendor = vendorOfCourse(prereq, allVendors);
+                    if (!prereqVendor) return null;
+                    return (
+                      <>
+                        {i > 0 && ", "}
+                        <a
+                          href={courseUrl(prereq, prereqVendor)}
+                          class="text-primary hover:underline"
+                        >
+                          {prereq.data.shortTitle ?? prereq.data.title}
+                        </a>
+                      </>
+                    );
+                  })}
+                </div>
+              )}
+              <a
+                href={courseUrl(c, vendor)}
+                class={`group mt-5 inline-flex items-center gap-1 text-sm font-medium hover:underline ${c.data.status === "live" ? "text-primary" : "text-muted-foreground"}`}
+                data-astro-prefetch
+              >
+                {c.data.status === "live" ? "Start course" : "Preview draft"}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</BaseLayout>

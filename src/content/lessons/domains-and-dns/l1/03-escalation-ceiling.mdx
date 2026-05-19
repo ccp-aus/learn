@@ -1,0 +1,72 @@
+---
+slug: 03-escalation-ceiling
+vendor: domains-and-dns
+level: l1
+title: 'What you''ll be able to do at the end'
+summary: 'The 95% scope you will handle unsupervised, the 5% that escalates by default, and the two-question test that keeps the line honest in real time.'
+estimatedMinutes: 8
+order: 3
+topics: [orientation, escalation]
+---
+
+A tech who doesn't know where the ceiling sits is dangerous in two opposite ways. They freeze on everything (escalating tickets a competent tech would close in fifteen minutes), or they push past the ceiling without noticing (running a DNSSEC disable from a runbook without sign-off, deleting an MX record while mail is flowing, clicking "do not renew" on a row that turns out to be a critical client's primary domain). Neither tech lasts long.
+
+Naming the ceiling up front gives the rest of the course a shape: every lesson lands inside the in-scope column or outside it, and you can tell which.
+
+## What you'll be able to do unsupervised
+
+By the time you finish all three courses, the expectation is roughly this:
+
+- You handle most "register this domain" and "add these DNS records" tickets end to end without a senior.
+- You read WHOIS, RDAP, current zone contents, and email-authentication records to assess a domain's state.
+- You add and edit A, AAAA, CNAME, MX, and TXT records with sensible TTL planning ahead of any change.
+- You add SPF, DKIM, and DMARC records from vendor-supplied values, and verify them with lookup tools.
+- You plan registrar transfers and DNS-host transfers, and execute them under sign-off for business-critical cases.
+- You escalate cleanly when the ticket crosses into DNSSEC operations, email-auth design, redemption recovery, forensic DNS work, or anything you don't understand the *why* of.
+
+That covers about 95% of daily domain and DNS work for a helpdesk role. The other 5% is in the right-hand column below; it escalates every time.
+
+## The ceiling table
+
+A short table the rest of the course will keep returning to. Read it now; expect to come back to it.
+
+| You DO (in scope) | You ESCALATE (out of scope) |
+| --- | --- |
+| Register a domain at a configured registrar from a runbook | Bulk registrations; high-cost premium domains; first-time ccTLDs with unfamiliar eligibility |
+| Configure registrant, admin, tech, billing contacts from a checklist | Changing the **registrant of record** mid-lifecycle (often locks the domain for 60 days) |
+| Add and edit A, AAAA, CNAME, MX, TXT records with TTL planning | DNSSEC enable, key roll, or disable without sign-off; bulk record imports; zone-wide structural changes |
+| Add SPF, DKIM, DMARC records from vendor-supplied values | *Designing* SPF (flattening, third-party senders), ramping DMARC policy, debugging alignment failures |
+| Verify domain availability via WHOIS, RDAP, generic web tools | Domain dispute or UDRP situations; recovering a domain in pending-delete; recovering a domain already lost |
+| Renew domains; read the expiry, grace, redemption, pending-delete lifecycle | Acting on a domain in redemption (expensive, time-sensitive; escalates by default) |
+| Plan a DNS-host transfer with TTL lowering and verification | Executing the transfer on a business-critical or high-traffic domain without supervisor sign-off |
+| Plan a registrar transfer with auth code, unlock, and contact verification | Executing on a business-critical domain without sign-off; transferring a DNSSEC-enabled zone |
+| Identify DNSSEC status; prepare the safe-disable checklist | *Executing* the DNSSEC disable; any other DNSSEC operation |
+| Read and explain CAA records | Modifying CAA on a domain that's currently issuing certificates without confirming the impact |
+| Use generic DNS lookup tools (dig, nslookup, Resolve-DnsName, online) | Forensic DNS investigation (DNS poisoning suspected, registrar account compromise, etc.) |
+
+## The two-question test that holds the ceiling together
+
+<Callout type="warn" title="Before any change to a live domain or record">
+Ask two things, in this order:
+
+1. **If I do this and it's wrong, is it reversible?**
+2. **Do I understand WHY this is the right action, or am I copying steps?**
+
+If either answer is "no" — escalate.
+</Callout>
+
+That's the test. You'll meet it again as a lesson in its own right at the end of the track. For now it's the reflex that decides which column of the table you're standing in.
+
+## Completion is a recommendation, not sign-off
+
+Finishing the three courses and passing the final scenario assessment is the **LMS recommendation** that you're ready for live work. It is not your MSP's sign-off. Your MSP has its own process (shadowed tickets, a senior reviewing your first live closures, a check-in cadence) and that process is the actual gate.
+
+The two layers sit in different places. The LMS recommendation says *the tech can make the calls*. The MSP sign-off says *the tech makes them well on real customers*. The LMS doesn't know your client base, your senior's risk tolerance, or which customers you should ease into. Treat the certificate as one input, usually necessary but not sufficient.
+
+## What this is NOT
+
+- "If I read the lessons carefully, the ceiling won't apply to me." It applies regardless of how well you read. The ceiling is about blast radius and reversibility on real customer domains, not about competence on the lesson material. A tech who reads every word of the transfers course still escalates DNSSEC operations.
+- "Escalating means I admit I can't do my job." Escalating the categories above means you *are* doing your job. The role isn't "handle everything"; it's "handle what's in scope and route the rest cleanly."
+- "Once I'm signed off, the ceiling lifts." Some of it shifts as you take on senior responsibilities. Most of it (DNSSEC execution, email-auth design, domain redemption recovery, forensic DNS work) stays escalated regardless of seniority.
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-escalation-ceiling" client:visible />

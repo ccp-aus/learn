@@ -1,0 +1,55 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-locks-and-auth-codes",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: locks and auth codes",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-auth-code-terminology",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "auth-code-terminology",
+      "prompt": "A gaining registrar asks the client for the 'EPP code.' The losing registrar's panel shows a field labelled 'Authorization Key.' What's the relationship?",
+      "choices": [
+        "They're different things; you need both.",
+        "They're the same thing. Auth code, EPP code, transfer code, and authorization key are interchangeable terms for the per-domain transfer secret.",
+        "EPP code is a newer standard; authorization key is being phased out.",
+        "The authorization key is encrypted; the EPP code is the decrypted form."
+      ],
+      "correct": 1,
+      "explanation": "The terminology drifts across registrars but the underlying value is one secret. Treat any of these terms as a synonym."
+    },
+    {
+      "id": "ck-auth-code-staleness",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "auth-code-lifetime",
+      "prompt": "You requested an auth code two weeks ago. The client just told you they want to initiate the transfer now. What do you do?",
+      "choices": [
+        "Hand the two-week-old auth code to the gaining registrar; auth codes don't expire.",
+        "Request a fresh auth code from the losing registrar's panel before initiating.",
+        "Tell the client the transfer can't proceed because too much time has passed.",
+        "Try the old auth code first; if it fails, request a new one."
+      ],
+      "correct": 1,
+      "explanation": "Most registrars regenerate the auth code on each request and consume it on transfer; a code from two weeks ago may have been replaced or invalidated. Treat each auth code as single-use; if the original wasn't used quickly, regenerate."
+    },
+    {
+      "id": "ck-server-lock",
+      "type": "mcq",
+      "difficulty": "hard",
+      "topic": "server-vs-client-lock",
+      "prompt": "WHOIS for a domain shows `serverTransferProhibited` (not `clientTransferProhibited`). The client wants to transfer out. What's different?",
+      "choices": [
+        "Nothing different; toggle it off in the registrar's panel.",
+        "The server-level lock is set by the registry and requires the registry's involvement to remove. This is escalation territory.",
+        "The lock will lift automatically after 60 days.",
+        "Bypass by transferring directly through ICANN."
+      ],
+      "correct": 1,
+      "explanation": "Server-level locks (serverTransferProhibited and friends) are set at the registry, not the registrar. Rare, usually applied to premium domains, government-related domains, or by special request. Removal requires escalation; you don't toggle them."
+    }
+  ]
+}

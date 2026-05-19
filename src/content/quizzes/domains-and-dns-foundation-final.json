@@ -1,0 +1,183 @@
+{
+  "slug": "domains-and-dns-foundation-final",
+  "course": "domains-and-dns-foundation",
+  "kind": "final",
+  "title": "Domains & DNS foundation: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "qf-four-layer-symptom",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "four-layer-model",
+      "prompt": "A client says 'our website is broken, please fix the DNS.' You check and DNS resolves to the right IP, but the web server returns a 500 error when you load the IP directly. Which layer is the issue at?",
+      "choices": [
+        "Layer 1, registrar.",
+        "Layer 2, DNS host.",
+        "Layer 3, web host.",
+        "Layer 4, mail host."
+      ],
+      "correct": 2,
+      "explanation": "The 500 from the web server is at the web host's layer. DNS was never the issue despite the client's framing. Canonical mis-attribution pattern the four-layer model is designed to prevent."
+    },
+    {
+      "id": "qf-registrant-trap",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "contacts",
+      "prompt": "An audit on a newly-onboarded client domain shows the registrant is 'Previous MSP Pty Ltd' rather than the client. What's the priority fix?",
+      "choices": [
+        "Cosmetic; update it next time you do other work.",
+        "Change of registrant is the priority. The process triggers a 60-day outbound-transfer lock at most registrars; do it now while there's no time pressure.",
+        "Email the previous MSP and ask them to delete the domain so you can re-register.",
+        "Privacy services hide the registrant anyway."
+      ],
+      "correct": 1,
+      "explanation": "Until the registrant is changed, the previous MSP is the legal owner. The 60-day post-change lock means do it during calm, not mid-incident."
+    },
+    {
+      "id": "qf-redemption-action",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "lifecycle",
+      "prompt": "WHOIS shows status `redemptionPeriod` and expiry was 38 days ago. What do you do?",
+      "choices": [
+        "Click 'renew' in the registrar panel; the standard renewal will bring it back.",
+        "Escalate; redemption recovery requires the registrar's special restore process and a significantly higher fee.",
+        "Tell the client the domain is lost and recommend a new one.",
+        "Wait until pending delete starts; recovery is easier from there."
+      ],
+      "correct": 1,
+      "explanation": "Redemption is past the standard renewal grace; the renew button typically returns an error or quietly fails. Redemption recovery is a different process at the registry and a different fee. Pending delete is past the recovery window."
+    },
+    {
+      "id": "qf-auth-code-terminology",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "transfers",
+      "prompt": "A gaining registrar asks the client for the 'EPP code.' The losing registrar's panel shows a field labelled 'Authorization Key.' What's the relationship?",
+      "choices": [
+        "They're different things; you need both.",
+        "Same thing. Auth code, EPP code, transfer code, and authorization key are interchangeable terms for the per-domain transfer secret.",
+        "EPP code is a newer standard; authorization key is being phased out.",
+        "The authorization key is encrypted; the EPP code is the decrypted form."
+      ],
+      "correct": 1,
+      "explanation": "The terminology drifts across registrars but the underlying value is one secret. Treat any of these terms as a synonym."
+    },
+    {
+      "id": "qf-cctld-au-eligibility",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "cctlds",
+      "prompt": "A client emails: 'register myshop.com.au for us. We're a sole trader without an ABN.' What do you do?",
+      "choices": [
+        "Submit and let auDA reject it after the fact.",
+        "Tell the client .com.au requires an ABN or ACN. They can register an ABN via the Australian Business Register first. Surface the gap now.",
+        "Refuse to register .com.au for any sole trader on principle.",
+        "Suggest a .com instead without mentioning the requirement."
+      ],
+      "correct": 1,
+      "explanation": "The eligibility dimension applies; surface the constraint before taking the order so the client decides whether to fix the gap or pick a different TLD. Sole traders with an ABN can register .com.au."
+    },
+    {
+      "id": "qf-cname-apex",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "cname",
+      "prompt": "A vendor's setup instructions say 'point your apex (example.com) at our hostname.' Your DNS host's panel rejects the apex CNAME. What's the workaround?",
+      "choices": [
+        "Apex CNAMEs work everywhere; file a support ticket about the panel bug.",
+        "DNS doesn't allow a CNAME at the apex. Use ALIAS / ANAME / CNAME flattening if your DNS host supports it, or redirect the apex to www at the web layer.",
+        "Add the CNAME at www and ignore the apex.",
+        "Always add an A record at the apex pointing at the vendor's IP, regardless of host capability."
+      ],
+      "correct": 1,
+      "explanation": "RFCs 1034 / 2181 prohibit a CNAME at the zone apex. ALIAS / ANAME / flattening resolve the target server-side and publish A/AAAA at the apex, which is standards-compliant."
+    },
+    {
+      "id": "qf-mx-priority",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "mx",
+      "prompt": "A zone has two MX records: `oldmail.example.com.` at priority 10 and `aspmx.l.google.com.` at priority 20. Which does the sending server try first?",
+      "choices": [
+        "aspmx.l.google.com — higher number means main server.",
+        "oldmail.example.com — lower priority number is preferred.",
+        "Both at once — parallel delivery.",
+        "Whichever resolved first in the cache."
+      ],
+      "correct": 1,
+      "explanation": "Lower priority = higher preference. Parallel delivery only happens between records at the same priority. The convention 10 / 20 puts the primary first."
+    },
+    {
+      "id": "qf-spf-count",
+      "type": "tf",
+      "difficulty": "medium",
+      "topic": "txt-spf",
+      "prompt": "It's fine to have two TXT records on the apex that both start with `v=spf1`, as long as both include the right vendors.",
+      "correct": false,
+      "explanation": "SPF protocol requires exactly one `v=spf1` TXT per domain. Two SPF records cause receivers to return `permerror` — SPF effectively fails for the domain. Merge into a single TXT instead."
+    },
+    {
+      "id": "qf-ttl-pre-flight",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "ttl",
+      "prompt": "A planned A-record change is scheduled for Friday at 9pm. Current TTL is 86400. It's Tuesday morning. What do you do today?",
+      "choices": [
+        "Wait until Friday at 9pm and make the change.",
+        "Lower the TTL to 300 today, so the lower TTL has time to spread to downstream caches before the cutover.",
+        "Lower the TTL on Friday morning.",
+        "Lower the TTL on Friday at 8:55pm, five minutes before the change."
+      ],
+      "correct": 1,
+      "explanation": "Pre-flight TTL drop with enough lead time is the difference between a 5-minute cutover and a day of inconsistent state. Dropping TTL at the same time as (or just before) the value change doesn't help; downstream caches with the old TTL still hold the old answer."
+    },
+    {
+      "id": "qf-propagation-calibrated",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "propagation",
+      "prompt": "A client asks 'how long for DNS propagation?' before a planned A-record change. The current TTL is 300 (you pre-flighted last week). What's the calibrated answer?",
+      "choices": [
+        "24 to 48 hours, standard for any DNS change.",
+        "Most users will see the new value within 5 minutes; some may take a bit longer if their resolver cached just before the change.",
+        "Instant for everyone; the authoritative serves the new value immediately.",
+        "Up to a week, depending on resolver behaviour."
+      ],
+      "correct": 1,
+      "explanation": "The previous TTL is what determines propagation tail. At TTL 300, most caches have re-queried within 5 minutes. The 24-48 hours stock answer is uncalibrated. Saying 'instant' ignores cached state at downstream resolvers."
+    },
+    {
+      "id": "qf-zone-audit-order",
+      "type": "order",
+      "difficulty": "medium",
+      "topic": "diagnostics",
+      "prompt": "A domain-or-DNS ticket lands on an unfamiliar domain. Order the first four checks you run.",
+      "items": [
+        "WHOIS / RDAP on the domain (registrar + delegated nameservers)",
+        "dig A example.com against the authoritative nameservers (web host's IP)",
+        "dig MX example.com against the authoritative nameservers (mail host)",
+        "Match the symptom to the layer responsible"
+      ],
+      "explanation": "First identify the four layers (WHOIS for 1 + 2; dig A / MX against authoritative for 3 + 4), then match symptom to layer. Acting on the wrong layer wastes time."
+    },
+    {
+      "id": "qf-completion-vs-signoff",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "escalation",
+      "prompt": "A tech finishes the three courses and passes the final scenario assessment with 85%. What does the result actually authorise?",
+      "choices": [
+        "The tech is signed off to work all client domains unsupervised.",
+        "The tech is ready for the MSP's own shadow-and-sign-off process.",
+        "The tech now has authority to override the ceiling on items they feel confident about.",
+        "The tech can execute DNSSEC operations without sign-off if they're confident."
+      ],
+      "correct": 1,
+      "explanation": "The LMS pass is a recommendation of readiness, not the MSP's sign-off. The two layers are different: LMS says the tech can make the calls; MSP review says the tech makes them well on real customers."
+    }
+  ]
+}

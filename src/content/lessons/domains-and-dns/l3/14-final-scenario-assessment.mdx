@@ -1,0 +1,74 @@
+---
+slug: 14-final-scenario-assessment
+vendor: domains-and-dns
+level: l3
+title: 'Final scenario assessment'
+summary: 'The capstone. Twelve to fifteen scored scenarios that bundle multiple decisions per ticket, the way real work does.'
+estimatedMinutes: 10
+order: 14
+topics: ['judgement', 'assessment']
+---
+
+The earlier knowledge checks confirm you've read the lessons. The final assessment confirms you can decide.
+
+The scenarios bundle two or three decisions into one ticket, the way real work does. The pass mark is calibrated so that mistakes in the highest-blast-radius categories (transfers, DNSSEC) carry more weight than mistakes in lower-stakes categories.
+
+## What the assessment looks like
+
+The LMS draws 12-15 scenarios from a larger pool. The pool spans every course in the track:
+
+- **Foundation:** four-layer model, contacts, lifecycle, ccTLD pattern, record fundamentals (A, MX, TXT, TTL, propagation).
+- **Records and mail authentication:** SRV, CAA, NS delegation, PTR, lookup tools, SPF / DKIM / DMARC.
+- **Transfers and judgement:** the three transfers, registrar transfer mechanics, DNS host transfer dual-provisioning, DNSSEC safe-disable, cardinal sins, two-question test, escalation calibration.
+
+Each scenario has multiple decision points; each decision is scored individually. The scoring weighs irreversible-action mistakes heavier than recoverable ones. Failures in DNSSEC or transfer scenarios are flagged separately so the senior reviewing knows which categories need extra attention.
+
+## How to approach it
+
+Treat each scenario the way you'd treat a real ticket:
+
+1. **Read fully** before clicking anything.
+2. **Run the mental 30-second health check** if the scenario gives you a domain.
+3. **Apply the two-question test** to any proposed action.
+4. **Check against the cardinal sins** before clicking.
+5. **Make the decision** the scenario asks for.
+
+The LMS reorders questions per attempt, so order isn't memorisable. Each attempt presents different scenarios from the pool. Memorising specific answers doesn't help; understanding the framework does.
+
+## Pass mark and what it means
+
+<Callout type="info" title="Passing recommends readiness — it doesn't replace MSP sign-off">
+Recommended pass mark is **80%**. Failures in *transfer* or *DNSSEC* categories are flagged separately.
+
+A passing score is a *recommendation* that you're ready for the next stage of your MSP's process — typically a senior reviewing your first few live tickets. Your MSP's shadow-and-sign-off is the actual gate. The LMS recommendation tells the senior you can make the calls; the review tells them you make them well on real customers.
+</Callout>
+
+## What this is NOT
+
+- "Memorise the answers; the pool stays the same." The pool changes, and the LMS reorders attempts. Memorisation doesn't transfer.
+- "Choose the maximally-cautious answer always." *Escalate* is the right answer for some scenarios and the wrong one for others. A tech who escalates everything is no more useful than a tech who escalates nothing. Calibration is the skill.
+- "If I score below the pass mark, I've failed." Treat it as feedback. Revisit the lessons in the categories where you struggled and retake. Re-takes draw different scenarios, so memorising the first attempt doesn't help — the second rewards genuine learning.
+
+## A representative scenario
+
+Try this against the frameworks before clicking through to the LMS attempt.
+
+> A new client (signed last week) emails: *we want to consolidate everything at Cloudflare. Move our domain registration to Cloudflare Registrar, point DNS to Cloudflare DNS, and migrate the website to Cloudflare Pages. The current setup is GoDaddy for registrar and DNS, our own VPS for the website, and Microsoft 365 for mail. Everything should be done by the end of the month — two weeks.*
+
+A reasonable plan applies multiple lessons:
+
+1. **Four-layer assessment** — current vs proposed (M365 mail unchanged throughout).
+2. **Check DNSSEC** first (`dig DS example.com`). If on, safe-disable sequence is mandatory and the timeline tightens.
+3. **Registrar transfer pre-flight** — admin contact live, outside 60-day post-registration lock.
+4. **Sequence the operations** — DNS host transfer first (dual-provisioned), then web migration, then registrar transfer. DNSSEC handling, if applicable, gates the DNS host step.
+5. **Keep mail at M365 throughout** — MX, SPF, DKIM, DMARC stay; the new DNS host gets these records identically.
+6. **TTL discipline** before each step; verify after each cutover.
+7. **Confirm the plan with the client and senior** before starting.
+
+The right answer in the LMS scenario isn't a single click; it's a sequence of correct calls across multiple decisions in the same scenario.
+
+## What's next
+
+After the LMS attempt, your MSP's own shadow-and-sign-off process is the next step. From there, live tickets — applying the frameworks this track built.
+
+Future learning that pairs with this track: a dedicated **email authentication design** concept course (SPF flattening, DMARC ramp, third-party senders, alignment debugging) for techs ready to go beyond identify-and-apply; a dedicated **certificates and PKI** concept course for techs whose work touches CAA more deeply.

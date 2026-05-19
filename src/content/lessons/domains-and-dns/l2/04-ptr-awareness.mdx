@@ -1,0 +1,65 @@
+---
+slug: 04-ptr-awareness
+vendor: domains-and-dns
+level: l2
+title: 'PTR awareness'
+summary: 'Reverse DNS is owned by the IP-block holder, not the registrant. Editing PTR at the client''s DNS host can''t work; the fix is a ticket with the hosting provider.'
+estimatedMinutes: 6
+order: 4
+topics: ['records', 'ptr', 'reverse-dns']
+---
+
+PTR records produce one specific kind of helpdesk ticket: mail bouncing because the receiver requires a PTR record on the sending IP and either none exists or it doesn't match. The instinct of a tech new to DNS is to try to *add the PTR* at the client's DNS host. It won't work, because the PTR doesn't live there.
+
+Knowing where PTR records *do* live tells you the correct response: open a ticket with the hosting provider or ISP that owns the IP.
+
+## What a PTR record is
+
+A normal DNS lookup is name → IP (A or AAAA). A reverse lookup is IP → name; the record type is PTR. PTR records live in a special reverse-DNS namespace constructed from the IP:
+
+```text
+42.100.51.198.in-addr.arpa.   IN   PTR   mail.example.com.
+```
+
+The IP `198.51.100.42` reverses to `42.100.51.198.in-addr.arpa`. Mail servers (and some security scanners) query this and check the result.
+
+## Who controls the PTR
+
+<Callout type="info" title="Reverse DNS is delegated to whoever owns the IP block">
+- Client registers a domain at a registrar (Layer 1).
+- Client publishes DNS records at a DNS host (Layer 2).
+- The server's IP is owned by the hosting provider (Layer 3).
+- **The PTR for that IP lives at the hosting provider's reverse-DNS, not in the client's zone.**
+
+The client's DNS host has no authority over the reverse-DNS namespace for IPs they don't own. To change a PTR, the request goes to the hosting provider's support. Some providers have a panel UI for it; others require a support ticket. None of them care what the client's forward DNS says about PTR.
+</Callout>
+
+## The mail-server PTR-check pattern
+
+Mail servers check PTR on inbound connections as part of basic anti-spam: if the IP connecting to deliver mail has no PTR, or the PTR doesn't roughly match the HELO/EHLO hostname the connecting server announced, the mail may be rejected, quarantined, or scored as spam.
+
+The check is rough; exact matching isn't required by spec. But the absence of any PTR, or a PTR pointing at something obviously generic like `c-198-51-100-42.cable-provider.example`, is enough to fail some receivers' policy.
+
+The fix is always at the hosting provider: set the PTR for the sending IP to a hostname that aligns with the mail server's identity (typically `mail.example.com`).
+
+## What this is NOT
+
+- "PTR is in my zone." No. The PTR for `198.51.100.42` is in `100.51.198.in-addr.arpa.`, owned by whoever the IP belongs to.
+- "PTR is mandatory." Not by DNS spec, but many mail receivers require it. For mail-sending IPs, PTR is effectively required. For non-mail IPs (web servers, etc.), PTR is rarely needed.
+- "PTR must match the hostname exactly." PTR has to be plausible to the receiver's policy, not exact. Common practice is the mail server's canonical hostname.
+
+## What to do with this
+
+When you see a PTR-related issue:
+
+1. **Identify the IP and who owns it.** Run `whois <IP>` to see the IP block's owner.
+2. **Open a ticket with the IP-block owner**, requesting the PTR. Specify the IP and the hostname you want.
+3. **Verify after they set it** with `dig -x <IP>`.
+
+For clients on AWS, GCP, or Azure, the cloud provider's console has a feature for setting PTR on static IPs. For shared-hosting clients, the hosting provider's support handles it.
+
+## Worked example
+
+A client's mail server is bouncing emails to external recipients. The bounces say *reverse DNS does not match host name*. You run `dig -x 198.51.100.42` and get nothing (no PTR set). `whois 198.51.100.42` shows the IP block is owned by *Examplecorp Hosting*.
+
+The fix: email Examplecorp Hosting's support asking them to set the PTR for `198.51.100.42` to point at `mail.example.com`. Include the bounce-message context. Most hosting providers handle PTR requests as a routine support task at no cost.

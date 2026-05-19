@@ -1,0 +1,110 @@
+{
+  "slug": "_dev-kitchen-sink-final",
+  "course": "_dev-kitchen-sink",
+  "kind": "final",
+  "title": "Kitchen sink final",
+  "drawCount": 0,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "final-mcq",
+      "type": "mcq",
+      "prompt": "Which Hotspot tone value is NOT styled?",
+      "choices": [
+        {
+          "label": "primary",
+          "rationale": "primary is the default tone and uses the site accent. Definitely styled."
+        },
+        {
+          "label": "warning",
+          "rationale": "warning is the amber tone. Used for irreversible toggles and destructive defaults."
+        },
+        {
+          "label": "success",
+          "rationale": "success is the emerald tone. Used for confirmations and post-state verification."
+        },
+        "info"
+      ],
+      "correct": 3,
+      "explanation": "Only primary, warning, and success render styled markers. Any other value (including info) silently renders unstyled because there is no validation guard."
+    },
+    {
+      "id": "final-multi",
+      "type": "multi",
+      "prompt": "Which Astro hydration directives are used by kitchen-sink elements?",
+      "choices": ["client:load", "client:visible", "client:idle", "client:media"],
+      "correct": [0, 1, 2],
+      "explanation": "StepThrough, Hotspot, and DecisionTree use client:load. Checkpoint uses client:visible. LessonProgress uses client:idle. client:media is not used by any element here."
+    },
+    {
+      "id": "final-tf",
+      "type": "tf",
+      "prompt": "Mermaid sequence-diagram message labels can contain a second colon.",
+      "correct": false,
+      "explanation": "The first colon separates participant from message; subsequent colons trip the parser. Rephrase the label to prose, e.g. 'INVITE with Session-Expires 1800' rather than 'INVITE Session-Expires: 1800'."
+    },
+    {
+      "id": "final-hotspot",
+      "type": "hotspot",
+      "prompt": "Click the primary action region in the mockup.",
+      "image": "/_dev/kitchen-sink-screenshot.svg",
+      "imageAlt": "Placeholder UI mockup with primary, warning, and success regions marked left to right across the top.",
+      "target": { "x": 18, "y": 30, "r": 10 },
+      "explanation": "The primary action region is the leftmost panel."
+    },
+    {
+      "id": "final-order",
+      "type": "order",
+      "prompt": "Order the lesson layout from top to bottom.",
+      "items": [
+        "Breadcrumb",
+        "Header (badge, lesson N of M, title, summary)",
+        "Lesson body (MDX content)",
+        "MermaidLoader script",
+        "LessonProgress (mark complete)",
+        "Prev/Next nav"
+      ],
+      "explanation": "The lesson layout flows top to bottom: breadcrumb, header, body, MermaidLoader, LessonProgress, then prev/next nav."
+    },
+    {
+      "id": "final-fill",
+      "type": "fill",
+      "prompt": "Fill in the three records that make up the mail-authentication chain.",
+      "blanks": [
+        {
+          "answer": "SPF",
+          "alternatives": ["spf1", "v=spf1"],
+          "placeholder": "3-letter acronym",
+          "label": "Who's allowed to send"
+        },
+        {
+          "answer": "DKIM",
+          "alternatives": ["dkim1", "v=dkim1"],
+          "placeholder": "4-letter acronym",
+          "label": "Cryptographic signature"
+        },
+        {
+          "answer": "DMARC",
+          "alternatives": ["dmarc1", "v=dmarc1"],
+          "placeholder": "5-letter acronym",
+          "label": "Policy on failures"
+        }
+      ],
+      "explanation": "SPF says who can send; DKIM signs the message body so a receiver can verify it wasn't altered; DMARC tells receivers what to do when SPF or DKIM fails (reject, quarantine, or none)."
+    },
+    {
+      "id": "final-label",
+      "type": "label",
+      "prompt": "Label each region of the mockup by its Hotspot tone.",
+      "image": "/_dev/kitchen-sink-screenshot.svg",
+      "imageAlt": "Placeholder mockup with three coloured regions across the top: leftmost in blue, middle in amber, rightmost in green.",
+      "zones": [
+        { "x": 5,  "y": 17, "w": 27, "h": 30, "label": "primary" },
+        { "x": 37, "y": 17, "w": 27, "h": 30, "label": "warning" },
+        { "x": 69, "y": 17, "w": 27, "h": 30, "label": "success" }
+      ],
+      "distractors": ["info", "danger"],
+      "explanation": "Only primary, warning, and success are valid Hotspot tones. The distractors (info, danger) are valid Callout types but unstyled on a Hotspot."
+    }
+  ]
+}

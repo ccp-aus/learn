@@ -1,0 +1,10 @@
+{
+  "slug": "threatlocker",
+  "name": "ThreatLocker",
+  "tagline": "Default-deny zero-trust endpoint protection.",
+  "summary": "ThreatLocker is a zero-trust endpoint platform built around application allowlisting, ringfencing, and storage / elevation / network controls. Where EDR products spot malicious behaviour after it runs, ThreatLocker prevents anything that isn't explicitly permitted from running in the first place. MSPs deploy it to harden customers against ransomware and unsanctioned software, with a 24/7 Cyber Hero approval service handling end-user requests so the helpdesk isn't drowning in approvals.",
+  "accent": "oklch(0.62 0.22 30)",
+  "website": "https://www.threatlocker.com/",
+  "status": "planned",
+  "order": 40
+}

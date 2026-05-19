@@ -1,0 +1,91 @@
+---
+slug: 07-privacy-and-proxy-services
+vendor: domains-and-dns
+level: l1
+title: 'Privacy and proxy services'
+summary: 'What WHOIS privacy hides, what it does not, and the GDPR redaction reality that already does a lot of the work for free on common gTLDs.'
+estimatedMinutes: 7
+order: 7
+topics: ['registration', 'whois', 'privacy']
+---
+
+A lot of clients believe domain privacy services make them anonymous. They don't. The registry still has the real contact data; the proxy substitutes a generic placeholder in *public* WHOIS / RDAP responses. Acting on the wrong belief leads to two specific problems: clients who think privacy protects them from a trademark complaint or a legal subpoena and learn the hard way that it doesn't, and clients who pay for privacy on a TLD that doesn't support it (the upsell at the registrar is silently inactive).
+
+Knowing what privacy actually does is a 30-second client conversation that prevents both.
+
+## What privacy does vs what it doesn't
+
+| What privacy DOES | What privacy DOES NOT |
+| --- | --- |
+| Substitute the proxy organisation's details in *public* WHOIS / RDAP responses | Change the registrant of record (the legal owner stays the same) |
+| Substitute a proxy-routed email that forwards or filters to the real registrant | Block legal processes; subpoenas, UDRP, and trademark complaints pierce the proxy |
+| Hide individual contact data from spam harvesters and casual lookups | Apply to all TLDs; several ccTLDs disallow it |
+| Add per-domain identity separation if the registrant runs many domains | Hide data from the registry or the registrar; both still hold the real contacts |
+
+The registry still has the real registrant data. So does the registrar. The proxy substitution only affects what shows up in public lookups.
+
+## The post-GDPR redaction reality
+
+After GDPR (2018), most public WHOIS / RDAP responses for the common gTLDs (`.com`, `.net`, `.org`, the new gTLDs) redact individual contact data by default. Fields show *REDACTED FOR PRIVACY* or similar. Organisation registrants (named companies) typically still appear in full, but individual registrants are largely hidden.
+
+The practical consequence: for individual registrants on `.com` and its peers, the privacy upsell from the registrar duplicates what GDPR redaction already does for free. The proxy still offers something on top (a single forwarding email instead of an opaque contact-form link, or per-domain identity separation), but the dramatic before-and-after of pre-GDPR WHOIS is gone.
+
+ccTLDs vary. Some show full data for everyone, some redact aggressively. Know which TLD you're looking at.
+
+<Callout type="info" title="Two questions before selling privacy">
+1. **Does this TLD support it?** Default yes for `.com` / `.net` / `.org` / most new gTLDs. Check the registry's policy for ccTLDs (`.com.au` and several others disallow it; the registrar's upsell may silently no-op).
+2. **Is the client's contact data already redacted by GDPR?** For individuals on common gTLDs, yes. The privacy upsell adds limited extra value over the baseline redaction. For organisations and for ccTLDs that show data in full, privacy provides more.
+</Callout>
+
+## What this is NOT
+
+- "Privacy makes the domain anonymous." The registry and registrar still have the real data. Anonymity in the colloquial sense is not what's on offer; substitution in the public lookup is.
+- "Privacy protects from lawsuits." Privacy is a presentation feature, not a legal one. Subpoenas, UDRP complaints, and court orders pierce the proxy.
+- "All TLDs support privacy." Several ccTLDs disallow it. Check the registry's policy before selling privacy on a non-gTLD.
+
+## Decision walkthrough
+
+A small-business client emails: *I'm starting to get harassed in the comments on my website. The harasser keeps mentioning my home address; they must have looked it up in WHOIS. Can you turn on domain privacy to fix this?*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What do you do first?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Before you change anything at the registrar, what do you do?",
+      choices: [
+        { label: "Enable privacy at the registrar and reply 'done, you should be safe now.'", next: "enable-blind" },
+        { label: "Pull the current WHOIS / RDAP for the client's domain first to see what's actually visible. Then act.", next: "lookup-first" },
+        { label: "Tell the client to file a police report and do nothing else.", next: "police-only" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "enable-blind",
+      label: "Acting before checking",
+      tone: "bad",
+      body: "Two things you don't yet know: whether the client's contact data is currently visible (it may already be GDPR-redacted, in which case the harasser got the address elsewhere), and whether the harasser already has the address (privacy is forward-looking, it doesn't recall old lookups).",
+    },
+    {
+      type: "outcome",
+      id: "lookup-first",
+      label: "Diagnose, then act",
+      tone: "success",
+      body: "Right. The action depends on what the public record actually contains. A five-minute lookup tells you whether the address is currently visible (enable privacy) or already redacted (the harasser sourced it elsewhere; privacy on this domain won't help; raise it with the client).",
+    },
+    {
+      type: "outcome",
+      id: "police-only",
+      label: "Skips the cheap step",
+      tone: "warn",
+      body: "Skips the cheap remedial step (privacy if applicable) and skips the diagnostic conversation. Filing a police report may belong in the conversation eventually, but the privacy switch is fast and worth doing if it's the source.",
+    },
+  ]}
+/>
+
+## What to do next
+
+Treat the privacy upsell as a presentation layer. Ask the two questions in the Callout above before adding it. When a client asks if privacy hides them from legal processes, the answer is no, and they probably need legal advice rather than a stronger privacy product.

@@ -1,0 +1,11 @@
+{
+  "slug": "yeastar",
+  "name": "Yeastar",
+  "tagline": "PBX, central management, and unified-comms clients for MSP-hosted voice.",
+  "summary": "Yeastar's three-piece stack: Central Management (YCM-BYOI), P-Series Software Edition PBX (PSE), and Linkus UC clients. The kit an MSP-hosted voice operation runs on. This vendor covers provisioning customer PBXs, configuring extensions and callflows, queues and recording, supporting Linkus users, and operating the YCM cluster at scale.",
+  "accent": "oklch(0.72 0.16 250)",
+  "website": "https://www.yeastar.com/",
+  "kind": "vendor",
+  "status": "planned",
+  "order": 12
+}

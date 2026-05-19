@@ -1,0 +1,99 @@
+---
+slug: 08-tickets-and-estimates
+vendor: _dev
+level: l1
+title: Tickets and estimates
+summary: Ticket renders a realistic support ticket for scenario lessons. Estimate uses a slider to anchor intuition.
+estimatedMinutes: 5
+order: 8
+topics:
+  - ticket
+  - estimate
+---
+
+Two elements that lean on what's realistic instead of what's testable.
+
+## Ticket
+
+Pure presentation. Pair it with a `DecisionTree`, `Console`, or `Checkpoint` that asks the learner what they'd do first — the cognitive load of reading a real ticket is part of the exercise.
+
+<Ticket
+  id="INC-04812"
+  subject="Outlook isn't sending — error 0x800CCC0E"
+  customer="Contoso Ltd"
+  contact="Maria Hale <maria.hale@contoso.com>"
+  channel="email"
+  priority="P2"
+  received="2 minutes ago"
+  body={`Hi team,
+
+Since this morning none of our M365 mailboxes can send mail from Outlook on the desktop. Receive is fine. Web works for everyone. We get "0x800CCC0E" within about 30 seconds of clicking send.
+
+I tried restarting Outlook, no change. Two users said they had a Windows update overnight if that's relevant.
+
+Please prioritise — the sales team can't quote.
+
+Thanks,
+Maria`}
+  attachments={[
+    { name: "outlook-error.png", size: "82 KB" },
+    { name: "send-log.txt", size: "4 KB" },
+  ]}
+/>
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What's your first move?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Before opening Maria's inbox, what do you check?",
+      choices: [
+        { label: "M365 service-health dashboard", next: "good" },
+        { label: "Outlook profile on her PC, via remote tool", next: "neutral" },
+        { label: "Telnet test to smtp.office365.com:587 from the office", next: "bad" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "good",
+      label: "Service-health first",
+      tone: "good",
+      body: "Outlook works for everyone individually but everyone sees it = check upstream before client-side. Saves an hour of fiddling on individual PCs.",
+    },
+    {
+      type: "outcome",
+      id: "neutral",
+      label: "Not yet",
+      tone: "neutral",
+      body: "If you find the profile broken you've solved one user, not Maria's organisation. Confirm 'everyone' is really 'everyone' first.",
+    },
+    {
+      type: "outcome",
+      id: "bad",
+      label: "Wasted minutes",
+      tone: "bad",
+      body: "0x800CCC0E is the Outlook DESKTOP error code. Telnet from a different network doesn't reproduce desktop-only behaviour. Wrong layer.",
+    },
+  ]}
+/>
+
+## Estimate
+
+Slider question. Learner commits to a guess, clicks Reveal, sees the actual answer plus an explanation. Better than MCQ for orders-of-magnitude intuition — the slider forces a number in the same units the technician thinks in.
+
+<Estimate
+  client:load
+  question="How many DNS A-record lookups per hour does a 50-seat M365 tenant generate, on average?"
+  min={100}
+  max={500000}
+  correct={45000}
+  tolerance={15000}
+  unit="lookups/hour"
+  scale="log"
+  explanation="About 900 per user per hour at the SMB scale. Microsoft 365 endpoints sprawl across hundreds of FQDNs; modern browsers + Teams + OneDrive keep the resolver busy even when the user isn't doing anything 'on the network'."
+/>
+
+The log scale makes the slider usable for ranges that span four orders of magnitude. Use `scale="linear"` for tight ranges (e.g. mailbox sizes).

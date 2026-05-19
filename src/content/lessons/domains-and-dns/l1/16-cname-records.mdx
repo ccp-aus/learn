@@ -1,0 +1,108 @@
+---
+slug: 16-cname-records
+vendor: domains-and-dns
+level: l1
+title: 'CNAME records: aliases and the apex gotcha'
+summary: 'A pointer record with two firm rules that trip techs up: no CNAME at the apex, and a CNAME cannot share a name with other records.'
+estimatedMinutes: 9
+order: 16
+topics: ['dns-fundamentals', 'cname', 'apex-gotcha']
+---
+
+CNAMEs come up in roughly half of routine DNS changes: pointing `www` at the apex, pointing a subdomain at a managed service, pointing email autodiscover at the mail provider, hundreds of vendor verification scenarios.
+
+They're also one of the most-misunderstood record types because of two firm rules that don't apply to A, AAAA, MX, or TXT.
+
+## What a CNAME is
+
+A CNAME (Canonical Name) says *the name on the left is an alias for the canonical name on the right*. When a resolver asks for any record type on the alias, it follows the CNAME to the canonical name and queries again there.
+
+```text
+www.example.com.    3600   IN   CNAME   example.com.
+```
+
+This says `www.example.com` is an alias for `example.com`. The resolver gets the CNAME, then follows to `example.com` and resolves that. A chain of CNAMEs is allowed but discouraged; each step adds a lookup and resolvers limit chain depth.
+
+## Rule 1: no CNAME at the apex
+
+The zone apex is the bare domain itself (`example.com`, not `www.example.com`). The DNS spec (RFCs 1034 / 2181) prohibits a CNAME at the apex because the apex must hold the SOA and NS records for the zone, and a CNAME would replace those.
+
+<Callout type="danger" title="Apex CNAMEs are not allowed">
+Standards-compliant DNS hosts will reject `CNAME @ → vendor.example.com`. If a vendor's setup instructions say "point your apex at our hostname," they're asking you to do something DNS doesn't directly support.
+
+Three vendor workarounds (all the same idea, different brand names):
+
+- **ALIAS** (Route 53, DNSimple)
+- **ANAME** (DNS Made Easy)
+- **CNAME flattening** (Cloudflare)
+
+The DNS host periodically resolves the target hostname and publishes A and AAAA records at the apex. To resolvers, the zone looks standards-compliant.
+
+If your DNS host supports none of these, the workaround is: use `www` as the primary record, redirect the apex to `www` at the web layer (HTTP 301).
+</Callout>
+
+## Rule 2: a CNAME can't coexist with other records on the same name
+
+A CNAME on a name *replaces* all other records on that name. The DNS host will refuse the combination (or, in less-strict hosts, save both but only the CNAME takes effect). The rule applies regardless of what types you're combining: no CNAME + A, no CNAME + MX, no CNAME + TXT on the same name.
+
+This trips techs up when:
+
+- A subdomain has an A record and someone adds a CNAME on the same name without removing the A.
+- A subdomain has a CNAME and someone tries to add MX or TXT on the same name.
+
+The fix is choose: CNAME, or the other records. Not both on the same name.
+
+## What this is NOT
+
+- "CNAME at the apex sometimes works." It works at some DNS hosts that silently replace it with their ALIAS / flattening feature. The resolvers see A/AAAA, not a CNAME. The illusion is the workaround running quietly.
+- "You can have a CNAME and an A on the same name as long as they point at the same place." The CNAME-vs-other-records exclusion is absolute regardless of target.
+- "CNAME is faster because it's just a pointer." Slightly slower, if anything; the resolver does two queries. Trivial difference but the intuition is backwards.
+
+## Decision walkthrough
+
+A client signs up with a managed CMS provider. The provider sends setup instructions: *Add a CNAME at `www.example.com` pointing to `client12345.cms-vendor.com`. For the apex `example.com`, point it at our IP `203.0.113.50` or use your DNS host's ALIAS/flattening feature.*
+
+The client's DNS host is **Cloudflare DNS**, which supports CNAME flattening at the apex (resolves the target server-side and publishes A/AAAA at the apex).
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What goes at the apex (DNS host = Cloudflare)?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Cloudflare supports CNAME flattening at the apex. For the apex example.com, what's your move?",
+      choices: [
+        { label: "Add a CNAME at the apex pointing at client12345.cms-vendor.com. Cloudflare flattens it server-side.", next: "flatten" },
+        { label: "Add an A record at the apex pointing at the vendor's IP 203.0.113.50.", next: "static-ip" },
+        { label: "Skip the apex setup and rely on www only.", next: "skip" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "flatten",
+      label: "CNAME flattening",
+      tone: "success",
+      body: "Right at Cloudflare (or any DNS host with ALIAS/ANAME/flattening: Route 53, DNSimple, DNS Made Easy, several others). Resolvers see standards-compliant A/AAAA records. The vendor's hostname can change IPs over time and the DNS host picks up the change automatically. If the DNS host doesn't support flattening (the registrar's default DNS at many TLDs, for example), this option isn't available and you fall back to the A-record path with manual updates when the vendor changes IPs.",
+    },
+    {
+      type: "outcome",
+      id: "static-ip",
+      label: "Works but ties the client to one IP",
+      tone: "warn",
+      body: "Defensible; works fine today and is the only path on DNS hosts without ALIAS/flattening. Ties the client to that specific IP — if the vendor changes IP later the client has to update again. The flattened option auto-tracks but only at hosts that support it.",
+    },
+    {
+      type: "outcome",
+      id: "skip",
+      label: "Apex needs an answer",
+      tone: "bad",
+      body: "Plenty of users will type example.com without www. The apex needs a working answer; without one, those users see no site.",
+    },
+  ]}
+/>
+
+For the `www` part, a standard CNAME works. If `www` had an old A record from a previous setup, delete it first (Rule 2).
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-cname-apex" client:visible />

@@ -1,0 +1,102 @@
+---
+slug: 17-mx-records
+vendor: domains-and-dns
+level: l1
+title: 'MX records: priority and mail flow'
+summary: 'Lower priority means preferred (the universal trap). MX targets must be hostnames, never CNAMEs or IPs. The canonical mail-migration sequence.'
+estimatedMinutes: 8
+order: 17
+topics: ['dns-fundamentals', 'mx', 'mail']
+---
+
+MX records tell mail servers where to deliver a domain's mail. Wrong MX records mean missed email, which clients notice within hours and remember for years. The two pitfalls are subtle: the *priority* field works the opposite of what newcomers expect, and there are spec-level rules about what an MX can point at that the DNS host's panel won't always enforce.
+
+## What an MX record is
+
+<AnnotatedCode
+  client:load
+  filename="zone snippet"
+  lang="text"
+  code={`example.com.   3600   IN   MX   10   aspmx.l.google.com.
+example.com.   3600   IN   MX   20   alt1.aspmx.l.google.com.
+example.com.   3600   IN   MX   30   alt2.aspmx.l.google.com.`}
+  marks={[
+    { line: 1, tone: "primary", label: "1", title: "Lowest number = preferred", body: "Sending mail servers try the lowest-priority record first. 'Lower means higher preference' is the universal MX trap; a new tech often reads priority 30 as the main one." },
+    { line: 1, tone: "success", label: "2", title: "Hostname with A/AAAA", body: "Google publishes aspmx.l.google.com with A and AAAA records. The MX points at the hostname; receivers resolve that hostname's A/AAAA and deliver mail there." },
+    { line: 2, tone: "primary", label: "3", title: "Priority 20, fallback", body: "Tried only if priority 10 is unreachable. Common pattern: Google publishes three priority tiers per domain so receivers have failover within Google's infrastructure." },
+  ]}
+/>
+
+When mail for `user@example.com` is sent, the sending server queries `dig MX example.com`, gets back the records, picks the lowest priority number, and tries to deliver there. If unreachable, it tries the next-lowest priority.
+
+## The "lower means preferred" inversion
+
+<Callout type="warn" title="MX priority is inverted">
+Lower numbers are preferred. Higher numbers are fallbacks. Convention: 10 for the primary, 20 / 30 for backups.
+
+```text
+Priority 10 → mx1.example.com.   (primary, tried first)
+Priority 20 → mx2.example.com.   (backup, tried only if mx1 unreachable)
+```
+
+This inversion is the single most common MX surprise. A new tech reads *priority 50* and thinks it's higher-priority than *priority 10*. It's not.
+</Callout>
+
+## What an MX can point at
+
+MX targets must be hostnames (FQDNs), not IPs, and the target must have an A or AAAA record at the end of the chain. Two spec violations to recognise:
+
+- **MX pointing at an IP address.** RFC 5321 requires hostnames. Some DNS hosts let you save the IP form; many receivers reject and the mail bounces.
+- **MX pointing at a CNAME.** RFC 2181 prohibits MX-to-CNAME. Some receivers follow the chain; others reject. The defensive practice is to point MX directly at the final FQDN with its own A/AAAA records.
+
+If a vendor's setup instruction asks for an IP-as-MX, ask them for a hostname. Reputable mail providers publish one.
+
+## What this is NOT
+
+- "Higher priority means it's the main one." Backwards. Lower is preferred.
+- "Multiple MX records means parallel delivery." Backups are only tried when the primary fails. Records *at the same priority* are the parallel case.
+- "You can put a CNAME or an IP in an MX target." Both are spec violations. Modern hosts mostly enforce; older or laxer ones don't. The defensive answer is always: hostname with A/AAAA.
+
+## Decision walkthrough
+
+A client emails: *we moved to M365 last week but our mail still goes to the old server occasionally.* You query `dig MX example.com`:
+
+```text
+example.com.  3600  IN  MX  10 oldmail.example.com.
+example.com.  3600  IN  MX  20 example-com.mail.protection.outlook.com.
+```
+
+<DecisionTree
+  client:load
+  startId="diagnose"
+  title="What's wrong and how do you fix it?"
+  nodes={[
+    {
+      type: "question",
+      id: "diagnose",
+      prompt: "First, what's the actual issue?",
+      choices: [
+        { label: "The TTL is too low; mail can't reach the new server reliably.", next: "ttl-wrong" },
+        { label: "Priorities are inverted: the old server is preferred (priority 10), M365 is the backup. Mail goes to the old server first.", next: "diagnosed" },
+        { label: "M365 isn't accepting mail for the domain.", next: "m365-wrong" },
+      ],
+    },
+    {
+      type: "question",
+      id: "diagnosed",
+      prompt: "Right diagnosis. What's the clean fix?",
+      choices: [
+        { label: "Just swap the priorities (M365 to 10, old to 20).", next: "swap-only" },
+        { label: "Lower TTL ahead, then delete the old MX and set M365 to priority 10. Verify with dig. Restore TTL after.", next: "clean-fix" },
+        { label: "Delete the old MX immediately with no TTL pre-flight.", next: "no-preflight" },
+      ],
+    },
+    { type: "outcome", id: "ttl-wrong", label: "Not the issue", tone: "bad", body: "3600 is a reasonable TTL for stable MX. Try again — the priorities are the visible bug." },
+    { type: "outcome", id: "m365-wrong", label: "Unlikely", tone: "bad", body: "M365 endpoints are stable; the symptom matches an inversion rather than M365 being broken. Read the priorities." },
+    { type: "outcome", id: "swap-only", label: "Improves but leaves a backup at the dead server", tone: "warn", body: "Better than nothing, but if the old server still silently accepts mail (and drops it) some senders may still hit it as a backup when M365 has a transient issue. Cleaner to delete the old MX entirely." },
+    { type: "outcome", id: "clean-fix", label: "TTL pre-flight + delete + verify", tone: "success", body: "Right. Lowering TTL first means the change propagates fast; deleting the old MX during the lower-TTL window means any sender still hitting the old MX moves to M365 within minutes. Verifying after confirms; restoring TTL tidies up." },
+    { type: "outcome", id: "no-preflight", label: "Works but slower-tail propagation", tone: "warn", body: "Will work, but cached MX with the old high TTL hangs around at downstream resolvers. The TTL pre-flight is what makes the cutover snappy." },
+  ]}
+/>
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-mx-priority" client:visible />

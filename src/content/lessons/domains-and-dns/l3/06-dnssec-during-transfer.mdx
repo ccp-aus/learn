@@ -1,0 +1,136 @@
+---
+slug: 06-dnssec-during-transfer
+vendor: domains-and-dns
+level: l3
+title: 'DNSSEC during transfer'
+summary: 'The highest-blast-radius DNS operation a helpdesk tech can encounter. The safe-disable checklist requires an explicit sign-off step.'
+estimatedMinutes: 12
+order: 6
+topics: ['transfers', 'dnssec', 'safe-disable']
+---
+
+DNSSEC is the highest-blast-radius DNS operation a helpdesk tech can encounter. A botched DNSSEC change doesn't just take a record offline; it takes the **entire zone dark** at every validating resolver for hours, sometimes a full day, until DS records and DNSKEYs reconcile.
+
+Mail, web, mobile apps that depend on the domain — all simultaneously stop working for the substantial fraction of users behind validating resolvers (Google `8.8.8.8`, Cloudflare `1.1.1.1`, many ISP resolvers).
+
+The safest path: recognise DNSSEC, prepare the safe-disable checklist, **have the senior sign off before clicking execute**.
+
+## Recognising DNSSEC
+
+```text
+dig DS example.com         # if this returns DS records, DNSSEC is enabled at the parent
+dig DNSKEY example.com     # the DNS host's signing keys at the apex
+```
+
+If `dig DS example.com` returns one or more DS records, DNSSEC is enabled. Empty response = DNSSEC isn't on. Most registrars also expose DNSSEC status in a panel section labelled *DNSSEC* showing the published DS records.
+
+## Why transferring breaks validation
+
+DNSSEC chains trust:
+
+1. Registrar publishes DS records at the TLD parent zone (a hash of the zone's signing keys).
+2. DNS host publishes DNSKEY records at the apex and signs every record set with the private key (RRSIG records).
+3. Validating resolvers fetch DS from parent → DNSKEY from apex → RRSIG for the record → verify the chain.
+
+When you move the zone to a *new* DNS host without coordination:
+
+- The new host generates *its own* DNSKEYs and signs with its own keys.
+- The DS records at the parent still point at the *old* keys.
+- Validating resolvers expect the old keys, see the new ones, fail validation.
+- The zone is treated as **bogus**; the resolver refuses to return any answer. Mail, web, everything — gone — for users behind validating resolvers.
+
+## The cardinal sin
+
+<Callout type="danger" title="Changing nameservers on a DNSSEC zone before removing DS and waiting the DS TTL">
+The scenario:
+
+1. Tech disables DNSSEC at the registrar (removes DS).
+2. Tech changes nameservers in the same operation.
+3. Validating resolvers' cached DS records (TTL up to 24 hours) still expect signed responses.
+4. The new host returns its own DNSKEYs, which don't match the cached DS.
+5. Zone goes dark at every validating resolver for hours, sometimes a full day.
+
+**The recovery from this state is removing DS at the registrar (if not done already) and waiting the DS TTL fully**, which is the step that was skipped. Painful and slow.
+</Callout>
+
+## The safe-disable checklist
+
+<StepThrough client:load>
+  <Step title="1. Confirm DNSSEC is enabled">
+    `dig DS example.com` returns DS records. The registrar's panel shows DNSSEC enabled.
+  </Step>
+  <Step title="2. Note the current DS TTL">
+    The DS records' TTL is set by the TLD's nameserver (you can't control it). Typical values are 86400 (24 hours) or 3600 (1 hour). You'll need to wait at least this long after step 4.
+  </Step>
+  <Step title="3. Get explicit senior sign-off in writing">
+    **Before clicking anything**, get written confirmation from your senior or the client's email-security lead authorising the DNSSEC disable. Email, ticket comment, chat message — something durable. The sign-off should specify the domain, that DNSSEC is being disabled, that the safe-disable checklist is being followed, and the maintenance window. Verbal-only doesn't persist. The friction is the point.
+  </Step>
+  <Step title="4. Remove the DS records at the registrar">
+    Find the DNSSEC section in the registrar's panel and remove the DS records. This stops the parent zone telling resolvers *expect signed responses*. The zone is still signed at the DNS host, but resolvers won't validate against the parent because there's nothing to validate against.
+  </Step>
+  <Step title="5. Wait at least the DS TTL plus a margin (an extra hour)">
+    The mandatory wait. Resolvers' cached DS records expire during this window. Skipping the wait = cardinal sin.
+  </Step>
+  <Step title="6. Verify the zone is `insecure`">
+    `dig +dnssec DS example.com` returns no DS records and the `ad` (authentic data) flag is not set in queries against validating resolvers. The zone is now unsigned from the resolver's perspective.
+  </Step>
+  <Step title="7. Proceed with the planned operation">
+    DNS host transfer (or whatever was the reason for the disable) can now proceed normally. The new host doesn't need the old keys; the zone is unsigned at the resolver level.
+  </Step>
+  <Step title="8. (Optional) Re-enable DNSSEC at the new host">
+    After the transfer settles, the new host can generate new DNSKEYs and the registrar can publish new DS records. **Separate operation with its own sign-off.** Don't bundle it.
+  </Step>
+</StepThrough>
+
+## What this is NOT
+
+- "Verbal sign-off is fine." Verbal isn't durable. The safe-disable sequence specifies sign-off in writing because the blast radius justifies the friction.
+- "Safe disable is self-serve." Even with the checklist, DNSSEC operations need senior sign-off before execution.
+- "Skip DS-TTL wait if the TTL is short." The wait is the mandatory protection. Short TTL = short wait, not no wait.
+
+## Decision walkthrough
+
+A client wants to move DNS from their current host to Cloudflare. `dig DS example.com` returns DS records; DNSSEC is enabled. DS TTL is 86400.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="DNSSEC detected. What now?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Cloudflare supports DNSSEC. What do you do?",
+      choices: [
+        { label: "Proceed with the DNS host transfer; Cloudflare supports DNSSEC.", next: "blind" },
+        { label: "Stop. Surface to senior: DNSSEC is on, the safe path is disable DS, wait DS TTL, verify insecure, transfer, optionally re-enable at Cloudflare. Request written sign-off.", next: "escalate" },
+        { label: "Disable DNSSEC at the registrar and change nameservers in the same operation; if Cloudflare's DNSSEC is enabled at the new host before the change, validation continues.", next: "parallel" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "blind",
+      label: "Zone goes dark",
+      tone: "bad",
+      body: "Cloudflare's DNSKEYs are different from the current host's. Cached DS at validating resolvers expects the old keys; validation fails for hours, sometimes a full day. The cardinal sin from this lesson.",
+    },
+    {
+      type: "outcome",
+      id: "escalate",
+      label: "Escalation + checklist articulation",
+      tone: "success",
+      body: "Right. Stop before any change, surface the situation cleanly, request written sign-off with the full safe-disable sequence named. DNSSEC operations require senior approval before execution — even when you're following the checklist.",
+    },
+    {
+      type: "outcome",
+      id: "parallel",
+      label: "Same cardinal sin, different framing",
+      tone: "bad",
+      body: "Cached DS records at resolvers still expect the old keys for the DS TTL. New keys at the new host don't match the cached DS, regardless of whether Cloudflare's DNSSEC is on. The wait is mandatory.",
+    },
+  ]}
+/>
+
+If a previous tech already broke the zone this way and it's been dark for hours, the fastest recovery is removing the DS records at the registrar immediately. Within the DS TTL, validating resolvers stop expecting signed responses, and the zone resolves normally again. DNSSEC can be re-enabled later at the new host as a separate, signed-off operation.
+
+<Checkpoint slug="domains-and-dns-transfers-and-judgement-checkpoint-dnssec" client:visible />

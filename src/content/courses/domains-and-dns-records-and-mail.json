@@ -1,0 +1,25 @@
+{
+  "slug": "domains-and-dns-records-and-mail",
+  "vendor": "domains-and-dns",
+  "level": "l2",
+  "title": "Records and mail authentication",
+  "shortTitle": "Records & mail",
+  "summary": "Less-common DNS records (SRV, CAA, NS delegation, PTR), the lookup-tools toolbelt (dig, nslookup, Resolve-DnsName), and applying SPF, DKIM, and DMARC from a vendor's setup wizard.",
+  "estimatedMinutes": 99,
+  "prereqs": ["domains-and-dns-foundation"],
+  "lessons": [
+    "01-srv-records",
+    "02-caa-records",
+    "03-ns-delegation-and-glue",
+    "04-ptr-awareness",
+    "05-lookup-tools",
+    "06-cannot-enumerate-zone",
+    "07-why-email-auth-exists",
+    "08-spf-in-dns",
+    "09-dkim-in-dns",
+    "10-dmarc-in-dns",
+    "11-verifying-email-auth"
+  ],
+  "quiz": "domains-and-dns-records-and-mail-final",
+  "status": "live"
+}

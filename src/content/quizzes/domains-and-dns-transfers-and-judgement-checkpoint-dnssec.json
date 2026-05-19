@@ -1,0 +1,55 @@
+{
+  "slug": "domains-and-dns-transfers-and-judgement-checkpoint-dnssec",
+  "course": "domains-and-dns-transfers-and-judgement",
+  "kind": "checkpoint",
+  "title": "Quick check: DNSSEC during transfer",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-dnssec-cardinal-sin",
+      "type": "mcq",
+      "difficulty": "hard",
+      "topic": "cardinal-sin",
+      "prompt": "You've removed the DS records at the registrar one hour ago, with sign-off, ahead of a planned DNS host change. The DS TTL was 86400. The client emails: 'we're ready, can we change nameservers now?' What do you say?",
+      "choices": [
+        "Yes — DS removal at the registrar is effective immediately.",
+        "Not yet. Validating resolvers that cached the DS records before removal continue to expect signed responses until the cached DS expires, up to 86400 seconds from when they last fetched it. The cutover window opens at least 24 hours after the DS removal, with a margin.",
+        "Wait two weeks to be safe.",
+        "Cancel the change; once you remove DS, you can't change nameservers safely."
+      ],
+      "correct": 1,
+      "explanation": "Removing DS doesn't expire cached DS at downstream resolvers instantly; each resolver caches for the DS TTL. The mandatory wait between DS removal and any nameserver change is the protection. Two weeks is overcautious (the DS TTL is the precise figure); cancelling the change misreads the protocol — you absolutely can change nameservers after the wait."
+    },
+    {
+      "id": "ck-dnssec-signoff",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "signoff-discipline",
+      "prompt": "You're following the safe-disable checklist. Your senior says verbally 'yeah go ahead, I trust you.' What do you do?",
+      "choices": [
+        "Proceed; verbal approval from a senior is enough.",
+        "Ask for written sign-off (email, ticket comment, chat message) before clicking anything. Verbal-only doesn't persist if something goes wrong and the conversation needs to be reviewed.",
+        "Wait until the senior is in writing mode and re-ask.",
+        "Run the disable and email the senior the result for after-the-fact approval."
+      ],
+      "correct": 1,
+      "explanation": "Durable sign-off is the discipline. The senior's verbal permission is fine for routine work; DNSSEC isn't routine. The friction is part of the procedure because the blast radius justifies it."
+    },
+    {
+      "id": "ck-dnssec-recover-from-broken",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "recovery",
+      "prompt": "A previous tech moved a zone to a new DNS host with DNSSEC still enabled and the DS records still at the registrar. The zone has been dark at validating resolvers for 6 hours. What's the fastest recovery path?",
+      "choices": [
+        "Re-enable DNSSEC at the new host with new keys, then update DS records at the registrar.",
+        "Revert the nameserver change at the registrar back to the old DNS host.",
+        "Remove the DS records at the registrar immediately. Within the DS TTL, validating resolvers stop expecting signed responses and the zone resolves normally again.",
+        "Restart all the validating resolvers around the world."
+      ],
+      "correct": 2,
+      "explanation": "Removing DS at the registrar is the fastest path: within the DS TTL (often less than the parent NS TTL needed to revert nameservers), validating resolvers stop expecting signed responses for the zone. The zone becomes effectively insecure but it resolves. DNSSEC can be re-enabled later at the new host with its own keys as a separate signed-off operation."
+    }
+  ]
+}

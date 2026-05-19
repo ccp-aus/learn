@@ -1,0 +1,49 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-ttl",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: TTL and propagation",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ttl-definition",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "ttl-definition",
+      "prompt": "What does TTL on a DNS record actually control?",
+      "choices": [
+        "How fast the change propagates after a value update.",
+        "How long downstream resolvers may cache the record before re-querying.",
+        "How long the authoritative server holds the record before serving it.",
+        "The maximum lifetime of a DNS query before it times out."
+      ],
+      "correct": 1,
+      "explanation": "TTL is the cache lifetime. The previous TTL (on the old record before a change) determines how long stale values persist after a change. The authoritative server serves the new value immediately; resolvers cache it for the TTL."
+    },
+    {
+      "id": "ck-ttl-preflight",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "pre-flight-timing",
+      "prompt": "A client is migrating their mail provider next Wednesday at 6pm. The MX records currently have a TTL of 7200 seconds (2 hours). It's Sunday evening. When should you drop the TTL?",
+      "choices": [
+        "Wednesday at 5:55pm, five minutes before the change.",
+        "Sunday evening or Monday — 48+ hours of lead is plenty for any cached old TTL to expire and the new lower TTL to spread.",
+        "Right at the cutover; the new TTL applies as soon as the change saves.",
+        "Don't bother; 7200 is already low enough."
+      ],
+      "correct": 1,
+      "explanation": "Lower TTL has to propagate before the value change for the drop to take effect. With the current TTL at 7200 (2 hours), waiting at least one current-TTL cycle after the drop is the rule. Sunday-or-Monday gives plenty of margin. 7200 isn't 'low enough' for a planned cutover — the worst-case stale view stays cached for 2 hours, which matters for mail."
+    },
+    {
+      "id": "ck-ttl-retroactive-myth",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "retroactive-misconception",
+      "prompt": "Setting TTL to 60 seconds at the same time as you update a record's value retroactively shortens what's already cached at downstream resolvers.",
+      "correct": false,
+      "explanation": "The new TTL applies to the new record value going forward; it doesn't retroactively shorten what's already cached. Downstream caches with the previous TTL continue to serve the old value until their cache expires. TTL lowering only helps if done well in advance of the change."
+    }
+  ]
+}

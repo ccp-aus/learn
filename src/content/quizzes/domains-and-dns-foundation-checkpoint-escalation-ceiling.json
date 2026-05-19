@@ -1,0 +1,40 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-escalation-ceiling",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: the ceiling and the two-question test",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-ceiling-recommendation",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "completion-vs-signoff",
+      "prompt": "A tech finishes the three courses and passes the final scenario assessment with 85%. What does the result actually authorise?",
+      "choices": [
+        "The tech is now signed off to work all client domains unsupervised.",
+        "The tech is ready for the MSP's own shadow-and-sign-off process.",
+        "The tech now has authority to override the ceiling on items they feel confident about.",
+        "The tech can execute DNSSEC operations without sign-off if they're confident."
+      ],
+      "correct": 1,
+      "explanation": "The LMS pass is a recommendation of readiness, not the MSP's sign-off. The LMS says the tech can make the calls; the MSP review says the tech makes them well on real customers. The course completion is one input to the second, not a replacement for it."
+    },
+    {
+      "id": "ck-ceiling-two-question-test",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "two-question-test",
+      "prompt": "The two-question reversibility test asks two things before any change to a live domain or DNS record. What are they?",
+      "choices": [
+        "Is the change urgent? Has the client approved it?",
+        "If I do this and it's wrong, is it reversible? Do I understand WHY this is the right action, or am I copying steps?",
+        "Has a senior signed off? Is this documented in the runbook?",
+        "Will it cost the client money? Will it affect uptime?"
+      ],
+      "correct": 1,
+      "explanation": "The two questions, exactly. If either answer is no — escalate. Sign-off and runbooks are part of how the test gets answered for high-blast-radius work, not a substitute for it. Urgency and approval matter operationally but aren't the reflex test the ceiling teaches."
+    }
+  ]
+}

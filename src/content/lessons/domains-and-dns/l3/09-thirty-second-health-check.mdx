@@ -1,0 +1,93 @@
+---
+slug: 09-thirty-second-health-check
+vendor: domains-and-dns
+level: l3
+title: 'The 30-second domain health check'
+summary: 'Six commands, one calibrated summary sentence. The reflex routine for any unfamiliar domain.'
+estimatedMinutes: 7
+order: 9
+topics: ['judgement', 'health-check', 'dig']
+---
+
+When a ticket lands on an unfamiliar domain, the first 30 seconds determine the rest of the work. A quick scan tells you whether the domain is at risk of expiry, whether DNS resolves at all, whether mail flow is set up, and whether email auth is in place.
+
+The same scan catches problems the client didn't mention but should care about (no DMARC, MX still at a previous provider, SPF over the lookup limit). Building this routine into reflex makes you fast and catches problems early.
+
+## The sequence
+
+<StepThrough client:load>
+  <Step title="1. WHOIS / RDAP">
+    ```text
+    whois example.com
+    ```
+
+    Read for: registrar, expiry date (flag anything within 60 days), status flags (`redemptionPeriod` is urgent; `clientTransferProhibited` is normal), nameservers, DNSSEC indicator.
+  </Step>
+  <Step title="2. dig NS">
+    ```text
+    dig NS example.com
+    ```
+
+    Confirms the authoritative nameservers match what WHOIS says. Discrepancy = red flag (delegation may have been changed without authorisation, or you've cached stale state).
+  </Step>
+  <Step title="3. Web records: A, AAAA, www">
+    ```text
+    dig A example.com
+    dig AAAA example.com
+    dig A www.example.com
+    ```
+
+    A returns an IP? Verify it's reachable. AAAA returns? If yes, it should match A's intent (point at the same web host). `www` resolves separately?
+  </Step>
+  <Step title="4. Mail records: MX, SPF">
+    ```text
+    dig MX example.com
+    dig TXT example.com
+    ```
+
+    MX records present with sensible priorities? TXT at apex has *one* `v=spf1`? Includes match the expected mail provider?
+  </Step>
+  <Step title="5. DMARC">
+    ```text
+    dig TXT _dmarc.example.com
+    ```
+
+    DMARC present? Policy mode (`p=none` / `quarantine` / `reject`)? `rua=` reporting address?
+  </Step>
+  <Step title="6. DNSSEC (DS records)">
+    ```text
+    dig DS example.com
+    ```
+
+    If DS records exist, DNSSEC is enabled at the parent. Flag for any planned migration work (lesson 06).
+  </Step>
+</StepThrough>
+
+## The summary
+
+After the six checks, form a one-or-two-sentence summary:
+
+> *Registered at GoDaddy, expires in 18 days. DNS at Google Domains. Web at 198.51.100.42 (looks like Provider X). Mail at M365. SPF present and matches M365. DMARC at p=none reporting to dmarc@. DNSSEC off.*
+
+If any of those are missing or wrong, that's your starting list for further work.
+
+## What this is NOT
+
+- "Skip the WHOIS; jump to `dig A`." The other checks against your default resolver work but don't confirm the layer-1 picture (registrar, expiry, lock status). Start with WHOIS.
+- "Read only the records that match the ticket." A *mail is down* ticket may have a non-mail cause (the domain expired). Run the full sequence.
+- "DNSSEC is rare; skip it." The one time you skip and DNSSEC is on, the consequences are large.
+
+## When to escalate based on what you find
+
+- `redemptionPeriod` or `pendingDelete` status → escalate recovery.
+- DNSSEC enabled and a transfer or DNS change is planned → escalate safe-disable.
+- Unfamiliar registrar with restrictive policies → senior may have a relationship or workaround.
+- Anything that looks like account compromise (unauthorised nameserver changes, unexplained transfers in progress) → escalate immediately.
+
+## Worked example
+
+A new client onboarding. WHOIS shows: registrar = GoDaddy, expiry = 18 days from now, status = `clientTransferProhibited` (normal), nameservers = `ns1.googledomains.example` and `ns2.googledomains.example`, DNSSEC = unsigned.
+
+You flag the expiry-soon finding immediately (the auto-renew might fail on a stale card; renewal verification is worth doing now, not in 18 days when it might be in grace). Then complete the rest of the sequence to build the full picture before suggesting any next steps.
+
+The 18-day expiry doesn't mean dropping the rest of the checks; it means the checks finish and the summary leads with the expiry as the priority finding.

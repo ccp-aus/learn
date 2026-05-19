@@ -1,0 +1,91 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Map } from "lucide-react";
+import { courseUrl, vendorOfCourse, levelLabel } from "@/lib/courseRoute";
+import { isPublic } from "@/lib/dev-only";
+
+export async function getStaticPaths() {
+  const paths = (await getCollection("paths")).filter(isPublic);
+  return paths.map((p) => ({
+    params: { path: p.data.slug },
+    props: { path: p },
+  }));
+}
+
+const { path } = Astro.props;
+
+const allCourses = (await getCollection("courses")).filter(isPublic);
+const allVendors = (await getCollection("vendors")).filter(isPublic);
+
+const courses = path.data.courses
+  .map((slug: string) => allCourses.find((c) => c.data.slug === slug))
+  .filter(Boolean) as typeof allCourses;
+---
+
+<BaseLayout title={path.data.title} description={path.data.summary}>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <Breadcrumb
+      items={[
+        { href: "/", label: "Home" },
+        { href: "/paths/", label: "Learning paths" },
+        { label: path.data.title },
+      ]}
+    />
+
+    <header class="mt-6 mb-10">
+      <Map className="h-6 w-6 text-primary" />
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+        {path.data.title}
+      </h1>
+      <p class="mt-3 text-lg text-foreground/85 leading-relaxed">
+        {path.data.summary}
+      </p>
+      <p class="mt-2 text-sm text-muted-foreground">
+        For: {path.data.audience}
+      </p>
+    </header>
+
+    <ol class="space-y-3">
+      {courses.map((c, i) => {
+        const v = vendorOfCourse(c, allVendors);
+        if (!v) return null;
+        return (
+          <li>
+            <a
+              href={courseUrl(c, v)}
+              class="group flex items-center gap-4 rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/40"
+              data-astro-prefetch
+            >
+              <span class="font-mono text-sm text-muted-foreground w-6 text-right">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold"
+                style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+              >
+                {v.data.name[0]}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-medium tracking-tight group-hover:text-primary">
+                    {v.data.name}
+                  </span>
+                  <Badge variant={c.data.level as "l1" | "l2" | "l3"} className="text-[10px] uppercase tracking-widest">
+                    {levelLabel[c.data.level as "l1" | "l2" | "l3"]}
+                  </Badge>
+                </div>
+                <p class="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+                  {c.data.title}
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+</BaseLayout>

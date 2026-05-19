@@ -1,0 +1,76 @@
+---
+slug: 03-step-throughs
+vendor: _dev
+level: l1
+title: Progressive step-throughs
+summary: StepThrough with text-only steps, an image step, and a StepCheck gate.
+estimatedMinutes: 6
+order: 3
+topics:
+  - stepthrough
+  - stepcheck
+---
+
+`StepThrough` reveals steps one at a time on hydration. Server-rendered output shows every step so the page stays scannable and printable without JS.
+
+<StepThrough client:load title="Sample procedure">
+  <Step title="Read the brief">
+    First step. Text only. The Continue button should be enabled because nothing here blocks advance.
+  </Step>
+
+  <Step title="Inspect the artefact" image="/_dev/kitchen-sink-screenshot.svg" imageAlt="Mockup of a UI surface, used here as a step illustration.">
+    Second step. Image renders above the body. Continue stays enabled.
+  </Step>
+
+  <Step title="Single-answer check">
+    Active recall gate. Pick one. Continue stays disabled until the correct answer is submitted.
+
+    <StepCheck
+      client:load
+      question="Which directive must StepThrough use to support progressive reveal?"
+      type="mcq"
+      choices={[
+        {
+          label: "client:idle",
+          rationale: "client:idle is the lowest-priority hydration. By the time it fires, the learner has likely already clicked Continue — and Continue has no React behind it, so nothing happens.",
+        },
+        "client:load",
+        {
+          label: "client:visible",
+          rationale: "client:visible waits for the island to scroll into view. StepThrough is at the top of the section the moment the page paints; it never `becomes` visible — it already is.",
+        },
+        {
+          label: "no directive",
+          rationale: "No directive = no hydration. StepThrough renders the full list as static HTML and the Continue button is inert.",
+        },
+      ]}
+      correct={1}
+      explanation="client:load. The Continue button and per-step visibility need React up and running on first paint."
+    />
+  </Step>
+
+  <Step title="Multi-answer check">
+    Same idea, but pick all that apply.
+
+    <StepCheck
+      client:load
+      question="Which of these are valid Hotspot tones?"
+      type="multi"
+      choices={[
+        "primary",
+        "warning",
+        {
+          label: "info",
+          rationale: "info is a valid Callout type, but not a valid Hotspot tone. The Hotspot marker silently renders unstyled — easy to miss in review.",
+        },
+        "success",
+      ]}
+      correct={[0, 1, 3]}
+      explanation="primary, warning, and success render styled markers. info silently falls back to unstyled."
+    />
+  </Step>
+
+  <Step title="Wrap-up">
+    Last step. If you reached this card by clicking Continue four times (and answered both checks correctly), the StepThrough + StepCheck pair is healthy.
+  </Step>
+</StepThrough>

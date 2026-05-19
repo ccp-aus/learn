@@ -1,0 +1,59 @@
+---
+slug: 02-screenshots-and-hotspots
+vendor: _dev
+level: l1
+title: Screenshots and hotspots
+summary: AnnotatedScreenshot wrapper with primary, warning, and success Hotspots.
+estimatedMinutes: 5
+order: 2
+topics:
+  - hotspots
+  - screenshots
+---
+
+Hotspot markers should pulse on the image, scale on hover, and open a popover with the title, purpose, and body content. The wrapper is bare; only the Hotspot children get `client:load`.
+
+<AnnotatedScreenshot
+  src="/_dev/kitchen-sink-screenshot.svg"
+  alt="Placeholder mockup with three labeled regions left to right: primary, warning, success."
+  caption="Synthetic placeholder. Real lessons swap this for a vendor screenshot."
+  aspect="16/9"
+>
+  <Hotspot
+    client:load
+    x={18}
+    y={30}
+    label="1"
+    title="Primary action"
+    purpose="Where the day-to-day click happens."
+    tone="primary"
+  >
+    Primary tone uses the site accent colour. Use it for the one path you want the reader to take.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={50}
+    y={30}
+    label="2"
+    title="Watch out"
+    purpose="Surface that bites if you misuse it."
+    tone="warning"
+  >
+    Warning tone is amber. Use it for irreversible toggles, destructive defaults, or anything that costs an hour of cleanup.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={82}
+    y={30}
+    label="3"
+    title="Confirmation surface"
+    purpose="What success looks like after the click."
+    tone="success"
+  >
+    Success tone is emerald. Use it for confirmations, checkpoints reached, and post-state verification.
+  </Hotspot>
+</AnnotatedScreenshot>
+
+## Notes on shape
+
+Labels are short by design: numeric markers (1, 2, 3) keep the dot uncluttered and let the popover carry the real text. Descriptive content belongs in `title`, `purpose`, and the body. Tones outside `primary | warning | success` render unstyled and are easy to miss in review.

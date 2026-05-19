@@ -1,0 +1,132 @@
+---
+slug: 09-dkim-in-dns
+vendor: domains-and-dns
+level: l2
+title: 'DKIM in DNS'
+summary: 'Per-message cryptographic signature, public key in DNS at a selector subdomain. The two forms (TXT or CNAME), and why multi-selector setups matter for key rotation.'
+estimatedMinutes: 8
+order: 9
+topics: ['email-auth', 'dkim', 'selectors']
+---
+
+DKIM is the email-auth record that most often *looks like* it's working when it isn't. The wizard publishes a value, the panel saves it, the client sends mail, and the receiver still flags it as failing DKIM because the published key doesn't match the signature in the message.
+
+The two common causes: wrong selector name, and value-format problems (long-TXT issues). Knowing the selector convention and the verify step prevents the silent-failure pattern.
+
+## How DKIM works
+
+The sending mail server signs each outbound message with a private key. The public key is published in DNS so receivers can verify:
+
+1. The message header includes a `DKIM-Signature:` field naming the signing domain (`d=example.com`) and the selector (`s=selector1`).
+2. The receiver constructs the DNS name `selector1._domainkey.example.com` and queries for a TXT.
+3. The TXT contains the public key: `v=DKIM1; k=rsa; p=<long-base64-string>`.
+4. The receiver verifies the signature using the public key.
+
+For helpdesk work, you don't write DKIM records from scratch. The mail vendor publishes them and gives you values to add to your DNS.
+
+## The selector convention
+
+DKIM uses a *selector* to allow multiple keys per domain. The selector is the leftmost label in the DNS name:
+
+```text
+selector1._domainkey.example.com.   IN  TXT  "v=DKIM1; k=rsa; p=MIIBIj..."
+```
+
+Common selectors:
+
+| Vendor | Default selector(s) |
+|---|---|
+| Microsoft 365 | `selector1`, `selector2` |
+| Google Workspace | `google` (configurable) |
+| Mailchimp | `k1` |
+| Mailgun | `mta` |
+
+The `_domainkey` part is fixed. Don't change it.
+
+## The two forms: TXT or CNAME
+
+<AnnotatedCode
+  client:load
+  filename="DKIM (TXT form vs CNAME form)"
+  lang="text"
+  code={`# Direct TXT: vendor gives you the full public-key value, you publish it
+google._domainkey.example.com.   IN  TXT    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOC..."
+
+# CNAME: you point your selector to the vendor's published TXT
+selector1._domainkey.example.com.   IN  CNAME  selector1-example-com._domainkey.example.onmicrosoft.com.
+selector2._domainkey.example.com.   IN  CNAME  selector2-example-com._domainkey.example.onmicrosoft.com.`}
+  marks={[
+    { line: 2, tone: "primary", label: "1", title: "Direct public key", body: "Straightforward, but runs into the 255-character TXT string limit. Long DKIM keys often need to be split across multiple strings (lesson 18). If the panel doesn't auto-split, the published value is malformed." },
+    { line: 5, tone: "success", label: "2", title: "Point at vendor's TXT", body: "Vendor publishes the actual key on their domain. You CNAME to it. Advantage: vendor handles the key including rotation; your DNS doesn't change when the key rotates. Disadvantage: you trust the vendor's continued publication." },
+    { line: 6, tone: "primary", label: "3", title: "Multi-selector for rotation", body: "M365 publishes two selectors so they can rotate keys between them. Publish both; without the second, rotation will eventually leave messages signed with a selector that has no DNS entry, breaking DKIM mid-rotation." },
+  ]}
+/>
+
+In MSP work, the CNAME form is more common for cloud mail vendors because of the long-key handling and the rotation benefit.
+
+## Multi-selector for key rotation
+
+Multi-selector setups (M365, others) publish two selectors:
+
+```text
+selector1._domainkey.example.com.   IN  CNAME  selector1-example-com._domainkey.example.onmicrosoft.com.
+selector2._domainkey.example.com.   IN  CNAME  selector2-example-com._domainkey.example.onmicrosoft.com.
+```
+
+The mail server signs with one selector at a time. When the vendor rotates the key, they sign with the other for a while. Both selectors are valid at any time so messages during the rotation window verify correctly.
+
+For setup: M365's wizard gives you *two* CNAMEs. Don't skip the second because *the first one looks enough*. Rotation will silently fail.
+
+## What this is NOT
+
+- "DKIM is one key per domain." It's one key per selector; a domain can have many selectors.
+- "If `dig TXT example.com` returns nothing about DKIM, DKIM isn't set up." DKIM lives at *selector* subdomains. Query the selector: `dig TXT selector1._domainkey.example.com`.
+- "DKIM verifies the From: address." DKIM verifies the *signing domain* (`d=` field). DMARC aligns this against the visible From.
+
+## Decision walkthrough
+
+A client onboards to M365. The wizard provides two CNAMEs to add. You publish both. Two minutes later:
+
+```text
+dig CNAME selector1._domainkey.example.com    # returns the expected target ✓
+dig CNAME selector2._domainkey.example.com    # NXDOMAIN ✗
+```
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="The second CNAME isn't resolving"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "selector2 returns NXDOMAIN. What's the cause?",
+      choices: [
+        { label: "Microsoft hasn't propagated; wait.", next: "ms-prop" },
+        { label: "The second CNAME didn't save in your DNS host's panel. Re-check the panel.", next: "panel" },
+        { label: "Microsoft's wizard gave a wrong value.", next: "ms-wrong" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "ms-prop",
+      label: "Wrong upstream",
+      tone: "bad",
+      body: "M365 publishes its CNAME targets immediately on tenant setup, and you're querying YOUR authoritative DNS, not Microsoft's. The fault is on your side.",
+    },
+    {
+      type: "outcome",
+      id: "panel",
+      label: "Check your save",
+      tone: "success",
+      body: "Right. Possibly a copy-paste error in the name (selector_2 instead of selector2), or the panel's UI didn't commit the second record. Verify against authoritative (dig @ns1.<your-dns>.com) to confirm the record actually exists; re-save if it doesn't.",
+    },
+    {
+      type: "outcome",
+      id: "ms-wrong",
+      label: "Unlikely",
+      tone: "warn",
+      body: "Possible but rare; the wizard's values are tenant-generated and usually correct. Check your save first; the most common cause is a panel-side typo.",
+    },
+  ]}
+/>

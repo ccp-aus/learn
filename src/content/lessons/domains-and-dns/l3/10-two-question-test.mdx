@@ -1,0 +1,106 @@
+---
+slug: 10-two-question-test
+vendor: domains-and-dns
+level: l3
+title: 'The two-question reversibility test'
+summary: 'The reflex test that sorts actions by blast radius. Different DNS operations sit at different points on the gradient; the test runs per-action, not per-shift.'
+estimatedMinutes: 7
+order: 10
+topics: ['judgement', 'reversibility', 'escalation']
+---
+
+The two-question test from the Foundation course is the heart of escalation judgement. Different DNS operations sit at different points on the reversibility gradient. Knowing where each one sits lets you ask the right form of the test before acting.
+
+> Before any change touching a live domain or DNS record:
+>
+> 1. **If I do this and it's wrong, is it reversible?**
+> 2. **Do I understand *why* this is the right action, or am I copying steps?**
+>
+> If either answer is "no" — escalate.
+
+## The reversibility gradient in DNS
+
+| Action | Reversibility | Risk |
+|---|---|---|
+| **TTL value change** | Fully reversible within the old TTL | Low |
+| **Record value edit** (A, AAAA, CNAME, MX, TXT) | Reversible; propagation-bound | Minutes to hours of stale state |
+| **Nameserver change at registrar** | Reversible; longer tail (parent NS TTL) | Hours to days of broken state |
+| **Domain expiry within grace** | Reversible by renewal | Decays sharply with time |
+| **DNSSEC operation** | Marginally; reversion is complex | Hours of total outage |
+| **Registrant change** | Practically irreversible for 60 days (post-change lock) | Long-term operational lock |
+| **Domain past pending delete** | Irreversible | Gone |
+
+## Applying the test by reversibility
+
+For low-reversibility actions, *do I understand why* is the harder filter. For low-risk actions, *is it reversible* is enough.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Which action are you about to take?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Pick the kind of change",
+      choices: [
+        { label: "TTL edit on a record (preparing for a planned change).", next: "ttl" },
+        { label: "Edit an A record value (web host migration on agreed window).", next: "value" },
+        { label: "Change nameservers at the registrar (DNS host transfer).", next: "ns" },
+        { label: "Disable DNSSEC.", next: "dnssec" },
+        { label: "Change of registrant (correcting from previous MSP to client).", next: "registrant" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "ttl",
+      label: "Proceed",
+      tone: "success",
+      body: "Reversible? Yes. Why? Clear (pre-flight for a planned change). Low bar — proceed.",
+    },
+    {
+      type: "outcome",
+      id: "value",
+      label: "Proceed if the why is clear",
+      tone: "success",
+      body: "Reversible? Yes, with propagation tail. Why? Should be a specific migration plan. If the why is hand-wavy ('the client said update it'), pause to clarify the migration scope first.",
+    },
+    {
+      type: "outcome",
+      id: "ns",
+      label: "Proceed only with dual-provisioning verified",
+      tone: "warn",
+      body: "Reversible but with parent-NS-TTL tail (hours-to-days). Why must be the DNS host transfer plan, with dual-provisioning verified (new zone built and answering correctly). If the new zone isn't ready, escalate.",
+    },
+    {
+      type: "outcome",
+      id: "dnssec",
+      label: "Sign-off required",
+      tone: "bad",
+      body: "Reversibility is marginal. The why must be sign-off-shaped — written approval from senior, safe-disable checklist named. Casual 'senior said do it' isn't enough; the blast radius justifies the friction.",
+    },
+    {
+      type: "outcome",
+      id: "registrant",
+      label: "Senior + client confirmation",
+      tone: "bad",
+      body: "Practically irreversible within 60 days. Senior must own the timing decision (coordination with any planned transfers); client must confirm the new registrant matches their intent.",
+    },
+  ]}
+/>
+
+## What this is NOT
+
+- "All DNS edits are low-risk because the panel is friendly." The panel doesn't distinguish between editing TTL and disabling DNSSEC; both are clicks. The blast radius does distinguish them.
+- "*The senior said do it* is sufficient *why*." For high-blast-radius actions, the *why* should be written down and the sign-off should be explicit. Verbal *just go ahead* is fine for routine; not for DNSSEC, registrant changes, or other near-irreversible actions.
+- "Apply the test once per shift." The test runs per-action, not per-shift. Each change gets the two questions.
+
+## Worked decision
+
+A senior pings: *client says they want DNSSEC off on `example.com` so they can transfer DNS to a new host. Just remove the DS records at the registrar and change nameservers — should be quick.*
+
+The two-question test applied: *reversible?* Marginally for DNSSEC; consequence of getting it wrong is the zone-dark scenario for hours. *Why?* *Senior said do it* — not sign-off-shaped, not following the documented safe-disable sequence.
+
+The constructive reply: *DNSSEC disable then immediate nameserver change is the cardinal sin from lesson 06 — it skips the DS-TTL wait. The safe sequence is: remove DS, wait the DS TTL (24-48 hours), verify the zone is `insecure`, then change nameservers. Can I run the safe sequence and get your sign-off in writing on the safe-disable step?*
+
+You're not refusing the work; you're flagging that the action is in the high-blast-radius column and requesting the right form of authority. That's the test working as intended.

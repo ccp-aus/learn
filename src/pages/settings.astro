@@ -1,0 +1,25 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { SettingsPanel } from "@/components/site/SettingsPanel";
+---
+
+<BaseLayout
+  title="Settings & data"
+  description="Export, import, or wipe your local learning progress."
+  noindex={true}
+>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+    <Breadcrumb items={[{ href: "/", label: "Home" }, { label: "Settings" }]} />
+
+    <header class="mt-6 mb-8">
+      <h1 class="text-4xl font-semibold tracking-tight">Settings & data</h1>
+      <p class="mt-3 max-w-2xl text-muted-foreground text-lg">
+        Your progress lives only in this browser. Move it between devices —
+        or wipe it — from here.
+      </p>
+    </header>
+
+    <SettingsPanel client:load />
+  </div>
+</BaseLayout>

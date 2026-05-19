@@ -1,0 +1,171 @@
+{
+  "slug": "domains-and-dns-records-and-mail-final",
+  "course": "domains-and-dns-records-and-mail",
+  "kind": "final",
+  "title": "Records and mail authentication: final check",
+  "drawCount": 8,
+  "passThreshold": 0.7,
+  "questions": [
+    {
+      "id": "qrm-srv-target",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "srv",
+      "prompt": "M365's SRV verification fails. `dig SRV _sip._tls.example.com` returns the record but the target field reads `sipdir.online.lync.com.example.com.` instead of `sipdir.online.lync.com.`. What happened?",
+      "choices": [
+        "TTL is wrong.",
+        "The DNS host's panel treated the target as a relative name and appended .example.com to it. Re-enter with the trailing dot or via the panel's FQDN toggle.",
+        "M365's verifier is broken.",
+        "The TTL is too low."
+      ],
+      "correct": 1,
+      "explanation": "Most DNS hosts have a way to indicate 'this is an absolute name' (the trailing dot, or an FQDN toggle). Missing it means the target gets the zone suffix appended. The most common SRV mistake."
+    },
+    {
+      "id": "qrm-caa-current-issuers",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "caa",
+      "prompt": "Before publishing a CAA record on a domain that's been issuing certs for years, what do you do?",
+      "choices": [
+        "Add the CA the client just bought from; it's the only one that matters now.",
+        "Check what's currently issuing (browser cert inspection + Certificate Transparency log search at crt.sh). Add all current and intended-future issuers.",
+        "Add only Let's Encrypt; it covers most cases.",
+        "Add the most restrictive CAA possible to be safe."
+      ],
+      "correct": 1,
+      "explanation": "Adding a CAA that doesn't include a currently-issuing CA silently breaks future renewals — the cert keeps working until it expires, then the site goes dark. CT logs (crt.sh) reveal which CAs have actually been issuing, including ones the client doesn't know about (hosting auto-SSL, etc.)."
+    },
+    {
+      "id": "qrm-ns-delegation-vs-cname",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "ns-delegation",
+      "prompt": "NS delegation is just a fancy CNAME; both alias one DNS name to another.",
+      "correct": false,
+      "explanation": "CNAME aliases one name to another. NS delegation hands off an *entire subtree* to a different DNS host. Different mechanisms, different use cases. Delegation is heavier and escalation territory unless from a runbook."
+    },
+    {
+      "id": "qrm-ptr-layer",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "ptr",
+      "prompt": "A client's mail bounces with 'reverse DNS does not match host name.' Where do you go to fix it?",
+      "choices": [
+        "Add a PTR record at the client's DNS host panel.",
+        "Open a ticket with whoever owns the IP block (the hosting provider or ISP). PTR lives in the reverse-DNS namespace, controlled by the IP-block owner, not the domain registrant.",
+        "Tell the client to switch mail providers.",
+        "Update the SPF record."
+      ],
+      "correct": 1,
+      "explanation": "PTR records live in the reverse-DNS namespace (in-addr.arpa for IPv4), controlled by the IP-block owner. The client's DNS host has no authority over it. The fix is always a request to whoever owns the IP."
+    },
+    {
+      "id": "qrm-dig-authoritative",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "dig",
+      "prompt": "You changed a record 30 minutes ago. The client says the change isn't visible. What's your first diagnostic command?",
+      "choices": [
+        "dig A example.com (uses your default resolver).",
+        "dig A example.com @<authoritative ns of the zone> — confirm the change is correct at the source.",
+        "ping the new IP.",
+        "Ask the client to clear their browser cache."
+      ],
+      "correct": 1,
+      "explanation": "Query the authoritative directly to confirm the change is at the source. If the authoritative shows the new value, the staleness is downstream cache; if it shows the old value, the change didn't save. A second dig against 8.8.8.8 reveals one specific public cache's state."
+    },
+    {
+      "id": "qrm-cannot-enumerate",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "enumeration",
+      "prompt": "A client asks for a complete list of their DNS records but you have no panel access to the current DNS host. What's the calibrated reply?",
+      "choices": [
+        "Run dig ANY example.com and report whatever comes back as the complete list.",
+        "Run the standard probe (each record type at the apex, common subdomain names) and check Certificate Transparency. Report as a probe with a caveat that complete enumeration requires panel access or a zone export.",
+        "Tell the client you can't help.",
+        "Promise a complete list within a week."
+      ],
+      "correct": 1,
+      "explanation": "dig ANY no longer returns complete responses (neutered for amplification-attack mitigation), and AXFR is closed at virtually all authoritative servers. The probe + CT logs is the practical approximation; be explicit that complete enumeration needs panel access or a zone export."
+    },
+    {
+      "id": "qrm-spf-two-records",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "spf",
+      "prompt": "A client's apex has two TXT records, both starting with `v=spf1`. What's the consequence?",
+      "choices": [
+        "Both SPF records take effect; the union of authorised senders is allowed.",
+        "SPF evaluates as `permerror` — receivers treat the domain as if SPF protection isn't in place.",
+        "The more recent record wins.",
+        "Both records are ignored and SPF defaults to allowing everyone."
+      ],
+      "correct": 1,
+      "explanation": "SPF protocol allows only one TXT starting with `v=spf1` per domain. Two SPF records produce permerror. The fix is merging into a single TXT with all needed includes."
+    },
+    {
+      "id": "qrm-dkim-selector",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "dkim",
+      "prompt": "M365's wizard provides two DKIM CNAMEs (`selector1._domainkey` and `selector2._domainkey`). Why publish both rather than just the first?",
+      "choices": [
+        "Redundancy in case one fails.",
+        "Multi-selector setup for key rotation. The mail server signs with one selector at a time; during rotation, it signs with the other. Both must be valid in DNS or messages signed during rotation will fail DKIM.",
+        "Microsoft requires two for tenant onboarding.",
+        "selector2 is a backup that takes over after a year."
+      ],
+      "correct": 1,
+      "explanation": "M365 (and many other providers) use a multi-selector pattern for key rotation. Without selector2 in DNS, eventually a key rotation will leave outbound messages signed with a selector that has no public key in DNS, breaking DKIM mid-rotation."
+    },
+    {
+      "id": "qrm-dmarc-ramp",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "dmarc",
+      "prompt": "A client's owner says 'set up DMARC at p=reject so we're fully protected.' The client has no DMARC history. What do you do?",
+      "choices": [
+        "Publish p=reject as requested.",
+        "Publish p=none with rua= reporting. Explain that DMARC ramps from none to quarantine to reject over weeks while you monitor reports for legitimate senders that aren't yet authorised.",
+        "Publish p=quarantine as a middle ground.",
+        "Refuse to set up DMARC."
+      ],
+      "correct": 1,
+      "explanation": "Going straight to p=reject without monitoring history risks blocking legitimate mail from senders the client didn't realise were sending (CRMs, newsletters, transactional mail). The right starting point is p=none with reports flowing. Helpdesk-scope is the initial p=none; ramping to enforcement is design and escalates."
+    },
+    {
+      "id": "qrm-verify-sequence",
+      "type": "order",
+      "difficulty": "medium",
+      "topic": "verify",
+      "prompt": "Order the four-step verification sequence after publishing SPF, DKIM, and DMARC changes.",
+      "items": [
+        "dig TXT example.com — confirm one and only one v=spf1 record",
+        "dig TXT or CNAME at each <selector>._domainkey.example.com — confirm DKIM records resolve",
+        "dig TXT _dmarc.example.com — confirm v=DMARC1, policy, and rua= are correct",
+        "Send a test email to a Gmail account; check Authentication-Results for spf=pass dkim=pass dmarc=pass"
+      ],
+      "explanation": "Run the lookups first to confirm what's published; finish with the end-to-end test that proves the records actually work at a real receiver. The wizard's verification often misses dual-SPF, DMARC typos, or missing selectors."
+    },
+    {
+      "id": "qrm-spf-policy-terms",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "spf-policy",
+      "prompt": "`+all` is a safe SPF policy term to use as a catch-all for legitimate senders.",
+      "correct": false,
+      "explanation": "+all authorises *everyone* — including attackers. It defeats SPF entirely. Never use +all. The right terms are -all (hard fail) or ~all (soft fail)."
+    },
+    {
+      "id": "qrm-cannot-enumerate-tf",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "enumeration",
+      "prompt": "`dig ANY example.com` is a reliable way to enumerate every record in a zone today.",
+      "correct": false,
+      "explanation": "dig ANY has been progressively neutered across DNS infrastructure since the early 2010s (DNS amplification mitigation; RFC 8482 in 2019). Today it returns minimal responses. The reliable enumeration paths are panel access, zone export from the DNS host, or probing record-type-by-record-type."
+    }
+  ]
+}

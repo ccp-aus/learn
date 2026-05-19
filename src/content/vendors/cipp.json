@@ -1,0 +1,10 @@
+{
+  "slug": "cipp",
+  "name": "CIPP",
+  "tagline": "Open-source M365 multi-tenant management.",
+  "summary": "CIPP (CyberDrain Improved Partner Portal) is a free, open-source web app for managing many Microsoft 365 tenants efficiently using the Microsoft Graph API and GDAP. Standardize, automate, and bulk-administer customer M365 environments without paying per-tenant fees.",
+  "accent": "oklch(0.76 0.18 60)",
+  "website": "https://cipp.app/",
+  "status": "planned",
+  "order": 40
+}

@@ -1,0 +1,55 @@
+{
+  "slug": "domains-and-dns-records-and-mail-checkpoint-spf-rules",
+  "course": "domains-and-dns-records-and-mail",
+  "kind": "checkpoint",
+  "title": "Quick check: SPF rules",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-spf-one-record",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "one-spf-rule",
+      "prompt": "A client onboarding a new CRM. The CRM says 'add `include:_spf.crm-vendor.example` to your SPF.' The existing zone has `\"v=spf1 include:spf.protection.outlook.com -all\"`. What's the right way to add the CRM's include?",
+      "choices": [
+        "Add a second TXT record with `\"v=spf1 include:_spf.crm-vendor.example -all\"`.",
+        "Edit the existing TXT to add the new include: `\"v=spf1 include:spf.protection.outlook.com include:_spf.crm-vendor.example -all\"`. Verify the lookup count is under 10.",
+        "Add `+all` to authorise the CRM.",
+        "Delete the old SPF and add a new one with both includes."
+      ],
+      "correct": 1,
+      "explanation": "Two SPF records make SPF evaluate as permerror — no protection at all. Multiple senders go in the single record's include list. `+all` authorises everyone (never right); delete-then-add leaves a window with no SPF."
+    },
+    {
+      "id": "ck-spf-10-lookup",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "10-lookup-limit",
+      "prompt": "You count the DNS lookups in a published SPF record and reach 11. What happens at receivers?",
+      "choices": [
+        "SPF still evaluates; the limit is advisory.",
+        "SPF evaluates as `permerror`. Receivers treat the domain as if SPF protection isn't in place.",
+        "The first 10 lookups count; the 11th is ignored.",
+        "It only matters for receivers that enforce DMARC `p=reject`."
+      ],
+      "correct": 1,
+      "explanation": "The 10-lookup limit is enforced. Over-limit SPF has no protective value even though the record is published. permerror affects SPF evaluation regardless of DMARC enforcement mode."
+    },
+    {
+      "id": "ck-spf-policy-terms",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "policy-terms",
+      "prompt": "Which SPF policy term should you *never* use as a 'catch-all' for legitimate senders?",
+      "choices": [
+        "-all (hard fail)",
+        "~all (soft fail)",
+        "?all (neutral)",
+        "+all (authorise everyone)"
+      ],
+      "correct": 3,
+      "explanation": "+all authorises everyone, including attackers. It defeats SPF entirely. The right policy terms are -all (strict) or ~all (soft fail); ?all is neutral and provides no protection but at least doesn't authorise attackers."
+    }
+  ]
+}

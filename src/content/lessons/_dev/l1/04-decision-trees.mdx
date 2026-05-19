@@ -1,0 +1,86 @@
+---
+slug: 04-decision-trees
+vendor: _dev
+level: l1
+title: Decision trees and branching
+summary: DecisionTree config-prop API with question and outcome nodes across every tone.
+estimatedMinutes: 5
+order: 4
+topics:
+  - decision-tree
+---
+
+`DecisionTree` takes its tree as a `nodes` config prop. Children would be pre-rendered into an opaque StaticHtml blob by Astro's React renderer, so the parent could never introspect them — the config-prop shape is how outcomes survive SSR.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Sample triage flow"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Did the user say anything is on fire right now?",
+      choices: [
+        { label: "Yes, production is down", next: "outcome-bad" },
+        { label: "No, but something's off", next: "scope" },
+        { label: "Not sure", next: "outcome-info" },
+      ],
+    },
+    {
+      type: "question",
+      id: "scope",
+      prompt: "Is it one user or many?",
+      choices: [
+        { label: "One user", next: "outcome-neutral" },
+        { label: "Many users, one tenant", next: "outcome-warn" },
+        { label: "Many users, many tenants", next: "outcome-bad" },
+        { label: "Everyone, everywhere", next: "outcome-success" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "outcome-bad",
+      label: "Page the on-call",
+      tone: "bad",
+      body: "Customer-impacting outage. Skip the helpdesk queue, page on-call, post in the incident channel.",
+    },
+    {
+      type: "outcome",
+      id: "outcome-warn",
+      label: "Open a Sev-2",
+      tone: "warn",
+      body: "Tenant-scoped degradation. Open a Sev-2, notify the account owner, start gathering logs before escalating.",
+    },
+    {
+      type: "outcome",
+      id: "outcome-good",
+      label: "Standard ticket",
+      tone: "good",
+      body: "Single-user issue with a known fix. Standard ticket, normal SLA, document the resolution.",
+    },
+    {
+      type: "outcome",
+      id: "outcome-success",
+      label: "Confirmed: provider outage",
+      tone: "success",
+      body: "Symptom matches a known upstream provider incident. Link the status page, hold off on individual tickets.",
+    },
+    {
+      type: "outcome",
+      id: "outcome-info",
+      label: "Ask one more question",
+      tone: "info",
+      body: "Ambiguous severity. Reply to the user with a single clarifying question before doing anything else.",
+    },
+    {
+      type: "outcome",
+      id: "outcome-neutral",
+      label: "Routine triage",
+      tone: "neutral",
+      body: "Nothing escalation-worthy yet. Reproduce, capture details, decide where it sits.",
+    },
+  ]}
+/>
+
+Tones covered above: `bad`, `warn`, `good`, `success`, `info`, `neutral`. If any outcome card renders without its accent border or background tint, the tone map is broken.

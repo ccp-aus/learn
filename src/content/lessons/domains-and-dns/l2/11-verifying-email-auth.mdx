@@ -1,0 +1,91 @@
+---
+slug: 11-verifying-email-auth
+vendor: domains-and-dns
+level: l2
+title: 'Verifying email auth'
+summary: 'The four-step routine to run after any SPF, DKIM, or DMARC change. Catches the four common errors before the client notices.'
+estimatedMinutes: 8
+order: 11
+topics: ['email-auth', 'verification', 'dig']
+---
+
+Every email-auth change is a candidate for silent failure. The DNS host's panel says *saved*, but the actual published value may be wrong because of a copy-paste error, a missing string for a long value, a CNAME pointing nowhere, or a constraint that was already violated before your edit.
+
+Verifying after each change (a one-minute sequence of lookups) catches these before the client notices *the migration was last week and our mail is going to spam*.
+
+## The four-step sequence
+
+<StepThrough client:load>
+  <Step title="1. SPF">
+    ```text
+    dig TXT example.com
+    ```
+
+    Read the response for the TXT starting with `v=spf1`. Verify:
+    - **Only one** TXT starts with `v=spf1`. Two = `permerror` = SPF broken.
+    - The expected `include:` mechanisms are present.
+    - The policy term is correct (`-all` hard fail, `~all` soft fail).
+    - Roughly count the lookups (each `include:`, `a`, `mx` is one). Use a tool for an authoritative count.
+  </Step>
+  <Step title="2. DKIM (for each selector)">
+    ```text
+    dig TXT selector1._domainkey.example.com
+    dig CNAME selector1._domainkey.example.com   # if vendor uses CNAME form
+    ```
+
+    Verify:
+    - The response is not empty.
+    - For TXT form: starts with `v=DKIM1; k=rsa; p=` and the key matches what the vendor expects.
+    - For CNAME form: the target is the vendor's expected hostname.
+    - If the vendor publishes multiple selectors (M365's `selector1` and `selector2`), check each one.
+  </Step>
+  <Step title="3. DMARC">
+    ```text
+    dig TXT _dmarc.example.com
+    ```
+
+    Verify:
+    - Response not empty; value starts with `v=DMARC1`.
+    - Policy (`p=`) matches what you intended (`p=none` for new setups, enforcement for ramped ones).
+    - `rua=mailto:` address is correct (no typo; an address the client controls).
+  </Step>
+  <Step title="4. End-to-end test message">
+    Send a test message from the configured mail provider to a receiver that performs visible authentication checks (Gmail is the most common). Open the resulting message, view the original / show headers, look for `Authentication-Results:` and confirm `spf=pass`, `dkim=pass`, `dmarc=pass`.
+
+    The receiver's authentication results are the ground truth. Lookup tools confirm the records are published; the receiver's check confirms the records *work*.
+  </Step>
+</StepThrough>
+
+## The four common errors lookup catches
+
+| Error | Symptom in lookup | Fix |
+|---|---|---|
+| **Two SPF records** | `dig TXT example.com` shows two TXTs both starting with `v=spf1` | Merge into one TXT (SPF lesson) |
+| **DKIM selector doesn't resolve** | `dig TXT <selector>._domainkey.example.com` returns NXDOMAIN | Re-check the panel; wrong selector name or save error |
+| **DMARC `rua=` typo** | `dig TXT _dmarc.example.com` shows the wrong address (`dmarc-repots@...`) | Re-publish with the correct address |
+| **SPF over the 10-lookup limit** | Counter tool (MXToolbox, EasyDMARC) shows lookup count > 10 | Escalate; design work (flattening or vendor consolidation) |
+
+## What this is NOT
+
+- "The panel saved it, so it's correct." The panel's save confirmation isn't the same as a correct published record. Always verify with `dig`.
+- "Use the default resolver for verification." A cached old value at your default resolver may show wrong data while the authoritative is correct. Query the authoritative directly (`dig ... @<ns>`) when verifying recent changes.
+- "The vendor's verification step is enough." The vendor's *verify setup* button checks the records the vendor cares about. It doesn't catch dual-SPF, DMARC typos, or other issues outside its scope.
+
+## When to escalate
+
+- SPF over the 10-lookup limit; fix requires flattening or vendor consolidation.
+- DMARC aggregate reports show consistent failures from a legitimate sender you can't easily authorise (often a third-party platform with awkward SPF/DKIM alignment).
+- DKIM verification fails even when the published key matches the vendor's expectation; the message-side signing may be misconfigured at the mail provider, requiring vendor support.
+
+## Worked example
+
+You just finished setting up M365 for a new client. SPF, two DKIM CNAMEs, and DMARC `p=none` are all published. The M365 wizard shows green ticks. Before closing the ticket, run the sequence:
+
+- `dig TXT example.com` — one SPF TXT, looks correct.
+- `dig CNAME selector1._domainkey.example.com` — resolves to expected target.
+- `dig CNAME selector2._domainkey.example.com` — **NXDOMAIN**.
+- `dig TXT _dmarc.example.com` — published correctly.
+
+The M365 wizard wouldn't have caught the missing `selector2` because it tested the records it expected to find — not the *absence* of an expected second selector. The verification sequence is wider. Re-check the DNS host's panel for `selector2`; the most likely cause is a save error or a typo in the name field.
+
+Without the verification sequence, you'd close the ticket. Three months later, M365 rotates the DKIM key to `selector2`. Outbound mail starts failing DKIM. The client notices when a high-stakes email lands in someone's spam.

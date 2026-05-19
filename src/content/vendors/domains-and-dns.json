@@ -1,0 +1,10 @@
+{
+  "slug": "domains-and-dns",
+  "name": "Domains & DNS",
+  "tagline": "Vendor-neutral DNS fundamentals for MSP techs.",
+  "summary": "Domains and DNS sit underneath almost every customer ticket: web isn't loading, email won't send, the verification step won't go through. This track takes you from 'I don't really know DNS' to 'I can reason about any DNS change before I make it'. Record types, registrars, mail authentication, propagation, transfers, and the change requests that look harmless but aren't.",
+  "accent": "oklch(0.78 0.14 155)",
+  "kind": "concept",
+  "status": "live",
+  "order": 5
+}

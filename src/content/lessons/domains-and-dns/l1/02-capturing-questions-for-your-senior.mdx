@@ -1,0 +1,54 @@
+---
+slug: 02-capturing-questions-for-your-senior
+vendor: domains-and-dns
+level: l1
+title: 'Capturing questions for your senior'
+summary: 'Keep a running list of the bits that did not click, so they do not slip away between sittings or block you mid-lesson.'
+estimatedMinutes: 4
+order: 2
+topics: [orientation]
+---
+
+Self-paced training happens in the gaps between live work, often when the seniors you'd want to ask are on calls, asleep, or grinding through their own queue. Two failure modes show up over and over. The first is freezing: you hit a confusing passage, have nobody to ask, and stall for a day. The second is silent skipping: you gloss past the bit you didn't quite get, which works fine until that bit shows up on a real domain-transfer ticket three weeks later.
+
+A running questions list fixes both. It unblocks you in the moment (write it down, move on) and stockpiles questions for a check-in when your senior has time.
+
+## The format
+
+A plain text file, a sticky note, a channel-to-self in chat, a page in your notes app. Pick whatever you'll actually use. The format matters less than the habit. Three lines per entry is plenty:
+
+- **Where.** The lesson, the ticket, or the page you were on.
+- **What you didn't get.** In your own words. Quoting the lesson back is a sign you skipped past without engaging.
+- **What you tried.** The search, the doc you read, the colleague you asked. If you didn't try anything, write that too.
+
+## Why the "what you tried" line earns its keep
+
+The line that pulls the most weight is "what you tried." It does three things at once.
+
+First, it stops you filing trivial questions a quick search would have answered. The act of writing *tried: nothing* makes the next step obvious.
+
+Second, it gives your senior context they need. A question that arrives as "what is a CAA record?" gets a one-liner answer. The same question with the right tried-line gets a real conversation.
+
+Third, it builds the habit of trying before asking. Seniors run out of patience for techs who treat them as a search engine. They go out of their way for techs who arrive with a real attempt attached.
+
+<Callout type="tip" title="A worked tried-line">
+*4.2 (SPF): I get that SPF over 10 DNS lookups evaluates as `permerror`, but I can't tell whether `permerror` actually drops the mail or whether the receiver only treats it as a failure under DMARC enforcement. Tried: re-read 4.2 twice, skimmed the SPF spec linkout (`RFC 7208 §4.6.4`), still ambiguous. Suspect 4.4 (DMARC) covers it.*
+
+That's the shape. The senior either replies in a sentence, or knows to pull up the DMARC lesson with you and walk through how it interacts.
+</Callout>
+
+## Now vs the check-in
+
+Some questions can't wait. If a real ticket is in front of you and you're stuck, that's a live block; reach for the on-call senior. Most training questions are not live blocks. Default to capture, keep moving, bring the list to a scheduled check-in. Weekly works for most MSPs.
+
+The two-question reversibility test you'll meet later applies here too: if the next action is reversible and you understand why it's right, you can keep moving. If either isn't true, you stop.
+
+## What this is NOT
+
+- "I'll remember it without writing it down." You won't. You'll remember the *feeling* of being confused at a particular spot, not the specific question. At the check-in, the senior asks "what wasn't clear?" and you can't reconstruct it.
+- "It's a senior's job to teach me, I should ask the moment I'm stuck." Mostly true on the live queue, mostly wrong during self-paced learning. Interrupting a senior every twenty minutes of training time burns the relationship fast.
+- "If I write the question down, I have to wait for an answer to keep moving." Capturing the question is what lets you keep moving. You are not waiting on the answer to read the next lesson.
+
+## What to do today
+
+Pick the surface (file, note, chat-to-self) and put a stake in the ground: this is where questions live for the duration of the course. Tell your senior the surface exists and ask how they want the check-in to run. Some prefer a shared doc you both add to during the week; some prefer you bring the list fresh. Don't agonise over the format. Use it.

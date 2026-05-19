@@ -1,0 +1,102 @@
+---
+slug: 06-domain-contacts
+vendor: domains-and-dns
+level: l1
+title: 'The contact set'
+summary: 'Registrant, admin, tech, billing roles, and the three contact-related bugs that bite MSPs over and over.'
+estimatedMinutes: 8
+order: 6
+topics: ['registration', 'contacts']
+---
+
+Domain contacts look like cosmetic metadata. They are not. The four contact roles encode who *owns* the domain, who is *authorised to change* it, and which email addresses receive the registrar's automated messages (renewals, expiry warnings, transfer approvals).
+
+When a transfer needs admin approval and the admin email belongs to someone who left the client two years ago, the transfer cannot complete. When the registrant is the MSP instead of the client, the client doesn't legally own their own domain. Both of these are routine bugs in MSP practice. The fix is cheap at onboarding; the fix is expensive mid-incident.
+
+## The four roles
+
+| Role | What it does | Common MSP setup |
+|---|---|---|
+| **Registrant** | Legal owner. Has standing in registry policy disputes, UDRP filings, and registrar-failure transfers. | The client. **Never your MSP.** |
+| **Admin contact** | Authorised to make changes. Receives transfer-approval emails. Without a working admin email, transfers stall. | A live email at the client, ideally a shared mailbox the client controls. |
+| **Tech contact** | Receives technical notifications: DNSSEC events, registry outages, sometimes expiry warnings. | Your MSP's shared support address. |
+| **Billing contact** | Receives renewal invoices and billing communications. | Your MSP, if you front the renewal cost; or the client, if they pay the registrar directly. |
+
+The four roles can all be the same person, or all be different. They matter independently of how many real humans are involved.
+
+## The three traps MSPs hit over and over
+
+This is where the lesson earns its keep. These bugs show up across MSPs:
+
+**Registrant set to the MSP instead of the client.** Happens when a tech onboards a new domain or registers one on the client's behalf and fills in the MSP's company details out of habit. Legally, the MSP now owns the domain. If the client leaves the MSP, the registration goes with the MSP unless transferred. The fix is a *change of registrant*, which often triggers a 60-day lock that prevents outbound transfers during the window. Painful, but doable.
+
+**Admin contact email at an ex-employee.** Someone at the client gets promoted, leaves, or has their email decommissioned, and the admin contact never gets updated. Most of the time nothing visible breaks. Then a transfer is initiated, the approval email goes to the dead address, and the transfer stalls. Audit admin contact emails at onboarding and at any client staff change.
+
+**Tech contact left empty.** Some registrars allow it. When the tech contact is empty, technical notifications (especially DNSSEC events and registry-level issues) go nowhere. Setting the tech contact to the MSP's support mailbox is usually the right call.
+
+## What this is NOT
+
+- "The registrant doesn't matter, the billing pays." The registrant is the legal owner; billing is who gets the invoice. The registrant is who wins or loses in a dispute or in a registrar failure.
+- "The admin contact is the registrant." Often the same person, but they are separate roles in the registry's data model. Admin has authority to *change* the domain; the registrant *owns* it.
+- "Privacy services hide the contacts so it doesn't matter what they're set to." They substitute the contacts in *public* WHOIS only. The underlying contacts still drive transfers, approvals, and ownership. (Next lesson covers privacy properly.)
+
+## Decision walkthrough
+
+A new client just transferred ten domains to your MSP for management. The first thing you do is audit the contact records. On the largest domain (`example.com`), you find:
+
+- Registrant: *Previous MSP Pty Ltd*
+- Admin contact: `it@previousmsp.example`
+- Tech contact: `it@previousmsp.example`
+- Billing contact: `accounts@yourmsp.example`
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What's the most urgent problem?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Three things are wrong. Which do you fix first?",
+      choices: [
+        { label: "Billing is your MSP. Fix that.", next: "billing" },
+        { label: "The registrant is the previous MSP. The client doesn't legally own their own domain.", next: "registrant" },
+        { label: "Admin and tech contacts are at the previous MSP. Fix those first.", next: "admin-tech" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "billing",
+      label: "Wrong priority",
+      tone: "bad",
+      body: "Billing being yours is actually what you want, since you're paying for renewals. There's a much bigger problem on this domain.",
+    },
+    {
+      type: "outcome",
+      id: "registrant",
+      label: "Registrant first",
+      tone: "success",
+      body: "Right. Until the registrant is changed to the client, the previous MSP is the legal owner of the registration. If the relationship with the previous MSP turns hostile, this becomes a serious dispute. The change-of-registrant process often triggers a 60-day lock; do it now while there's no time pressure.",
+    },
+    {
+      type: "outcome",
+      id: "admin-tech",
+      label: "Important but secondary",
+      tone: "warn",
+      body: "Important, but not the most urgent. Admin and tech contacts at the wrong place block transfers and lose notifications. They don't change who owns the registration. Fix them next, after the registrant.",
+    },
+  ]}
+/>
+
+## What to do at onboarding
+
+For any client domain you're taking responsibility for, do a four-contact audit and fix what's wrong before anything else. Confirm:
+
+1. **Registrant.** Client's legal name and current address. Never your MSP.
+2. **Admin contact.** A live email at the client, ideally a shared mailbox the client controls. Not an individual who might leave.
+3. **Tech contact.** Usually your MSP's shared support address.
+4. **Billing contact.** Whoever pays for renewals (usually your MSP).
+
+Document each setting in your documentation system so future audits are quick.
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-domain-contacts" client:visible />

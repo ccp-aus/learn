@@ -1,0 +1,117 @@
+---
+slug: 09-locks-and-auth-codes
+vendor: domains-and-dns
+level: l1
+title: 'Registrar locks and auth codes'
+summary: 'The two anti-theft mechanisms that keep a domain from being transferred away without the registrant''s knowledge, and the pre-flight sequence that makes outbound transfers stick.'
+estimatedMinutes: 8
+order: 9
+topics: ['registration', 'transfers', 'auth-code']
+---
+
+The registrar lock and the auth code are the two anti-theft mechanisms that keep a domain from being transferred away without the registrant's knowledge. Most transfer-out tickets get stuck at one of them: the domain is still locked at the losing registrar (transfer denied), or the auth code is wrong / unavailable (transfer never starts).
+
+Knowing which one is in your way and how to unblock it is the difference between a 15-minute transfer kickoff and a half-day support-ticket exchange.
+
+## The registrar lock
+
+When you look up a domain in WHOIS / RDAP, you'll often see status flags like:
+
+- `clientTransferProhibited`
+- `clientUpdateProhibited`
+- `clientDeleteProhibited`
+
+These are *registrar locks* set by the current registrar. The `clientTransferProhibited` lock blocks outbound transfers at the registry level; even with the auth code, the transfer can't proceed. Most registrars set this lock automatically on registration. When you prep a domain for outbound transfer, you toggle it off at the *losing* registrar.
+
+A corresponding registry-level lock (`serverTransferProhibited` and friends) is much rarer, usually set on premium or government-related domains, and requires the registry's involvement to remove. That's escalation territory.
+
+## The auth code, whatever it's called this week
+
+The auth code is a per-domain secret that authorises an outbound transfer. The losing registrar generates it; the registrant supplies it to the gaining registrar to initiate the transfer.
+
+Four names, one value:
+
+| Name | Where you'll see it |
+|---|---|
+| **Auth code** | The most common informal name |
+| **EPP code** | Protocol-level name (EPP = Extensible Provisioning Protocol) |
+| **Transfer code** | User-facing label at many registrars |
+| **Authorization key** | Verbose variant used at some registrars |
+
+If a gaining registrar asks for the "EPP code" and the losing registrar's panel shows "Authorization Key," you're not looking for two different items. The auth code is usually a strong random string. Treat it as single-use: most registrars regenerate the code on each request and consume it when a transfer completes.
+
+## The pre-flight sequence
+
+When a client wants to move a domain to a new registrar, the work at the *losing* registrar is the same every time. The first three steps are the ones techs skip and regret.
+
+<StepThrough client:load>
+  <Step title="1. Confirm the admin contact email is live">
+    The transfer-approval email at most registrars goes to the admin contact. A dead admin email stalls the transfer at the approval step. Audit before you do anything else.
+  </Step>
+  <Step title="2. Confirm the domain is outside the 60-day post-registration / post-transfer lock window">
+    ICANN policy blocks another outbound transfer for 60 days after a new registration or an inbound transfer. If the domain is inside that window, the transfer can't be initiated until the window passes.
+  </Step>
+  <Step title="3. Disable WHOIS privacy if the losing registrar requires it">
+    Some registrars require this because the proxy address can interfere with the approval email. Check the registrar's transfer documentation.
+  </Step>
+  <Step title="4. Unlock the domain">
+    Remove the `clientTransferProhibited` status in the losing registrar's panel. WHOIS should now show `ok` (or no client locks).
+  </Step>
+  <Step title="5. Request the auth code">
+    Retrieve it from the registrar's panel. Save it in your password manager; you'll hand it to the gaining registrar in step 6.
+  </Step>
+  <Step title="6. Hand the code to the gaining registrar via a secure channel">
+    Password manager share, secure-message service, or your MSP's standard secret-sharing tool. Tell the client the code is single-use; if they don't use it within a few days, request a fresh one.
+  </Step>
+</StepThrough>
+
+## What this is NOT
+
+- "The auth code is the same forever." Most registrars regenerate the code on each request and consume it on transfer. Treat each one as single-use.
+- "If the domain is locked, the auth code won't work." Both can be true at once. The transfer still fails because of the lock. Clear both.
+- "Server-level locks are the same as registrar locks." `serverTransferProhibited` is set by the *registry*, not the registrar, and requires registry action to remove. Rare and escalation territory.
+
+## Decision walkthrough
+
+A client emails: *we want to move `example.com` to Cloudflare Registrar. The Cloudflare side is asking for the auth code.* You look at WHOIS. The domain shows `clientTransferProhibited` and was registered four months ago at the current registrar.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Where do you start?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "WHOIS shows clientTransferProhibited; registered four months ago. What's the first move?",
+      choices: [
+        { label: "Click 'request auth code' in the registrar panel and email it to the client.", next: "skip-preflight" },
+        { label: "Run the pre-flight first: confirm admin contact, confirm outside the 60-day window, check privacy, then unlock and request the code.", next: "preflight" },
+        { label: "Tell the client to wait two months for the 60-day post-registration lock to clear.", next: "wrong-lock" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "skip-preflight",
+      label: "Skipped pre-flight",
+      tone: "bad",
+      body: "Skipping pre-flight risks an auth code that goes to a dead admin email or hits an unexpected post-registration lock. Two minutes of checks prevents a stalled transfer.",
+    },
+    {
+      type: "outcome",
+      id: "preflight",
+      label: "Pre-flight first",
+      tone: "success",
+      body: "Right. Confirming the admin email is live, confirming the domain is outside the 60-day post-registration window (it is, four months in), and checking privacy takes a couple of minutes. Then unlock, request the auth code, hand it over securely.",
+    },
+    {
+      type: "outcome",
+      id: "wrong-lock",
+      label: "Wrong lock window",
+      tone: "bad",
+      body: "The 60-day post-registration lock applies for 60 days after a new registration. Four months in, the window passed long ago. The pre-flight check would have surfaced this.",
+    },
+  ]}
+/>
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-locks-and-auth-codes" client:visible />

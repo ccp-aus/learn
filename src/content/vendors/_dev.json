@@ -1,0 +1,10 @@
+{
+  "slug": "_dev",
+  "name": "Kitchen Sink (dev only)",
+  "tagline": "Every coursework element in one course.",
+  "summary": "Private testbed for the coursework element library. Hosts a single course that exercises every authoring component (callouts, hotspots, step-throughs, decision trees, mermaid diagrams, checkpoints, quizzes) through the real lesson pipeline. Filtered out of production builds via src/lib/dev-only.ts.",
+  "accent": "oklch(0.7 0.18 320)",
+  "kind": "vendor",
+  "status": "live",
+  "order": 999
+}

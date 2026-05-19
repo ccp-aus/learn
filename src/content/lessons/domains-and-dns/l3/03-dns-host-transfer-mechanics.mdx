@@ -1,0 +1,122 @@
+---
+slug: 03-dns-host-transfer-mechanics
+vendor: domains-and-dns
+level: l3
+title: 'DNS host transfer mechanics'
+summary: 'Dual-provisioning is the discipline that prevents the cardinal trap: build everything at the new host before pointing the world at it.'
+estimatedMinutes: 10
+order: 3
+topics: ['transfers', 'dns-host', 'dual-provisioning']
+---
+
+DNS host transfers are higher-stakes than registrar transfers because they affect every record the domain uses. A botched DNS host transfer takes the website, mail, and any other services offline simultaneously.
+
+The discipline that prevents this is **dual-provisioning**: build everything at the new host *before* pointing the world at it.
+
+## The sequence
+
+<StepThrough client:load>
+  <Step title="1. Export the current zone">
+    Get the zone-file export from the current DNS host. Most have a panel button ("Export DNS records," "Export zone file"). If not, read each record manually. Capture every record type: A, AAAA, CNAME, MX, TXT (SPF, DKIM, DMARC, vendor verifications), SRV, CAA, NS for any delegated subdomains. Probe common subdomain names too (lesson 06 of the records-and-mail course); a manual capture can miss what the obvious zone list doesn't include.
+  </Step>
+  <Step title="2. Build the new zone at the new DNS host">
+    Create the zone at the new host. Import or re-create every record from step 1. Don't skip any.
+
+    Verify the new zone is correct **before any cutover**:
+
+    ```text
+    dig A example.com @<new-host-ns1>
+    dig MX example.com @<new-host-ns1>
+    dig TXT example.com @<new-host-ns1>
+    ```
+
+    The new host's nameservers should return the same answers the current host returns. Both hosts now have the zone; only the current host's nameservers are listed at the registrar, so all production traffic still resolves via the current host. **The new host is hot-standby ready.** This is dual-provisioning.
+  </Step>
+  <Step title="3. Lower apex SOA / NS TTLs (limited effect)">
+    The TLD-level NS records (parent zone delegation) typically have a TTL of 24-48 hours set by the registry; you can't change them. What you *can* lower is the SOA / NS records *inside* your zone, which some resolvers respect. The pre-flight is partial; expect a long propagation tail at the worst-case parent NS TTL regardless.
+  </Step>
+  <Step title="4. Change nameservers at the registrar">
+    Update the nameservers in the registrar's panel to the new DNS host's. Save. The change propagates to the TLD's nameservers within minutes; downstream resolvers pick it up as their cached old NS records expire.
+  </Step>
+  <Step title="5. Wait 24-48 hours and verify">
+    Production traffic transitions gradually as resolver caches expire. Verify by querying both old and new hosts:
+
+    ```text
+    dig A example.com @<old-host-ns1>   # serves the same answer the new host does
+    dig A example.com @<new-host-ns1>   # also serves the right answer
+    dig NS example.com @8.8.8.8          # over time, this shifts to the new nameservers
+    ```
+
+    Both old and new return the same answers because step 2 set them up symmetrically.
+  </Step>
+  <Step title="6. Decommission the old zone">
+    After at least 48-72 hours (longer is safer; some resolver caches hang on), confirm no significant traffic is hitting the old nameservers. Then delete the zone at the old host. Don't delete it earlier; lingering caches at slow resolvers might still query the old host until their cache expires.
+  </Step>
+</StepThrough>
+
+## The cardinal trap
+
+<Callout type="danger" title="Changing nameservers before the new zone is built">
+The canonical failure mode:
+
+1. Tech changes nameservers at the registrar to the new DNS host.
+2. The TLD's nameservers start telling resolvers *ask the new host*.
+3. Resolvers query the new host.
+4. The new host returns nothing (the zone hasn't been created yet, or it's incomplete).
+5. The website, mail, and everything else stops working as caches at the old TTLs expire.
+
+Recovery: revert the nameserver change at the registrar (slow — parent NS TTL applies), or race the cache expiry by frantically building the zone at the new host. Either way, the recovery is painful.
+
+**Don't get into this state. Build the new zone first; change the nameservers last.** Dual-provisioning is the discipline.
+</Callout>
+
+## What this is NOT
+
+- "Skipping the manual export is fine; the new host can pull it." Most DNS hosts don't pull zones from other DNS hosts. You're the one capturing every record. Cross-check against the original panel before cutover.
+- "Decommission immediately after the cutover to free up resources." Wait 48-72 hours minimum; slow resolver caches hang on.
+- "The registrar transfer can be combined with the DNS host transfer for efficiency." Possible but riskier. Each transfer has its own failure modes; combining doubles the things that can go wrong at once. Sequential is safer.
+
+## Decision walkthrough
+
+A client wants to move DNS from GoDaddy (their current registrar's default DNS) to Cloudflare DNS. The website and mail are working. *Minimal downtime* is the requested outcome.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="First move on a DNS host transfer"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "What do you do first?",
+      choices: [
+        { label: "Change the nameservers at GoDaddy to Cloudflare's.", next: "cardinal" },
+        { label: "Set up the zone at Cloudflare with every record from GoDaddy, verify by querying Cloudflare's nameservers directly, then change nameservers at GoDaddy.", next: "dual" },
+        { label: "Delete the zone at GoDaddy and recreate it at Cloudflare.", next: "delete" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "cardinal",
+      label: "Cardinal sin",
+      tone: "bad",
+      body: "Changing nameservers before Cloudflare has the zone built means production traffic fails as caches expire. The recovery (revert nameservers at the registrar, wait the parent NS TTL) is slow and painful.",
+    },
+    {
+      type: "outcome",
+      id: "dual",
+      label: "Dual-provisioning",
+      tone: "success",
+      body: "Right. Build the new zone first; verify both hosts return the same answers; then change nameservers. The transition is invisible to users because both hosts return identical answers during the parent-NS-TTL window.",
+    },
+    {
+      type: "outcome",
+      id: "delete",
+      label: "Cardinal-sin-shaped",
+      tone: "bad",
+      body: "Deleting GoDaddy's zone creates an immediate gap during which neither host serves the zone. Same outage pattern as changing nameservers before building, just framed differently.",
+    },
+  ]}
+/>
+
+After the dual-provisioning is complete and you're about to change nameservers, the apex A record's TTL (say, 86400) doesn't matter for the *nameserver change itself* — but if the A record's *value* needed to change at the same time, the high TTL would matter. In a pure DNS host transfer (values unchanged at both hosts), users won't notice the IP change because there isn't one. Cross-check all records at both hosts one more time before cutover; missing a TXT or SRV at the new host is the most common omission.

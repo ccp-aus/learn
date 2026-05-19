@@ -1,0 +1,28 @@
+{
+  "slug": "domains-and-dns-transfers-and-judgement",
+  "vendor": "domains-and-dns",
+  "level": "l3",
+  "title": "Transfers, migrations, and judgement",
+  "shortTitle": "Transfers & judgement",
+  "summary": "Registrar and DNS-host transfers, mail-vs-web migration independence, TTL lowering as the universal pre-flight, the DNSSEC safe-disable checklist, and the judgement calls (cardinal sins, reversibility test, calibrated escalation) that prevent client outages.",
+  "estimatedMinutes": 126,
+  "prereqs": ["domains-and-dns-records-and-mail"],
+  "lessons": [
+    "01-three-transfers",
+    "02-registrar-transfer-mechanics",
+    "03-dns-host-transfer-mechanics",
+    "04-record-level-migration",
+    "05-ttl-lowering",
+    "06-dnssec-during-transfer",
+    "07-mail-vs-web-migration",
+    "08-post-cutover-verification",
+    "09-thirty-second-health-check",
+    "10-two-question-test",
+    "11-cardinal-sins",
+    "12-calibrated-uncertainty",
+    "13-common-mistakes-offline",
+    "14-final-scenario-assessment"
+  ],
+  "quiz": "domains-and-dns-transfers-and-judgement-final",
+  "status": "live"
+}

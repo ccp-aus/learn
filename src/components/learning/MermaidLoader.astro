@@ -1,0 +1,263 @@
+---
+/**
+ * Renders any <pre class="mermaid">…</pre> blocks emitted by remarkMermaidPre.
+ *
+ * One island handles every diagram on the page (and across the site, since
+ * every lesson layout includes this component). Theme variables are derived
+ * from the page's CSS palette so flowcharts, sequence diagrams, decision
+ * diamonds, sub-graph clusters, and edge labels all read cleanly in both
+ * light and dark mode. Re-renders automatically when the theme is toggled.
+ *
+ * Click any rendered diagram to enlarge it in a modal lightbox; click the
+ * overlay or press Esc to dismiss.
+ */
+---
+
+<script>
+  (async () => {
+    const blocks = document.querySelectorAll<HTMLPreElement>("pre.mermaid");
+    if (!blocks.length) return;
+
+    const { default: mermaid } = await import("mermaid");
+
+    // Cache each block's source so we can re-run mermaid on theme toggle
+    // (mermaid mutates the <pre> contents to an <svg> on first run).
+    const sources = new Map<HTMLPreElement, string>();
+    blocks.forEach((pre) => sources.set(pre, pre.textContent ?? ""));
+
+    function buildTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      // Resolve a couple of brand colours from CSS so the diagrams use the
+      // same accent the rest of the page does.
+      const primary = isDark ? "#22d3ee" : "#0ea5e9";
+
+      // Per-mode palette. Mermaid's "base" theme honours these variables;
+      // we set both the generic ones and the diagram-specific ones so
+      // flowcharts, sequence diagrams, and clusters all look right.
+      const fg = isDark ? "#e5e7eb" : "#1f2937";
+      const fgMuted = isDark ? "#94a3b8" : "#52525b";
+      const line = isDark ? "#475569" : "#9ca3af";
+      const nodeFill = isDark ? "#1e293b" : "#ffffff";
+      const clusterBg = isDark ? "#0f172a" : "#f5f4f0";
+      const labelBg = isDark ? "#1e293b" : "#fcfbf7";
+
+      return {
+        // ----- generic / flowchart -----
+        primaryColor: nodeFill,
+        primaryTextColor: fg,
+        primaryBorderColor: line,
+        secondaryColor: clusterBg,
+        tertiaryColor: clusterBg,
+        background: "transparent",
+        lineColor: line,
+        textColor: fg,
+        mainBkg: nodeFill,
+        nodeBorder: line,
+        nodeTextColor: fg,
+        clusterBkg: clusterBg,
+        clusterBorder: line,
+        edgeLabelBackground: labelBg,
+        // Used by some diamond / decision shapes
+        defaultLinkColor: line,
+        titleColor: fg,
+        // ----- sequence diagram -----
+        actorBkg: nodeFill,
+        actorBorder: line,
+        actorTextColor: fg,
+        actorLineColor: line,
+        signalColor: line,
+        signalTextColor: fg,
+        labelBoxBkgColor: labelBg,
+        labelBoxBorderColor: line,
+        labelTextColor: fg,
+        loopTextColor: fgMuted,
+        noteBkgColor: clusterBg,
+        noteBorderColor: line,
+        noteTextColor: fg,
+        activationBkgColor: clusterBg,
+        activationBorderColor: line,
+        sequenceNumberColor: primary,
+        // ----- accent fallback -----
+        // Some diagram types pick from the cScale set; map them to the
+        // page palette so they don't fall back to mermaid defaults.
+        cScale0: nodeFill,
+        cScale1: clusterBg,
+        cScale2: nodeFill,
+      };
+    }
+
+    function initAndRun() {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        // Mermaid 11.14+ "Neo" look: drop shadows, softer shape padding.
+        // Applies across flowcharts, sequence diagrams, and the rest.
+        look: "neo",
+        securityLevel: "strict",
+        fontFamily: "Geist Variable, ui-sans-serif, system-ui, sans-serif",
+        themeVariables: buildTheme(),
+      });
+      // Reset rendered blocks back to their source so mermaid re-renders.
+      // Use textContent (not innerHTML) so `<br/>` inside node labels stays
+      // as literal text, not a BR element. innerHTML interprets the string
+      // as HTML, which strips `<br/>` from the source mermaid then sees and
+      // breaks decision-node parsing — the "Syntax error in text" failure.
+      sources.forEach((src, pre) => {
+        pre.removeAttribute("data-processed");
+        pre.textContent = src;
+      });
+      return mermaid.run({ querySelector: "pre.mermaid" });
+    }
+
+    await initAndRun();
+
+    // Re-render whenever the html element's class list changes (the
+    // ThemeToggle component flips `dark` on/off there).
+    const obs = new MutationObserver(() => {
+      void initAndRun();
+    });
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // ---------- Lightbox (click any rendered diagram to enlarge) ----------
+    const overlay = document.createElement("div");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Enlarged diagram");
+    // True full-viewport: no inner card, no padding cap, no width/height
+    // ceiling. The diagram fills the entire screen, capped only by its
+    // intrinsic aspect ratio (preserved by the SVG itself).
+    overlay.style.cssText = [
+      "position:fixed",
+      "inset:0",
+      "display:none",
+      "align-items:center",
+      "justify-content:center",
+      "padding:0",
+      "background:rgba(8,10,18,0.92)",
+      "backdrop-filter:blur(6px)",
+      "z-index:80",
+      "cursor:zoom-out",
+      "opacity:0",
+      "transition:opacity 160ms ease",
+    ].join(";");
+
+    const stage = document.createElement("div");
+    stage.style.cssText = [
+      "width:100vw",
+      "height:100vh",
+      "display:flex",
+      "align-items:center",
+      "justify-content:center",
+      "padding:1rem",
+      "box-sizing:border-box",
+    ].join(";");
+
+    overlay.appendChild(stage);
+    document.body.appendChild(overlay);
+
+    function open(svgMarkup: string) {
+      stage.innerHTML = svgMarkup;
+      const svg = stage.querySelector("svg");
+      if (svg) {
+        svg.removeAttribute("width");
+        svg.removeAttribute("height");
+        // Let the SVG fill the stage, preserving aspect ratio via the SVG's
+        // own viewBox + preserveAspectRatio (Mermaid sets these correctly).
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.maxWidth = "100%";
+        svg.style.maxHeight = "100%";
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      }
+      overlay.style.display = "flex";
+      void overlay.offsetWidth;
+      overlay.style.opacity = "1";
+    }
+
+    function close() {
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        overlay.style.display = "none";
+        stage.innerHTML = "";
+      }, 160);
+    }
+
+    overlay.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.style.display === "flex") close();
+    });
+
+    // Click handler is delegated so it survives re-renders on theme toggle.
+    document.addEventListener("click", (e) => {
+      const target = (e.target as Element)?.closest?.("pre.mermaid");
+      if (!target) return;
+      const svg = target.querySelector("svg");
+      if (!svg) return;
+      open(svg.outerHTML);
+    });
+
+    // Cursor + tooltip on diagrams are applied via CSS in globals (see
+    // .lesson-prose pre.mermaid styles) so they stick across re-renders.
+  })();
+</script>
+
+<style is:global>
+  .lesson-prose pre.mermaid,
+  pre.mermaid {
+    cursor: zoom-in;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow-x: auto;
+    text-align: center;
+  }
+  /* Mermaid emits SVGs as display:block with an intrinsic width (max-width
+   * matches the SVG's measured size, not the parent). Centre them inside the
+   * <pre> so flowcharts and state diagrams that don't span the full width
+   * don't slump to the left edge. */
+  .lesson-prose pre.mermaid svg,
+  pre.mermaid svg {
+    margin-inline: auto;
+  }
+  .lesson-prose pre.mermaid:hover,
+  pre.mermaid:hover {
+    border-color: color-mix(in oklab, var(--primary) 50%, var(--border));
+  }
+
+  /* Mermaid injects its own <style> inside each SVG with high-specificity
+   * selectors. We override with `!important` so the actor labels, signal
+   * labels, edge labels, and note text all pick up the page's foreground
+   * colour. The `text.actor.actor-box` is specifically the sequence-diagram
+   * actor name. */
+  pre.mermaid svg text,
+  pre.mermaid svg .nodeLabel,
+  pre.mermaid svg .edgeLabel,
+  pre.mermaid svg foreignObject span,
+  pre.mermaid svg .label {
+    fill: #1f2937 !important;
+    color: #1f2937 !important;
+  }
+  .dark pre.mermaid svg text,
+  .dark pre.mermaid svg .nodeLabel,
+  .dark pre.mermaid svg .edgeLabel,
+  .dark pre.mermaid svg foreignObject span,
+  .dark pre.mermaid svg .label {
+    fill: #e5e7eb !important;
+    color: #e5e7eb !important;
+  }
+  /* Don't override fills on shapes — only on text-bearing elements. */
+  pre.mermaid svg .edgeLabel rect,
+  pre.mermaid svg rect.label,
+  pre.mermaid svg .labelBkg {
+    fill: var(--card) !important;
+  }
+  .dark pre.mermaid svg .edgeLabel rect,
+  .dark pre.mermaid svg rect.label,
+  .dark pre.mermaid svg .labelBkg {
+    fill: #1e293b !important;
+  }
+</style>

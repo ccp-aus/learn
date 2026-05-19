@@ -1,0 +1,49 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-domain-lifecycle",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: the domain lifecycle",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-lifecycle-stages-order",
+      "type": "order",
+      "difficulty": "easy",
+      "topic": "lifecycle-stages",
+      "prompt": "Order the gTLD lifecycle stages from active to permanently lost.",
+      "items": [
+        "Active",
+        "Expired, auto-renew grace (~30 days)",
+        "Redemption (~30 days, expensive recovery fee)",
+        "Pending delete (~5 days, no recovery)",
+        "Deleted (back on the open market)"
+      ],
+      "explanation": "Active to grace to redemption to pending delete to deleted. Roughly 65 days from expiry to permanent loss for a typical gTLD."
+    },
+    {
+      "id": "ck-lifecycle-redemption-action",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "redemption-recovery",
+      "prompt": "A client says their domain 'auto-renews automatically every year, so it can't have expired.' WHOIS shows `pendingDelete` and the card on file expired four months ago. What's the calibrated answer?",
+      "choices": [
+        "Auto-renew failed silently when the card declined. The domain is now past redemption and in pendingDelete, which is the no-recovery stage. Surface this honestly to the client; recovery at this point is no longer available at the registrar layer.",
+        "Auto-renew always succeeds; tell the client there's a registrar bug and escalate to the registrar's support.",
+        "Wait a few days; pendingDelete sometimes lifts automatically.",
+        "Pay the standard renewal fee through the registrar panel to restore it immediately."
+      ],
+      "correct": 0,
+      "explanation": "Auto-renew is best-effort — it fails silently if the card on file declines or expired. By the time the domain reaches pendingDelete it has already passed grace (~30 days) and redemption (~30 days, expensive but recoverable). Recovery at pendingDelete isn't available; the conversation is about whether to attempt to register the name when it drops back to the public market."
+    },
+    {
+      "id": "ck-lifecycle-auto-renew-myth",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "auto-renew",
+      "prompt": "Auto-renew is a guarantee: as long as it's enabled, the domain will renew automatically every cycle.",
+      "correct": false,
+      "explanation": "Auto-renew tries the card on file. When the card has expired, been declined, or been changed without updating the registrar, auto-renew fails (often silently) and the domain enters grace. Renewal-reminder emails and expiry monitoring are what prevent silent failures."
+    }
+  ]
+}

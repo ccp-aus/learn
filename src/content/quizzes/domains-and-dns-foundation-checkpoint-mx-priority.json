@@ -1,0 +1,49 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-mx-priority",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: MX priority and targets",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-mx-priority-inversion",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "priority-inversion",
+      "prompt": "A new client onboarding sets up two mail providers as MX records: their primary at priority 30 and their backup at priority 10. Which one will sending servers actually try first?",
+      "choices": [
+        "The primary at 30 — higher priority number means higher preference.",
+        "The backup at 10 — but that's the opposite of what they intended, because lower priority number is preferred. The records need to be swapped (primary at 10, backup at 30).",
+        "Both at once — parallel delivery.",
+        "Whichever the receiver's DNS cache returns first."
+      ],
+      "correct": 1,
+      "explanation": "Lower priority = higher preference (tried first). The 'primary at 30 / backup at 10' setup inverts the intent; sending servers will try the backup first and only fall through to the primary if the backup is unreachable. Swap the numbers."
+    },
+    {
+      "id": "ck-mx-target-ip",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "mx-target-rules",
+      "prompt": "A vendor's setup instructions ask you to publish an MX record pointing at `198.51.100.42` (an IP address). Should you?",
+      "choices": [
+        "Yes — modern receivers accept IP-as-MX even though the spec discourages it.",
+        "No. MX targets must be hostnames with A/AAAA records, not IP addresses. Ask the vendor for a hostname; reputable mail providers publish one.",
+        "Yes — wrap the IP in square brackets for the IP-literal form.",
+        "Only if the IP is in the same /24 as the receiver's network."
+      ],
+      "correct": 1,
+      "explanation": "RFC 5321 requires MX targets to be hostnames. Some DNS hosts let you save the IP form; many receivers reject and the mail bounces. You don't paper over vendor sloppiness with broken DNS."
+    },
+    {
+      "id": "ck-mx-cname-target",
+      "type": "tf",
+      "difficulty": "medium",
+      "topic": "mx-cname",
+      "prompt": "MX records can safely point at a CNAME, as long as the CNAME resolves to a host with A/AAAA records.",
+      "correct": false,
+      "explanation": "RFC 2181 prohibits MX-pointing-at-CNAME. Some receivers follow the chain; others reject. The defensive practice is to point MX directly at the canonical FQDN that has A/AAAA records, not via a CNAME indirection."
+    }
+  ]
+}

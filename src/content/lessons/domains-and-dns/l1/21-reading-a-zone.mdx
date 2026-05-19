@@ -1,0 +1,133 @@
+---
+slug: 21-reading-a-zone
+vendor: domains-and-dns
+level: l1
+title: 'Reading a zone'
+summary: 'The standard record set you expect on a typical small-business zone, and the omissions that flag a routine domain audit''s most common findings.'
+estimatedMinutes: 9
+order: 21
+topics: ['dns-fundamentals', 'zones']
+---
+
+When you open an unfamiliar zone in a DNS host's panel, you're looking at a list of records that probably accumulated over years. Some belong, some are dead, some are wrong.
+
+Knowing what a *normal* zone for a small business looks like is the baseline you compare against. When you can spot *this zone is missing DMARC* or *the MX still points at the previous mail provider*, you catch problems the client doesn't know to ask about. This skill is what makes domain audits a fast and high-value MSP service.
+
+## A typical small-business zone
+
+A small business using M365 for mail and a shared web host for the website has roughly this set of records:
+
+<AnnotatedCode
+  client:load
+  filename="zone (M365 mail + shared web host)"
+  lang="text"
+  code={`@                      A      198.51.100.42                                        TTL 3600
+@                      AAAA   2001:db8::42                                          TTL 3600
+@                      MX     0 example-com.mail.protection.outlook.com.            TTL 3600
+@                      TXT    "v=spf1 include:spf.protection.outlook.com -all"      TTL 3600
+@                      TXT    "MS=ms12345"                                           TTL 3600
+www                    CNAME  example.com.                                          TTL 3600
+autodiscover           CNAME  autodiscover.outlook.com.                             TTL 3600
+selector1._domainkey   CNAME  selector1-example-com._domainkey.example.onmicrosoft.com.
+selector2._domainkey   CNAME  selector2-example-com._domainkey.example.onmicrosoft.com.
+_dmarc                 TXT    "v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"`}
+  marks={[
+    { line: 1, tone: "primary", label: "1", title: "Web host's IP", body: "The bare domain (example.com) resolves to the web host. Sometimes paired with AAAA if the host serves IPv6." },
+    { line: 3, tone: "primary", label: "2", title: "Mail provider", body: "Microsoft 365 in this case. Priority 0 (the wizard's default) makes it the only preferred MX." },
+    { line: 4, tone: "success", label: "3", title: "Outbound mail authentication", body: "Tells receivers which sources are allowed to send for this domain. M365's published SPF is included; -all ends the policy with a hard fail." },
+    { line: 5, tone: "primary", label: "4", title: "Vendor proof of ownership", body: "Microsoft polls DNS to confirm the client owns the domain. Often required to stay after initial verification." },
+    { line: 6, tone: "primary", label: "5", title: "CNAME to apex", body: "Most users type www.example.com; this CNAME points it at the apex (which has the A record). Some setups use an A record on www instead." },
+    { line: 8, tone: "primary", label: "6", title: "M365 DKIM via CNAME", body: "M365 publishes DKIM keys on its own infrastructure; clients CNAME to them. Two selectors are normal (used for key rotation)." },
+    { line: 10, tone: "success", label: "7", title: "Policy + reporting", body: "p=quarantine means failing mail goes to spam folders; rua= is the reporting address. p=none is also common (monitoring only); p=reject is the strictest." },
+  ]}
+/>
+
+The exact list varies by provider and what services the client uses, but the shape is typical.
+
+## The standard set you check for
+
+When you read an unfamiliar zone, scan for these:
+
+1. **Apex A (or ALIAS) and AAAA.** Is the apex resolving to a current IP? Is AAAA consistent with A?
+2. **`www`.** Does it resolve? Same destination as the apex?
+3. **MX.** Where does mail go? Current provider, or still pointing at a previous one?
+4. **SPF** (TXT at apex starting with `v=spf1`). Present? Includes the current mail provider? Only one SPF TXT (not two)?
+5. **DKIM.** Selector subdomain records? Resolving to the mail provider's published keys?
+6. **DMARC** (TXT at `_dmarc`). Present? What's the policy?
+7. **Vendor verifications.** Identify what each is for before deleting.
+8. **SRV records.** Present for Teams / Skype / SIP / autodiscover if the client uses those.
+9. **NS at the apex.** Matches the delegated nameservers at the registrar?
+10. **Anything you don't recognise.** Investigate before deleting.
+
+## Common omissions worth flagging
+
+<Callout type="tip" title="Audit findings you'll see over and over">
+- **No SPF.** Outbound mail may be marked spam by some receivers.
+- **No DMARC** (or DMARC at `p=none` with no reporting address). Half-deployed; no visibility.
+- **MX pointing at a previous provider.** Mail bouncing or being silently received by an old server.
+- **Stale DKIM selectors** from previous migrations. Usually harmless, worth cleaning up.
+- **No `www`.** Apex-only setup. Most users still type `www`; add a CNAME or A if missing.
+- **Two SPF records** (`v=spf1` lines). SPF returns `permerror` — mail auth is currently broken.
+</Callout>
+
+## What this is NOT
+
+- "Every zone should look the same." Zones vary; the standard set is a baseline.
+- "If a record is in the zone, it's intentional." Plenty of zones carry old records from previous setups. Audit and ask before deleting.
+- "Missing records aren't a problem if nothing is complaining." No SPF means no protection from spoofed mail; no DMARC means no visibility. The cost shows up months later.
+
+## Decision walkthrough
+
+A new client just onboarded. You pull their zone and see:
+
+```text
+@      A    198.51.100.42                                              TTL 86400
+@      MX   10 mail.previousprovider.example.
+@      MX   20 example-com.mail.protection.outlook.com.
+@      TXT  "v=spf1 include:spf.previousprovider.example ~all"
+@      TXT  "v=spf1 include:spf.protection.outlook.com ~all"
+@      TXT  "MS=ms12345"
+www    CNAME example.com.
+selector1._domainkey  CNAME  selector1-example-com._domainkey.example.onmicrosoft.com.
+```
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Most urgent finding first"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Three things look wrong. Which is most urgent?",
+      choices: [
+        { label: "TTL 86400 on the apex A is too high.", next: "ttl" },
+        { label: "Two SPF records on the apex — both start with v=spf1.", next: "spf" },
+        { label: "MX inverted — old provider preferred over M365.", next: "mx" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "ttl",
+      label: "Cleanup, not urgent",
+      tone: "warn",
+      body: "A high TTL slows future changes; it doesn't actively break anything today. Worth lowering as part of the cleanup, but not the most urgent.",
+    },
+    {
+      type: "outcome",
+      id: "spf",
+      label: "Active mail-auth breakage",
+      tone: "success",
+      body: "Right. Two SPF records mean SPF returns permerror for the domain; outbound mail may be marked spam or rejected by receivers running DMARC enforcement. Fix first: merge into a single SPF TXT (or remove the old provider's include if they truly aren't sending anymore).",
+    },
+    {
+      type: "outcome",
+      id: "mx",
+      label: "Important, second priority",
+      tone: "warn",
+      body: "Important, and active. The SPF problem affects every outbound message; the MX problem affects inbound (which may have a more graceful failure at the receiver depending on the previous provider's setup). Fix SPF first, then MX inversion.",
+    },
+  ]}
+/>
+
+After SPF, fix the MX inversion: either delete the old provider's MX entirely (if mail flow has fully moved to M365) or renumber so M365 is at priority 10 and the old provider is gone. Add DMARC at `p=none` with a reporting address as the next cleanup. Don't delete the DKIM CNAME or the M365 verification TXT without confirming they're stale — the DKIM CNAME for M365 is current and required for outbound signing.

@@ -1,0 +1,95 @@
+---
+slug: 06-cannot-enumerate-zone
+vendor: domains-and-dns
+level: l2
+title: 'You cannot enumerate a zone'
+summary: 'The gotcha that catches every tech once: dig ANY is neutered, AXFR is closed, and there is no public way to dump every record. The calibrated answer when a client says "send me all the records".'
+estimatedMinutes: 7
+order: 6
+topics: ['tools', 'zone-enumeration', 'gotcha']
+---
+
+Every helpdesk tech eventually runs `dig ANY example.com` expecting to see the whole zone, then is confused when nothing useful comes back. They reach for AXFR (*transfer the zone to me*) and that fails too.
+
+Then a client or senior asks *what records are on this domain?* and the tech doesn't have an obvious way to answer.
+
+The honest answer is *you cannot enumerate a DNS zone from outside without panel access*. The practical workarounds are what to reach for instead.
+
+## Why `dig ANY` doesn't work anymore
+
+Historically, `dig ANY example.com` returned everything: A, AAAA, MX, TXT, NS, the lot. Since the early 2010s this has been progressively shut down:
+
+- Public recursive resolvers (Google, Cloudflare, OpenDNS) started returning a synthetic "no records" answer for ANY queries to reduce **DNS amplification attacks** (where an attacker uses ANY queries to amplify a small request into a large response, flooding a victim).
+- Authoritative server software returns minimal responses by default.
+- RFC 8482 (2019) standardised the behaviour: ANY queries should return a minimal response.
+
+Today, `dig ANY example.com` returns a short, minimal response and you cannot rely on it for any practical enumeration.
+
+## AXFR is closed (and has been for decades)
+
+AXFR is the protocol mechanism for *zone transfer*: copying a zone's full contents from a primary authoritative server to a secondary. For public use, AXFR is firewalled off at virtually every authoritative server. A `dig AXFR example.com @ns1.cloudflare.com` from a non-secondary returns `REFUSED` or a connection failure.
+
+You may encounter a misconfigured authoritative server that allows AXFR from anyone. That's a security finding, not an opportunity. Report it; don't rely on it.
+
+## What you can actually do
+
+Since you cannot ask the authoritative server *give me everything*, the practical options are:
+
+| Option | When |
+|---|---|
+| **Log into the DNS host's panel** | If you manage the DNS for the client, this is the canonical answer. The panel shows the complete list. |
+| **Query each record type individually** | When you don't have panel access. Gets you the records at the apex; subdomains require knowing the names in advance. |
+| **Probe common subdomain names** | `www`, `mail`, `webmail`, `autodiscover`, `ftp`, `vpn`, `_dmarc`, `_domainkey` selectors, `_sip._tls`. Catches the standard set; misses anything non-standard. |
+| **Certificate Transparency logs** (`crt.sh`) | Lists every subdomain that has had a cert issued. Approximation of *what subdomains exist*; misses those that never had a cert. |
+| **Ask the previous DNS host for a zone export** | Standard migration practice. Cloudflare's "Export DNS records" button, similar at others. |
+
+## What this is NOT
+
+- "`dig ANY` shows everything." Used to. Has been progressively shut down across the public DNS infrastructure for over a decade.
+- "AXFR is for diagnostics." AXFR is for secondaries to copy zones from primaries. Never intended as a public diagnostic mechanism.
+- "Online tools must have a way." They don't; they run the same queries you can run.
+
+## Decision walkthrough
+
+A new client onboards. Their domain is managed at a DNS host the previous MSP set up; you have no panel access. The client asks *can you give us a list of all our current DNS records so we know what we have?*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Enumerating without panel access"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "How do you produce the list?",
+      choices: [
+        { label: "dig ANY example.com @ns1.previousmsp-dns.example and report the result as the complete list.", next: "any" },
+        { label: "Run the probe (each record type at the apex, common subdomain names) + check Certificate Transparency. Report as a probe, with a clear caveat that complete enumeration needs panel access or a zone export.", next: "probe" },
+        { label: "Ask the previous MSP for a zone export.", next: "export" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "any",
+      label: "Misleading",
+      tone: "bad",
+      body: "dig ANY returns minimal responses; treating it as a complete list misleads the client. Either you report a tiny set as the full picture (wrong), or you report it accurately as a probe (which is fine, but not what they asked for).",
+    },
+    {
+      type: "outcome",
+      id: "probe",
+      label: "Honest, plus the path to certainty",
+      tone: "success",
+      body: "Right. Names what you have, names what you'd need to give a complete answer. The probe captures the standard set; CT logs catch subdomains that have certs but aren't in the standard probe.",
+    },
+    {
+      type: "outcome",
+      id: "export",
+      label: "Cleanest path",
+      tone: "success",
+      body: "Also right, in a different sense. The export is the cleanest answer. It may be slow or refused; running the probe in parallel covers the case where the export doesn't materialise.",
+    },
+  ]}
+/>
+
+When you produce a probe-based list and the client asks *are you sure that's everything?*, the calibrated reply is: *those are the records the standard probe found, plus the subdomains visible in Certificate Transparency. There may be subdomains with non-standard names that don't have certs. The certain way to get the complete list is direct panel access; we can request access from the previous MSP, or replicate the zone during a migration we control.*

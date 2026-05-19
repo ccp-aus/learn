@@ -1,0 +1,135 @@
+---
+slug: 07-annotated-text-artefacts
+vendor: _dev
+level: l1
+title: Annotated text artefacts
+summary: AnnotatedCode for logs and traces, Diff for config changes, JsonExplorer for API payloads.
+estimatedMinutes: 6
+order: 7
+topics:
+  - annotated-code
+  - diff
+  - json-explorer
+---
+
+Reading text is the bread and butter of MSP triage. These three elements treat code blocks, config diffs, and JSON payloads as artefacts the lesson author can annotate line-by-line.
+
+## AnnotatedCode
+
+Same `Hotspot` model, applied to code. Markers attach to specific line numbers (or line ranges) and open a popover with the explanation.
+
+<AnnotatedCode
+  client:load
+  filename="sip-trace.log"
+  lang="sip"
+  code={`REGISTER sip:pbx.example.com SIP/2.0
+Via: SIP/2.0/UDP 10.20.30.40:5060;branch=z9hG4bK-1234
+From: <sip:1001@pbx.example.com>;tag=8c3fa
+To: <sip:1001@pbx.example.com>
+Call-ID: 3848276298220188511@10.20.30.40
+CSeq: 1 REGISTER
+Contact: <sip:1001@10.20.30.40:5060>
+Expires: 3600
+User-Agent: Yealink T46U 108.86.0.40
+Content-Length: 0`}
+  marks={[
+    {
+      line: 1,
+      label: "1",
+      title: "REGISTER, not INVITE",
+      tone: "primary",
+      body: "REGISTER tells the PBX where to reach this extension. If you see INVITE without a prior REGISTER, the phone never logged in.",
+    },
+    {
+      line: 7,
+      label: "2",
+      title: "Reachable address",
+      tone: "warning",
+      body: "Contact carries the address the PBX should call back on. If the phone is behind NAT, this private IP makes RTP fail — symptom: one-way audio.",
+    },
+    {
+      lines: [8, 8],
+      label: "3",
+      title: "Registration TTL",
+      tone: "success",
+      body: "Expires sets how long the registration stays alive. A short TTL on a flaky link means rapid re-REGISTER storms.",
+    },
+  ]}
+/>
+
+Use line ranges (`lines: [5, 7]`) to highlight a span. The marker attaches to the first line in the range.
+
+## Diff
+
+For config-change reviews. Author writes a hand-crafted unified diff (`+ `, `- `, `  ` prefixes); the component renders it with red/green gutters and accepts line-level annotations.
+
+<Diff
+  client:load
+  filename="zone.txt"
+  lang="dns"
+  unified={`  example.com.            300  IN  A     93.184.216.34
+  example.com.            300  IN  MX    10 mail.example.com.
+- example.com.            300  IN  TXT   "v=spf1 ip4:203.0.113.10 -all"
++ example.com.            300  IN  TXT   "v=spf1 ip4:203.0.113.10 include:_spf.google.com -all"
+  _dmarc.example.com.     300  IN  TXT   "v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
+- _dkim._domainkey.example.com. 300 IN TXT "v=DKIM1; k=rsa; p=MIGfM..."
++ selector1._domainkey.example.com. 300 IN TXT "v=DKIM1; k=rsa; p=MIGfM..."`}
+  annotations={[
+    {
+      line: 4,
+      label: "1",
+      tone: "warning",
+      title: "Watch this include",
+      body: "Adding 'include:_spf.google.com' brings ~24 DNS lookups by itself. SPF is hard-capped at 10 lookups; another 'include' will silently fail validation.",
+    },
+    {
+      line: 6,
+      label: "2",
+      tone: "primary",
+      title: "Selector matters",
+      body: "DKIM selectors aren't standard — they're whatever the mail platform expects. Renaming '_dkim' to 'selector1' is the M365 default; using the wrong selector silently breaks signing.",
+    },
+  ]}
+/>
+
+## JsonExplorer
+
+For Graph API responses, RMM webhooks, vendor SDK output. Tree is collapsible; `highlights` call attention to specific paths so a lesson can say "the field that matters is `.assignedLicenses.0.skuId`" without making the learner hunt for it.
+
+<JsonExplorer
+  client:load
+  defaultOpen={["", "value", "value.0", "value.0.assignedLicenses"]}
+  highlights={[
+    {
+      path: "value.0.userPrincipalName",
+      tone: "primary",
+      title: "Identifier",
+      body: "UPN is the only stable user identifier across Graph endpoints — id can rotate on hard-delete + restore.",
+    },
+    {
+      path: "value.0.assignedLicenses.0.skuId",
+      tone: "warning",
+      title: "License SKU",
+      body: "skuId is a GUID, not a friendly name. Use /subscribedSkus to translate to 'M365 Business Standard'.",
+    },
+  ]}
+  data={{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users",
+    value: [
+      {
+        id: "8a3...e2c",
+        userPrincipalName: "alex@contoso.com",
+        displayName: "Alex Day",
+        accountEnabled: true,
+        assignedLicenses: [
+          { skuId: "f245ecc8-75af-4f8e-b61f-27d8114de5f3", disabledPlans: [] },
+        ],
+        mail: "alex@contoso.com",
+      },
+    ],
+  }}
+/>
+
+## Notes on shape
+
+All three components take their annotations as **config props** (arrays, not children) — the same reason `DecisionTree` does. React children of an Astro island get pre-rendered into opaque static HTML before the parent can introspect them; config props survive that round-trip intact.

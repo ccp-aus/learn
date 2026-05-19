@@ -1,0 +1,208 @@
+{
+  "slug": "domains-and-dns-transfers-and-judgement-final",
+  "course": "domains-and-dns-transfers-and-judgement",
+  "kind": "final",
+  "title": "Transfers, migrations, and judgement: final check",
+  "drawCount": 10,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "qtj-classify-transfer",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "transfer-classification",
+      "prompt": "A client emails: 'we're moving our website to a new host this Saturday.' Current setup: GoDaddy (registrar), GoDaddy DNS (DNS host), VPS (web host), M365 (mail host). Which transfer is this?",
+      "choices": [
+        "Registrar transfer.",
+        "DNS host transfer.",
+        "Record-level migration — only A (and AAAA, if present) records change to point at the new web host. The registrar, DNS host, and mail host stay put.",
+        "All three transfers; moving the website implies moving everything."
+      ],
+      "correct": 2,
+      "explanation": "Web host migration changes A/AAAA values only. Mail at M365 stays untouched, the registrar doesn't change, the DNS host doesn't change. The 'move means everything' assumption is the documented misconception."
+    },
+    {
+      "id": "qtj-registrar-admin-contact",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "registrar-transfer",
+      "prompt": "A registrar transfer stalls. The Cloudflare side reports 'pending, awaiting approval at losing registrar.' The client says they never received the approval email; it's been an hour. What's the diagnostic step?",
+      "choices": [
+        "Wait another day; emails sometimes take a while.",
+        "Check the admin contact email in WHOIS. If correct, check spam. If wrong, update and re-initiate with a fresh auth code.",
+        "Email Cloudflare's support to fix it on their side.",
+        "Retry the transfer at Cloudflare; sometimes the first attempt fails silently."
+      ],
+      "correct": 1,
+      "explanation": "The approval email goes to the admin contact in WHOIS. If the address is stale (an ex-employee, the previous MSP), the email goes nowhere. Cloudflare's side is fine; the bottleneck is the losing registrar's email delivery. Auth codes regenerate on each request; use a fresh one when re-initiating."
+    },
+    {
+      "id": "qtj-dns-host-dual-provisioning",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "dns-host-transfer",
+      "prompt": "Your client wants to move DNS from GoDaddy to Cloudflare. What's the first move?",
+      "choices": [
+        "Change nameservers at GoDaddy to Cloudflare's; Cloudflare will detect and start serving.",
+        "Set up the zone at Cloudflare with every record from GoDaddy. Verify by querying Cloudflare's nameservers directly. Then change nameservers at GoDaddy.",
+        "Delete the zone at GoDaddy and recreate it at Cloudflare.",
+        "Email Cloudflare's support to coordinate."
+      ],
+      "correct": 1,
+      "explanation": "Dual-provisioning. Build the new zone first; verify both hosts return the same answers; then change nameservers. Changing nameservers before the new zone is built is the cardinal sin — the zone goes dark as caches expire to the empty new host."
+    },
+    {
+      "id": "qtj-ttl-preflight-timing",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "ttl-pre-flight",
+      "prompt": "A planned A-record change is scheduled for Friday at 9pm. Current TTL is 86400 (24 hours). It's Tuesday morning. What do you do today?",
+      "choices": [
+        "Wait until Friday 9pm; the change is on the registrar's side and will take effect immediately.",
+        "Lower the TTL to 300 today. The 72 hours before Friday is plenty for the lowered TTL to spread.",
+        "Lower the TTL on Friday morning.",
+        "Lower the TTL on Friday at 8:55pm, five minutes before the change."
+      ],
+      "correct": 1,
+      "explanation": "Pre-flight TTL drop. The wait between the drop and the value change is what makes the cutover snappy — downstream caches need to expire the old TTL and pick up the new one. Dropping TTL on the same edit as the value change doesn't help."
+    },
+    {
+      "id": "qtj-dnssec-cardinal-sin",
+      "type": "mcq",
+      "difficulty": "hard",
+      "topic": "dnssec",
+      "prompt": "A senior asks you to 'disable DNSSEC at the registrar and change nameservers to the new DNS host this afternoon — both in one operation.' Why is this the cardinal sin?",
+      "choices": [
+        "DNSSEC can't be disabled without ICANN approval.",
+        "DS records at the parent have a TTL (typically 24 hours). Removing DS and changing nameservers in one operation means validating resolvers still expect signed responses from cached DS. The new host returns different DNSKEYs, validation fails, and the zone goes dark at every validating resolver for hours.",
+        "Cloudflare doesn't support DNSSEC.",
+        "Senior approval isn't enough; client approval is required."
+      ],
+      "correct": 1,
+      "explanation": "The mandatory wait between DS removal and any nameserver change is the technical protection. Skip it and the zone goes dark at every validating resolver for hours. The safe sequence is remove DS, wait DS TTL, verify insecure, then change nameservers."
+    },
+    {
+      "id": "qtj-mail-vs-web-scope",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "mail-vs-web",
+      "prompt": "A web host migration is planned. The current zone has A and AAAA at apex, MX at M365, SPF including M365, DKIM CNAMEs for M365, and DMARC. Which records do you change?",
+      "choices": [
+        "A, AAAA, MX, SPF, DKIM — update everything because the domain is moving.",
+        "A and AAAA only. MX, SPF, DKIM, DMARC stay because the mail provider isn't changing.",
+        "Just the MX record; mail is what people care about.",
+        "Update everything 'to be safe.'"
+      ],
+      "correct": 1,
+      "explanation": "Web migration changes web records only. Mail records are independent. Changing MX to a web host that doesn't run mail breaks inbound mail; changing SPF removes M365's authorisation and M365-issued mail starts failing SPF."
+    },
+    {
+      "id": "qtj-post-cutover-verification",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "verification",
+      "prompt": "You completed an A-record migration (previous TTL 300, you pre-flighted). The client emails 30 minutes later: 'I'm still seeing the old website on my office desktop.' What do you say?",
+      "choices": [
+        "'DNS propagation takes 24-48 hours; please wait.'",
+        "'The previous TTL was 5 minutes, so most users should see the new site within minutes. If your office desktop still shows the old, it's likely a local cache (browser, OS, or office router). Try a hard refresh and clear browser cache; if that doesn't fix it, the office network may have a local DNS forwarder caching longer.'",
+        "'I'll re-do the DNS change.'",
+        "'Cloudflare must have failed to propagate; I'll escalate.'"
+      ],
+      "correct": 1,
+      "explanation": "Calibrated to the actual TTL. 30 minutes is well past 5 minutes; the issue isn't standard DNS propagation but local cache. The generic '24-48 hours' answer trains clients to ignore your timelines."
+    },
+    {
+      "id": "qtj-health-check-first-cmd",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "health-check",
+      "prompt": "A ticket lands on an unfamiliar domain. What's your first command?",
+      "choices": [
+        "dig A example.com",
+        "whois example.com — gives registrar, expiry, status flags, nameservers, DNSSEC indicator before you start querying records",
+        "dig MX example.com",
+        "ping example.com"
+      ],
+      "correct": 1,
+      "explanation": "WHOIS gives you the layer-1 and layer-2 picture before querying records. dig A starts in the middle without knowing the registrar, expiry, or whether the domain is locked. The 30-second health check starts with WHOIS."
+    },
+    {
+      "id": "qtj-cardinal-sin-renewal-toggle",
+      "type": "tf",
+      "difficulty": "medium",
+      "topic": "cardinal-sins",
+      "prompt": "Clicking 'do not renew' on the wrong domain row in a registrar's panel is a low-stakes mistake because the renewal cycle is months away.",
+      "correct": false,
+      "explanation": "Wrong-row clicks on renewal toggles are cardinal sin 6 precisely *because* the damage doesn't appear until the renewal cycle months later — easy to miss until the wrong domain quietly expires. The 10-second reflex to verify the row by name (not position) prevents the slow-motion failure mode."
+    },
+    {
+      "id": "qtj-calibrate-escalation",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "escalation-calibration",
+      "prompt": "The senior asks you to lower TTL on a record from 86400 to 300 ahead of a planned change. Do you escalate before, after, or not at all?",
+      "choices": [
+        "Escalate before — confirm with the senior in writing first.",
+        "Run the change; document the result. The action is in-scope, well-runbooked, and the why is clear.",
+        "Refuse; the senior should make the change themselves.",
+        "Escalate to the client."
+      ],
+      "correct": 1,
+      "explanation": "TTL drop is fully reversible, in-scope, and the why is unambiguous (preparing for the planned change). Re-confirming with the senior is friction without benefit. Documenting the action is the right form of escalate-after."
+    },
+    {
+      "id": "qtj-common-mistake-fingerprint",
+      "type": "mcq",
+      "difficulty": "medium",
+      "topic": "common-mistakes",
+      "prompt": "A client emails: 'we did a DNS migration over the weekend. Now the website is unreachable for some of our customers but works fine for me.' What's the most likely cause?",
+      "choices": [
+        "Missed renewal — check WHOIS.",
+        "DNSSEC mishandled during the migration. 'Works for me but not for some customers' matches validating vs non-validating resolvers.",
+        "NS change without dual-provisioning.",
+        "The client's office network has a local DNS issue."
+      ],
+      "correct": 1,
+      "explanation": "The validating-vs-non-validating fingerprint. Verify with `dig DS example.com` and `dig +dnssec A example.com @8.8.8.8`. Missed renewal is 'everyone is down'; dual-provisioning failure is also more uniform. The 'some customers' qualifier points at DNSSEC."
+    },
+    {
+      "id": "qtj-recover-dnssec-broken",
+      "type": "mcq",
+      "difficulty": "hard",
+      "topic": "dnssec-recovery",
+      "prompt": "A previous tech moved a zone to a new DNS host with DNSSEC still enabled and DS records still at the registrar. The zone has been dark at validating resolvers for 6 hours. What's the fastest recovery?",
+      "choices": [
+        "Re-enable DNSSEC at the new host with new keys, then update DS records at the registrar.",
+        "Revert the nameserver change at the registrar back to the old DNS host.",
+        "Remove the DS records at the registrar immediately. Within the DS TTL, validating resolvers stop expecting signed responses and the zone resolves normally.",
+        "Restart all validating resolvers."
+      ],
+      "correct": 2,
+      "explanation": "Removing DS at the registrar is the fastest path: validating resolvers stop expecting signed responses for the zone within the DS TTL. The zone becomes effectively insecure but resolves. DNSSEC can be re-enabled later at the new host as a separate signed-off operation."
+    },
+    {
+      "id": "qtj-bundled-scenario",
+      "type": "order",
+      "difficulty": "hard",
+      "topic": "bundled-decisions",
+      "prompt": "A client wants to consolidate everything at Cloudflare: register at Cloudflare Registrar, DNS at Cloudflare DNS, web at Cloudflare Pages. Current: GoDaddy (registrar + DNS), VPS (web), M365 (mail). Order the operations safely.",
+      "items": [
+        "Run a four-layer assessment + dig DS check; identify whether DNSSEC is enabled",
+        "DNS host transfer to Cloudflare DNS (build dual-provisioned zone first, verify, then change nameservers at GoDaddy)",
+        "Record-level migration of the website to Cloudflare Pages (A/AAAA change at the new Cloudflare DNS)",
+        "Registrar transfer to Cloudflare Registrar (admin contact pre-flight, 60-day window check, auth code)",
+        "Throughout: mail at M365 stays untouched — MX, SPF, DKIM, DMARC unchanged across all steps"
+      ],
+      "explanation": "DNS host transfer first (with dual-provisioning) so the zone is portable. Then record-level migration moves the website. Registrar transfer last (or unrelated). Mail at M365 is independent and stays put across the whole sequence. DNSSEC, if on, gates the DNS host step and may extend the timeline."
+    },
+    {
+      "id": "qtj-spf-two-records",
+      "type": "tf",
+      "difficulty": "easy",
+      "topic": "spf",
+      "prompt": "Two TXT records starting with `v=spf1` on the apex (one for M365, one for Salesforce) is a valid way to authorise two mail providers.",
+      "correct": false,
+      "explanation": "SPF protocol allows only one TXT starting with `v=spf1` per domain. Two SPF records produce permerror — SPF effectively fails for the domain. The fix is merging into a single TXT with both includes."
+    }
+  ]
+}

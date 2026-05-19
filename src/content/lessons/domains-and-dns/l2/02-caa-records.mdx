@@ -1,0 +1,101 @@
+---
+slug: 02-caa-records
+vendor: domains-and-dns
+level: l2
+title: 'CAA records: who can issue certificates'
+summary: 'A small DNS change with a delayed, expensive failure mode. Never publish a CAA without checking what currently issues.'
+estimatedMinutes: 8
+order: 2
+topics: ['records', 'caa', 'certificates']
+---
+
+CAA records are uncommon enough that many techs go their first year without touching one, then meet them during a security audit or a Cloudflare onboarding. The reason CAA matters for helpdesk work is the *failure mode*: a wrong CAA causes cert renewals to fail silently a few weeks or months later, after the tech who made the change has forgotten about it. The site goes offline when the cert expires.
+
+CAA is a record where *small change, big delayed impact* is the norm.
+
+## What CAA does
+
+A CAA (Certification Authority Authorization) record at a domain tells certificate authorities whether they're allowed to issue certificates for that domain. Before issuing, a CA queries CAA. If a CAA exists and doesn't authorise the CA, the issuance fails.
+
+```text
+example.com.   IN  CAA   0 issue "letsencrypt.org"
+example.com.   IN  CAA   0 issue "digicert.com"
+example.com.   IN  CAA   0 issuewild "letsencrypt.org"
+example.com.   IN  CAA   0 iodef "mailto:security@example.com"
+```
+
+The value has three components:
+
+- **Flag** (`0` or `128`). Mostly `0`. `128` means "critical": CAs that don't understand a tag must refuse issuance.
+- **Tag** (`issue`, `issuewild`, or `iodef`). `issue` permits regular certs; `issuewild` permits wildcards; `iodef` is an email/URL the CA reports violations to.
+- **Value**. The CA's identifier or the iodef URL.
+
+## The default and the failure mode
+
+<Callout type="warn" title="Adding CAA implicitly forbids every CA you don't list">
+If a domain has *no* CAA records, any CA can issue (the universal default).
+
+When you add a CAA, you're constraining issuance: only the named CAs can issue. **Any CA not named is implicitly forbidden.**
+
+The failure pattern: a domain has been quietly issuing certs from a CA for years (Let's Encrypt via the hosting provider, say). A security audit recommends adding CAA. The tech adds `0 issue "digicert.com"` because the client recently bought a DigiCert wildcard. The Let's Encrypt renewal three weeks later fails because Let's Encrypt isn't listed. The site keeps working until the existing cert expires, then it goes dark.
+</Callout>
+
+## How to check what currently issues
+
+Before publishing CAA, find out **what's currently issuing**. Two paths:
+
+1. **Look at the live certificate.** Open the site in a browser; the cert's issuer field names the CA. For multi-host setups (CDNs, load balancers), check each public endpoint.
+2. **Query Certificate Transparency logs.** Every cert issued for a domain is logged in public CT logs. Services like `crt.sh` let you search a domain and see every cert issued in the last few years, including from CAs you didn't know were involved (sub-CAs, vendor-managed certs, hosting-provider auto-issuance).
+
+CT search reveals surprises. A hosting provider's certificate-management subsystem issues from a CA the client never knew was in their stack; a subdomain delegates somewhere that issues from a different CA. Before publishing CAA, account for all of them.
+
+## What this is NOT
+
+- "CAA controls which CA the client can buy from." No. CAA controls which CA is *technically permitted to issue*. The client can buy from anyone; the issuance fails at the technical step if CAA doesn't allow it.
+- "No CAA means any cert is automatically issued, so the domain is insecure." No. *Any CA can issue* doesn't mean *any cert is automatic*. Each CA still does its own validation (domain control, ownership). CAA is an additional gate, not the primary one.
+- "Adding CAA is always safer." Adding the wrong CAA is actively dangerous because it silently breaks future renewals. Adding the right CAA is a small improvement. The risk cuts both ways.
+
+## Decision walkthrough
+
+A client's security consultant emails: *your domain `example.com` doesn't have CAA records. Best practice is to add `CAA 0 issue 'digicert.com'` since that's the CA you bought your wildcard from.* You check the website's cert in the browser: DigiCert wildcard, as expected. You search CT logs (`crt.sh/?q=example.com`) and find three issuers in the last two years: DigiCert (the wildcard, intentional), Let's Encrypt (issued ~weekly by the client's hosting platform's auto-SSL — the client didn't know), and Sectigo (one cert from a security scanner that the client trialled and dropped).
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="What CAA do you publish?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Three current issuers: DigiCert, Let's Encrypt, Sectigo (trial, ended). What goes in CAA?",
+      choices: [
+        { label: "Just DigiCert, as the consultant recommended.", next: "digi-only" },
+        { label: "DigiCert and Let's Encrypt. Confirm with the client that the Sectigo trial is truly over and exclude it.", next: "two-current" },
+        { label: "All three, including Sectigo to be safe.", next: "all-three" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "digi-only",
+      label: "Will kill hosting's auto-SSL within 90 days",
+      tone: "bad",
+      body: "Let's Encrypt is currently renewing certs for the client via the hosting platform's auto-SSL. Locking it out means the next renewal fails silently and the site goes dark when the cert expires.",
+    },
+    {
+      type: "outcome",
+      id: "two-current",
+      label: "Current intent",
+      tone: "success",
+      body: "Right. Authorise the CAs currently issuing and intended to issue going forward. Sectigo was a one-off trial that ended; if confirmed, exclude it. CAA should reflect intent, not historical accident.",
+    },
+    {
+      type: "outcome",
+      id: "all-three",
+      label: "Defensible but possibly unnecessary",
+      tone: "warn",
+      body: "Defensible if you're worried Sectigo will renew the trial cert. If the trial is truly over (no renewal in CT logs in the last 90 days), Sectigo doesn't need to be in CAA. Confirm with the client.",
+    },
+  ]}
+/>
+
+If you're not sure what currently issues, **don't add CAA**. The default (no CAA) is safe; an incomplete CAA is not. Monitor renewals for 60–90 days after publishing to catch any missed CA.

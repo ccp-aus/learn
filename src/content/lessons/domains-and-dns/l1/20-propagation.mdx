@@ -1,0 +1,70 @@
+---
+slug: 20-propagation
+vendor: domains-and-dns
+level: l1
+title: 'Propagation: what it actually is'
+summary: 'Propagation is the time old caches take to expire across downstream resolvers, not data being copied between servers. Replace the "24 to 48 hours" stock answer with a calibrated one.'
+estimatedMinutes: 7
+order: 20
+topics: ['dns-fundamentals', 'propagation']
+---
+
+*DNS propagation* is the single most misused phrase in helpdesk-DNS work. Clients use it to mean *the change is being copied to many servers and takes hours*. Techs sometimes use it the same way without thinking.
+
+The actual meaning is different and the difference matters. When you understand propagation as *old caches expiring*, you can give a calibrated answer instead of the worst-case *24-48 hours* cover-yourself reply. Clients trust the calibrated answer because it's right.
+
+## The wrong mental model
+
+DNS is a distributed database. When you make a change at one server, the change replicates to many servers around the world. Until replication completes, some servers still have the old value.
+
+This is not how DNS works.
+
+## The right mental model
+
+DNS is a **pull-based caching system**. The authoritative server holds the single source of truth for each zone. When a resolver wants a record, it queries the authoritative server and caches the answer for the TTL. Resolvers around the world independently cache, with no coordination between them.
+
+When you change a record at the authoritative:
+
+- The authoritative immediately serves the new value to any new query.
+- Resolvers that had the *old* value cached continue to serve the old value to their users until their cache expires (after the *old* TTL).
+- Resolvers that didn't have the old value cached query the authoritative on demand and get the new value.
+
+*Propagation* is the colloquial term for *the time it takes for the old cached values to age out across the population of resolvers that had cached them*. It's not replication; it's cache expiry.
+
+## The calibrated answer
+
+If a client asks *how long until the change is visible?*, the answer depends on three things:
+
+- **The old TTL** on the old record before you made the change. (Not the new TTL.)
+- **Which resolvers** the client's users are behind. Google's `8.8.8.8` caps at 24 hours; Cloudflare's `1.1.1.1` similar; ISP resolvers vary.
+- **When each resolver last cached the old value.** A resolver that cached 5 seconds before the change holds nearly the full old TTL.
+
+<Callout type="info" title="The right answer, by previous TTL">
+- Previous TTL **300** (you pre-flighted): *Most users will see the new value within 5 minutes.*
+- Previous TTL **3600** (operational default, no pre-flight): *Most users within an hour; some pockets up to an hour.*
+- Previous TTL **86400** (no pre-flight, stable record): *Some users within minutes; some for up to a day in the long tail.*
+
+Never default to *24-48 hours* unless the actual TTL supports it.
+</Callout>
+
+## Where the "24-48 hours" stock answer came from
+
+Historically, before TTL discipline became common, defaults at most DNS hosts were 86400 (24 hours) or higher. Combined with resolvers that didn't cap TTLs aggressively, propagation often did take 24 hours. The *24-48 hours* answer became reflexive.
+
+Today most DNS hosts default to lower TTLs (3600 is common), major public resolvers cap at 24 hours, and with pre-flight TTL drops the realistic time is often under 5 minutes. Saying *24-48 hours* by default trains clients to ignore your timeline. The next change you do in 5 minutes will be invisible to them until they happen to refresh hours later.
+
+## What this is NOT
+
+- "DNS data is replicated between servers." Each authoritative zone has primary and secondary nameservers operated by the DNS host, and those replicate from the primary internally, but that's an internal detail. Resolvers don't replicate; they cache on demand.
+- "Some servers update slower than others." Authoritative serves the new value immediately. The variation is at the resolver layer.
+- "I can speed up propagation." Limited tools at best. Pre-flight TTL lowering ahead of time is the main lever. You can ask Cloudflare or Google to purge specific records from their public resolvers (Cloudflare has `1.1.1.1/purge`). You cannot reach the millions of other resolvers.
+
+## Worked diagnosis
+
+A client emails Monday morning: *we changed our MX record on Friday at 5pm to point to the new mail provider. It's now Monday and we're still seeing some inbound mail going to the old mail server. Hasn't propagation finished?*
+
+The previous TTL on the MX records was 3600. The change was made 64 hours ago. `dig MX example.com` against the authoritative returns the new MX values.
+
+64 hours is well past a 3600 TTL. Propagation as cache expiry is complete. The fact that mail is still going to the old server means the old mail server is still accepting it (the migration to the new provider didn't disable inbound at the old). Some senders may have hardcoded the old mail server's IP somewhere, or are running an internal DNS forwarder that cached longer than expected, but the dominant cause here is the old server hasn't been turned off.
+
+The fix isn't waiting more; it's confirming the old server is shut down for inbound or that it forwards anything it receives to the new provider.

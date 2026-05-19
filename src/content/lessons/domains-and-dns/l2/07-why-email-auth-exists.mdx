@@ -1,0 +1,102 @@
+---
+slug: 07-why-email-auth-exists
+vendor: domains-and-dns
+level: l2
+title: 'Why email authentication exists'
+summary: 'The three records (SPF, DKIM, DMARC) and why none of them alone solves the unauthenticated-email problem SMTP left open.'
+estimatedMinutes: 7
+order: 7
+topics: ['email-auth', 'spf', 'dkim', 'dmarc']
+---
+
+SMTP, the protocol email runs on, was designed in the early 1980s with no built-in sender verification. When a sending server connects to a receiver and says *I have a message from `ceo@example.com` for `staff@anotherco.com`*, the receiver has no way to confirm the sending server is authorised to send for `example.com`. Anyone can claim to be `ceo@example.com`.
+
+The consequences are familiar: phishing campaigns spoofing your domain to your customers, attackers impersonating the CEO to the finance team, deliverability damage that hurts the legitimate mail you actually send. Email authentication, layered on top of SMTP, addresses this with three independent records.
+
+## The three records, complementary
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Sender
+    participant Receiver
+    participant DNS as DNS (example.com)
+    Sender->>Receiver: SMTP from ceo@example.com
+    Receiver->>DNS: SPF: does this IP authorise to send for example.com?
+    DNS-->>Receiver: include:spf.protection.outlook.com -all
+    Receiver->>DNS: DKIM: public key at selector1._domainkey?
+    DNS-->>Receiver: public key
+    Note over Receiver: verify message signature against key
+    Receiver->>DNS: DMARC policy for example.com?
+    DNS-->>Receiver: v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com
+    Note over Receiver: if SPF or DKIM fail with the visible From, follow DMARC policy
+```
+
+| Record | What it does |
+|---|---|
+| **SPF** (TXT at apex) | Lists which servers are authorised to send mail for the domain. Receiver checks: was the connection from one of the listed servers? |
+| **DKIM** (TXT or CNAME at `<selector>._domainkey`) | Cryptographic signature added to each outbound message. The sending server signs with a private key; the public key is in DNS. Receiver verifies the signature. |
+| **DMARC** (TXT at `_dmarc`) | What the receiver should do when SPF or DKIM fail, *and* how to align the result with the visible `From:` address. Sends reports so the domain owner can see what's claiming to be them. |
+
+## Why the three together do something none alone does
+
+**SPF alone** is insufficient because mail forwarding breaks it. A user forwards their mail to a personal account; the original SPF check at the destination looks at the forwarding hop, not the original sender. SPF fails for legitimate mail.
+
+**DKIM alone** is insufficient because it doesn't say which domain the message *claims* to be from. A message can be DKIM-signed by `attacker.example` and still show *From: ceo@example.com* to the user.
+
+**SPF + DKIM together** still leave the receiver without a clear policy. If SPF passes and DKIM fails, what does the receiver do?
+
+**DMARC** ties it together. The `From:` domain is `example.com`; SPF and DKIM are checks *aligned* to that From domain; if neither passes, here's what the receiver should do (`p=none` / `quarantine` / `reject`); send reports so the domain owner sees what's claiming to be them.
+
+SPF authorises sources. DKIM proves integrity. DMARC defines policy and aligns the visible identity.
+
+## What this is NOT
+
+- "SPF is enough." Forwarding and From-alignment problems leave gaps DKIM and DMARC fill.
+- "DMARC blocks mail." DMARC alone doesn't decide; it tells the receiver what to do based on SPF and DKIM results. With `p=none`, it reports without blocking.
+- "Email authentication is for the sender's benefit only." Both ends. Sender protects reputation; receiver gets a reliable signal for spam filtering and a way to report abuse.
+
+## Decision walkthrough
+
+A client emails: *our customers say emails from us are landing in their spam folder. Can you fix this?* You pull the zone and see no SPF, no DKIM CNAMEs, no DMARC record.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Where do you start?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Three records missing. First move?",
+      choices: [
+        { label: "Tell the client this is a content problem; rewrite emails to avoid spam-trigger words.", next: "content" },
+        { label: "Identify which mail provider the client uses, then add SPF, DKIM, and DMARC records appropriate for that provider (SPF and DKIM first, then DMARC).", next: "fix" },
+        { label: "Tell the client to switch mail providers.", next: "switch" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "content",
+      label: "Wrong scope",
+      tone: "bad",
+      body: "Missing authentication is the most likely contributor. Content might be a factor but it's downstream of the auth setup.",
+    },
+    {
+      type: "outcome",
+      id: "fix",
+      label: "Foundation first",
+      tone: "success",
+      body: "Right. The three records are the foundation. Add SPF (authorise the mail provider's IPs), DKIM (publish the keys via CNAME or TXT), then DMARC at p=none to start monitoring. After a couple of weeks of clean reports, you can ramp DMARC to quarantine and then reject.",
+    },
+    {
+      type: "outcome",
+      id: "switch",
+      label: "Doesn't fix the DNS",
+      tone: "bad",
+      body: "The provider isn't the issue; the DNS configuration is. Switching providers without fixing the DNS just moves the problem.",
+    },
+  ]}
+/>
+
+The DMARC ramp specifically: start at `p=none` with a reporting address. Two weeks of clean reports, then quarantine. More clean reports, then reject. Jumping straight to `p=reject` without monitoring risks blocking legitimate mail from sources you haven't accounted for (CRMs, newsletters, third-party tools). Lesson 10 covers DMARC in depth.

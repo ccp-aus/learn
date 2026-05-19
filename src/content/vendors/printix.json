@@ -1,0 +1,10 @@
+{
+  "slug": "printix",
+  "name": "Printix",
+  "tagline": "Cloud print management for the post-print-server stack.",
+  "summary": "Printix (Tungsten Printix) is a cloud-native print management service that replaces on-prem print servers with a serverless model. Centralised driver delivery, secure pull-printing, mobile print, and reporting, administered per Microsoft 365 or Google Workspace tenant. Common in SMB and mid-market cloud-first deployments.",
+  "accent": "oklch(0.74 0.18 280)",
+  "website": "https://www.printix.net/",
+  "status": "planned",
+  "order": 50
+}

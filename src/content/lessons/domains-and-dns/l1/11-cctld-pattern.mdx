@@ -1,0 +1,106 @@
+---
+slug: 11-cctld-pattern
+vendor: domains-and-dns
+level: l1
+title: 'ccTLDs: pattern and workflow'
+summary: 'The four-dimensional model for any ccTLD registry, plus the five-step workflow you run on each new ccTLD before quoting a client.'
+estimatedMinutes: 10
+order: 11
+topics: ['registration', 'cctlds']
+---
+
+Country-code TLDs (`.au`, `.uk`, `.ca`, `.de`, `.nz`, hundreds of others) are run by national or regional registries, not by ICANN policy. Each registry sets its own rules, and the rules vary on dimensions a tech who has only worked with `.com` would never think to check.
+
+A client wants `.com.au` and is surprised when the registrar asks for an ABN. A client wants `.ca` and is surprised they have to be Canadian. The registrar's panel rejects the registration with a generic error if eligibility fails; figuring out the *why* without knowing the pattern wastes a support ticket round-trip.
+
+The pattern is durable even when specific TLDs are not, and a short workflow gets you a calibrated answer in under a minute.
+
+## The four dimensions
+
+Any ccTLD's registration rules can be modelled as a combination of these four. A given ccTLD may impose none, one, or several:
+
+| Dimension | What the registry might require | Example |
+|---|---|---|
+| **Eligibility** | Who is allowed to register: business type, individual category, profession | `.bank` requires a regulated financial institution |
+| **Identity** | A registration number, tax ID, business number, or national ID confirming eligibility | `.com.au` requires an ABN or ACN matching the registrant |
+| **Presence** | A local address, agent, or contact in the country | `.ca` requires Canadian-presence; `.eu` requires EU/EEA presence |
+| **Restricted second-level names** | Reserved second-level names with their own rules | `.gov.au`, `.edu.au`, `.org.au` are separate namespaces from `.com.au` |
+
+The mix is the registry's choice. `.com.au` requires eligibility (Australian commercial entity), identity (ABN/ACN), and effectively presence (the ABN implies an Australian business). `.uk` requires almost nothing; open registration. `.eu` requires presence in the EU/EEA but no business identity.
+
+## The five-step workflow
+
+Before quoting a client a price or a timeline on an unfamiliar ccTLD, run this:
+
+1. **Identify the registry.** Search "[TLD] registry" or look up the TLD in IANA's root zone database. Anchor names: auDA (.au), Nominet (.uk), CIRA (.ca), DENIC (.de), InternetNZ (.nz), EURid (.eu), AFNIC (.fr).
+2. **Find the registry's own published requirements page.** The page might be called *Policy*, *Eligibility*, *Registration rules*, or named after the TLD. Always anchor on the registry's site, not a registrar's summary.
+3. **Walk through the four dimensions.** For this client, on this TLD, what do eligibility, identity, presence, and restricted-second-level-names require?
+4. **Surface to the client.** If they meet all four, proceed. If not, the client decides whether to fix the gap (register an ABN, form a local entity, switch second-level names) or pick a different TLD.
+5. **Document the result for the team.** Add notes to your documentation system or a shared ccTLD-requirements reference so the next ticket on the same TLD doesn't have to repeat the lookup.
+
+## How dimensions show up at registration
+
+When a registrar sells a ccTLD, the panel asks for whatever data the registry requires. For `.com.au` you'll see a field for the ABN. For `.eu` you'll see an address field that has to match an allowed country. For `.uk` it just registers.
+
+When the registration is submitted to the registry, the registry checks the data against its rules. A failed check returns an error at the registrar, sometimes clearly, sometimes as a generic *registration failed*. Knowing the dimensions tells you what to check next:
+
+- Registration failed and you didn't see an ABN-like field? Probably **eligibility / identity**.
+- Registration failed with an address error? Probably **presence**.
+- Domain shows *not available* for an open-sounding name like `government.com.au`? Probably a **restricted second-level name**.
+
+## What this is NOT
+
+- "All TLDs are like `.com` underneath." They aren't. ccTLDs are run under national registry policy, which varies. Treating `.com.au` like `.com` produces *why is the registrar asking for an ABN* surprises.
+- "If the registrar accepted my registration, the eligibility check passed." Registrars don't always validate eligibility deeply at the panel level. Some registries reject the registration after the registrar passes it through, sometimes days later.
+- "Trust the registrar's summary instead of the registry's page." Registrar summaries can be out of date. The registry's own page is the source of truth.
+
+## When to escalate
+
+- The client's situation doesn't cleanly fit the four-dimension model and the registry's policy is ambiguous (a foreign-owned local entity against presence rules written for locally-owned entities, for example).
+- The registry is one you've never used and the published policy is in a language none of the team reads fluently.
+- The client wants a restricted second-level name (`.gov.au`, `.edu.au`) that may carry registration-process steps outside the routine registrar flow.
+
+## Decision walkthrough
+
+A new client emails: *we're a UK marketing agency expanding to Australia. We want `excellent.com.au` for the Australian side. We've already registered an Australian Pty Ltd company; here's the ACN. The Pty Ltd doesn't have an ABN yet.*
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="ccTLD registration: ACN without ABN"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Client has an ACN but no ABN. .com.au requires identity. What do you do?",
+      choices: [
+        { label: "Submit the registration with the ACN and see what happens.", next: "submit-blind" },
+        { label: "Check auDA's policy: .com.au requires an Australian commercial entity with ABN or ACN as identity. Confirm the ACN is active and matches the registrant.", next: "check-acn" },
+        { label: "Tell the client they need an ABN before you can register .com.au.", next: "wrong-rule" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "submit-blind",
+      label: "Skipped the workflow",
+      tone: "bad",
+      body: "Skipping the policy check leaves you guessing whether ACN-without-ABN qualifies. The five-step workflow is the answer.",
+    },
+    {
+      type: "outcome",
+      id: "check-acn",
+      label: "Workflow first",
+      tone: "success",
+      body: "Right. auDA's policy describes eligibility for .com.au: Australian commercial entity, ABN or ACN as identity. ACN alone qualifies under current policy. Surface to the client: 'your ACN satisfies the identity requirement; the registration should proceed. The Pty Ltd will need an ABN for tax purposes eventually, but .com.au doesn't require it.'",
+    },
+    {
+      type: "outcome",
+      id: "wrong-rule",
+      label: "Outdated information",
+      tone: "bad",
+      body: "ACN qualifies under current auDA rules. Refusing on outdated information costs the client time and trust. The workflow exists to catch this.",
+    },
+  ]}
+/>
+
+<Checkpoint slug="domains-and-dns-foundation-checkpoint-cctld-pattern" client:visible />

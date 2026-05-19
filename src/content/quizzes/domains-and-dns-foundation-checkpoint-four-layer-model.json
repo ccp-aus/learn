@@ -1,0 +1,49 @@
+{
+  "slug": "domains-and-dns-foundation-checkpoint-four-layer-model",
+  "course": "domains-and-dns-foundation",
+  "kind": "checkpoint",
+  "title": "Quick check: the four-layer model",
+  "drawCount": 0,
+  "passThreshold": 1,
+  "questions": [
+    {
+      "id": "ck-four-layer-mail-vs-web",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "mail-vs-web",
+      "prompt": "A client's web hosting is at a shared host (cPanel). Their mail is at Microsoft 365. The client emails: \"we want to move web hosting to a new provider.\" Which records are likely to change?",
+      "choices": [
+        "A, AAAA, and MX, moving everything together.",
+        "A and AAAA only, mail records stay because mail is at M365 and isn't being moved.",
+        "MX only, the new web host will need its own mail setup.",
+        "All DNS records, when you move hosts you replace the whole zone."
+      ],
+      "correct": 1,
+      "explanation": "Web and mail migrate independently. The web host change touches A, AAAA, possibly the www CNAME. MX, SPF, DKIM, DMARC stay put because the mail host (M365) isn't changing. Treating a migration as 'replace the whole zone' is exactly the misconception that breaks unrelated services."
+    },
+    {
+      "id": "ck-four-layer-registrar-panel",
+      "type": "tf",
+      "difficulty": "medium",
+      "topic": "registrar-vs-dns-host",
+      "prompt": "If the registrar's panel shows the client's DNS records and lets you edit them, that means the registrar is the authoritative DNS host.",
+      "correct": false,
+      "explanation": "Not necessarily. Many registrars expose a UI for DNS records you'd actually need to edit at a different host if the nameservers point elsewhere. Check the delegated nameservers (`dig NS` or the registrar's nameservers field) to confirm which company is authoritative."
+    },
+    {
+      "id": "ck-four-layer-symptom-mapping",
+      "type": "mcq",
+      "difficulty": "easy",
+      "topic": "layer-identification",
+      "prompt": "A client says \"our website is broken, please fix the DNS.\" You check and DNS resolves to the right IP, but the web server returns a 500 error when you load the IP directly. Which layer is the actual issue at?",
+      "choices": [
+        "Layer 1, registrar.",
+        "Layer 2, DNS host.",
+        "Layer 3, web host.",
+        "Layer 4, mail host."
+      ],
+      "correct": 2,
+      "explanation": "The 500 from the web server is at the web host's layer. DNS was never the issue despite the client's framing. This is the canonical mis-attribution pattern the four-layer model is designed to prevent."
+    }
+  ]
+}

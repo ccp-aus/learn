@@ -1,0 +1,60 @@
+---
+slug: 05-mermaid-diagrams
+vendor: _dev
+level: l1
+title: Mermaid diagrams
+summary: Flowchart, sequence diagram, and state diagram — theme-aware, lightboxed.
+estimatedMinutes: 5
+order: 5
+topics:
+  - mermaid
+  - diagrams
+---
+
+The MermaidLoader picks up any fenced `mermaid` block on the page, renders it client-side, and re-renders on theme toggle. Click any diagram to enlarge it in a lightbox.
+
+## Flowchart
+
+```mermaid
+graph TD
+  A[User reports issue] --> B{Can you reproduce?}
+  B -->|Yes| C[Capture logs]
+  B -->|No| D[Ask for steps]
+  C --> E{Known issue?}
+  E -->|Yes| F[Apply documented fix]
+  E -->|No| G[Open investigation]
+  D --> B
+```
+
+## Sequence diagram
+
+The first colon in a message label is the parser's separator. Anything after a second colon will trip it. The line below uses prose instead of `Header-Name: value` to avoid the trap.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant W as Web app
+  participant A as Auth service
+  U->>W: GET /dashboard
+  W->>A: validate session cookie
+  A-->>W: 200, session valid
+  W-->>U: 200, render dashboard
+```
+
+## State diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> Triage
+  Triage --> InProgress: assigned
+  Triage --> Closed: duplicate
+  InProgress --> WaitingOnCustomer: needs info
+  WaitingOnCustomer --> InProgress: customer replies
+  InProgress --> Resolved: fix applied
+  Resolved --> Closed: confirmed
+  Closed --> [*]
+```
+
+## Health checks
+
+Each diagram should render an SVG (not literal mermaid source). The lightbox should open on click and dismiss with Escape. Toggling the theme should re-render the SVG with the new colour palette.

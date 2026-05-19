@@ -1,0 +1,233 @@
+---
+slug: 09-procedural-and-reference
+vendor: _dev
+level: l1
+title: Procedural muscle memory and reference cards
+summary: Console for guided pretend-terminal sessions (pick-the-command with per-shell variants, or free-type), Runbook for non-progressive reference procedures.
+estimatedMinutes: 7
+order: 9
+topics:
+  - console
+  - runbook
+---
+
+Some lessons teach the right procedure once. Others build the muscle memory to do that procedure under pressure. These two elements split that work.
+
+## Console — pick-the-command mode, with per-shell variants
+
+Multiple-choice variant. The learner picks the right next command, the response renders, the next step unlocks. Turns rote command memorisation into active recall.
+
+Each step here declares per-shell `variants` (bash, PowerShell, cmd). The toggle in the Console header is the visitor's preference; pick once, every Console on this page and across the site uses the same shell. Saved to localStorage.
+
+Wrong picks render the per-choice **rationale** under the chosen option — that's the teaching moment for look-alikes like `ping` (resolves the name, but only shows one IP, so you miss multi-A and CNAME-chained answers).
+
+<Console
+  client:load
+  title="dns-triage"
+  steps={[
+    {
+      narration: "Customer's site won't load. Confirm what the A record actually returns.",
+      variants: {
+        bash: {
+          choices: [
+            {
+              label: "ping example.com",
+              rationale: "ping resolves the name, but only shows the first IP the resolver hands back. Domains with multiple A records or a CNAME chain hide behind that single line — you'll miss half the picture.",
+            },
+            "dig +short example.com A",
+            {
+              label: "tracert example.com",
+              rationale: "tracert uses ICMP to map the route. Useful for routing issues; it doesn't show the A-record answer set.",
+            },
+          ],
+          correctIndex: 1,
+          response: "93.184.216.34\n93.184.216.35",
+        },
+        powershell: {
+          choices: [
+            {
+              label: "Test-Connection example.com -Count 1",
+              rationale: "Test-Connection is the PowerShell equivalent of ping — same trap. It resolves to one IP and stops there.",
+            },
+            "Resolve-DnsName example.com -Type A | Select IPAddress",
+            {
+              label: "Test-NetConnection example.com",
+              rationale: "Test-NetConnection probes TCP reachability and shows one resolved IP. It tells you about reachability, not the record set.",
+            },
+          ],
+          correctIndex: 1,
+          response: "IPAddress\n---------\n93.184.216.34\n93.184.216.35",
+        },
+        cmd: {
+          choices: [
+            {
+              label: "ping example.com",
+              rationale: "Same trap as bash ping — one IP per query. Multi-A and CNAME-chained records stay hidden.",
+            },
+            "nslookup -type=A example.com",
+            {
+              label: "tracert example.com",
+              rationale: "tracert maps the route, not the DNS answer.",
+            },
+          ],
+          correctIndex: 1,
+          response: "Server:  resolver.example.org\n\nNon-authoritative answer:\nName:    example.com\nAddresses: 93.184.216.34\n           93.184.216.35",
+        },
+      },
+    },
+    {
+      narration: "Check whether the customer's resolver matches yours by querying a public resolver directly.",
+      variants: {
+        bash: {
+          choices: [
+            "dig +short example.com A @1.1.1.1",
+            {
+              label: "nslookup example.com 192.168.1.1",
+              rationale: "192.168.1.1 is a private LAN address — it's not a public resolver. The point of this step is to bypass your local resolver entirely.",
+            },
+            {
+              label: "dig +short @customer.example.com",
+              rationale: "Missing the record name. dig needs both the resolver (`@1.1.1.1`) and the name to look up.",
+            },
+          ],
+          correctIndex: 0,
+          response: "93.184.216.34",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Server 1.1.1.1",
+            {
+              label: "Resolve-DnsName example.com",
+              rationale: "Without `-Server`, this hits the system resolver — same answer your machine would give for any other lookup. That's exactly what we're trying to bypass.",
+            },
+            {
+              label: "Clear-DnsClientCache",
+              rationale: "Clears the local DNS cache. Useful if you suspect stale entries, but doesn't query an alternate resolver.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 300\nIPAddress : 93.184.216.34",
+        },
+        cmd: {
+          choices: [
+            "nslookup example.com 1.1.1.1",
+            {
+              label: "ipconfig /flushdns",
+              rationale: "Flushes the local stub-resolver cache. Doesn't query an alternate resolver — same upstream as before.",
+            },
+            {
+              label: "nslookup example.com",
+              rationale: "Without the second positional argument, this uses the system resolver — same one your machine is already using.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  one.one.one.one\nAddress: 1.1.1.1\n\nNon-authoritative answer:\nName:    example.com\nAddress: 93.184.216.34",
+        },
+      },
+    },
+    {
+      narration: "TTL tells you how long propagation will take. Pull a verbose answer to see it.",
+      variants: {
+        bash: {
+          choices: [
+            "dig example.com A +noall +answer",
+            {
+              label: "whois example.com",
+              rationale: "whois shows registrar metadata (registrant, nameservers, expiry). It doesn't show DNS record TTLs — those live in the zone, not the registrar.",
+            },
+            {
+              label: "host -v example.com",
+              rationale: "host -v shows the resolved address but not the record's TTL in the answer line. dig surfaces TTL by default.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    300    IN    A    93.184.216.34",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A | Format-List",
+            {
+              label: "Get-DnsClientCache",
+              rationale: "Reads your local resolver cache. The TTLs in the cache are *remaining* TTL, not the zone-authoritative TTL — they decay from whatever the resolver was handed.",
+            },
+            {
+              label: "Resolve-DnsName example.com",
+              rationale: "Default output is compact and omits TTL. Use `| Format-List` to see all fields including TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 300\nIPAddress : 93.184.216.34",
+        },
+        cmd: {
+          choices: [
+            "nslookup -debug example.com",
+            {
+              label: "nslookup example.com",
+              rationale: "Default nslookup hides TTL. The `-debug` flag dumps the full DNS response including the TTL field.",
+            },
+            {
+              label: "ipconfig /displaydns",
+              rationale: "Shows the local stub-resolver cache only. Remaining-TTL, not authoritative-TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Got answer:\n    HEADER:\n        opcode = QUERY, id = 1, rcode = NOERROR\n    QUESTIONS:\n        example.com, type = A, class = IN\n    ANSWERS:\n    ->  example.com\n        internet address = 93.184.216.34\n        ttl = 300 (5 mins)",
+        },
+      },
+      comment: "TTL 300 = 5 minutes. Any change clears within that window.",
+    },
+  ]}
+/>
+
+## Console — free-type mode
+
+Same component, different per-step shape. Drop the `choices` array, supply `expected` as a string or RegExp. The learner types into a prompt that looks like a real shell. Free-type is harder than multiple-choice — the learner has to know the shape of the command, not just recognise it. Use it when finger memory is the actual skill.
+
+<Console
+  client:load
+  title="mail-auth"
+  prompt="$ "
+  steps={[
+    {
+      narration: "Pull the SPF record for example.com.",
+      expected: /dig\s+(\+short\s+)?(txt\s+)?example\.com(\s+txt)?/i,
+      response: '"v=spf1 ip4:203.0.113.10 -all"',
+      comment: "Accepts dig with optional flags in any order.",
+    },
+    {
+      narration: "Now pull the DMARC record. Different hostname.",
+      expected: /dig\s+(\+short\s+)?(txt\s+)?_dmarc\.example\.com(\s+txt)?/i,
+      response: '"v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"',
+    },
+  ]}
+/>
+
+## Notes on choices
+
+- **Per-choice `rationale`** is the preferred way to teach a wrong answer. Authors should imagine the technician who picks the look-alike — what's the specific trap they need to learn? `ping` resolves the name but hides multi-A/CNAME; `Test-NetConnection` is reachability, not record-set; `whois` is registrar metadata, not zone records. The rationale shows beneath the picked choice when the learner submits the wrong one.
+- **Per-step `variants`** drive the shell toggle. Authors don't need to provide all three (bash + PowerShell + cmd) — if only bash + PowerShell are defined, cmd falls back to the first declared variant so the step is still usable.
+- Steps that aren't shell-specific (vendor CLI like `cpcmd`, `gam`, `Get-CIPPUser`) skip `variants` and use top-level `choices` / `expected` / `response` directly — the shell toggle doesn't appear if no step has variants.
+
+## Runbook
+
+Same `<Step>` children as `StepThrough`, but everything visible at once and no Continue button. The mental model is "look up", not "learn". Useful for on-call playbooks, offboarding checklists, anything the learner already knows but needs a structured place to follow.
+
+<Runbook title="M365 user offboarding" audience="Helpdesk L1">
+  <Step title="Block sign-in">
+    In Entra → Users → the leaver, set **Block sign-in** to Yes. Revokes existing tokens within an hour.
+  </Step>
+  <Step title="Convert mailbox to shared">
+    Exchange Admin Center → Recipients → Mailboxes → the leaver → Convert to shared mailbox. Frees the licence without losing mail.
+  </Step>
+  <Step title="Forward mail to manager">
+    On the now-shared mailbox, add the manager's UPN to **Mailbox delegation → Full access**. Set an out-of-office that names the manager.
+  </Step>
+  <Step title="Remove licences">
+    Back in Entra → the leaver → Licences → remove the M365 SKU. Wait 24 hours before deleting the account.
+  </Step>
+  <Step title="Hand over OneDrive">
+    SharePoint Admin → Active sites → the leaver's OneDrive → Permissions → grant the manager. OneDrive is auto-deleted 30 days after account deletion unless retention is configured.
+  </Step>
+</Runbook>
+
+Runbooks share the same numbered-bubble styling as StepThrough, so authors can move content between the two without rewriting it.

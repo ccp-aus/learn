@@ -1,0 +1,310 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/site/Breadcrumb.astro";
+import { Badge } from "@/components/ui/badge";
+import { isPublic } from "@/lib/dev-only";
+
+const vendors = (await getCollection("vendors"))
+  .filter(isPublic)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+const courses = (await getCollection("courses")).filter(isPublic);
+
+function vendorLevels(vendorSlug: string) {
+  const vc = courses.filter((c) => {
+    const ref = c.data.vendor;
+    const slug = typeof ref === "string" ? ref : ref?.id;
+    return slug === vendorSlug && c.data.status === "live";
+  });
+  return new Set(vc.map((c) => c.data.level));
+}
+
+const levelLabel: Record<"l1" | "l2" | "l3", string> = {
+  l1: "Beginner",
+  l2: "Intermediate",
+  l3: "Advanced",
+};
+
+function hasLiveCourse(vendorSlug: string) {
+  return courses.some((c) => {
+    const ref = c.data.vendor;
+    const slug = typeof ref === "string" ? ref : ref?.id;
+    return slug === vendorSlug && c.data.status === "live";
+  });
+}
+
+const vendorEntries = vendors.filter(
+  (v) => v.data.kind !== "concept" && v.data.status !== "planned",
+);
+const plannedVendorEntries = vendors.filter(
+  (v) => v.data.kind !== "concept" && v.data.status === "planned",
+);
+const conceptEntries = vendors.filter(
+  (v) =>
+    v.data.kind === "concept" &&
+    v.data.status === "live" &&
+    hasLiveCourse(v.data.slug),
+);
+const plannedConceptEntries = vendors.filter(
+  (v) =>
+    v.data.kind === "concept" &&
+    !(v.data.status === "live" && hasLiveCourse(v.data.slug)),
+);
+---
+
+<BaseLayout
+  title="Vendors"
+  description="Browse training by vendor product. Each vendor has Beginner, Intermediate, and Advanced courses."
+>
+  <div class="mx-auto max-w-(--container-2xl) px-4 sm:px-6 py-8">
+    <Breadcrumb items={[{ href: "/", label: "Home" }, { label: "Vendors" }]} />
+
+    <header class="mt-6 mb-10">
+      <h1 class="text-4xl font-semibold tracking-tight">Vendors</h1>
+      <p class="mt-3 max-w-2xl text-muted-foreground text-lg">
+        Pick a product. Each vendor has three layered courses, Beginner,
+        Intermediate, Advanced, so you can start where you are. Vendor-neutral
+        fundamentals (DNS, networking, identity) sit in their own section
+        below.
+      </p>
+    </header>
+
+    {
+      vendors.every((v) => v.data.status !== "live") && (
+        <aside
+          role="note"
+          class="mb-8 flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-5 text-sm sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <div class="font-semibold tracking-tight text-foreground">
+              Course content is in production.
+            </div>
+            <p class="mt-1 text-muted-foreground">
+              Each vendor track ships when its content has been verified
+              against real product docs. Pick the products on your stack
+              now and we'll notify you when they go live.
+            </p>
+          </div>
+          <a
+            href="/curate/"
+            class="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Curate your stack →
+          </a>
+        </aside>
+      )
+    }
+
+    <section aria-labelledby="vendor-products-heading">
+      <h2
+        id="vendor-products-heading"
+        class="mb-4 text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        Vendor products
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          vendorEntries.map((v) => {
+            const live = vendorLevels(v.data.slug);
+            return (
+              <a
+                href={`/vendors/${v.data.slug}/`}
+                class="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                data-astro-prefetch
+                data-curate-vendor={v.data.slug}
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div
+                    class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold"
+                    style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                  >
+                    {v.data.name[0]}
+                  </div>
+                  <Badge
+                    variant={v.data.status === "live" ? "success" : "outline"}
+                    className="text-[10px] uppercase tracking-widest"
+                  >
+                    {v.data.status === "live" ? "Live" : "Planned"}
+                  </Badge>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold tracking-tight group-hover:text-primary">
+                  {v.data.name}
+                </h3>
+                <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+                <p class="mt-3 text-sm text-foreground/80 line-clamp-3">
+                  {v.data.summary}
+                </p>
+                <div class="mt-5 flex flex-wrap gap-1.5">
+                  {(["l1", "l2", "l3"] as const).map((lvl) => (
+                    <Badge
+                      variant={live.has(lvl) ? lvl : "outline"}
+                      className="text-[10px] uppercase tracking-widest"
+                    >
+                      {levelLabel[lvl]} {live.has(lvl) ? "✓" : "—"}
+                    </Badge>
+                  ))}
+                </div>
+              </a>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    {
+      plannedVendorEntries.length > 0 && (
+        <section aria-labelledby="planned-vendors-heading" class="mt-14">
+          <h2
+            id="planned-vendors-heading"
+            class="mb-4 text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+          >
+            Coming soon
+          </h2>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {plannedVendorEntries.map((v) => (
+              <a
+                href={`/vendors/${v.data.slug}/`}
+                class="group flex flex-col rounded-xl border border-dashed border-border bg-card/60 p-5 transition-all hover:border-primary/40 hover:bg-card"
+                data-astro-prefetch
+                data-curate-vendor={v.data.slug}
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div
+                    class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold opacity-70"
+                    style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                  >
+                    {v.data.name[0]}
+                  </div>
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
+                    Planned
+                  </Badge>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold tracking-tight text-muted-foreground group-hover:text-primary">
+                  {v.data.name}
+                </h3>
+                <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      (conceptEntries.length > 0 || plannedConceptEntries.length > 0) && (
+        <section
+          aria-labelledby="concepts-heading"
+          class="mt-14"
+        >
+          <div class="mb-4 flex items-baseline justify-between gap-3">
+            <h2
+              id="concepts-heading"
+              class="text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+            >
+              Concepts &amp; fundamentals
+            </h2>
+            <a href="/concepts/" class="text-xs text-primary hover:underline">
+              See all concepts →
+            </a>
+          </div>
+          {conceptEntries.length > 0 && (
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {conceptEntries.map((v) => {
+              const live = vendorLevels(v.data.slug);
+              return (
+                <a
+                  href={`/concepts/${v.data.slug}/`}
+                  class="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+                  data-astro-prefetch
+                  data-curate-vendor={v.data.slug}
+                >
+                  <div class="flex items-start justify-between gap-2">
+                    <div
+                      class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold"
+                      style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                    >
+                      {v.data.name[0]}
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] uppercase tracking-widest"
+                    >
+                      Concept
+                    </Badge>
+                  </div>
+                  <h3 class="mt-4 text-lg font-semibold tracking-tight group-hover:text-primary">
+                    {v.data.name}
+                  </h3>
+                  <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+                  <p class="mt-3 text-sm text-foreground/80 line-clamp-3">
+                    {v.data.summary}
+                  </p>
+                  <div class="mt-5 flex flex-wrap gap-1.5">
+                    {(["l1", "l2", "l3"] as const).map((lvl) => (
+                      <Badge
+                        variant={live.has(lvl) ? lvl : "outline"}
+                        className="text-[10px] uppercase tracking-widest"
+                      >
+                        {levelLabel[lvl]} {live.has(lvl) ? "✓" : "—"}
+                      </Badge>
+                    ))}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+          )}
+          {plannedConceptEntries.length > 0 && (
+            <div class={conceptEntries.length > 0 ? "mt-10" : ""}>
+              <h3 class="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Concept tracks coming soon
+              </h3>
+              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {plannedConceptEntries.map((v) => {
+                  const live = vendorLevels(v.data.slug);
+                  return (
+                    <a
+                      href={`/concepts/${v.data.slug}/`}
+                      class="group flex flex-col rounded-xl border border-dashed border-border bg-card/60 p-5 transition-all hover:border-primary/40 hover:bg-card"
+                      data-astro-prefetch
+                      data-curate-vendor={v.data.slug}
+                    >
+                      <div class="flex items-start justify-between gap-2">
+                        <div
+                          class="flex h-10 w-10 items-center justify-center rounded-md text-base font-semibold opacity-70"
+                          style={`background:${v.data.accent}; color: oklch(0.14 0.01 260);`}
+                        >
+                          {v.data.name[0]}
+                        </div>
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
+                          Concept · Planned
+                        </Badge>
+                      </div>
+                      <h3 class="mt-4 text-lg font-semibold tracking-tight text-muted-foreground group-hover:text-primary">
+                        {v.data.name}
+                      </h3>
+                      <p class="mt-1 text-sm text-muted-foreground">{v.data.tagline}</p>
+                      <p class="mt-3 text-sm text-foreground/80 line-clamp-3">
+                        {v.data.summary}
+                      </p>
+                      <div class="mt-5 flex flex-wrap gap-1.5">
+                        {(["l1", "l2", "l3"] as const).map((lvl) => (
+                          <Badge
+                            variant={live.has(lvl) ? lvl : "outline"}
+                            className="text-[10px] uppercase tracking-widest"
+                          >
+                            {levelLabel[lvl]} {live.has(lvl) ? "✓" : "—"}
+                          </Badge>
+                        ))}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

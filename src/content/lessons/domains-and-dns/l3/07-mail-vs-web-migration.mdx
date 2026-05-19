@@ -1,0 +1,91 @@
+---
+slug: 07-mail-vs-web-migration
+vendor: domains-and-dns
+level: l3
+title: 'Mail-vs-web migration independence'
+summary: 'Web and mail records are different categories pointing at different hosts. Treating a migration of one as a migration of both is the common cause of "we changed something and the other broke" tickets.'
+estimatedMinutes: 6
+order: 7
+topics: ['transfers', 'mail-vs-web']
+---
+
+The single most common *we changed something and the other one broke* ticket comes from a tech treating mail and web as one migration when they should be two.
+
+Web records (A, AAAA, CNAME, www) and mail records (MX, SPF, DKIM, DMARC) are different categories, often pointing at different hosts, often migrating at different times. Knowing they're independent prevents the reflex to *update all the DNS during the cutover*.
+
+## The shape of the independence
+
+| Layer | Records | Typical destination |
+|---|---|---|
+| **Web** | A, AAAA at apex and `www`; CNAME for `www` | Shared hosting, VPS, managed app host, CDN |
+| **Mail** | MX, plus SPF, DKIM, DMARC TXTs | M365, Google Workspace, separate mail provider |
+
+The web host has nothing to do with mail; the mail host has nothing to do with the web. They share only the domain name. A migration of one doesn't require touching the other.
+
+## The two canonical scenarios
+
+**Website moves; mail stays.** A and AAAA (and possibly `www` CNAME) change to point at the new web host. MX, SPF, DKIM, DMARC stay because the mail provider isn't changing.
+
+What can go wrong: the tech *moves all the DNS* to the new web host's nameservers, accidentally moving MX records to point at the new web host (which doesn't run a mail server). Inbound mail bounces.
+
+**Mail moves; website stays.** MX changes to the new mail provider's value; SPF gets the new provider's include; DKIM gets the new CNAMEs or TXTs; DMARC may need adding. A, AAAA, the `www` CNAME stay because the web host isn't changing.
+
+What can go wrong: the tech treats this as a *domain transfer* and changes the A record to the new mail provider's address. The website goes offline.
+
+## What this is NOT
+
+- "Web and mail share DNS, so they're one thing." They share a DNS *host*; the records are independent. You can edit MX without touching A.
+- "Migrating the website means migrating the email too." Only if the website's host also runs the client's mail (rare for small businesses).
+- "The new host's DNS instructions cover everything." They cover what the new host needs. They don't tell you not to break what's currently working elsewhere.
+
+## What to do with this
+
+When a migration request arrives:
+
+1. Identify which layer is moving (web only? mail only? both?).
+2. List the records that will change. Stop. Anything not on the list isn't touched.
+3. Confirm with the client: *I'll be updating A and AAAA to point at the new web host. MX, SPF, DKIM, and DMARC stay at M365. Is that right?*
+4. Run the change. Verify by checking both what should have changed (website resolves to new IP) and what shouldn't have (mail still flows through M365).
+
+## Decision walkthrough
+
+A client emails: *we're moving our website to a new web host next week. The new host gave us their IP and said to point the domain at them. Please make the change.* The current zone has A and AAAA at the apex/www, MX at M365, SPF including `spf.protection.outlook.com`, DKIM CNAMEs for M365, DMARC.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Which records do you touch?"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Web host migration. Which records change?",
+      choices: [
+        { label: "A, AAAA, MX, SPF, DKIM — update everything because we're 'moving the domain'.", next: "all" },
+        { label: "A and AAAA only. MX, SPF, DKIM, DMARC stay because the mail provider isn't changing.", next: "web-only" },
+        { label: "Update everything 'to be safe'.", next: "safe" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "all",
+      label: "Breaks mail",
+      tone: "bad",
+      body: "Changing MX to the new web host points mail at a server that doesn't run mail for this domain — inbound mail bounces. Changing SPF removes M365's include, so M365-issued mail starts failing SPF. The 'move the domain' framing is the failure mode.",
+    },
+    {
+      type: "outcome",
+      id: "web-only",
+      label: "Right scope",
+      tone: "success",
+      body: "Right. Web migration changes web records (A, AAAA, possibly www CNAME). Mail records are independent and stay where they are because the mail provider isn't changing. Verify after by checking that the website resolves to the new IP AND that mail still flows through M365.",
+    },
+    {
+      type: "outcome",
+      id: "safe",
+      label: "Same as the first",
+      tone: "bad",
+      body: "'To be safe' is doing more than needed — and that's exactly the failure mode the lesson is about. Identify scope, change only the records in scope, verify both sides afterwards.",
+    },
+  ]}
+/>

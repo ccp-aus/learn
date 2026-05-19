@@ -1,0 +1,105 @@
+---
+slug: 04-record-level-migration
+vendor: domains-and-dns
+level: l3
+title: 'Record-level migration'
+summary: 'The most routine "transfer." Registrar and DNS host stay; only specific records change value. Sequence: confirm value, lower TTL, cutover, verify, restore.'
+estimatedMinutes: 7
+order: 4
+topics: ['transfers', 'record-level']
+---
+
+Record-level migrations are the most routine *transfer* you'll do. A client moves their website to a new host; the A record changes. The client switches mail provider; the MX changes. The DNS host and the registrar don't change.
+
+The skill is doing the change with minimal user-visible downtime, which means: lower the TTL in advance, make the change at the agreed time, verify, restore.
+
+## When this is the right operation
+
+Record-level migration applies when:
+
+- The website's IP changes (web host migration). A and AAAA records at the apex and/or `www` update.
+- The mail provider changes. MX records update; SPF and DKIM TXT records often update too.
+- The CDN configuration changes. The apex CNAME / ALIAS or A record may change.
+- A subdomain's destination changes (`shop.example.com` moves from one provider to another).
+
+In all these cases, *records* change but the registrar and DNS host stay put. You log into the same DNS host's panel and edit the value.
+
+If the DNS host *also* changes, that's a DNS host transfer (previous lesson) and record-level changes happen as part of it.
+
+## The sequence
+
+<StepThrough client:load>
+  <Step title="1. Confirm the new value with the destination">
+    Get the new IP, hostname, or MX value from the new host directly. Don't rely on the client's transcription; ask the destination or read its setup wizard. Confirm IPv4 (and IPv6 if served), or the new MX target hostname and priority.
+  </Step>
+  <Step title="2. Lower the TTL on the records that will change">
+    Edit each record to lower TTL to 300 seconds. Save. **Wait at least one current TTL** for the lowered TTL to spread (if current was 86400, wait a day; if 3600, an hour).
+  </Step>
+  <Step title="3. Schedule the cutover">
+    Pick a low-traffic window if the change is high-stakes. Confirm with the client. Most record-level changes are no-impact during business hours; mail migrations benefit from low-mail-volume windows.
+  </Step>
+  <Step title="4. Make the change at the agreed time">
+    Update the records to the new values in the DNS host's panel. Save. The authoritative serves the new values immediately; downstream caches with the lowered TTL pick up within 5 minutes.
+  </Step>
+  <Step title="5. Verify">
+    `dig` against the authoritative first (`@<authoritative-ns>`) — the new value should appear immediately. Then against a public resolver (`@8.8.8.8`) — may show old briefly, switches within the lowered-TTL window. Then end-to-end (visit the website, send a test email, run the destination's verification).
+  </Step>
+  <Step title="6. Restore a sensible TTL">
+    After the change has settled (an hour with no issues), restore TTL to 3600 for most records. Stable records (MX of a long-stable mail provider, for example) can go higher.
+  </Step>
+</StepThrough>
+
+## What this is NOT
+
+- "Skip the TTL drop; it works either way." Works regardless, but propagation runs at the old TTL's pace. Clients see inconsistent state for hours instead of minutes.
+- "Change every related record at once." A web host migration usually means A and AAAA. A mail migration usually means MX, SPF, and DKIM. Changes outside that set should be separate operations.
+- "DNS update worked; the destination must be fine." DNS resolving correctly doesn't mean the destination is configured to receive traffic correctly. Always verify end-to-end.
+
+## When to escalate
+
+- Business-critical mail or web flows that require coordinated downtime windows (transactional sites, real-time mail dependencies, payment processing).
+- Records being changed touch DNSSEC.
+- Destination verification depends on processes outside helpdesk scope (e.g., a TLS cert needs to be in place at the new web host *before* the A record changes, or the cert issuance depends on the A pointing somewhere specific).
+
+## Decision walkthrough
+
+A client is migrating their website to a new web host. The new host gave them `198.51.100.42`. Current A record at the apex points at the old host with TTL 86400. Minimal user-visible downtime is the goal.
+
+<DecisionTree
+  client:load
+  startId="root"
+  title="Plan the cutover"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "Current TTL 86400. What's your first move?",
+      choices: [
+        { label: "Update the A record to the new IP immediately.", next: "no-preflight" },
+        { label: "Lower the apex A (and AAAA if present) TTL to 300. Wait at least 24 hours for the lowered TTL to spread. Schedule the cutover.", next: "preflight" },
+        { label: "Tell the client to wait two days, then do it themselves.", next: "client-action" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "no-preflight",
+      label: "Day of inconsistent state",
+      tone: "bad",
+      body: "Without pre-flight TTL lowering, users with cached entries see the old server for up to 24 hours. Some will fail to reach the site if the old server doesn't respond after migration.",
+    },
+    {
+      type: "outcome",
+      id: "preflight",
+      label: "Pre-flight TTL drop",
+      tone: "success",
+      body: "Right. 24-hour wait lets the lowered TTL propagate. After the cutover, the new value propagates within 5 minutes for most users — the difference between 5-minute switchover and day of inconsistent state.",
+    },
+    {
+      type: "outcome",
+      id: "client-action",
+      label: "Wrong assignment",
+      tone: "bad",
+      body: "This is your work, not the client's. 'Wait two days' is also vague; the discipline is specific: lower TTL today, wait at least one current TTL, then change the value.",
+    },
+  ]}
+/>

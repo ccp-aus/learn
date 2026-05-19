@@ -1,0 +1,68 @@
+---
+import { ThemeToggle } from "@/components/site/ThemeToggle";
+import { CommandPalette } from "@/components/search/CommandPalette";
+import { CurationBadge } from "@/components/curate/CurationBadge";
+import { GraduationCap } from "lucide-react";
+---
+
+<header class="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+  <div class="mx-auto flex h-14 max-w-(--container-2xl) items-center gap-4 px-4 sm:px-6">
+    <a
+      href="/"
+      class="group flex items-center gap-2 font-semibold tracking-tight"
+      aria-label="learn.msp.au home"
+    >
+      <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-primary transition-colors group-hover:bg-primary/25">
+        <GraduationCap className="h-4 w-4" />
+      </span>
+      <span class="hidden sm:inline">
+        learn<span class="text-primary">.msp.au</span>
+      </span>
+    </a>
+
+    <nav class="hidden items-center gap-1 text-sm md:flex">
+      <a
+        href="/vendors/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Vendors
+      </a>
+      <a
+        href="/concepts/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Concepts
+      </a>
+      <a
+        href="/paths/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Learning paths
+      </a>
+      <a
+        href="/glossary/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Glossary
+      </a>
+      <a
+        href="/curate/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        My stack
+      </a>
+      <a
+        href="/about/"
+        class="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        About
+      </a>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1">
+      <CurationBadge client:only="react" />
+      <CommandPalette client:idle />
+      <ThemeToggle client:idle />
+    </div>
+  </div>
+</header>
