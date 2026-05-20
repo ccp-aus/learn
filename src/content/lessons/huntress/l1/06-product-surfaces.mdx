@@ -1,9 +1,9 @@
 ---
-slug: 06-four-product-surfaces
+slug: 06-product-surfaces
 vendor: huntress
 level: l1
-title: The four product surfaces — EDR, ITDR, SIEM, canaries
-summary: Managed EDR for endpoints, Managed ITDR for identities (M365 plus Google Workspace), Managed SIEM for ingested logs, and ransomware canaries as a tripwire under EDR. Identifying the surface from the header tells you which playbook applies before you read the body.
+title: The product surfaces — EDR, ITDR, SIEM (with canaries inside EDR)
+summary: Managed EDR for endpoints (with ransomware canaries as a tripwire feature inside it), Managed ITDR for identities on Microsoft 365 and Google Workspace, and Managed SIEM for ingested logs. Identifying the surface from the header tells you which playbook applies before you read the body.
 estimatedMinutes: 9
 order: 6
 topics:
@@ -17,13 +17,15 @@ updated: 2026-05-20
 
 The portal is laid out around the product surfaces. When you don't know what they are, you spend the first month trying to find things in the wrong place. Worse, the surfaces have similar-looking incidents. An Incident Report from EDR and one from ITDR can look almost identical at a glance and want different responses. Knowing which surface you're on tells you which playbook applies before you read the body.
 
-## The four current surfaces
+## The three product surfaces
 
 ### Managed EDR
 
 Endpoint Detection and Response. The agent runs on the endpoint (Windows, macOS, or Linux) and collects telemetry about processes, persistence (autoruns, scheduled tasks, services), and behavioural signals. The SOC reviews suspicious activity and issues Incident Reports with recommendations for remediation, isolation, or no action.
 
 This is where most day-to-day Huntress work lives. The bulk of tickets you'll handle come from this surface. Lessons later in the course cover the workflow end to end.
+
+**Ransomware canaries ride inside EDR.** They're not a separate product or a separate surface. Canaries are decoy files placed in plausible-looking locations on protected endpoints; a real ransomware run will touch them and legitimate user activity will not. A canary trip is treated as a **Critical** incident by default and lands as an EDR incident with `Canary` in the title or as a tag. The response is sharper than a typical EDR incident, which is why canaries get their own dedicated lesson later, but commercially and structurally they are an EDR feature, not a fourth surface.
 
 ### Managed ITDR
 
@@ -39,13 +41,7 @@ Identity has a bigger blast radius than endpoint. A compromised mailbox can phis
 
 Security Information and Event Management. Launched April 2025. Ingests logs from agent-collected sources (Windows Event Logs, Linux audit and journal logs), HEC (HTTP Event Collector), and API-based SaaS integrations. The SOC triages the resulting Incident Reports under the same model as EDR and ITDR: the partner does not own alert triage, the SOC does. SIEM adds the cross-source visibility EDR and ITDR alone do not see.
 
-Not every MSP subscribes. If yours doesn't, the SIEM-specific lessons later in the course are optional and you'll skip them. If your MSP adds the product later, those lessons re-apply; *optional today* doesn't mean *deleted forever*.
-
-### Ransomware canaries
-
-Not a separate product. A tripwire mechanism delivered alongside Managed EDR. Canaries are decoy files placed in plausible-looking locations on protected endpoints. A real ransomware run will touch them; legitimate user activity will not. A canary trip is treated as a **Critical** incident by default; the assumption is that the only thing tripping a canary is something the customer needs contained now.
-
-Canaries get their own lesson later because the response is sharper than a typical EDR incident.
+Not every MSP subscribes. If yours doesn't, the SIEM-specific lessons later in the course are optional and you'll skip them. If your MSP adds the product later, those lessons re-apply; *optional today* does not mean *deleted forever*.
 
 ## Telling them apart from the header
 
@@ -54,9 +50,9 @@ The Header section of an Incident Report carries the surface tag, but the affect
 | You see | Surface | Playbook applies |
 | --- | --- | --- |
 | A hostname plus a process path | Managed EDR | EDR triage |
+| An EDR incident with "Canary" in the title or as a tag | Managed EDR (canary trip) | Critical containment |
 | A user principal name plus a sign-in or mailbox event | Managed ITDR | Identity compromise |
 | A log source name plus a query-style body | Managed SIEM | SIEM response |
-| An EDR incident with "Canary" in the title or as a tag | Ransomware canary | Critical containment |
 
 Identifying the surface before reading the incident body is what lets you route to the right playbook without reading every line of evidence.
 
@@ -74,10 +70,10 @@ Three incidents land in your queue inside ten minutes. The titles and snippets:
 2. *Process detection, SRV-FILE01, `powershell.exe` invoked via scheduled task.*
 3. *Canary tripped, WS-FINANCE-04, files modified on protected paths.*
 
-The first is identity (UPN plus sign-in event = ITDR). The second is a typical EDR detection (hostname plus process path). The third names itself as a canary trip, which is delivered under EDR but Critical by default. The PowerShell detection is bread-and-butter EDR work and can wait. The identity incident has high blast radius. The canary jumps the queue first because Critical containment beats high blast radius for tempo.
+The first is identity (UPN plus sign-in event = ITDR). The second is a typical EDR detection (hostname plus process path). The third is also EDR, a canary trip, but Critical by default. The PowerShell detection is bread-and-butter EDR work and can wait. The identity incident has high blast radius. The canary jumps the queue first because Critical containment beats high blast radius for tempo.
 
 ## What to do with this
 
 When an Incident Report lands, identify the surface before reading the body. The surface tells you which playbook applies. The portal makes this easy by tagging incidents and laying out top-level navigation around the surfaces. You don't have to remember which playbook every line of evidence in an incident maps to; you do have to remember which surface produced it.
 
-<Checkpoint slug="huntress-foundations-checkpoint-four-product-surfaces" client:visible />
+<Checkpoint slug="huntress-foundations-checkpoint-product-surfaces" client:visible />

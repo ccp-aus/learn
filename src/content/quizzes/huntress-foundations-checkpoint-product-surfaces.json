@@ -1,9 +1,9 @@
 {
-  "slug": "huntress-foundations-checkpoint-four-product-surfaces",
+  "slug": "huntress-foundations-checkpoint-product-surfaces",
   "course": "huntress-foundations",
   "kind": "checkpoint",
-  "title": "Quick check: the four product surfaces",
-  "drawCount": 0,
+  "title": "Quick check: the product surfaces",
+  "drawCount": 5,
   "passThreshold": 0.8,
   "questions": [
     {

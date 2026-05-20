@@ -17,9 +17,9 @@ Carry the wrong mental model of Huntress into your first ticket and you will wor
 
 ## What Huntress actually is
 
-Huntress is a managed security platform sold mostly to MSPs. Three product surfaces sit inside it and share one back end — Managed EDR on the endpoint, Managed ITDR on Microsoft 365 and Google Workspace identities, and an optional Managed SIEM for ingested logs. A fourth surface, ransomware canaries, rides alongside Managed EDR rather than standing on its own. Managed SAT is a separate product and is out of scope for this course.
+Huntress is a managed security platform sold mostly to MSPs. Three product surfaces sit inside it and share one back end: Managed EDR on the endpoint, Managed ITDR on Microsoft 365 and Google Workspace identities, and an optional Managed SIEM for ingested logs. Ransomware canaries are a tripwire feature *inside* Managed EDR — they are not a fourth surface. Managed SAT is a separate product and is out of scope for this course.
 
-All four surfaces feed the same SOC. When telemetry crosses a threshold the SOC cares about, an analyst looks at it, decides if it's a real signal, writes up an Incident Report with a recommendation, and routes that to the MSP. Lesson 06 walks each surface in detail; this lesson is the framing.
+All three surfaces feed the same SOC. When telemetry crosses a threshold the SOC cares about, an analyst looks at it, decides if it is a real signal, writes up an Incident Report with a recommendation, and routes that to the MSP. Lesson 06 walks each surface in detail; this lesson is the framing.
 
 ## Where it sits in the stack
 
@@ -38,11 +38,15 @@ flowchart LR
 
 Huntress does not replace the rest of the stack. It expects to run alongside an AV product, get pushed via the RMM, and pipe Incident Reports into the PSA. Backup, MFA, email security, identity governance — Huntress doesn't do those. The mental model: **Huntress is the layer that catches what the others miss and triages the catch before it reaches you.** The SOC is the human in the loop the rest of the stack doesn't have.
 
-## Three ways Huntress differs from AV
+## How Huntress differs from AV
 
-First, **AV blocks autonomously. Huntress notifies.** The user sees a Defender popup; the file is quarantined; the tech finds out later, if at all. Huntress mostly does not block by itself. It collects, the SOC analyses, the tech acts. (Lesson 15 covers the named ITDR auto-response exception.)
+The headline differentiator is **isolation, not blocking**. When the SOC sees enough signal to call something a high-confidence compromise, the SOC contains the affected *thing* — the whole endpoint, the whole identity — to prevent the threat spreading inside the customer. AV doesn't have an equivalent. AV decides whether to block a specific file; it doesn't take a host or a mailbox out of circulation. Containment is the SOC's job, not the tech's. (Lesson 15 covers ITDR's documented auto-response actions; later lessons cover EDR host isolation and the Managed Response automated remediation the SOC can take.)
 
-Second, **AV is binary; Huntress is graded.** Malicious or not vs. Low, High, Critical (severity bands are lesson 09). The grading drives the response model. A Low EDR detection is a different shape of work from a Critical one.
+Three supporting differences flow from that.
+
+First, **AV blocks individual files. Huntress isolates whole entities.** The unit of action is different. AV quarantines `evil.exe`; Huntress isolates `WS-FINANCE-04` from the network, or revokes a user's session and resets their credentials.
+
+Second, **AV is binary; Huntress is graded.** Malicious or not vs. Low, High, Critical (severity bands are lesson 09). The grading drives the response model. A Low EDR detection is a different shape of work from a Critical one, and only the high-confidence end of the spectrum triggers SOC-driven containment.
 
 Third, **AV's expert opinion is signature-based. Huntress's expert opinion is a named analyst.** That changes the relationship. You don't second-guess the analyst on disposition without a new signal, but you can ask them clarifying questions. The "don't second-guess the SOC" rule is the keystone of lesson 05.
 
@@ -54,7 +58,7 @@ If an incident notification is signed by a named SOC analyst, that is Huntress. 
 
 A client emails: *Defender just blocked something on Sarah's machine, we're worried, should we be doing anything else?* You check the portal and there is no Huntress incident for Sarah's host. The right read is not "Huntress missed it." The right read is: Defender did its job, Huntress watches behaviour *around* the catch (autoruns, scheduled tasks, lateral signals), and nothing crossed the SOC's threshold. Confirm the endpoint is clean and reassure the client. Defender noisy and Huntress quiet is a normal, designed state.
 
-When a client asks the deeper question — *is Huntress just AV?* — the framing to use is *alongside*, not *instead of*. "Huntress sits alongside Defender. It collects behavioural and identity telemetry, a 24/7 SOC reviews anything suspicious, and we get a recommendation we act on. Defender blocks files; Huntress catches what gets past the block."
+When a client asks the deeper question — *is Huntress just AV?* — the framing to use is *alongside*, not *instead of*. "Huntress sits alongside Defender. Behavioural and identity telemetry feeds a 24/7 SOC. Defender blocks individual files; Huntress catches what gets past the block and, when the SOC is confident the customer is being compromised, isolates the affected endpoint or identity so the threat can't spread while we respond."
 
 ## Misconceptions to drop now
 

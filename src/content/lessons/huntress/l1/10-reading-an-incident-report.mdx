@@ -32,7 +32,7 @@ Every Incident Report carries roughly the same skeleton. Vocabulary shifts a lit
   <Hotspot x={70} y={88} label="Analyst signature + timestamp" tone="primary" />
 </AnnotatedScreenshot>
 
-**Header.** Severity band, surface (EDR, ITDR, SIEM, canary), affected entity (a hostname for EDR, a user principal name for ITDR, a log source or rule name for SIEM), customer organisation, incident ID, analyst name. The header tells you what playbook applies before you read a word of the body.
+**Header.** Severity band, surface (EDR, ITDR, or SIEM — a canary trip lands as an EDR incident with `Canary` in the title or as a tag), affected entity (a hostname for EDR, a user principal name for ITDR, a log source or rule name for SIEM), customer organisation, incident ID, analyst name. The header tells you what playbook applies before you read a word of the body.
 
 **Summary.** Two or three sentences from the analyst. What happened, on what entity, why it landed. The analyst's plain-language statement of the problem.
 

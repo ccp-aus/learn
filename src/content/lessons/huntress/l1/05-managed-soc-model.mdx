@@ -22,7 +22,7 @@ A SOC, Security Operations Centre, is a team of analysts who watch security tele
 ```mermaid
 flowchart LR
   T["Telemetry<br/><em>agents, identity, logs</em>"]
-  A["SOC analyst<br/><em>triage, classify, decide</em>"]
+  A["SOC analyst<br/><em>triage, classify,<br/>isolate if high-confidence</em>"]
   IR["Incident Report<br/><em>summary, evidence,<br/>recommendation</em>"]
   Tech["Tech<br/><em>execute, document,<br/>communicate</em>"]
   T --> A
@@ -31,7 +31,7 @@ flowchart LR
   Tech -->|clarifying reply| A
 ```
 
-The analyst reads the raw signal, pulls context (the host, the user, recent activity, known false-positive patterns for that customer), decides whether it's a real incident, and writes an Incident Report with a recommendation. By the time you see the report, three things have already happened: triage, classification, and recommendation. The Incident Report is the *output* of analysis, not its input.
+The analyst reads the raw signal, pulls context (the host, the user, recent activity, known false-positive patterns for that customer), decides whether it's a real incident, and writes an Incident Report with a recommendation. When the signal is high-confidence compromise — a canary trip, lateral movement indicators, an identity already inside an active session with malicious actions queued — the SOC will also **isolate the affected entity** (host, identity) before the report reaches you, to prevent the threat spreading while the rest of the response runs. By the time you see the report, three or four things have already happened: triage, classification, recommendation, and (when warranted) containment. The Incident Report is the *output* of analysis, not its input.
 
 That's the part the new tech has to internalise. The work that looks like investigation has been done by someone whose job is to do it. Your work is downstream of theirs.
 
