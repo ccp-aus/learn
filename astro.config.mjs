@@ -10,6 +10,7 @@ import remarkSmartypants from "remark-smartypants";
 
 import { remarkGlossaryAutolink } from "./src/lib/remark-glossary.mjs";
 import { remarkMermaidPre } from "./src/lib/remark-mermaid-pre.mjs";
+import { remarkStripAutoMailto } from "./src/lib/remark-strip-auto-mailto.mjs";
 import { viteLessonImports } from "./src/lib/vite-lesson-imports.mjs";
 
 // Single source of truth: public/CNAME — the file GitHub Pages reads to bind
@@ -78,6 +79,7 @@ export default defineConfig({
     mdx({
       remarkPlugins: [
         remarkSmartypants,
+        remarkStripAutoMailto,
         remarkGlossaryAutolink,
         remarkMermaidPre,
       ],
@@ -88,6 +90,7 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [
       remarkSmartypants,
+      remarkStripAutoMailto,
       remarkGlossaryAutolink,
       remarkMermaidPre,
     ],
