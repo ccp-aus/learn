@@ -2,16 +2,63 @@
 slug: 03-what-ready-for-live-tickets-looks-like
 vendor: huntress
 level: l1
-title: What Ready for Live Tickets Looks Like
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: What "ready for live tickets" looks like
+summary: The 95% of daily Huntress ticket volume that stays inside the helpdesk, the 5% that always escalates, and why finishing this course is a recommendation of readiness rather than a sign-off.
+estimatedMinutes: 10
 order: 3
 topics:
   - orientation
   - escalation-ceiling
+  - sign-off
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+A new tech who doesn't know where the ceiling sits is dangerous in two opposite ways. They either freeze on everything (escalating tickets a competent tech would close in five minutes) or push past the ceiling without realising they've crossed it (clicking something irreversible on the assumption that *it's just a button*). Neither tech lasts long. Naming the ceiling up front is what gives the rest of the course a shape. Every lesson lands inside the in-scope column or outside it.
+
+## What "in scope" looks like
+
+This course targets a competent helpdesk technician doing daily Huntress work independently. By the time you finish, the expectation is roughly this:
+
+- You handle most Low and High severity tickets end to end without a senior.
+- You contain Critical incidents and escalate in parallel. You do not investigate them.
+- You onboard and offboard customers from documented runbooks.
+- You run identity compromise playbooks under a documented sequence.
+- You triage SIEM alerts inside the helpdesk ceiling, if your MSP runs Managed SIEM.
+
+That covers around 95% of the daily ticket volume on the platform. The other 5% escalates every time.
+
+## The ceiling
+
+| You do (in scope) | You escalate (out of scope) |
+| --- | --- |
+| Onboard and offboard per runbook (org create, ITDR wizards, bulk rollout, coverage verification) | Subscription and billing decisions; product-mix choices; deployment-strategy choices; permanent org deletion |
+| Triage and close Low and High EDR Incident Reports per the SOC's recommendation | Second-guess the SOC analyst; reopen a closed incident without a new signal |
+| Approve remediations (autoruns, scheduled tasks, services, files) on documented endpoints | Suppress, exclude, or tune detections at the policy level |
+| Isolate and un-isolate a host per the documented decision tree | Modify global isolation rules or org-level isolation policy |
+| Recognise a Critical incident, contain (isolate), then escalate in parallel | Investigate a Critical incident; preserve forensic evidence; hunt persistence |
+| Run the ITDR compromise playbook end to end on a single identity | Tenant-wide compromise response; admin-credential reset; coordinated identity rotation |
+| Respond to a SIEM-driven Incident Report; troubleshoot a single data source from a runbook | Write detections; tune the SIEM; change retention or data-source counts |
+| Walk a client through what happened and what was done | Make commercial or contractual decisions about incident response scope |
+| Run a clean uninstall or decommission per checklist | Bulk decommission without a runbook; mass agent migration between orgs without coordination |
+
+The rule that holds the table together comes back in detail later in the course: *is this reversible, and do I understand why it's the right action?* If either answer is no, escalate.
+
+## Completion is a recommendation, not a sign-off
+
+Finishing this course and passing the final scenario assessment is the LMS's recommendation that you're ready for live work. It is not your MSP's sign-off. Your MSP has its own process (shadowed tickets, a senior reviewing your first live closures, a check-in cadence) and that process is the actual gate.
+
+The two sit in different layers. The LMS recommendation says *the tech can make the calls*. The MSP sign-off says *the tech makes them well on real customers*. Don't conflate them. The LMS doesn't know your client base, your senior's risk tolerance, or which customers you should ease into.
+
+If the certificate alone unlocks live work at your MSP, your training lead has made that call. If it doesn't, that's also a call your MSP has made. Either way, treat the certificate as one input, usually necessary but not sufficient.
+
+## Two mistakes the ceiling prevents
+
+The first is overreach disguised as confidence. A senior asks for a policy-level change mid-incident, the tech does it because the senior is the authority. Modifying org-level policy doesn't come down even when a senior asks. The right move is to pause and ask the senior to either run the change themselves or document why a tech is being asked to do it. Not refusing, flagging.
+
+The second is freezing disguised as caution. A client calls about a server locked up. The portal shows a Low EDR detection with the SOC's recommendation still pending. The new tech waits because "the SOC hasn't completed triage." The ceiling says recognise a Critical, contain (isolate), escalate in parallel. The Low tag is not wrong, it is stale relative to the call you're on. Isolation is the right move; the SOC catches up via the ticket; the senior knows because you escalated.
+
+## What to do with this
+
+The table is worth memorising at the row level. Not every word, but the shape, which categories of work live in which column. Most rows expand into a full lesson later (host isolation, the ITDR compromise playbook, the SIEM ceiling). When you reach them, the lesson lands somewhere because you've already met the row it sits under.
+
+<Checkpoint slug="huntress-foundations-checkpoint-orientation" client:visible />

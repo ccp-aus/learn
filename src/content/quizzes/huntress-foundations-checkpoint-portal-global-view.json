@@ -1,0 +1,226 @@
+{
+  "slug": "huntress-foundations-checkpoint-portal-global-view",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: the portal's global view",
+  "drawCount": 0,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "shift-start",
+      "type": "mcq",
+      "topic": "shift-start",
+      "difficulty": "easy",
+      "prompt": "Where should you start your shift in the portal?",
+      "choices": [
+        {
+          "label": "Organisations — click through each customer to see what's changed.",
+          "rationale": "With many orgs this takes an hour and most won't have moved. Wrong starting surface."
+        },
+        "Incidents — filtered to open and Critical-first, then walk down by severity.",
+        {
+          "label": "Reports — pull last week's summary and read it.",
+          "rationale": "Reports are for monthly client comms, not shift catch-up."
+        },
+        {
+          "label": "Settings — confirm nothing has changed in the platform overnight.",
+          "rationale": "Settings doesn't normally change between shifts."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The Incidents list sorts by attention required; Critical-first means you don't miss something that's been waiting."
+    },
+    {
+      "id": "not-a-top-level",
+      "type": "mcq",
+      "topic": "navigation",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT a top-level item the lesson lists in the portal's global view?",
+      "choices": [
+        {
+          "label": "Organisations",
+          "rationale": "It is a top-level item — the per-customer list."
+        },
+        {
+          "label": "Identity",
+          "rationale": "It is a top-level item — the ITDR roll-up."
+        },
+        "Quarantine",
+        {
+          "label": "Incidents",
+          "rationale": "It is a top-level item, and one of the most-used ones."
+        }
+      ],
+      "correct": 2,
+      "explanation": "There's no top-level Quarantine surface in Huntress — that's an AV-product concept that doesn't map here."
+    },
+    {
+      "id": "filter-pair",
+      "type": "mcq",
+      "topic": "filters",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"I filtered Incidents by Critical and the page is full of old closed incidents — the filter is broken.\" What's the likely real issue?",
+      "choices": [
+        {
+          "label": "Their permission set is wrong; they need a senior to fix their account.",
+          "rationale": "Permissions wouldn't surface only old closed Criticals; they'd show no Criticals at all."
+        },
+        "They've filtered by severity but forgotten to filter by status; Critical without status: open pulls in months of closed Criticals.",
+        {
+          "label": "The portal is having an outage; check the status page.",
+          "rationale": "Possible but unlikely as the first guess. Severity-without-status is the named common mistake."
+        },
+        {
+          "label": "Browser cache is stale — clear cookies.",
+          "rationale": "The filter behaviour is by-design, not a caching issue."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Severity AND status together. Critical without open pulls in months of closed Criticals."
+    },
+    {
+      "id": "siem-visibility",
+      "type": "mcq",
+      "topic": "siem-visibility",
+      "difficulty": "medium",
+      "prompt": "A new tech asks: \"Why don't I see a SIEM item in the global view? My peer's portal has one.\" What's the most likely explanation?",
+      "choices": [
+        "The peer's MSP subscribes to Managed SIEM and yours doesn't; SIEM only appears when the partner subscribes.",
+        {
+          "label": "The peer is on a beta version of the portal.",
+          "rationale": "The visibility is subscription-driven, not version-driven."
+        },
+        {
+          "label": "The new tech needs a senior to enable SIEM on their account.",
+          "rationale": "It's not an account-level toggle for the tech to enable; it's the partner's subscription."
+        },
+        {
+          "label": "SIEM is being deprecated and is hidden by default.",
+          "rationale": "Wrong on the facts. SIEM launched April 2025 and is active."
+        }
+      ],
+      "correct": 0,
+      "explanation": "SIEM is visible only when the partner subscribes."
+    },
+    {
+      "id": "three-day-catchup",
+      "type": "mcq",
+      "topic": "shift-catchup",
+      "difficulty": "medium",
+      "prompt": "You log in at the start of a shift after three days off. You need to catch up. Where do you go first?",
+      "choices": [
+        {
+          "label": "Organisations — open each customer and check what's happened.",
+          "rationale": "With many orgs this takes an hour. Most haven't moved. Start where the change is."
+        },
+        "Incidents — filter to open and Critical-first, then walk down by severity.",
+        {
+          "label": "Reports — pull last week's summary and read it cover to cover.",
+          "rationale": "Reports aggregate for monthly client comms; not the right granularity for catch-up."
+        },
+        {
+          "label": "Agents — confirm every endpoint is online.",
+          "rationale": "Agent-health auditing isn't the catch-up surface."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The Incidents view is the catch-up surface; Critical-first means you don't miss something that's been waiting."
+    },
+    {
+      "id": "critical-cluster",
+      "type": "mcq",
+      "topic": "critical-cluster",
+      "difficulty": "hard",
+      "prompt": "You filter Incidents to \"open, Critical-first\" and find three Critical incidents in the list, all tagged with the same organisation. What does the pattern tell you, and what do you do?",
+      "choices": [
+        {
+          "label": "One customer is having a bad day. Open the first incident and work it; the rest can wait.",
+          "rationale": "Half right. Three Criticals in one org is itself a signal worth flagging."
+        },
+        "Open the first incident, escalate the cluster to a senior in parallel, and keep working.",
+        {
+          "label": "Switch into that organisation and treat the three incidents as one investigation.",
+          "rationale": "Critical incidents are contained one at a time per the playbook; bundling them is senior territory."
+        },
+        {
+          "label": "Wait for the senior to contact you about the cluster.",
+          "rationale": "Reactive; the lesson teaches proactive escalation when you see the pattern."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Three Criticals on one tenant is tell-the-senior-in-parallel territory; contain and flag."
+    },
+    {
+      "id": "agent-lookup",
+      "type": "mcq",
+      "topic": "agents-view",
+      "difficulty": "medium",
+      "prompt": "You need to find a specific agent on a host called WS-RECEPTION-02 and you're not sure which customer it belongs to. Where's the right place to look?",
+      "choices": [
+        "The global Agents view; filter or search across organisations to locate the host.",
+        {
+          "label": "Open each customer's Organisation page and look at their Agents sub-view.",
+          "rationale": "Slow and wrong-shaped. Global Agents is the cross-org tool."
+        },
+        {
+          "label": "Search the Reports area for a hostname mention.",
+          "rationale": "Reports aggregate; not the right surface for one-off agent lookup."
+        },
+        {
+          "label": "Contact Huntress support and ask them to look up the host.",
+          "rationale": "Misuses support. The portal answers this directly."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Cross-org agent lookup is exactly what the global Agents view is for."
+    },
+    {
+      "id": "missing-access",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "This lesson is navigation-only, so the escalation surface is narrow. Which of these DOES warrant flagging to a senior?",
+      "choices": [
+        {
+          "label": "You navigated to the wrong page and corrected yourself.",
+          "rationale": "The lesson is explicit: that's a quiet self-correction."
+        },
+        "You can't see something you expect to see (an organisation, a surface, a SIEM section you know should be there); a permissions or licensing question.",
+        {
+          "label": "A particular filter combo doesn't return the results you expect.",
+          "rationale": "Filter-tuning is solvable at the tech level."
+        },
+        {
+          "label": "An incident is taking longer than you'd like to load.",
+          "rationale": "Performance bumps don't need senior involvement."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Missing expected access is the legitimate escalation surface — don't work around it."
+    },
+    {
+      "id": "memorisation",
+      "type": "mcq",
+      "topic": "navigation-philosophy",
+      "difficulty": "medium",
+      "prompt": "The lesson says you don't need to memorise the portal — Huntress changes it every few months. What does the lesson say you DO need to do?",
+      "choices": [
+        {
+          "label": "Re-read the navigation lesson every quarter to keep current.",
+          "rationale": "Not the lesson's recommendation."
+        },
+        "Know where each thing roughly lives so you don't waste minutes finding the right menu item.",
+        {
+          "label": "Bookmark every page you visit so you can navigate by URL.",
+          "rationale": "Bookmarks rot when the portal renames pages."
+        },
+        {
+          "label": "Memorise the URL pattern for each surface so you can deep-link from the PSA.",
+          "rationale": "URL patterns shift with portal changes too."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Orientation, not deep dive — speed comes from knowing roughly where to look."
+    }
+  ]
+}

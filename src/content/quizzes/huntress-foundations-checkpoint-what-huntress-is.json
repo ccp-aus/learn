@@ -1,0 +1,211 @@
+{
+  "slug": "huntress-foundations-checkpoint-what-huntress-is",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: what Huntress is",
+  "drawCount": 0,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "what-huntress-is-platform",
+      "type": "mcq",
+      "topic": "platform-definition",
+      "difficulty": "easy",
+      "prompt": "Which best describes what Huntress is?",
+      "choices": [
+        {
+          "label": "An anti-virus product that runs alongside Defender.",
+          "rationale": "Conflates Huntress with AV. AV decides whether to block; Huntress collects telemetry, the SOC analyses, and the tech actions a recommendation. They are designed to run together."
+        },
+        "A managed security platform combining endpoint, identity, and optional SIEM telemetry with a 24/7 human-and-AI SOC.",
+        {
+          "label": "A standalone EDR product sold mainly to enterprise security teams.",
+          "rationale": "Wrong on two counts. Huntress isn't standalone EDR — it includes ITDR and optional SIEM under one platform — and its target market is mostly MSPs."
+        },
+        {
+          "label": "A vulnerability scanner that produces remediation tickets.",
+          "rationale": "Vulnerability scanning isn't a Huntress surface. Telemetry-driven incident response is."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Three current product surfaces (EDR, ITDR, optional SIEM), plus ransomware canaries under EDR, and a SOC that produces Incident Reports with recommendations."
+    },
+    {
+      "id": "av-distinction",
+      "type": "mcq",
+      "topic": "av-distinction",
+      "difficulty": "medium",
+      "prompt": "A new tech says: \"Huntress is basically AV with a better dashboard.\" Which correction best captures why that's the wrong mental model?",
+      "choices": [
+        {
+          "label": "Huntress is more expensive than AV, so it must be better.",
+          "rationale": "Price doesn't describe the model. The new tech will still treat Huntress like AV unless the SOC and recommendation flow get named."
+        },
+        "AV blocks autonomously based on signatures; Huntress collects telemetry, a SOC analyst writes a recommendation, and the tech actions it.",
+        {
+          "label": "Huntress doesn't need an agent on the endpoint.",
+          "rationale": "Wrong on the facts. Managed EDR runs an agent on Windows, macOS, and Linux endpoints."
+        },
+        {
+          "label": "Huntress only works on servers, not workstations.",
+          "rationale": "Wrong on the facts. Endpoint coverage includes workstations and servers across the listed OSes."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The three differences — notify vs. block, graded vs. binary, named analyst vs. signatures — all hang off this core distinction."
+    },
+    {
+      "id": "av-missed-it",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"If Huntress raised a detection, the AV must have failed.\" Why is that mental model wrong?",
+      "choices": [
+        {
+          "label": "AV never fails — it catches everything by definition.",
+          "rationale": "Wrong on its own terms. AV does miss things. But the deeper issue is that AV and Huntress watch different things, so both being involved isn't a failure of either."
+        },
+        "AV may have caught and quarantined the file; Huntress reports on the behaviour around it (autoruns, scheduled tasks, lateral signals). Both being involved is the design, not a failure.",
+        {
+          "label": "Huntress only raises detections when AV is disabled.",
+          "rationale": "Wrong on the facts. Huntress runs whether AV is active or not."
+        },
+        {
+          "label": "AV runs on the network only; Huntress runs on the endpoint.",
+          "rationale": "Wrong on the architecture. AV runs on the endpoint too. The difference is what each watches, not where it lives."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The two products watch different layers — AV blocks files, Huntress watches the behaviour around them."
+    },
+    {
+      "id": "huntress-will-block",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"Huntress will block things for me.\" What's the right correction?",
+      "choices": [
+        {
+          "label": "Correct — once you enable auto-block in settings, Huntress acts on every incident.",
+          "rationale": "There is no general auto-block setting. The default model is collect, analyse, recommend, action — the tech is the actioning party."
+        },
+        "Mostly no — the default model is collect, analyse, recommend, action. ITDR has some auto-response actions, but EDR generally hands you a recommendation to execute.",
+        {
+          "label": "Wrong — Huntress never takes any action automatically under any circumstance.",
+          "rationale": "Too absolute. ITDR has documented auto-response actions (lesson 15)."
+        },
+        {
+          "label": "Correct — that's the whole reason MSPs buy Huntress, to offload action from the helpdesk.",
+          "rationale": "Misreads what the SOC offloads. The SOC offloads triage and recommendation, not the action itself."
+        }
+      ],
+      "correct": 1,
+      "explanation": "ITDR auto-response (covered in lesson 15) is the named exception. EDR is recommendation-driven."
+    },
+    {
+      "id": "stack-position",
+      "type": "mcq",
+      "topic": "stack-position",
+      "difficulty": "easy",
+      "prompt": "Huntress is designed to sit alongside which of the following in a typical MSP stack?",
+      "choices": [
+        "An AV/EPP product, an RMM, and a PSA.",
+        {
+          "label": "Replaces the AV product entirely; the RMM and PSA still run.",
+          "rationale": "Wrong. Huntress and AV are explicitly designed to run together."
+        },
+        {
+          "label": "Replaces all three — AV, RMM, and PSA — once enabled.",
+          "rationale": "Wrong. Huntress doesn't do RMM deployment/patching or ticketing."
+        },
+        {
+          "label": "Sits inside the AV product as a plugin.",
+          "rationale": "Wrong on the architecture. Huntress is a separate platform with its own agents and portal."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Huntress catches what the others miss and triages the catch before it reaches the tech."
+    },
+    {
+      "id": "tells-recognition",
+      "type": "mcq",
+      "topic": "tells",
+      "difficulty": "easy",
+      "prompt": "Which is the easiest tell that you're looking at a Huntress communication rather than an AV-product alert?",
+      "choices": [
+        {
+          "label": "It mentions a hostname.",
+          "rationale": "AV alerts include hostnames too. Hostname alone isn't a Huntress tell."
+        },
+        "The notification is signed by a named SOC analyst.",
+        {
+          "label": "It uses the word \"malware\".",
+          "rationale": "Both AV alerts and Huntress reports can use the word. Vocabulary alone won't tell you which platform you're looking at."
+        },
+        {
+          "label": "It includes a severity colour.",
+          "rationale": "AV products also use severity colours. The named-analyst signature is the Huntress-specific marker."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The named-analyst signature is the easiest recognition tell — AV alerts don't have a human signature."
+    },
+    {
+      "id": "edr-os-support",
+      "type": "mcq",
+      "topic": "edr-os-support",
+      "difficulty": "easy",
+      "prompt": "The Huntress Managed EDR agent runs on which operating systems?",
+      "choices": [
+        {
+          "label": "Windows only.",
+          "rationale": "Incomplete. The lesson names Windows, macOS, and Linux."
+        },
+        {
+          "label": "Windows and macOS.",
+          "rationale": "Incomplete. Linux is also covered."
+        },
+        "Windows, macOS, and Linux.",
+        {
+          "label": "Windows, macOS, Linux, iOS, and Android.",
+          "rationale": "Mobile OSes aren't EDR endpoints. ITDR covers mobile sign-in events via the identity surface, but the agent itself is desktop/server."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Endpoint coverage spans the three named desktop/server OSes."
+    },
+    {
+      "id": "out-of-scope-sat",
+      "type": "tf",
+      "topic": "out-of-scope",
+      "difficulty": "easy",
+      "prompt": "Managed SAT (Security Awareness Training) is one of the four core product surfaces this course covers.",
+      "correct": false,
+      "explanation": "False. SAT is a separate Huntress product and is deliberately out of scope for this course. The four surfaces covered are EDR, ITDR, SIEM, and ransomware canaries (under EDR)."
+    },
+    {
+      "id": "responding-to-analyst",
+      "type": "mcq",
+      "topic": "mental-model",
+      "difficulty": "medium",
+      "prompt": "A senior overhears you talking to a peer about Huntress and says: \"Just remember, working a Huntress ticket is responding to an analyst, not responding to an alert.\" Why is that distinction important?",
+      "choices": [
+        "Because the SOC analyst's recommendation is the work; the alert is the analyst's input, not yours.",
+        {
+          "label": "Because SOC analysts are senior staff and you should never disagree with their dispositions.",
+          "rationale": "Misses the point and overstates it. The distinction is about workflow shape, not rank. Clarifying questions are welcomed; unilateral overrides are the problem."
+        },
+        {
+          "label": "Because alerts in Huntress are unreliable and have to be filtered through the analyst.",
+          "rationale": "Wrong framing. Alerts aren't unreliable; they're raw telemetry. The analyst's job is to turn raw telemetry into an actionable recommendation."
+        },
+        {
+          "label": "Because alerts cost extra; only the analyst-reviewed incidents are included in the subscription.",
+          "rationale": "Wrong on the commercial model. The analyst-reviewed flow is the product."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The lesson states \"the work the tech does on Huntress is mostly responding to an analyst, not responding to an alert\" as the shape every later lesson depends on."
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "slug": "huntress-foundations-checkpoint-recommendation-vs-context",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: recommendation vs. context",
+  "drawCount": 0,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "two-zones",
+      "type": "mcq",
+      "topic": "two-zones",
+      "difficulty": "easy",
+      "prompt": "The lesson splits the Incident Report into two zones. What are they, and which one do you act on?",
+      "choices": [
+        "Context zone (Summary, Evidence, Timeline, analyst reasoning) and action zone (Recommendation). You act on the action zone.",
+        {
+          "label": "Header zone and body zone. You act on the body.",
+          "rationale": "Wrong split. Header carries metadata; the action-vs-context split is inside the body."
+        },
+        {
+          "label": "Open zone and hidden zone. You act on the open zone.",
+          "rationale": "There's no hidden zone in the lesson's framing."
+        },
+        {
+          "label": "Severity zone and surface zone. You act on the severity zone.",
+          "rationale": "Wrong framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Context is why the incident landed; action is what to do. You act on action."
+    },
+    {
+      "id": "the-test",
+      "type": "mcq",
+      "topic": "test",
+      "difficulty": "easy",
+      "prompt": "What single test does the lesson teach you to run before any action on an incident?",
+      "choices": [
+        "Did the analyst say to do this, in the Recommendation section? If yes, proceed. If no, stop.",
+        {
+          "label": "Has the customer agreed to the action?",
+          "rationale": "Customer agreement isn't the test."
+        },
+        {
+          "label": "Is the incident severity Critical?",
+          "rationale": "Severity drives tempo but isn't the action-vs-context test."
+        },
+        {
+          "label": "Has 24 hours passed since the incident landed?",
+          "rationale": "Not a test the lesson teaches."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The test is yes/no. \"No, but the Evidence supports it\" is the cardinal-mistake signature."
+    },
+    {
+      "id": "share-block",
+      "type": "mcq",
+      "topic": "cardinal-mistake",
+      "difficulty": "medium",
+      "prompt": "Recommendation: approve the scheduled-task remediation. The Evidence mentions the process tried to write to a network share. The tech approves the remediation, then also blocks the share at the firewall, on their own initiative, \"because the Evidence supported it.\" What's happened?",
+      "choices": [
+        {
+          "label": "The tech did exactly what the SOC wanted — thorough response.",
+          "rationale": "Being thorough on this platform means executing the Recommendation cleanly, not extending the action set."
+        },
+        "The tech expanded the recommended action set unilaterally — acted on the context zone.",
+        {
+          "label": "The tech violated Huntress's licence terms.",
+          "rationale": "Licence isn't the issue; scope-of-action discipline is."
+        },
+        {
+          "label": "The tech should have asked the customer's permission first.",
+          "rationale": "Real concern, but the lesson's framing is about unilateral action expansion."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Evidence treated as a to-do list. Absence in the Recommendation is itself a decision."
+    },
+    {
+      "id": "oauth-grant",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Recommendation: revoke sessions, reset password and MFA, remove a malicious inbox rule. Evidence ALSO shows a recent OAuth grant the analyst didn't recommend revoking. What do you do about the OAuth grant?",
+      "choices": [
+        {
+          "label": "Revoke it because the Evidence flagged it.",
+          "rationale": "The grant is in the Evidence, not the Recommendation. Revoking unilaterally is acting on context."
+        },
+        "Execute the Recommendation as written. Reply to the analyst asking whether the grant is part of the compromise.",
+        {
+          "label": "Skip the password reset because the OAuth grant might be the real vector.",
+          "rationale": "Worst response. Skipping recommended actions is the cardinal mistake at its most expensive."
+        },
+        {
+          "label": "Revoke the grant and skip the password reset.",
+          "rationale": "Both mistakes at once."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Not refusing to act on the grant; routing the question to the body that decides."
+    },
+    {
+      "id": "analyst-reply",
+      "type": "mcq",
+      "topic": "analyst-reply",
+      "difficulty": "medium",
+      "prompt": "Continuing the OAuth-grant scenario: the analyst replies that the grant is legitimate and not part of the compromise; proceed with the Recommendation as written. What do you do?",
+      "choices": [
+        "Proceed with the Recommendation as written. Note the analyst's reply for client comms.",
+        {
+          "label": "Revoke the OAuth grant anyway. The accounting plugin can be re-granted; better to be safe.",
+          "rationale": "You raised the question, got the answer, then ignored the answer."
+        },
+        {
+          "label": "Reply again asking for more justification on why the grant is benign.",
+          "rationale": "Without new signal, asking again is litigating, not clarifying."
+        },
+        {
+          "label": "Escalate to your senior; the analyst's call doesn't satisfy you.",
+          "rationale": "Without new signal, escalating up is second-guessing the analyst's reconsideration."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Analyst weighed it, gave the disposition, now you execute."
+    },
+    {
+      "id": "thoroughness",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"Being thorough means doing more than what's in the Recommendation.\" Why is that wrong on Huntress?",
+      "choices": [
+        "Being thorough on this platform means doing what's in the Recommendation AND replying with anything else that needs raising.",
+        {
+          "label": "Because doing more than the Recommendation breaches the customer's contract.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "Because each extra action costs Huntress credits.",
+          "rationale": "Wrong on the commercial model."
+        },
+        {
+          "label": "Because the SOC measures techs on action minimisation.",
+          "rationale": "Not the framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Extra unilateral actions aren't thorough; they're unilateral."
+    },
+    {
+      "id": "evidence-interpretation",
+      "type": "mcq",
+      "topic": "evidence",
+      "difficulty": "medium",
+      "prompt": "\"The Evidence section is there for me to interpret.\" What's the right correction?",
+      "choices": [
+        "The Evidence is there for you to UNDERSTAND the incident; the interpretation has happened, it's in the Recommendation.",
+        {
+          "label": "Evidence is open for interpretation — that's why the analyst included it.",
+          "rationale": "You read Evidence to understand, not to re-decide."
+        },
+        {
+          "label": "The Evidence is generated automatically and unreliable.",
+          "rationale": "Wrong on the facts. The Evidence is real telemetry."
+        },
+        {
+          "label": "The Evidence is for the customer to interpret, not the tech.",
+          "rationale": "Evidence is rarely customer-facing without the analyst's framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Understand the incident vs. interpret the incident. The interpretation is the analyst's already-done work."
+    },
+    {
+      "id": "absence-is-decision",
+      "type": "tf",
+      "topic": "absence",
+      "difficulty": "medium",
+      "prompt": "The absence of an action in the Recommendation is an oversight you should fill in based on the Evidence.",
+      "correct": false,
+      "explanation": "Absence is a decision, not an oversight. The analyst weighed and rejected that action. Filling it in based on Evidence is the cardinal mistake."
+    },
+    {
+      "id": "smell-test",
+      "type": "mcq",
+      "topic": "smell-test",
+      "difficulty": "easy",
+      "prompt": "You run the test: \"Did the analyst say to do this, in the Recommendation?\" and the honest answer is: \"No, but the Evidence supports it.\" What does the lesson say to do?",
+      "choices": [
+        {
+          "label": "Proceed — Evidence-supported is good enough.",
+          "rationale": "Exactly the wrong call. The \"but\" is the smell."
+        },
+        "Stop, reply to the analyst with the factual question, wait for the answer.",
+        {
+          "label": "Document the action in the ticket, then proceed.",
+          "rationale": "Documenting an unsanctioned extension doesn't make it sanctioned."
+        },
+        {
+          "label": "Escalate to a senior — they have the authority you don't.",
+          "rationale": "The senior isn't the right body; the analyst is."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The \"but\" is the cardinal mistake's signature. Surface the question."
+    },
+    {
+      "id": "worst-class",
+      "type": "mcq",
+      "topic": "worst-class",
+      "difficulty": "hard",
+      "prompt": "Which of these is the worst class of the cardinal mistake — the one the lesson calls \"the cardinal mistake at its most expensive\"?",
+      "choices": [
+        {
+          "label": "Adding actions beyond the Recommendation.",
+          "rationale": "Bad, but the lesson explicitly says skipping recommended actions is more expensive."
+        },
+        "Skipping recommended actions because the Evidence suggests a different vector matters more.",
+        {
+          "label": "Reopening a closed incident with no new signal.",
+          "rationale": "A real failure mode but not the one this lesson names as most expensive."
+        },
+        {
+          "label": "Asking the analyst a clarifying question.",
+          "rationale": "Not a mistake at all."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Most expensive because the analyst-prescribed remediation doesn't happen."
+    }
+  ]
+}

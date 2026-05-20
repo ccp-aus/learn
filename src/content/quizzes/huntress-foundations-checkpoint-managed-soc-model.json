@@ -1,0 +1,235 @@
+{
+  "slug": "huntress-foundations-checkpoint-managed-soc-model",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: the managed-SOC model",
+  "drawCount": 0,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "soc-pre-handoff",
+      "type": "mcq",
+      "topic": "soc-definition",
+      "difficulty": "easy",
+      "prompt": "By the time an Incident Report reaches you, what has the SOC analyst already done?",
+      "choices": [
+        "Triaged the signal, classified it, and written a recommendation.",
+        {
+          "label": "Run a vulnerability scan on the affected host.",
+          "rationale": "Wrong on the model. Vulnerability scanning is a different product class and not part of the SOC's pre-handoff work."
+        },
+        {
+          "label": "Notified the customer directly.",
+          "rationale": "Wrong. Customer-facing comms are the MSP's job. The Incident Report comes to the MSP first."
+        },
+        {
+          "label": "Patched the underlying vulnerability.",
+          "rationale": "Wrong. The SOC analyses and recommends; remediation is the actioning party's job."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The Incident Report is the output of analysis, not its input. Triage, classification, and recommendation have all happened before you see it."
+    },
+    {
+      "id": "default-disposition",
+      "type": "mcq",
+      "topic": "default-disposition",
+      "difficulty": "medium",
+      "prompt": "Compared with a traditional alert pipeline, how should the Huntress default disposition differ?",
+      "choices": [
+        {
+          "label": "Investigate first to confirm the alert is real, then act.",
+          "rationale": "That's the AV/SIEM model. On Huntress the analyst has already done the \"is this real\" work."
+        },
+        "Read the recommendation, verify the host or user matches, execute, document, close.",
+        {
+          "label": "Wait for a senior to confirm every action before taking it.",
+          "rationale": "Wrong tempo. Most incidents don't need a senior; the recommendation is the green light."
+        },
+        {
+          "label": "Forward the incident to Huntress support and wait for guidance.",
+          "rationale": "Misuses support. The Incident Report is the guidance."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The analyst answered \"is this real\" for you. Your work is executing the recommendation correctly on the right entity."
+    },
+    {
+      "id": "second-guessing-shapes",
+      "type": "mcq",
+      "topic": "second-guessing",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT a recognisable shape of second-guessing the SOC?",
+      "choices": [
+        {
+          "label": "Closing an incident as benign because the activity \"looks legitimate\" to you, with no new signal.",
+          "rationale": "This is exactly the cardinal mistake — unilateral disposition change without new information."
+        },
+        "Replying to the analyst with a factual clarifying question because the recommendation didn't fit the customer context.",
+        {
+          "label": "Doing part of the recommendation and skipping the part that worried you.",
+          "rationale": "Softening the recommendation — same family of mistake."
+        },
+        {
+          "label": "Reopening a closed incident \"to take another look\" with no new signal.",
+          "rationale": "Re-opening on unease alone is second-guessing in slow motion."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Clarifying replies are the correct surface for doubt — they're welcomed, not discouraged. The rule is about unilateral override, not disagreement."
+    },
+    {
+      "id": "new-signal",
+      "type": "mcq",
+      "topic": "new-signal",
+      "difficulty": "hard",
+      "prompt": "Which of these qualifies as \"new signal\" — a legitimate reason to challenge a closed Incident Report?",
+      "choices": [
+        {
+          "label": "Your gut says the analyst's disposition feels wrong.",
+          "rationale": "Explicitly NOT new signal. Unease alone is not information the analyst didn't have."
+        },
+        "A second host in the same tenant now shows the same process.",
+        {
+          "label": "You read the Evidence section again and it still looks suspicious to you.",
+          "rationale": "Re-reading the same Evidence doesn't add information. It produces the same conclusion the analyst weighed."
+        },
+        {
+          "label": "You found a blog post describing similar-looking activity as malicious.",
+          "rationale": "A third-party blog isn't new signal about this specific incident."
+        }
+      ],
+      "correct": 1,
+      "explanation": "A second host with matching activity is information the analyst didn't have when they made the original disposition."
+    },
+    {
+      "id": "it-manager-task",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A High-severity EDR Incident Report lands. Host is the IT manager's laptop. Recommendation: approve the autoruns remediation. Evidence: scheduled task running a script at login. The IT manager phones you, says he set it up yesterday himself and it's deliberate. What do you do?",
+      "choices": [
+        {
+          "label": "Close the incident; the IT manager confirms it's legitimate.",
+          "rationale": "Override the SOC on a verbal claim from one user. The right surface is a reply to the analyst, not unilateral closure."
+        },
+        {
+          "label": "Approve the recommendation; the SOC's call stands.",
+          "rationale": "Acts before clarifying. You'd run a remediation on a senior user's machine without letting the layer that decides weigh his new context."
+        },
+        "Reply to the analyst with the new context, keep the incident open while you wait.",
+        {
+          "label": "Escalate to a senior because the customer disagrees with the SOC.",
+          "rationale": "The right body is the analyst, not the senior. Customer disagreement on its own isn't a senior-escalation surface."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The IT manager's statement is new signal; the analyst is the right body to weigh it. Neither override nor blind execute."
+    },
+    {
+      "id": "withdrawn-recommendation",
+      "type": "mcq",
+      "topic": "withdrawn-recommendation",
+      "difficulty": "medium",
+      "prompt": "Continuing from the IT manager scenario: the analyst replies an hour later: \"Confirmed legitimate, no remediation required.\" What do you do next?",
+      "choices": [
+        "Close the ticket on your side, document the back-and-forth, and call the IT manager to confirm.",
+        {
+          "label": "Approve the remediation anyway, to be safe.",
+          "rationale": "Worst response. Approving \"to be safe\" against a withdrawn recommendation is second-guessing the SOC."
+        },
+        {
+          "label": "Reply with: \"Are you sure? It still looks suspicious.\"",
+          "rationale": "Without new signal, that's litigating the analyst's reconsideration."
+        },
+        {
+          "label": "Reopen the incident in a week to revisit.",
+          "rationale": "Unilateral reopen without new signal is second-guessing in slow motion."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The analyst has given the disposition; your job is documentation and client comms."
+    },
+    {
+      "id": "soc-juniority",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"The SOC is a junior, I have local context they don't.\" Why is this misconception dangerous?",
+      "choices": [
+        "Because the SOC has more context on the broader threat surface than you do; you have more context on this specific customer. The right tool for the delta is a clarifying reply, not an override.",
+        {
+          "label": "Because SOC analysts have direct access to senior management and will report you.",
+          "rationale": "Misframes the issue as politics. The actual problem is technical."
+        },
+        {
+          "label": "Because customer context is irrelevant to security decisions.",
+          "rationale": "Wrong. Customer context is central — the issue is the channel for using it."
+        },
+        {
+          "label": "Because the analyst is always right and the tech is always wrong.",
+          "rationale": "Caricature of the rule. Pushing back via clarifying replies is welcomed."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Both sides have asymmetric context. Replies route the delta to the layer that can weigh it; overrides assume the asymmetry runs only one way."
+    },
+    {
+      "id": "softening",
+      "type": "mcq",
+      "topic": "softening",
+      "difficulty": "medium",
+      "prompt": "An Incident Report's Recommendation has three actions: revoke the user's session, reset their password, and remove a malicious inbox rule. You do the first two but skip the inbox-rule removal because you \"want to look at it first.\" What's this called?",
+      "choices": [
+        "Softening the recommendation — same family as second-guessing the SOC.",
+        {
+          "label": "Cautious response.",
+          "rationale": "Misframes a defect as a virtue. \"Looking at it first\" without new signal is unilateral disagreement disguised as caution."
+        },
+        {
+          "label": "Efficient triage.",
+          "rationale": "Partial-action isn't a technique — it's the recommendation getting overridden one step at a time."
+        },
+        {
+          "label": "A documentation issue, nothing more.",
+          "rationale": "Wrong category. The omitted action is a real exposure."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Doing part of the recommendation and skipping the part that worried you is the lesson's named shape of second-guessing."
+    },
+    {
+      "id": "disagreement-surface",
+      "type": "mcq",
+      "topic": "clarifying-reply",
+      "difficulty": "medium",
+      "prompt": "You disagree with a recommendation. What's the right surface for that disagreement?",
+      "choices": [
+        {
+          "label": "Close the incident with a note explaining why you disagreed.",
+          "rationale": "Unilateral closure on disagreement is the cardinal mistake."
+        },
+        "A reply to the analyst on the Incident Report, phrased as a factual clarifying question, not as an argument.",
+        {
+          "label": "A Slack message to your senior asking them to override the analyst.",
+          "rationale": "Routes around the right body."
+        },
+        {
+          "label": "Reopening the incident yourself to force a re-look.",
+          "rationale": "Unilateral reopen without new signal is second-guessing in slow motion."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The analyst issued the recommendation; the reply goes to them, framed factually."
+    },
+    {
+      "id": "senior-cue",
+      "type": "tf",
+      "topic": "vocabulary",
+      "difficulty": "easy",
+      "prompt": "A senior who asks \"did you action it?\" rather than \"did you investigate it?\" is using vocabulary that maps to the SOC model — the work is actioning the recommendation, not investigating whether it's real.",
+      "correct": true,
+      "explanation": "The verb is deliberate. Acting on the recommendation is the work; investigating from your seat is duplicating the analyst's with worse tooling."
+    }
+  ]
+}

@@ -2,16 +2,83 @@
 slug: 07-portal-walkthrough-global-view
 vendor: huntress
 level: l1
-title: Portal Walkthrough Global View
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Portal walkthrough — the global view
+summary: The six top-level surfaces (Organisations, Agents, Identity, Incidents, SIEM, Reports) and why every shift starts on Incidents filtered by status and severity, not on Organisations.
+estimatedMinutes: 7
 order: 7
 topics:
   - portal
   - navigation
+  - shift-start
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+You don't need to memorise the portal. Huntress changes it every few months and lessons would go stale fast. You do need to know where each thing roughly lives, so when a senior says *check the incidents list for that customer*, you don't lose three minutes looking for the right menu item. This is the orientation pass, not the deep dive.
+
+## Two contexts in the portal
+
+Two contexts matter: **global** and **organisation-scoped**. Global is what you see when you log in: every organisation you have access to, every incident across them, every agent's health. Organisation-scoped is what you see when you've clicked into a single customer's tenant; same surfaces, narrowed to that one org. This lesson is the global view. The next lesson is inside an organisation.
+
+## The six top-level items
+
+From the global view, the left-hand navigation usually exposes six items. Names shift occasionally; treat the list as a shape, not a script.
+
+<AnnotatedScreenshot
+  src="/_dev/kitchen-sink-screenshot.svg"
+  alt="Illustrative left-hand navigation showing the six top-level portal surfaces"
+  caption="Illustrative layout — not the live Huntress UI. The six surfaces in the order this lesson teaches them."
+  client:visible
+>
+  <Hotspot x={20} y={18} label="Organisations" tone="primary" />
+  <Hotspot x={20} y={32} label="Agents (EDR roll-up)" tone="primary" />
+  <Hotspot x={20} y={46} label="Identity (ITDR roll-up)" tone="primary" />
+  <Hotspot x={20} y={60} label="Incidents — start your shift here" tone="success" />
+  <Hotspot x={20} y={74} label="SIEM (visible only if subscribed)" tone="warning" />
+  <Hotspot x={20} y={88} label="Reports (monthly client comms)" tone="primary" />
+</AnnotatedScreenshot>
+
+**Organisations.** Every customer tenant the partner manages. Sortable by health, agent count, recent incident count. This is where you go to switch into a single customer.
+
+**Agents.** The cross-organisation roll-up of every endpoint with the EDR agent installed. Filterable by OS, version, online/offline status, organisation. Useful for global-shape questions like *how many Linux endpoints are out of compliance* and for finding a single agent fast when you only know the hostname.
+
+**Identity.** The ITDR roll-up. Both M365 and Google Workspace tenants live here; the surface is the same, the icons differ. Connection health, recent identity incidents, auto-response activity.
+
+**Incidents.** The cross-surface list of Incident Reports. Filterable by severity (Low, High, Critical), surface (EDR, ITDR, SIEM), status (open, pending, closed), and organisation. This is the list you skim first thing in a shift.
+
+**SIEM.** Visible only if your MSP subscribes to Managed SIEM. Data-source health across organisations, ingestion volume, and SIEM-originated incidents.
+
+**Reports.** Monthly summaries, audit reports, executive-style overviews. The client-comms surface.
+
+A couple of partner-admin items (Account, Settings, Help) sit alongside. Those don't change much and don't need attention now.
+
+## Start the shift on Incidents
+
+The reflex matters. The Incidents list is sorted by what needs attention; the Organisations list is sorted alphabetically. Start on Organisations and click through each one and you'll spend an hour discovering nothing changed since yesterday. Start on the list of things that did change and work backwards.
+
+<Callout type="tip" title="The two-filter habit">
+On the Incidents page, severity and status together. *Critical* without *status: open* pulls in months of closed Criticals and the page becomes useless. Set *open* first, then walk severity from Critical down. A peer reporting *the page is full of old closed incidents* is the giveaway that one of the two filters is missing.
+</Callout>
+
+## What this gives you in under 30 seconds
+
+If the navigation has landed, you can answer these without re-clicking:
+
+- Every Critical incident, today, across every organisation.
+- Every agent on a specific OS across every organisation.
+- The customer tenant any given incident came from, without losing the filters you set when you switch into it.
+
+If any of those takes more than thirty seconds, the muscle memory isn't there yet. Open the portal during the next slow ten minutes and run the three queries.
+
+## When the answer is "escalate"
+
+This lesson is navigation only, so the escalation surface is narrow. One case warrants flagging: you can't see something you expect to see. An organisation that isn't there. A SIEM section that's missing. An identity tenant that won't load. That is a permissions or licensing question, not a tech question. Surface it to a senior to resolve, don't work around it.
+
+The case it does not cover: you navigated to the wrong page. That's a quiet self-correction, not an escalation. Acting on the wrong customer is the escalation case, and the next lesson is built around preventing it.
+
+## A worked catch-up
+
+You log in. You haven't been at work for three days; you covered a weekend off. The right move is Incidents, not Organisations. Filter to open and Critical-first, then walk down by severity. Critical first means you don't miss something that's been waiting; walking by severity means the Highs assigned to you get attention before the rest.
+
+A pattern to learn to spot: three Critical incidents in the list, all tagged with the same organisation. That cluster is itself a signal. Open the first incident and tell the senior about the cluster in parallel; three Criticals on one tenant is *tell the senior* territory before you're hours into the response. You don't pause to escalate, you contain and you flag.
+
+<Checkpoint slug="huntress-foundations-checkpoint-portal-global-view" client:visible />

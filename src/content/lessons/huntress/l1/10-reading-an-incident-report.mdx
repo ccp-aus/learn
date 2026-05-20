@@ -3,15 +3,100 @@ slug: 10-reading-an-incident-report
 vendor: huntress
 level: l1
 title: Reading an Incident Report
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+summary: The Incident Report skeleton is reliable across surfaces. Reading order is Header, Recommendation, verify the entity, Summary as needed, Evidence as context. Reading top-down ends in the cardinal mistake.
+estimatedMinutes: 10
 order: 10
 topics:
   - incident-report
   - reading-order
+  - timeline
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The Incident Report is the document you work from. Read it in the wrong order and you'll spend twenty minutes reconstructing what the analyst documented in two paragraphs. Worse, you'll act on the Evidence section instead of the Recommendation section, a misread the next lesson addresses head-on. The shape of the report is reliable across surfaces; learning it once pays off on every incident.
+
+## The sections
+
+Every Incident Report carries roughly the same skeleton. Vocabulary shifts a little between EDR, ITDR, and SIEM, but the bones are the same.
+
+<AnnotatedScreenshot
+  src="/_dev/kitchen-sink-screenshot.svg"
+  alt="Illustrative Incident Report layout showing Header, Summary, Evidence, Recommendation, and analyst signature"
+  caption="Illustrative layout — not the live Huntress UI. The skeleton is reliable across surfaces; only the vocabulary inside each section shifts."
+  client:visible
+>
+  <Hotspot x={50} y={10} label="Header — severity, surface, affected entity, customer, analyst" tone="primary" />
+  <Hotspot x={30} y={28} label="Summary — analyst's plain-language statement" tone="primary" />
+  <Hotspot x={30} y={50} label="Evidence — process trees, sign-ins, OAuth grants, log lines" tone="warning" />
+  <Hotspot x={30} y={72} label="Recommendation — what to do (the action zone)" tone="success" />
+  <Hotspot x={70} y={88} label="Analyst signature + timestamp" tone="primary" />
+</AnnotatedScreenshot>
+
+**Header.** Severity band, surface (EDR, ITDR, SIEM, canary), affected entity (a hostname for EDR, a user principal name for ITDR, a log source or rule name for SIEM), customer organisation, incident ID, analyst name. The header tells you what playbook applies before you read a word of the body.
+
+**Summary.** Two or three sentences from the analyst. What happened, on what entity, why it landed. The analyst's plain-language statement of the problem.
+
+**Evidence.** The raw signal: process trees, command lines, sign-in events, IP addresses, OAuth grants, log lines, sometimes screenshots. The Evidence is context, what the analyst looked at when deciding. It is not what you act on.
+
+**Recommendation.** The action the SOC wants taken. Approve the autoruns remediation. Run the ITDR compromise playbook. Isolate the host. No action required, closing as benign. This is the section you act on, full stop.
+
+**Affected host or user.** Sometimes folded into the header, sometimes called out separately. Always confirm this matches the entity you're about to touch. The wrong-tenant problem from the inside-an-org lesson has a sibling here: the wrong-host problem.
+
+**Analyst signature and timestamp.** Useful for the conversation if you reply with a question.
+
+## The Timeline view
+
+ITDR Incident Reports, and a growing subset of EDR reports, include an **Incident Report Timeline**: a chronological reconstruction of the events that triggered the incident. For an identity compromise, the Timeline might show:
+
+- Successful sign-in from new country, hour 0
+- MFA method added, hour 0 plus 6 minutes
+- Inbox rule created (forward all mail to external address), hour 0 plus 8 minutes
+- Email sent to internal contacts, hour 0 plus 11 minutes
+
+The Timeline is useful when you're explaining the incident to a client (*this is what happened, in order*) and for verifying whether containment caught the activity in time. The Timeline is context, not the recommendation. Reading the Timeline does not replace executing the Recommendation; it informs the conversation around the execution.
+
+Building a counter-argument from the Timeline is second-guessing in slow motion.
+
+## The right reading order
+
+Top-to-bottom is the wrong order. The order below is what gets the recommendation acted on cleanly without re-reading.
+
+<StepThrough client:load>
+  <Step title="Header first">
+    Severity, surface, affected entity, customer. Five seconds. This tells you which playbook applies before any other section.
+  </Step>
+  <Step title="Recommendation next">
+    Skip past Summary and Evidence on the first pass. What does the SOC want done?
+  </Step>
+  <Step title="Verify the affected entity">
+    The host or user the recommendation applies to. Is it the one you're looking at? Same customer? The wrong-host check, the sibling of the wrong-tenant check.
+  </Step>
+  <Step title="Summary if the Recommendation surprised you">
+    If the action is what you'd expect for this severity and surface, you can act. If it is not (Low severity but the recommendation says isolate), read the Summary and Evidence to understand why before acting.
+  </Step>
+  <Step title="Evidence and Timeline as you need them">
+    Used for client comms, for replying to the analyst, for documenting what you did. Not used for deciding whether the Recommendation is right.
+  </Step>
+</StepThrough>
+
+The reflex this lesson installs: *Recommendation first, then verify the host, then context as needed*. New techs read top-down and end up acting on the Evidence section.
+
+## What success looks like
+
+- Given an anonymised Incident Report, you can point at the Recommendation section in under five seconds.
+- You can state the affected entity (host or user) and the customer organisation without re-scrolling.
+- For an ITDR incident with a Timeline, you can walk a client through the sequence of events in order, without re-reading the Timeline twice.
+
+## A worked report
+
+An EDR Incident Report lands. Header: High severity, customer Contoso, host SRV-FILE02, analyst Sam P. Summary: scheduled task running encoded PowerShell discovered. Evidence: full command line, decoded payload (downloads and runs a script from a known-bad domain). Recommendation: approve the scheduled-task remediation; isolation not required at this time.
+
+Read the Recommendation first, verify the host (SRV-FILE02 in Contoso), and the Summary only if the Recommendation needs context. Reading the Evidence to re-decide whether the analyst got it right is the cardinal mistake.
+
+If the decoded payload in Evidence also shows the script tried (and failed) to copy itself to two other hosts on the network, and the Recommendation doesn't mention those hosts, the right move is: approve the scheduled-task remediation on SRV-FILE02 as recommended; in parallel, reply to Sam P. with *Evidence mentions failed copy to HOST-A and HOST-B, should those be checked or remediated?* Execute the Recommendation cleanly. Raise the Evidence-side question as a factual reply, not as an override.
+
+## When the recommendation is above the helpdesk ceiling
+
+A reason to escalate while reading a report: the Recommendation references an action outside the helpdesk ceiling, like *preserve forensic evidence* or *rotate admin credentials tenant-wide*. Surface to a senior. Don't half-do it. A screenshot to OneDrive is not forensic preservation; full-tenant credential rotation is not a helpdesk action.
+
+<Checkpoint slug="huntress-foundations-checkpoint-reading-an-incident-report" client:visible />

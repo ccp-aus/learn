@@ -2,16 +2,94 @@
 slug: 08-portal-walkthrough-inside-an-org
 vendor: huntress
 level: l1
-title: Portal Walkthrough Inside an Org
-summary: Skeleton — lesson body to be written.
+title: Portal walkthrough — inside an organisation
+summary: The most expensive mistake on this platform is the right action on the wrong customer. The header strip is the single source of truth for which tenant you're acting on, and a five-step pre-isolation sequence keeps the wrong-tenant error out.
 estimatedMinutes: 8
 order: 8
 topics:
   - portal
   - wrong-tenant
+  - header-strip
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The most expensive mistake a new tech makes on this platform is not doing the wrong thing. It is doing the right thing on the wrong customer. Isolate a host, run a remediation, revoke a session: correct action, wrong organisation, and you've taken a working endpoint offline for a customer who was fine. The portal's context-switching design is built to make this hard but not impossible. The job of this lesson is to make sure you fall on the "hard" side every time.
+
+## Getting into an organisation
+
+Two paths get you into an organisation's scoped view:
+
+1. From the global **Incidents** list, click the organisation name on an incident. The portal carries you into that customer with the incident already in view.
+2. From the global **Organisations** list, click the org name. The portal opens the customer's overview page.
+
+Path one is the daily reflex; you're following an incident. Path two is what you reach for when a client phones in and you need to look something up before any incident exists.
+
+## What you see inside
+
+The scoped view is the same surfaces from the global view, narrowed to one customer:
+
+- **Overview.** Health summary, agent count, recent incidents, ITDR connection state.
+- **Agents.** Every endpoint with the EDR agent in this customer, with online/offline status, version, OS, and isolation state.
+- **Identity.** ITDR tenants connected for this customer (M365, GWS, or both).
+- **Incidents.** Only this customer's incidents. Same filters as global.
+- **SIEM.** If subscribed for this customer.
+- **Settings and Integrations.** Connection wizards, branding, notification routing.
+
+Same severity bands, same incident types, same recommendation format. This is the lens narrowed.
+
+## The header strip is the single source of truth
+
+The portal shows the current organisation in a header strip at the top of every page. The strip is small. Get used to glancing at it the way a driver glances at the speedometer: every time, even when you "know" what it says.
+
+<AnnotatedScreenshot
+  src="/_dev/kitchen-sink-screenshot.svg"
+  alt="Illustrative scoped-view layout with the header strip showing the current organisation name"
+  caption="Illustrative layout — not the live Huntress UI. The header strip is the single source of truth for which tenant you're acting on."
+  client:visible
+>
+  <Hotspot x={50} y={8} label="Header strip — read every time" tone="warning" />
+  <Hotspot x={20} y={40} label="Scoped surfaces (Agents, Identity, Incidents...)" tone="primary" />
+  <Hotspot x={60} y={50} label="Destructive controls live here" tone="warning" />
+</AnnotatedScreenshot>
+
+Two habits keep you safe. Read the org name on the header before any destructive action; the cost of the glance is zero, the cost of the wrong tenant is hours. Don't have two organisation tabs open in the same browser window; same domain in both tabs, same UI in both tabs, the brain treats them as one. Different windows, different profiles, or one customer at a time.
+
+<Callout type="danger" title="Wrong-tenant action: un-isolate, escalate, document">
+If you isolate a host on the wrong customer, the right call is to un-isolate and tell a senior in parallel. Don't try to cover it. The un-isolation needs documenting and the client needs to be told why their endpoint bounced. *I navigated to the wrong place* is a quiet self-correction. *I took an action on the wrong customer* is the escalation case.
+</Callout>
+
+## The pre-isolation sequence
+
+When a senior says *isolate WS-FINANCE-04 on Contoso*, the cheap-but-load-bearing sequence below is what keeps the wrong tenant out of the click. Each step costs seconds; the alternative costs hours.
+
+<StepThrough client:load>
+  <Step title="Switch into the named organisation">
+    Use the global Incidents list (if you're following the incident) or the Organisations list (if not). Don't search and click the first result; cross-org collisions on hostnames are real.
+  </Step>
+  <Step title="Find the host in Agents">
+    Inside the customer's scoped Agents view, locate the specific host by name. The scoped view filters to just this customer's endpoints, so a match here is also a match for this customer.
+  </Step>
+  <Step title="Glance at the header strip">
+    Read the org name aloud in your head. *Contoso*, not *Contoso Holdings* or any other lookalike. The header is the source of truth; if it doesn't match what you expect, stop.
+  </Step>
+  <Step title="Confirm the hostname matches exactly">
+    WS-FINANCE-04, not WS-FINANCE-14 or WS-FINANCE-04-OLD. Wrong-host is the sibling of wrong-tenant; both checks happen before the click.
+  </Step>
+  <Step title="Click Isolate">
+    Only now do you take the destructive action. If the phone rings between step four and step five, hand the other caller a five-minute callback and finish this cleanly. Single-task the destructive action.
+  </Step>
+</StepThrough>
+
+## A worked ambiguity: which Acme?
+
+A senior says over chat: *isolate the laptop that just popped on Acme, we're seeing canary indicators*. You have two Acmes in your portfolio: Acme Manufacturing and Acme Holdings. The senior didn't disambiguate.
+
+The wrong moves: picking the Acme you talk to more often (*probably* is not acceptable on an isolation), or isolating in both Acmes *to be safe* (you've now potentially taken a working endpoint offline at the wrong customer). The right move is open the most recent Critical incident, identify which Acme it tripped on, confirm the host name with the senior before isolating. The two-second pause costs nothing and prevents the worst class of error. Seniors would rather you confirm than guess.
+
+## Common mistakes to drop now
+
+- **Acting before checking the header strip.** You took a phone call, switched orgs mid-conversation, did something on the wrong tenant because peripheral vision didn't catch the swap.
+- **Two organisations in adjacent tabs.** Same domain, same UI, the brain treats them as one. One customer at a time, or different browser profiles.
+- **Trusting a search result without confirming the org column.** Two customers can have the same hostname (`SRV01`, `EXCHANGE`, `WS-RECEPTION`). Search isn't broken; cross-org collisions are real. Confirm before clicking through.
+
+<Checkpoint slug="huntress-foundations-checkpoint-portal-inside-an-org" client:visible />

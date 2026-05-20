@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-foundations-checkpoint-portal-inside-an-org",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: inside an organisation",
+  "drawCount": 0,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "most-expensive",
+      "type": "mcq",
+      "topic": "wrong-tenant",
+      "difficulty": "easy",
+      "prompt": "The lesson says the most expensive mistake a new tech makes on the platform isn't doing the wrong thing — it's something else. What is it?",
+      "choices": [
+        {
+          "label": "Forgetting to document the response in the PSA.",
+          "rationale": "Documentation gaps are real but recoverable. Not the most expensive class."
+        },
+        "Doing the right thing on the wrong customer.",
+        {
+          "label": "Replying to the analyst before reading the full Evidence section.",
+          "rationale": "Different class of mistake (covered in the reading-order lesson)."
+        },
+        {
+          "label": "Closing an incident before checking the customer's SLA.",
+          "rationale": "SLA hygiene matters but isn't the lesson's framing of \"most expensive.\""
+        }
+      ],
+      "correct": 1,
+      "explanation": "Correct action, wrong organisation — a working endpoint taken offline for a customer who was fine."
+    },
+    {
+      "id": "paths-into-org",
+      "type": "mcq",
+      "topic": "navigation",
+      "difficulty": "easy",
+      "prompt": "Which two paths get you into an organisation's scoped view?",
+      "choices": [
+        "From the global Incidents list (click the org name on an incident), or from the global Organisations list.",
+        {
+          "label": "From the Reports area or from the Settings area.",
+          "rationale": "Neither is a primary path. Reports aggregate; Settings isn't an org-entry point."
+        },
+        {
+          "label": "By URL only — there's no UI path into an organisation.",
+          "rationale": "Wrong. Two UI paths."
+        },
+        {
+          "label": "Only by clicking through from an incident.",
+          "rationale": "Incomplete — the Organisations list is the second path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Path one is the daily reflex; path two is for when you need to look something up before any incident exists."
+    },
+    {
+      "id": "header-strip-habit",
+      "type": "mcq",
+      "topic": "header-strip",
+      "difficulty": "medium",
+      "prompt": "The lesson recommends a habit it compares to \"the way a driver glances at the speedometer.\" What is it?",
+      "choices": [
+        "Reading the org name on the portal's header strip before every destructive action, every time.",
+        {
+          "label": "Refreshing the page every few minutes to make sure data is current.",
+          "rationale": "Not the recommended habit."
+        },
+        {
+          "label": "Saying the customer's name out loud before each click.",
+          "rationale": "The header-strip glance is silent."
+        },
+        {
+          "label": "Re-logging into the portal at the start of each customer.",
+          "rationale": "Slow and unnecessary."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The cost of the glance is zero; the cost of the wrong tenant is hours."
+    },
+    {
+      "id": "two-tabs",
+      "type": "mcq",
+      "topic": "browser-discipline",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson explicitly warn against keeping two organisation tabs open in adjacent browser windows of the same browser?",
+      "choices": [
+        {
+          "label": "Browsers leak data between tabs of the same domain, so isolation is needed.",
+          "rationale": "Wrong on the security model. The reason is operator error."
+        },
+        "Same domain, same UI — the brain treats two tabs as one, which is how wrong-customer actions happen.",
+        {
+          "label": "Browser memory usage spikes when both tabs are loaded.",
+          "rationale": "Performance isn't the reason."
+        },
+        {
+          "label": "Huntress audits tab-switching behaviour.",
+          "rationale": "Not true."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Same domain, same UI; peripheral vision blurs the URL and the header."
+    },
+    {
+      "id": "two-acmes",
+      "type": "mcq",
+      "topic": "ambiguous-org",
+      "difficulty": "hard",
+      "prompt": "A senior says over chat: \"Isolate the laptop that just popped on Acme, we're seeing canary indicators.\" You have two Acmes: Acme Manufacturing and Acme Holdings. The senior didn't disambiguate. What do you do?",
+      "choices": [
+        {
+          "label": "Pick the Acme you talk to more often; that's probably the one.",
+          "rationale": "\"Probably\" is not acceptable on an isolation."
+        },
+        "Open the most recent Critical incident, identify which Acme tripped, and confirm the host with the senior before isolating.",
+        {
+          "label": "Isolate the laptop in both Acmes — better safe than sorry.",
+          "rationale": "Worst response. You've potentially taken a working endpoint offline at the wrong customer."
+        },
+        {
+          "label": "Ask the senior to disambiguate over the phone; chat is too ambiguous for this.",
+          "rationale": "The incident itself names the affected entity. The senior doesn't need to repeat."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The incident names the Acme; confirming the host with the senior is the two-second pause that prevents the worst class of error."
+    },
+    {
+      "id": "mid-action-interruption",
+      "type": "mcq",
+      "topic": "mid-action-interruption",
+      "difficulty": "hard",
+      "prompt": "You're hovering over Isolate on the right Acme host. Your phone rings — it's another customer panicking. What do you do?",
+      "choices": [
+        {
+          "label": "Stay on the line, click Isolate as you talk to the other customer.",
+          "rationale": "Attention split between two customers is the state where wrong-tenant errors happen."
+        },
+        "Tell the other customer you'll call back in five, finish the isolation cleanly with the header strip confirmed, then take the call.",
+        {
+          "label": "Abandon the isolation and take the other customer's call.",
+          "rationale": "The senior is waiting; abandoning without telling them creates a worse gap than a five-minute callback."
+        },
+        {
+          "label": "Pass the phone call to the senior who asked for the isolation.",
+          "rationale": "Loads the senior with a call that isn't theirs while leaving the isolation half-done."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Single-task the destructive action. Five minutes' lag on the other customer is the right trade."
+    },
+    {
+      "id": "search-result",
+      "type": "mcq",
+      "topic": "search-ambiguity",
+      "difficulty": "medium",
+      "prompt": "A peer searches for a hostname in the portal and a result appears. They click through to act on it. What's the most likely failure mode the lesson warns about?",
+      "choices": [
+        "Search results may span organisations; two customers can have the same hostname — confirm the org column before clicking through.",
+        {
+          "label": "Search results are sorted by recency only.",
+          "rationale": "The lesson doesn't comment on sort order; cross-org collisions are the named warning."
+        },
+        {
+          "label": "Searching is slow and breaks under load.",
+          "rationale": "Performance isn't the warning."
+        },
+        {
+          "label": "Search uses partial matches that pull in too many results.",
+          "rationale": "Same-hostname collisions across orgs is the named issue."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two customers can have the same hostname (SRV01, EXCHANGE, WS-RECEPTION). Confirm the org column."
+    },
+    {
+      "id": "wrong-tenant-recovery",
+      "type": "mcq",
+      "topic": "wrong-tenant-recovery",
+      "difficulty": "medium",
+      "prompt": "You realise you've just isolated a host on the wrong customer. What's the right next move?",
+      "choices": [
+        {
+          "label": "Quietly un-isolate and hope nobody noticed.",
+          "rationale": "Don't try to cover it. The customer needs to be told why their endpoint bounced."
+        },
+        "Un-isolate, tell a senior in parallel, document the mistake, expect to inform the customer per the comms playbook.",
+        {
+          "label": "Leave the host isolated until a senior tells you what to do.",
+          "rationale": "Leaving a working host offline to \"wait for instruction\" extends a recoverable error."
+        },
+        {
+          "label": "Don't escalate at all — it's a navigation mistake, not an incident.",
+          "rationale": "The lesson distinguishes \"navigated to the wrong place\" (quiet self-correction) from \"took an action on the wrong customer\" (escalation)."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Un-isolate, escalate, document, comms. Don't cover."
+    },
+    {
+      "id": "destructive-actions-list",
+      "type": "multi",
+      "topic": "destructive-actions",
+      "difficulty": "medium",
+      "prompt": "Which of these are destructive actions where the header-strip glance matters? (Select all that apply.)",
+      "choices": [
+        "Isolating a host",
+        "Approving a remediation",
+        "Running the ITDR compromise playbook on an identity",
+        "Reading the Incidents list",
+        "Filtering the Agents view"
+      ],
+      "correct": [0, 1, 2],
+      "explanation": "The lesson names isolating, approving a remediation, and running the compromise playbook as the three destructive examples. Reading and filtering are not destructive."
+    },
+    {
+      "id": "confidence-misleading",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"I work two organisations in adjacent tabs all the time; I've never made a wrong-tenant mistake. The rule is overkill.\" Why is that confidence misleading?",
+      "choices": [
+        "The wrong-tenant error happens silently — same domain, same UI — until the day it costs hours.",
+        {
+          "label": "Huntress logs tab switches and audits accounts that violate the rule.",
+          "rationale": "Not true."
+        },
+        {
+          "label": "Adjacent tabs are slower to render and reduce throughput.",
+          "rationale": "Performance isn't the reason."
+        },
+        {
+          "label": "The partner billing model charges per tab session.",
+          "rationale": "Not true."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The rule prevents a high-cost error that doesn't happen often, not constant low-cost errors."
+    }
+  ]
+}
