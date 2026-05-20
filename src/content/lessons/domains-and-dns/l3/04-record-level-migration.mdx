@@ -63,12 +63,11 @@ If the DNS host *also* changes, that's a DNS host transfer (previous lesson) and
 
 ## Decision walkthrough
 
-A client is migrating their website to a new web host. The new host gave them `198.51.100.42`. Current A record at the apex points at the old host with TTL 86400. Minimal user-visible downtime is the goal.
-
 <DecisionTree
   client:load
   startId="root"
   title="Plan the cutover"
+  description="A client is migrating their website to a new web host. The new host gave them 198.51.100.42. The current A record at the apex points at the old host with TTL 86400. Minimal user-visible downtime is the goal."
   nodes={[
     {
       type: "question",

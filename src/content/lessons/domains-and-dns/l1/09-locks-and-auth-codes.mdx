@@ -73,12 +73,11 @@ When a client wants to move a domain to a new registrar, the work at the *losing
 
 ## Decision walkthrough
 
-A client emails: *we want to move `example.com` to Cloudflare Registrar. The Cloudflare side is asking for the auth code.* You look at WHOIS. The domain shows `clientTransferProhibited` and was registered four months ago at the current registrar.
-
 <DecisionTree
   client:load
   startId="root"
   title="Where do you start?"
+  description="A client emails: 'we want to move example.com to Cloudflare Registrar. The Cloudflare side is asking for the auth code.' You look at WHOIS. The domain shows `clientTransferProhibited` and was registered four months ago at the current registrar."
   nodes={[
     {
       type: "question",

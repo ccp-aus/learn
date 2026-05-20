@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-walkthrough-low-severity",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: a Low-severity walkthrough",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "rhythm",
+      "type": "mcq",
+      "topic": "rhythm",
+      "difficulty": "easy",
+      "prompt": "The walkthrough completes the Low in about 11 minutes. What does it call the defining quality of that timing?",
+      "choices": [
+        "Unremarkable. The six-step workflow executed cleanly with no second-guessing.",
+        {
+          "label": "Fast — the tech moved quickly by skipping verify.",
+          "rationale": "The 11 minutes includes the post-remediation wait and verify; skipping verify is the rhythm-breaker."
+        },
+        {
+          "label": "Slow — most Lows should close in under 5 minutes.",
+          "rationale": "10 minutes per Low is the right cadence. Faster usually means a skipped step."
+        },
+        {
+          "label": "Exceptional — the tech investigated thoroughly before approving.",
+          "rationale": "Investigation is the second-guessing failure."
+        }
+      ],
+      "correct": 0,
+      "explanation": "No acting on context, no drift at close. Unremarkable is the point. Routine Lows should feel like one motion, not eight discrete checks."
+    },
+    {
+      "id": "no-file-remediation",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "medium",
+      "prompt": "The autoruns entry points to a PUP at C:\\Users\\Public\\Updater\\rupdate.exe. The Recommendation removes the autoruns key but NOT the file. Why didn't the SOC recommend removing the file?",
+      "choices": [
+        "The SOC's classification of the binary as a PUP drove a persistence-only remediation.",
+        {
+          "label": "The SOC forgot to include the file remediation; you should add it yourself.",
+          "rationale": "Acting on context. Absence in the Recommendation is a decision, not an oversight."
+        },
+        {
+          "label": "Huntress only supports one remediation per incident.",
+          "rationale": "Wrong on the facts."
+        },
+        {
+          "label": "Files can't be removed remotely by Huntress agents.",
+          "rationale": "Wrong on the facts. File remediation is a standard type."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Without the autoruns key, it doesn't run on its own. The file is in Evidence; without the persistence mechanism it's inert. The SOC weighed and decided."
+    },
+    {
+      "id": "sandbox-rhythm-breaker",
+      "type": "mcq",
+      "topic": "rhythm-breaker",
+      "difficulty": "medium",
+      "prompt": "\"Let me sandbox this binary just to be sure before approving.\" What does the walkthrough say about this on a Low?",
+      "choices": [
+        "Investigating the binary.",
+        {
+          "label": "Always sandbox on a Low; it's the safest practice.",
+          "rationale": "Sandboxing is investigation work above the helpdesk ceiling."
+        },
+        {
+          "label": "Sandbox only if the file is in C:\\Users\\Public\\.",
+          "rationale": "The path doesn't license the investigation. The SOC's classification already weighed it."
+        },
+        {
+          "label": "Sandbox is required for any PUP classification.",
+          "rationale": "Not in the lesson. PUP classifications are within the SOC's remit."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Because the path looks suspicious is the second-guessing failure. The SOC has done the analysis; the path looking suspicious is exactly what the SOC saw and classified. Adds 30 minutes to a 10-minute ticket. Investigation above the helpdesk ceiling. The SOC has done it."
+    },
+    {
+      "id": "completeness-rhythm-breaker",
+      "type": "mcq",
+      "topic": "rhythm-breaker",
+      "difficulty": "medium",
+      "prompt": "\"Let me remove the file as well as the autoruns entry for completeness.\" What's the failure?",
+      "choices": [
+        "Acting on context. The Recommendation specified autoruns only;",
+        {
+          "label": "No failure — \"completeness\" is the lesson's recommended posture.",
+          "rationale": "It's the named rhythm-breaker. Completeness isn't a virtue here."
+        },
+        {
+          "label": "The tech should remove the file but NOT the autoruns entry.",
+          "rationale": "Inverts what the Recommendation asks; \"softening\" the recommendation."
+        },
+        {
+          "label": "The file should be quarantined to a network share before deletion.",
+          "rationale": "Not in the lesson and not part of the Huntress remediation flow."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The file is in Evidence but not in the action zone. Don't go further than the SOC asked. Completeness here is just acting on context."
+    },
+    {
+      "id": "skipped-wait",
+      "type": "mcq",
+      "topic": "rhythm-breaker",
+      "difficulty": "medium",
+      "prompt": "A peer closes their Low in 8 minutes instead of 11 because \"the portal said applied.\" What's the failure?",
+      "choices": [
+        "Skipping the post-remediation wait.",
+        {
+          "label": "8 minutes is too fast; the tech should slow down.",
+          "rationale": "Speed in isolation isn't the failure; honouring the wait+verify is."
+        },
+        {
+          "label": "The PSA close was skipped, not the wait.",
+          "rationale": "The walkthrough names the wait as the named skip."
+        },
+        {
+          "label": "No failure — \"applied\" is sufficient confirmation.",
+          "rationale": "\"Applied\" and the verify check are different."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Most of the time it's fine; the times it isn't are the re-detection-within-minutes cases that catch you out three days later when the same incident re-fires. Skipping the wait is what creates the re-detection that lands on the next shift's queue with no context."
+    },
+    {
+      "id": "pattern-spotting",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "The fourth incident in your shift's Low queue is the same PUP autoruns pattern as the first, on a different customer. What's the right reflex on the current incident?",
+      "choices": [
+        {
+          "label": "Recognise the pattern and stop to dig deeper before processing.",
+          "rationale": "Pattern observation is worth surfacing, but the processing of this Low isn't paused. The SOC has classified."
+        },
+        "Run the walkthrough exactly as on the first incident.",
+        {
+          "label": "Skip the verify step because \"same pattern, same result.\"",
+          "rationale": "Skipping verify is the rhythm-breaker."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Claim, review, approve, verify, close, document. No reason to deviate. The pattern goes in the EOD note; the current Low gets processed normally."
+    },
+    {
+      "id": "eod-handover",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "At end of shift, you've processed five Low incidents with the same PUP pattern across three customers. What do you do?",
+      "choices": [
+        {
+          "label": "Nothing extra; each was processed correctly.",
+          "rationale": "The pattern is worth surfacing. Might be a campaign, a bundled-software wave, or background noise."
+        },
+        "Add a one-line entry to your EOD handover note surfacing the pattern at the portfolio level.",
+        {
+          "label": "Reply to the SOC analyst on each individual incident with \"are you seeing this elsewhere?\"",
+          "rationale": "Interrupts the SOC's per-incident workflow with a portfolio question."
+        }
+      ],
+      "correct": 1,
+      "explanation": "You did the work, observed the pattern, handed it up. The senior or SOC does portfolio-level analysis."
+    },
+    {
+      "id": "no-customer-call",
+      "type": "mcq",
+      "topic": "comms",
+      "difficulty": "medium",
+      "prompt": "The walkthrough involved no customer call. Why?",
+      "choices": [
+        "A Low with no user verification asked for in the Recommendation is a Low that doesn't need a customer call.",
+        {
+          "label": "Customer calls are always skipped for Lows.",
+          "rationale": "Too absolute. If the Recommendation calls for verification, the call happens."
+        },
+        {
+          "label": "The tech forgot to call; that was a mistake in the walkthrough.",
+          "rationale": "The walkthrough is the model. The no-call is deliberate."
+        },
+        {
+          "label": "The customer had opted out of all comms in their account settings.",
+          "rationale": "Not in the lesson."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The Recommendation is the contract. Don't manufacture customer calls to \"be thorough.\" The Recommendation drives the call."
+    },
+    {
+      "id": "file-still-there",
+      "type": "mcq",
+      "topic": "future-pattern",
+      "difficulty": "medium",
+      "prompt": "The file stayed on the endpoint (the SOC didn't recommend file removal). A week later the same PUP autoruns is re-detected on the same endpoint. What does the lesson say?",
+      "choices": [
+        "The file was still there;.",
+        {
+          "label": "The tech should have removed the file the first time \"for completeness.\"",
+          "rationale": "Acting on context. The SOC's call was deliberate."
+        },
+        {
+          "label": "Run the remediation again and remove the file this time without asking.",
+          "rationale": "Unilateral expansion on a re-detection."
+        },
+        {
+          "label": "Close the new incident as a duplicate of the previous one.",
+          "rationale": "The new incident is a new event."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC's recommendation was deliberate (persistence, not file). A pattern of re-detection might warrant the SOC's reconsideration — that's a clarifying reply, not a unilateral move. A re-detection pattern is the right surface for a clarifying reply to the SOC, not for unilateral expansion."
+    },
+    {
+      "id": "drift-avoidance",
+      "type": "tf",
+      "topic": "drift",
+      "difficulty": "easy",
+      "prompt": "The walkthrough avoided the drift trap because the tech closed Huntress and the PSA in sequence (Huntress at 11:52, PSA at 11:53) with the note already in the PSA.",
+      "correct": true,
+      "explanation": "Both systems closed in sequence, no gap. That's how the drift trap stays a trap that doesn't catch you."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+---
+slug: 36-where-helpdesk-ceiling-sits-on-critical
+vendor: huntress
+level: l2
+title: Where the helpdesk ceiling sits on Critical
+summary: Two failure modes appear in new techs on Critical, freezing and overstepping. The line is sharp, containment is in scope, investigation is not. The map below is the one to carry.
+estimatedMinutes: 7
+order: 36
+topics:
+  - critical
+  - escalation-ceiling
+  - scope
+updated: 2026-05-20
+---
+
+Two opposite failure modes appear in new techs on Critical. The first is freezing, "this is too serious, I shouldn't touch anything." The second is overstepping, "this is serious, I should investigate to help the senior." Both come from the same misread, the tech can't see exactly where their line is, so they pull either too far back or too far in. The line is sharp. This lesson is the explicit map.
+
+## What's in scope on Critical
+
+Five action categories, every time:
+
+- **Contain.** Isolate the host. Run the ITDR compromise playbook on a single affected identity. Re-isolate if a re-detection fires post-release.
+- **Escalate in parallel.** Phone the on-call senior, chat them, PSA flag.
+- **Document.** Timestamps, actions, contacts. The PSA running entry is the live record while the senior takes the deeper response.
+- **Customer comms, per senior direction.** "Active security event, two systems are intentionally contained, the senior will brief you when they're at a stopping point." Or whatever the senior briefs you to say.
+- **Further containment on related hosts** if more Critical incidents land on the same customer during the response.
+
+That's the full scope. Five categories, none of them "investigate."
+
+## What's out of scope on Critical
+
+Equally explicit:
+
+- **Investigation of the underlying activity.** Reading the Evidence to decide whether the trip is "real"; sandboxing binaries; querying the endpoint's process history; cross-referencing with external threat intel feeds.
+- **Forensic evidence preservation.** Imaging the disk, dumping memory, capturing volatile artefacts. Specialised work with chain-of-custody implications.
+- **Persistence hunting.** Looking for additional persistence mechanisms on the host that the agent didn't flag; checking related hosts proactively for similar signs.
+- **Detection tuning or exclusion requests during the incident.** Even if you spot the SOC's detection firing on a false-positive-shaped activity, you don't request exclusions mid-Critical. Lesson 38 covers exclusions; mid-Critical timing is wrong.
+- **Customer-network-level decisions.** Segment isolation, perimeter firewall changes, RMM-driven actions across the customer's environment.
+- **Talking with external incident-response services.** The customer's cyber insurance IR provider, etc. Relationship-level work, senior owns.
+- **Changing the severity classification on the incident.** The SOC owns that.
+
+## Why the line is sharper on Critical than on Lows and Highs
+
+The stakes are higher and the costs of overstepping are specific.
+
+**Time lost containing.** Every minute spent looking at the Evidence is a minute the attacker keeps doing what they're doing.
+
+**Damage to the senior's investigation.** Forensic artefacts have order-of-volatility issues. A tech who queries the endpoint, looks at running processes, or opens files to inspect them is stepping on the evidence the senior needs. The forensic value of the endpoint can be reduced by well-intentioned tech investigation.
+
+**Customer-relationship risk.** Critical incidents end in customer conversations about how the response was handled. "The helpdesk did some investigation" is the line that complicates that conversation. "The helpdesk contained and escalated, and the senior took the deeper response" is the line that builds trust.
+
+The line is also sharp because the helpdesk training doesn't include the skills above it. Forensic investigation, threat hunting, customer-network architecture decisions are real skill sets, and stepping into them without the training is the kind of mistake that turns a contained incident into a worse one.
+
+## The freeze failure, the one to actively guard against early
+
+The opposite failure: refusing to isolate because "this is too serious, I shouldn't act alone." The misread here is treating containment as investigation. Containment is the action *under* the ceiling, it's exactly what the helpdesk owns. The senior wants the host isolated by the time they pick up the phone. If you've waited for them, you've cost them the containment window.
+
+Isolation is in scope. It is the most-in-scope action on Critical. The freeze failure is the one to actively guard against early in your time on the platform.
+
+## The five minutes of standby
+
+A Critical fires for `WS-EXAMPLE-DEV-09`. You isolate in 25 seconds. You bump the senior. The senior says: "Stand by, I'm wrapping a different call, I'll be 5 minutes." Five minutes of time on your hands.
+
+<DecisionTree client:load
+  title="Five minutes between bump and senior arrival"
+  description="The temptation in the gap is to be useful. The right shape of useful on Critical is documentation and standby. Investigation is not a stand-in for the senior, even when nobody else is on the response yet."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do during the 5 minutes?", choices: [
+      { label: "Open the Evidence to read what the SOC saw, ready to brief the senior", next: "evidence" },
+      { label: "Document the isolation timestamp and the bump in the PSA, stand by, watch for more Criticals", next: "standby" },
+      { label: "Phone the customer's IT manager to brief them before the senior arrives", next: "customer" },
+      { label: "Check the customer's recent PSA ticket history for related issues", next: "psa" },
+    ]},
+    { type: "outcome", id: "standby", label: "Document and stand by, the in-scope shape", tone: "success",
+      body: <>Documentation and standby is what the line allows. Five minutes feels passive but it's part of the job. Watch the portal for more Criticals on the same customer (if they land, you isolate per the multi-host pattern). Anything else is overstep dressed as initiative.</> },
+    { type: "outcome", id: "evidence", label: "Overstep, exactly the failure mode the line prevents", tone: "bad",
+      body: <>The SOC's Evidence is for the senior. Reading it isn't briefing-prep, it's encroachment on the senior's role. When the senior arrives and asks what was on the endpoint, the right answer is "I didn't look, I was waiting for you", not a tech-seat pre-brief that puts forensic value at risk.</> },
+    { type: "outcome", id: "customer", label: "Customer comms follows senior direction, not tech initiative", tone: "bad",
+      body: <>Customer comms during a senior-led Critical follow the senior's brief. Proactive customer initiation without the senior's go-ahead is freelancing the message. If the customer calls you in the gap, the "intentionally contained, senior briefing soon" line is fine; you don't initiate.</> },
+    { type: "outcome", id: "psa", label: "Wrong direction, helpful-shaped investigation", tone: "bad",
+      body: <>PSA and ticket-history checks during a Critical aren't in scope. They're the kind of "I'll be helpful" investigation that doesn't help and might mislead. Senior may ask you to look at PSA history under their direction; until they do, it's overstep.</> },
+  ]}
+/>
+
+## The right answer to "what was on the endpoint?"
+
+The senior arrives 5 minutes after the bump. They ask: "Quick, what was on the endpoint? What did the user have access to?"
+
+The right answer is *"I didn't look, I was waiting for you."* The line was held. Whether the senior was testing you or genuinely wants you to dig now under their direction, "I held the line" is the right starting answer. If they then ask you to look at specific things under their direction, that's the explicit delegation case; do exactly what they ask, document, return.
+
+"I read the Evidence section while I was waiting, here's what I saw" puts the senior in the position of weighing whether your tech-seat read affected the forensic value of the endpoint. They start the response slightly behind because they trusted the line and now don't.
+
+## Explicit delegation is the only legitimate path across the line
+
+Mid-response the senior says: "Go look at the recent process history on the endpoint." That's an explicit delegation; the line moved temporarily because the senior moved it. Do exactly what they asked, document, return. The line itself doesn't change, the senior can move it for a specific task. Broader investigation in the same direction without an explicit ask is freelancing, not delegation.
+
+## Misconceptions to drop
+
+*If I investigate first, I can hand the senior a more complete picture.* The senior wants you contained-and-paused, not contained-and-pre-investigating. They have tools and training; you have the line.
+
+*Refusing to isolate is the safe move on Critical.* Opposite. Refusing to contain is the unsafe move; the attacker keeps moving while you wait.
+
+*Critical is the same as High, just with more stakes.* No. The response model is different, not just the tempo. High involves the tech doing the full workflow; Critical involves the tech containing and handing off.
+
+<Checkpoint slug="huntress-operations-checkpoint-where-helpdesk-ceiling-sits-on-critical" client:visible />

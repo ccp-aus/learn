@@ -1,0 +1,73 @@
+---
+slug: 07-incident-type-suspicious-sign-in
+vendor: huntress
+level: l3
+title: "Incident type: suspicious sign-in"
+summary: Suspicious sign-in is a family of signals, not a single pattern. The shape varies; the right response is whatever the Recommendation says.
+estimatedMinutes: 8
+order: 7
+topics:
+  - itdr
+  - sign-in
+  - mfa-fatigue
+updated: 2026-05-20
+---
+
+Suspicious sign-in is the catch-all category for identity events that do not cleanly fit impossible-travel, MFA-tampering, or OAuth-abuse. **It is a family of signals, not a single pattern.** The shape varies: a sign-in from a TOR exit, a sign-in with an unusual client type, a sign-in that satisfied MFA in a suspicious way, a sign-in matching credential-stuffing patterns. The right response is whatever the Recommendation says, even when the pattern at first glance looks ambiguous.
+
+## What the family covers
+
+| Signal shape | What it looks like |
+|---|---|
+| Unusual client type | Sign-in via legacy IMAP, POP3, or unusual API clients the user does not normally use |
+| Unusual location | Country or ASN the user has no history with, but the move-time is plausible (so impossible-travel does not fire) |
+| Token theft | Same token, different source, suggesting session-cookie theft |
+| MFA-fatigue | MFA satisfied via repeated push prompts the user accepted to make notifications stop |
+| Credential stuffing | Multiple failed sign-ins from one source followed by a success |
+| Access then nothing | User signs in but does nothing they normally do (no mail, no calendar), suggesting the attacker is establishing access for later |
+
+The SOC routes the incident to the most specific category that fits. When the category is the broad "suspicious sign-in," the SOC is saying: the sign-in itself is the signal, the rest is uncertain.
+
+## The aliased relationship with other categories
+
+Suspicious sign-in often appears with another category in the Timeline:
+
+- Suspicious sign-in followed by inbox-rule creation. Primary classification: malicious inbox rule (lesson 4).
+- Suspicious sign-in followed by OAuth grant. Primary: OAuth grant abuse (lesson 6).
+- Suspicious sign-in alone with no follow-on. Primary: suspicious sign-in. The Recommendation may call for verification plus remediation if follow-on is plausible but not yet observed.
+
+The more specific category wins. "Suspicious sign-in" as the primary means the sign-in itself is what needs attention.
+
+## The response
+
+When the Recommendation is the full compromise playbook, execute it. The SOC has classified the sign-in as compromising enough to warrant containment regardless of observed follow-on.
+
+When the Recommendation is lighter ("verify with user only" or "no action required, suspicious but explainable"), follow it. User verification (lesson 8) is more common on suspicious-sign-in than on the other categories because the SOC sometimes needs the user's input to confirm whether the activity was theirs.
+
+## MFA-fatigue: the pattern worth recognising
+
+MFA-fatigue is a specific attack: the attacker spams push prompts (often at unsociable hours) until the user taps "approve" to make the notifications stop. The user did not intend to sign in. They accepted under duress.
+
+The Timeline shows the tell: seven push prompts in two minutes between 03:11 and 03:13, the seventh accepted. The sign-in source is a residential-proxy IP in a country the user has no history with. "User accepting the MFA prompt" is not the same as "user intended to sign in."
+
+## A worked scenario
+
+High-severity ITDR on `tomas.kovac@example.com`. Title: Suspicious sign-in, MFA fatigue pattern. Seven MFA push prompts between 03:11 and 03:13; seventh accepted. Sign-in source: residential-proxy IP, unfamiliar country. No follow-on activity yet. Recommendation: revoke sessions, reset password and MFA, contact user to verify and explain.
+
+<StepThrough client:load>
+  <Step title="Execute first, call after">
+    The SOC's classification is compromise. No-follow-on-activity is not a reason to soften the response. Attackers establish access and wait. Revoke sessions, reset password and MFA per the playbook.
+  </Step>
+  <Step title="Call Tomas">
+    Tomas confirms: "Yeah, I was getting prompts at 3 in the morning, eventually I just tapped approve to make them stop. I thought it was a glitch." Those prompts were not a glitch. An attacker tried to access his account. By tapping approve, he let them sign in. You have already contained.
+  </Step>
+  <Step title="Educate on the pattern">
+    Explain the MFA-fatigue attack to Tomas. If he ever gets MFA prompts he did not ask for, the right response is to deny them all and call the helpdesk, even at 3am. Send a secure password handoff in the morning. The education prevents the same mistake next time.
+  </Step>
+</StepThrough>
+
+<Callout type="warn" title="No follow-on does not mean no compromise">
+Attackers establish access and wait. The SOC's classification weighs the sign-in's own signals. A high-confidence-suspicious sign-in with no follow-on is still a compromise to address.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-suspicious-sign-in" client:visible />

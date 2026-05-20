@@ -1,0 +1,246 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-reading-itdr-incident-report",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: reading an ITDR Incident Report",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "evidence-shape-difference",
+      "type": "mcq",
+      "topic": "evidence-shape",
+      "difficulty": "easy",
+      "prompt": "What is the main shape difference between EDR Evidence and ITDR Evidence?",
+      "choices": [
+        "EDR is mostly process-shaped;.",
+        {
+          "label": "EDR is event-shaped; ITDR is process-shaped.",
+          "rationale": "Inverted. The lesson names which surface has which shape."
+        },
+        {
+          "label": "There is no difference; the surfaces share Evidence formats.",
+          "rationale": "The lesson opens by naming the difference."
+        },
+        {
+          "label": "EDR Evidence is plain English; ITDR Evidence is raw JSON.",
+          "rationale": "Both surfaces present Evidence in the same Incident Report skeleton."
+        }
+      ],
+      "correct": 0,
+      "explanation": "ITDR is mostly event-shaped (sign-ins, rule creations, OAuth grants, MFA changes). ITDR Evidence is event-shaped: each event has its own timestamp and source. The story comes from the sequence."
+    },
+    {
+      "id": "timeline-reading-habit-first",
+      "type": "mcq",
+      "topic": "timeline-habits",
+      "difficulty": "medium",
+      "prompt": "Which of the three Timeline-reading habits does the lesson name first?",
+      "choices": [
+        {
+          "label": "Read bottom-to-top to find the most recent activity first.",
+          "rationale": "The lesson reads chronologically forwards, not backwards."
+        },
+        "Read top-to-bottom in order; the events compound.",
+        {
+          "label": "Skip the timestamps and read event types only.",
+          "rationale": "Timestamps are part of the compromise story. Skipping them loses the speed signal."
+        },
+        {
+          "label": "Read each event in isolation to avoid bias.",
+          "rationale": "The relationships between events are the point. Isolation hides the chain."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The order shows how the attacker chained actions. Reading in sequence reveals the causal thread."
+    },
+    {
+      "id": "timeline-gap-meaning",
+      "type": "mcq",
+      "topic": "timeline-gaps",
+      "difficulty": "medium",
+      "prompt": "A Timeline has a 40-minute gap between a high-impact attacker action and the next event. What does the lesson say?",
+      "choices": [
+        {
+          "label": "Gaps mean the attacker has stopped and the compromise is over.",
+          "rationale": "That is the assumption the lesson warns against."
+        },
+        {
+          "label": "Ignore gaps; only events matter.",
+          "rationale": "Gaps are signal, especially around high-impact actions."
+        },
+        "Gaps do not mean the attacker stopped.",
+        {
+          "label": "Gaps are normal because identity events are bursty by nature.",
+          "rationale": "Wrong framing for compromise Timelines specifically."
+        }
+      ],
+      "correct": 2,
+      "explanation": "A clean compromise story rarely has long gaps. The gap is worth flagging. A gap often means the next event fell outside what the SOC ingested. Surface to senior if the picture is unclear."
+    },
+    {
+      "id": "timeline-argue-recommendation",
+      "type": "mcq",
+      "topic": "common-mistakes",
+      "difficulty": "hard",
+      "prompt": "Using the Timeline to argue with the Recommendation. What kind of mistake is this?",
+      "choices": [
+        {
+          "label": "An escalation trigger.",
+          "rationale": "The action is wrong regardless of escalation status."
+        },
+        {
+          "label": "A legitimate use of the Timeline.",
+          "rationale": "The Timeline is for context (action and comms), not for litigating the SOC."
+        },
+        {
+          "label": "A documentation issue, not a workflow one.",
+          "rationale": "This is a workflow mistake."
+        },
+        "Same second-guessing failure from the Beginner course."
+      ],
+      "correct": 3,
+      "explanation": "The Timeline is what the analyst weighed; the Recommendation is the disposition. The Timeline is context. The Recommendation drives the action. Arguing with the Recommendation using the Timeline is second-guessing the SOC."
+    },
+    {
+      "id": "multi-user-timeline-escalation",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "A Timeline shows events across multiple identities in the same tenant. What does the lesson say?",
+      "choices": [
+        "Tenant-wide-compromise territory. Bump to senior.",
+        {
+          "label": "Run the playbook on each user in sequence.",
+          "rationale": "Solo playbook on multiple users lets the attacker continue to move through ones you have not reached."
+        },
+        {
+          "label": "Treat the multi-user pattern as coincidence; each incident is separate.",
+          "rationale": "The cross-user pattern is the signal."
+        },
+        {
+          "label": "Open a Huntress support ticket to ask which user to handle first.",
+          "rationale": "The escalation path is the senior, not support."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Multi-user Timelines push the response above the helpdesk ceiling. Escalate."
+    },
+    {
+      "id": "evidence-flat-list-cost",
+      "type": "mcq",
+      "topic": "common-mistakes",
+      "difficulty": "medium",
+      "prompt": "What is the cost of reading ITDR Evidence as a flat list rather than chronologically?",
+      "choices": [
+        {
+          "label": "Nothing; Evidence is just a list and order does not matter.",
+          "rationale": "Order is the story on ITDR."
+        },
+        "You lose the compromise story and it becomes harder to see which events are related.",
+        {
+          "label": "The Recommendation will not apply unless you read chronologically.",
+          "rationale": "The Recommendation applies regardless. The cost is in customer-comms quality and playbook mapping."
+        },
+        {
+          "label": "You will miss the customer's organisation name.",
+          "rationale": "The org name is in the Header, not in the Evidence ordering."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Chronological reading reveals how the attacker chained actions. Flat reading loses the narrative."
+    },
+    {
+      "id": "post-incident-comms-shape",
+      "type": "mcq",
+      "topic": "customer-comms",
+      "difficulty": "medium",
+      "prompt": "The customer's manager calls back asking for details to brief the security awareness lead. What is the best response shape?",
+      "choices": [
+        {
+          "label": "Vague framing: \"There was a compromise, we caught it quickly, we have reset everything.\"",
+          "rationale": "Missing the specifics the security awareness lead needs."
+        },
+        {
+          "label": "Forward the Incident Report directly to the manager.",
+          "rationale": "The Incident Report is in security tooling. The manager does not have access and should not be your delivery channel."
+        },
+        "Walk through the Timeline with timestamps.",
+        {
+          "label": "Tell the manager the SOC will send a report next week.",
+          "rationale": "Passes the buck. The verbal walk-through is the right shape now."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Sign-in, attacker actions, containment start, playbook complete, attacker-active window. The Timeline gives you specific timestamps. The customer hears the speed of the attacker and the speed of the response in the same breath."
+    },
+    {
+      "id": "intern-first-move",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High-severity ITDR on a marketing intern. Timeline: seven events in eleven minutes (sign-in, MFA method, inbox rule, OAuth grant, three emails). Recommendation: full playbook. What is your first move?",
+      "choices": [
+        {
+          "label": "Investigate the OAuth grant first to see whether the intern signed up for a tool legitimately.",
+          "rationale": "Second-guessing the SOC. The OAuth grant is in the Timeline as part of the compromise chain."
+        },
+        "Execute the Recommendation per the playbook.",
+        {
+          "label": "Wait for the intern to be reachable because she is a junior user.",
+          "rationale": "Seniority does not gate the response. Even an intern's mailbox phishes everyone she emails."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Document timestamps. Reach the intern's manager to inform of lockout. Standard ITDR compromise response. The Timeline confirms the pattern. Act per the Recommendation."
+    },
+    {
+      "id": "reading-order-entry-point",
+      "type": "mcq",
+      "topic": "reading-order",
+      "difficulty": "easy",
+      "prompt": "When an ITDR Incident Report lands, what is the entry point for reading it?",
+      "choices": [
+        {
+          "label": "Evidence first, to build your own theory of the compromise.",
+          "rationale": "Building your own theory is the second-guessing pattern. Header then Recommendation is the entry."
+        },
+        "Header (severity, surface, affected identity), then Recommendation.",
+        {
+          "label": "Timeline first, to understand the sequence before reading the Recommendation.",
+          "rationale": "Timeline is context, not the entry point."
+        },
+        {
+          "label": "Summary first, then Evidence.",
+          "rationale": "Summary is a fallback when the Recommendation surprises you, not the entry."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Same reading order as EDR: Header, Recommendation, verify entity, Summary if needed, Evidence and Timeline as context."
+    },
+    {
+      "id": "skimming-timeline-cost",
+      "type": "mcq",
+      "topic": "common-mistakes",
+      "difficulty": "medium",
+      "prompt": "\"Skimming the Timeline because the Recommendation tells me what to do anyway.\" Why is this a mistake?",
+      "choices": [
+        {
+          "label": "The Recommendation does not apply without reading the Timeline.",
+          "rationale": "The Recommendation applies regardless. The cost is elsewhere."
+        },
+        {
+          "label": "The Timeline contains information the Recommendation omits.",
+          "rationale": "Sometimes true, but the primary cost the lesson names is the customer-comms quality."
+        },
+        "True for the action, false for the customer comms.",
+        {
+          "label": "Skimming is fine if the playbook is familiar.",
+          "rationale": "Customer comms always benefit from Timeline specificity, regardless of playbook familiarity."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The Timeline is what makes the customer call coherent afterwards. The Recommendation drives the action. The Timeline drives the specificity of the post-incident customer conversation."
+    }
+  ]
+}

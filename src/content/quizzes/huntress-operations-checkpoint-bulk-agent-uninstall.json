@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-bulk-agent-uninstall",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: bulk agent uninstall",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "pre-flight-sequence",
+      "type": "mcq",
+      "topic": "pre-flight",
+      "difficulty": "easy",
+      "prompt": "Before pushing the bulk uninstall, which two prior offboarding steps should already be done?",
+      "choices": [
+        "Notifications paused (step 1) and ITDR disconnected (step 2).",
+        {
+          "label": "SIEM disconnected and incidents archived.",
+          "rationale": "Those are steps 4 and 5, after bulk uninstall."
+        },
+        {
+          "label": "Billing-closure ticket raised and organisation deleted.",
+          "rationale": "Billing is step 6 (last) and deletion isn't on the sequence."
+        },
+        {
+          "label": "ITDR re-confirmed and a final coverage reconciliation completed.",
+          "rationale": "Coverage reconciliation is an onboarding step, not an offboarding precursor."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Without the pause, agent-offline alerts fan out to the customer. ITDR disconnected first means the bigger-blast-radius identity surface is already closed."
+    },
+    {
+      "id": "slow-vs-resistant",
+      "type": "mcq",
+      "topic": "slow-vs-resistant",
+      "difficulty": "medium",
+      "prompt": "What's the difference between a \"slow\" agent and a \"resistant\" agent during uninstall?",
+      "choices": [
+        "Slow agents are offline or haven't phoned home yet but will process the uninstall in the next 24 hours.",
+        {
+          "label": "Slow agents are on slow networks; resistant agents are on encrypted networks.",
+          "rationale": "Network speed isn't the lesson's framing."
+        },
+        {
+          "label": "Slow agents take more than five seconds to process the command; resistant agents take more than ten.",
+          "rationale": "Arbitrary timing not in the lesson."
+        },
+        {
+          "label": "Slow agents are workstations; resistant agents are servers.",
+          "rationale": "Endpoint type isn't the determining factor."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Resistant agents have phoned home since the uninstall job ran but are still online, the command didn't take. Slow waits; resistant gets per-endpoint follow-up."
+    },
+    {
+      "id": "mixed-state",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Next morning after the uninstall push: portal shows 8 of 198 agents still online. RMM claims 195 successful uninstalls (3 endpoints were offline at job time). So you have 5/195 not-uninstalled-yet plus 3 offline endpoints not yet processed. What do you do?",
+      "choices": [
+        {
+          "label": "Re-push the bulk-uninstall job to all 8 remaining agents.",
+          "rationale": "The 3 offline will likely process next time they come online. The 5 the RMM says succeeded but are still online need per-endpoint diagnosis, not re-push."
+        },
+        "Wait another 24 hours for the offline 3;",
+        {
+          "label": "Mark the offboarding done: 190 of 198 is 96%.",
+          "rationale": "Eight phoning-home agents on an offboarded customer isn't done."
+        }
+      ],
+      "correct": 1,
+      "explanation": "In parallel, start per-endpoint diagnosis on the 5 that the RMM says succeeded but are still online. Treat the two categories differently. The wait is cheap; per-endpoint diagnosis is where the real work is."
+    },
+    {
+      "id": "pattern-first",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Two days later: 4 resistant agents remain, all on the customer's primary site (one file server plus three workstations). What do you do?",
+      "choices": [
+        "Look for a pattern, four agents on the same site suggests a shared configuration cause.",
+        {
+          "label": "Run the single-endpoint decommission procedure on each of the four.",
+          "rationale": "Reasonable fallback but premature. The pattern (same site) suggests one diagnosis will solve it rather than four."
+        },
+        {
+          "label": "Tell the senior the offboarding is \"blocked on a site-specific issue, escalating to Huntress support.\"",
+          "rationale": "Wrong escalation path before pattern investigation. Huntress support doesn't have the information they'd need yet."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(site AV, GPO, tamper protection from the customer's IT) worth investigating once. Investigate the pattern before reaching for a per-endpoint fix four times. A shared cause solves all four at once."
+    },
+    {
+      "id": "declare-done",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Declaring the offboarding done as soon as the RMM job completes.\" Why does the lesson call this out?",
+      "choices": [
+        "RMM success is \"the command ran\";",
+        {
+          "label": "RMM logs are often misleading and don't actually reflect command execution.",
+          "rationale": "The RMM correctly reports its side; the issue is what RMM success means versus what portal disappearance means."
+        },
+        {
+          "label": "Huntress applies a 48-hour delay before agents fall off.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "RMM and Huntress timestamps are in different timezones.",
+          "rationale": "Not the point."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Portal disappearance is \"the agent is gone.\" Same gap as bulk rollout, in reverse, watch the portal. Mirror image of the rollout slow-vs-stalled discipline."
+    },
+    {
+      "id": "re-push-resistant",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Forcing a bulk re-push on resistant agents to 'try again.'\" What's wrong with this approach?",
+      "choices": [
+        "Bulk uninstall jobs aren't meant to retry against the same endpoint repeatedly;",
+        {
+          "label": "Re-push is fine; the lesson exaggerates the risk.",
+          "rationale": "The risk of install-state corruption is real and the reason the lesson names this as a mistake."
+        },
+        {
+          "label": "Re-push generates incidents for every endpoint it touches.",
+          "rationale": "Re-push can generate noise but the named harm is install-state corruption."
+        },
+        {
+          "label": "Huntress charges per uninstall attempt.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "You get install-state corruption rather than removal. Resistant agents need per-endpoint follow-up. Resistant agents need per-endpoint follow-up using the portal uninstall key directly on the endpoint."
+    },
+    {
+      "id": "customer-reversal",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "Mid-uninstall, the customer asks to \"stop the uninstall halfway\" because they've changed their mind about leaving. What do you do?",
+      "choices": [
+        "Pause the RMM job, then bump fast.",
+        {
+          "label": "Reverse the uninstall by re-pushing the install package immediately.",
+          "rationale": "You're making a commercial decision (the customer is staying) by acting unilaterally."
+        },
+        {
+          "label": "Let the uninstall finish, then re-onboard if needed.",
+          "rationale": "The customer wants to stop now; ignoring that bulldozes through what they're saying."
+        },
+        {
+          "label": "Tell the customer their decision is final and the uninstall continues.",
+          "rationale": "Out of scope for the tech to enforce a contract decision."
+        }
+      ],
+      "correct": 0,
+      "explanation": "That's a commercial/contract question with technical implications, senior owns it. Customer with half-uninstalled agents; the senior owns whether to reverse course."
+    },
+    {
+      "id": "header-strip",
+      "type": "mcq",
+      "topic": "pre-flight",
+      "difficulty": "easy",
+      "prompt": "What's the equivalent of \"header strip discipline\" for bulk uninstall?",
+      "choices": [
+        "Double-check you're running the uninstall against the right customer scope.",
+        {
+          "label": "Strip the header out of the RMM job logs before reporting.",
+          "rationale": "Misreads the metaphor. Header-strip is the cognitive discipline of confirming context."
+        },
+        {
+          "label": "Remove the customer's name from notification templates before pushing.",
+          "rationale": "Out of scope. Notifications are handled by the pause step."
+        },
+        {
+          "label": "Open the global Agents view before the uninstall starts.",
+          "rationale": "Useful in some contexts but not what 'header strip' means."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Wrong-customer uninstall is the symmetric mistake to wrong-customer rollout, and worse. Because you're taking agents off an active customer. Header-strip is the cognitive discipline of confirming context. Wrong-customer uninstall is taking agents off an active customer."
+    },
+    {
+      "id": "attack-pattern",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "hard",
+      "prompt": "The uninstall process triggers a flood of EDR detections or canary trips. What does the lesson say to do?",
+      "choices": [
+        "Stop. The uninstall process isn't supposed to look like attacker behaviour.",
+        {
+          "label": "Keep going; the detections are expected as the agent is being removed.",
+          "rationale": "The uninstall is not supposed to look like attacker behaviour."
+        },
+        {
+          "label": "Close the detections as benign while the uninstall continues.",
+          "rationale": "Closes the SOC's signal that something genuinely odd is happening."
+        },
+        {
+          "label": "Request exclusions for the detection types before continuing.",
+          "rationale": "Same exclusion-mistake pattern as the noise-window lesson."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Bump; don't escalate the canary trip yourself. Detections during uninstall are an explicit escalation trigger, not a routine sign of progress."
+    },
+    {
+      "id": "order-itdr-before-agents",
+      "type": "tf",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "Running the bulk agent uninstall before disconnecting ITDR is fine as long as both happen the same day.",
+      "correct": false,
+      "explanation": "Not catastrophic, but disordered. The ITDR keeps ingesting during the uninstall window, creating identity events on a customer who is meant to be offboarded. Each step makes the next one cleaner; the order matters."
+    }
+  ]
+}

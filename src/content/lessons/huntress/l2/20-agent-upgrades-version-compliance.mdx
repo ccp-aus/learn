@@ -1,0 +1,88 @@
+---
+slug: 20-agent-upgrades-version-compliance
+vendor: huntress
+level: l2
+title: Agent upgrades and version compliance
+summary: The agent self-upgrades. When it doesn't, the cause is almost always one of the install-failure causes coming back on a different operation. Manual upgrades treat a symptom; the fix lives in the original cause.
+estimatedMinutes: 7
+order: 20
+topics:
+  - agent
+  - upgrades
+  - version
+  - compliance
+updated: 2026-05-20
+---
+
+The Huntress agent self-upgrades in most cases. When it doesn't, the failure is rarely about the upgrade itself; it's a symptom of one of the install failures from earlier in this course showing up again under a new name. An agent that won't upgrade is an agent that won't accept the next remediation push, won't receive the next detection pattern update, and is silently drifting out of effective coverage. The portal shows it as *online* because it still phones home; the version number is the only signal it's stale.
+
+## How the upgrade flow works
+
+The agent contacts Huntress periodically. When a newer version is published and the agent's policy allows the upgrade, the agent downloads and applies it. The user sees nothing. The portal's version column updates.
+
+The agent doesn't require a manual trigger for upgrades. If you find yourself upgrading by hand, something has interrupted the normal flow. Find the interruption rather than treating manual upgrades as routine.
+
+## Checking version compliance
+
+From the customer's organisation:
+
+1. Open the **Agents view**. Sort or filter by version.
+2. Identify the current expected version. Your runbook may have a target; otherwise, the highest version present across your portfolio is a reasonable proxy.
+3. Flag agents below the target. Single-version drift is usually a slow-rolling upgrade in progress; multi-version drift is stuck.
+
+The cross-organisation Agents view gives the same picture across all customers; useful for the periodic "how much of our portfolio is stale" check.
+
+## When an upgrade fails, look where you already know how
+
+An upgrade failure is rarely its own diagnostic class. It's the install-failure causes coming back on a different operation:
+
+| Cause | Source lesson |
+|---|---|
+| AV interference (upgrade triggers a new binary download; AV quarantines or blocks) | Lesson 14 |
+| Policy block (AppLocker, WDAC, or GPO denying the new binary or service operation) | Lesson 15 |
+| Blocked outbound (upgrade endpoint slightly different URL path than routine phone-home) | Lesson 17 |
+| Endpoint resource shortage (disk, permissions) | Local upgrade log |
+
+The agent's local upgrade log names the failure type. The fix is in the original cause's lesson.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Identify agents out of compliance">
+    Version filter in the customer's Agents view. Flag anything more than one or two versions behind.
+  </Step>
+  <Step title="Look for patterns first">
+    A single endpoint behind is one investigation. Ten endpoints on the same OU, same OS patch level, same site, same AV policy scope: that's a shared cause, and the fix may also be shared. One investigation, ten endpoints unstick.
+  </Step>
+  <Step title="For a single stuck endpoint, pull the upgrade log">
+    The log names the failure type. Apply the matching fix path from lessons 14, 15, 17, or the resource-shaped fix.
+  </Step>
+  <Step title="For a stuck cluster, fix the shared cause first">
+    Push the AV exclusion at the management console; update the AppLocker allow-list at the GPO level; open the documented Huntress destinations at the firewall. One change unsticks the cluster.
+  </Step>
+  <Step title="Verify after the fix">
+    Agents show the target version. Watch for an offline spike in the same customer immediately after the change; rare, but new versions occasionally break something on a niche endpoint, and the spike is the symptom.
+  </Step>
+</StepThrough>
+
+<Callout type="warn" title="Manual upgrades treat a symptom">
+Upgrading by hand fixes one endpoint; the next time the agent needs to upgrade, the same wall is in place and the endpoint goes stale again. Fix the cause, not the symptom. Ignoring version drift because the agents still show online is silent drift out of effective coverage; the SOC's detections shift over time, and an agent that can't take updates loses ground gradually.
+</Callout>
+
+## When to escalate
+
+- Multi-version drift on a material fraction of the portfolio with no clear shared cause after pattern investigation. Could be a Huntress-side regression or a platform-wide network condition. Bump to the senior; Huntress support may be the next stop.
+- The customer's IT can't or won't adjust the AV policy or network rule that's blocking upgrades. Customer change-management; senior owns.
+- The agent upgrades but the new version produces immediate offline or service-crash symptoms. Rollback territory; senior and Huntress support own that path. Don't roll back yourself.
+
+## A worked review: Able Moose Accounting
+
+Quarterly review for Able Moose. You pull the Agents view and find that 18 of 198 agents are two or more versions behind the target. The cross-organisation view shows your other customers at single-digit drift counts. Able Moose is the outlier.
+
+The wrong move is *manually upgrade all 18 from the portal or RMM, one at a time*. Eighteen manual touches; if the cause is shared, the 18 re-stale next month and you're back here. Find the cause first.
+
+Pattern investigation: all 18 are on Able Moose's *tier-2 user* GPO scope, which has a tighter AppLocker policy than tier-1 users. The policy allow-listed Huntress paths three months ago, but the new agent version's binary path is slightly different and isn't allowed. Your other customers don't have AppLocker on user workstations.
+
+The right move is asking Able Moose's IT to update the AppLocker GPO allow-list to include the new Huntress agent binary path, push the policy, and re-attempt the upgrades. One change, 18 endpoints unstick. Document in the PSA so the next agent-version bump triggers a check of the same policy. Removing the 18 endpoints from the tier-2 GPO scope would weaken the customer's policy to fit our tooling; upgrading the agents using a PowerShell bypass of AppLocker on each endpoint works once and fails again on the next upgrade. Same shape as lesson 15's bypass anti-pattern.
+
+<Checkpoint slug="huntress-operations-checkpoint-agent-upgrades-version-compliance" client:visible />

@@ -1,0 +1,223 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-writing-incident-notifications",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: writing incident notifications",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "three-versions",
+      "type": "mcq",
+      "topic": "three-versions",
+      "difficulty": "easy",
+      "prompt": "The lesson compares three versions of the same incident notification. Which set of labels matches them?",
+      "choices": [
+        "Dramatic, vague, correct.",
+        {
+          "label": "Short, medium, long.",
+          "rationale": "The contrast is about framing, not length. Version 3 is longer than Version 2 but the framing is what matters."
+        },
+        {
+          "label": "Internal, external, executive.",
+          "rationale": "All three are written to the same customer IT manager. Audience does not change."
+        },
+        {
+          "label": "Phone, email, ticket.",
+          "rationale": "Those are channels (covered in the comms-channel lesson), not notification framings."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same facts in each. The framing is the choice: dramatic inflates, vague hides, correct names the work."
+    },
+    {
+      "id": "dramatic-failure",
+      "type": "mcq",
+      "topic": "dramatic",
+      "difficulty": "medium",
+      "prompt": "What is wrong with the dramatic version of the notification?",
+      "choices": [
+        {
+          "label": "It under-states the response so the customer thinks nothing happened.",
+          "rationale": "That is the vague version's failure, not the dramatic version's."
+        },
+        {
+          "label": "It uses too many timestamps and concrete facts.",
+          "rationale": "Specific facts are Version 3's strength, not Version 1's problem."
+        },
+        "It inflates the threat, positions the MSP as a heroic rescuer.",
+        {
+          "label": "It contains technical errors about what Huntress does.",
+          "rationale": "The facts are accurate. The framing is the problem."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Sets the customer up to lose sleep when the response is already complete. Panic words for a finished response. The customer loses sleep they should not have to."
+    },
+    {
+      "id": "vague-overcorrection",
+      "type": "mcq",
+      "topic": "vague",
+      "difficulty": "medium",
+      "prompt": "Why is the vague version called the more common failure mode?",
+      "choices": [
+        "The urge to avoid alarming the customer overcorrects into hiding the work and saying \"security event\" without specifics.",
+        {
+          "label": "Because Version 2 is technically forbidden by the runbook.",
+          "rationale": "No such rule. Vague is not forbidden, it is less useful."
+        },
+        {
+          "label": "Because Version 2 is shorter than Version 1.",
+          "rationale": "Length is not the reason. The failure is what the message omits."
+        },
+        {
+          "label": "Because customers prefer dramatic language.",
+          "rationale": "Inverts the customer-preference framing entirely."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Techs who want to avoid sounding dramatic overcorrect into vagueness. The customer escalates via confusion."
+    },
+    {
+      "id": "version-3-properties",
+      "type": "mcq",
+      "topic": "correct-framing",
+      "difficulty": "medium",
+      "prompt": "Which set of properties best describes the correct version?",
+      "choices": [
+        {
+          "label": "Apologetic, hedged, full of \"sorry for the disruption.\"",
+          "rationale": "Apologising in the notification inflates the disruption. Named common mistake."
+        },
+        "Specific timestamps, named actions, useful framing.",
+        {
+          "label": "Heavy on passive voice to keep the tone neutral.",
+          "rationale": "Passive voice hides the work. Version 3 uses active voice."
+        },
+        {
+          "label": "Maximum technical detail (process IDs, encoded commands, destination IPs).",
+          "rationale": "Too much detail crowds the customer-facing notification. Save it for the deep-dive."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(attacker-active window, response time), actionable insight, calm and brief. Specific, calm, named actions, useful framing, actionable insight. About 80 words longer than the vague version; the work justifies the length."
+    },
+    {
+      "id": "common-thread",
+      "type": "mcq",
+      "topic": "framing-is-the-choice",
+      "difficulty": "easy",
+      "prompt": "What do all three versions have in common?",
+      "choices": [
+        {
+          "label": "The same length and structure.",
+          "rationale": "Length and structure differ. The facts are what stay constant."
+        },
+        "The same facts. The framing is the choice;",
+        {
+          "label": "Identical opening sentences.",
+          "rationale": "The openings are different. That is part of what makes the three versions comparable."
+        },
+        {
+          "label": "The same channel and audience.",
+          "rationale": "Channel and audience are constant for the exercise but are not the lesson's central insight."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The facts do not change. Three versions, same facts, different framings, very different customer responses."
+    },
+    {
+      "id": "passive-voice-mistake",
+      "type": "mcq",
+      "topic": "active-voice",
+      "difficulty": "medium",
+      "prompt": "Why is passive voice flagged as a common mistake in incident notifications?",
+      "choices": [
+        "\"An incident was detected and resolved\" hides the work and the people.",
+        {
+          "label": "Passive voice is grammatically incorrect.",
+          "rationale": "Grammatically fine. The issue is that it hides agency."
+        },
+        {
+          "label": "Customers cannot parse passive constructions.",
+          "rationale": "Customers can read passive voice. The concern is what it hides."
+        },
+        {
+          "label": "Passive voice violates the runbook's style guide.",
+          "rationale": "No such rule. The reason is about owning the response."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Active voice (\"our SOC detected, we contained\") owns the response. Active voice names the people and the work. Passive voice hides both."
+    },
+    {
+      "id": "apology-trap",
+      "type": "tf",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "\"Sorry for the disruption\" is a good opening line for an incident notification because it shows empathy.",
+      "correct": false,
+      "explanation": "Apologising inflates the disruption. The disruption was the right call. The notification should be confident without being triumphalist."
+    },
+    {
+      "id": "edr-framing-scenario",
+      "type": "mcq",
+      "topic": "severity-fit",
+      "difficulty": "medium",
+      "prompt": "You are writing the notification for a High EDR incident: scheduled task with encoded PowerShell. The Recommendation did not call for isolation. Which framing fits?",
+      "choices": [
+        {
+          "label": "\"Active compromise prevented, immediate containment.\"",
+          "rationale": "The incident was High but not active-compromise. No isolation was called for. Inflating it misrepresents the SOC's classification."
+        },
+        {
+          "label": "\"Resolved an event on the workstation, all good.\"",
+          "rationale": "Leaves the IT manager without specifics to decide whether to brief the user."
+        },
+        "\"At [time] our SOC flagged a scheduled task running encoded PowerShell that reached a known-bad domain."
+      ],
+      "correct": 2,
+      "explanation": "We approved the remediation; the scheduled task and its persistence are removed. No further action recommended.\" Specific, calibrated to the severity, names what was done."
+    },
+    {
+      "id": "technical-translation",
+      "type": "mcq",
+      "topic": "technical-detail",
+      "difficulty": "medium",
+      "prompt": "Your draft describes \"scheduled task running encoded PowerShell that reached out to a known-bad domain.\" The detail is technical. Do you simplify?",
+      "choices": [
+        {
+          "label": "Replace with \"suspicious activity on the workstation.\"",
+          "rationale": "Vague creep. The IT manager likely knows what a scheduled task and PowerShell are."
+        },
+        "Keep the technical detail and pair it with the security outcome.",
+        {
+          "label": "Add more detail: process IDs, the encoded command, the destination IP.",
+          "rationale": "Too much detail crowds the notification. Save it for the deep-dive."
+        }
+      ],
+      "correct": 1,
+      "explanation": "\"the kind of mechanism attackers use to maintain quiet persistence on a host. We removed the task and its backing.\" Technical-but-translated. The IT manager learns what the mechanism does as a side-effect of reading the notification."
+    },
+    {
+      "id": "customer-response-match",
+      "type": "mcq",
+      "topic": "tone-failure-modes",
+      "difficulty": "medium",
+      "prompt": "A customer escalates to senior asking \"what does this email mean, are we under attack?\" Which notification version likely produced that response?",
+      "choices": [
+        {
+          "label": "Version 3 (correct). Specific facts overwhelmed the customer.",
+          "rationale": "Version 3 produces \"thanks, no other questions,\" not panic."
+        },
+        "Version 1 (dramatic).",
+        {
+          "label": "Version 2 (vague). The customer did not understand what happened.",
+          "rationale": "Version 2 more often produces \"what does this email mean?\" as confusion, not panic. The \"are we under attack?\" framing is panic, which is Version 1."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Panic words inflated the threat and produced escalation-by-panic. The dramatic version inflates the threat. The customer panics and escalates."
+    }
+  ]
+}

@@ -29,12 +29,12 @@
       "prompt": "The two-question reversibility test asks two things before any change to a live domain or DNS record. What are they?",
       "choices": [
         "Is the change urgent? Has the client approved it?",
-        "If I do this and it's wrong, is it reversible? Do I understand WHY this is the right action, or am I copying steps?",
+        "If I do this and it's wrong, is it reversible? Do I understand WHY this is the right action.",
         "Has a senior signed off? Is this documented in the runbook?",
         "Will it cost the client money? Will it affect uptime?"
       ],
       "correct": 1,
-      "explanation": "The two questions, exactly. If either answer is no — escalate. Sign-off and runbooks are part of how the test gets answered for high-blast-radius work, not a substitute for it. Urgency and approval matter operationally but aren't the reflex test the ceiling teaches."
+      "explanation": "Or am I copying steps? The two questions, exactly. If either answer is no — escalate. Sign-off and runbooks are part of how the test gets answered for high-blast-radius work, not a substitute for it. Urgency and approval matter operationally but aren't the reflex test the ceiling teaches."
     }
   ]
 }

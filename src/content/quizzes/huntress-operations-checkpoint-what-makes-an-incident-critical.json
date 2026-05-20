@@ -1,0 +1,225 @@
+{
+  "slug": "huntress-operations-checkpoint-what-makes-an-incident-critical",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: what makes an incident Critical",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "not-a-marker",
+      "type": "mcq",
+      "topic": "markers",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT one of the four Critical markers named in the lesson?",
+      "choices": [
+        {
+          "label": "Ransomware canary trip.",
+          "rationale": "Named marker. Canary trips are Critical by default."
+        },
+        {
+          "label": "Mass deletion of files at a rate that doesn't match user behaviour.",
+          "rationale": "Named marker. Data wipes, backup destruction, log destruction."
+        },
+        "A failed login on a standard user account.",
+        {
+          "label": "Admin-credential abuse, service-account or domain-admin credentials used in ways that don't match the legitimate workflow.",
+          "rationale": "Named marker. Blast radius equals the credential's privilege level."
+        }
+      ],
+      "correct": 2,
+      "explanation": "A single failed login isn't in the Critical-marker cluster. The four are canary trip, mass deletion, lateral movement, admin-credential abuse."
+    },
+    {
+      "id": "response-shift",
+      "type": "mcq",
+      "topic": "response-model",
+      "difficulty": "medium",
+      "prompt": "How does the response model change when an incident is Critical?",
+      "choices": [
+        "Time matters more than completeness; containment and escalation happen in parallel; you don't investigate.",
+        {
+          "label": "Completeness matters more; Critical means the most evidence to review carefully before acting.",
+          "rationale": "Inverted. Thoroughness on a Low becomes a time-cost on a Critical."
+        },
+        {
+          "label": "Same shape as a High, just with a tighter SLA.",
+          "rationale": "The shape itself differs. Critical involves containing and handing off; High involves the full workflow."
+        },
+        {
+          "label": "The tech investigates more deeply before involving a senior.",
+          "rationale": "The opposite of the rule. Investigation is above the helpdesk ceiling on Critical."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three shifts the lesson names explicitly. A 30-second containment that's slightly imperfect beats a 5-minute containment that's exactly right."
+    },
+    {
+      "id": "lateral-blast-radius",
+      "type": "mcq",
+      "topic": "lateral-movement",
+      "difficulty": "medium",
+      "prompt": "Why is lateral movement classified Critical rather than High, even when only one host has been hit so far?",
+      "choices": [
+        "The blast radius is widening in real time; the next compromised host could appear any minute.",
+        {
+          "label": "Lateral movement always involves a domain controller.",
+          "rationale": "Wrong on the facts. Lateral movement can target any host."
+        },
+        {
+          "label": "The SOC re-classifies all Highs to Critical after 24 hours of no resolution, regardless of the underlying activity pattern.",
+          "rationale": "Fabricated mechanic. Severity is set by pattern, not by clock."
+        },
+        {
+          "label": "Lateral movement is always confirmed ransomware.",
+          "rationale": "Different attack shape. Lateral movement can be a precursor to many outcomes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Lateral movement is Critical because the attacker's footprint is expanding live. Credentials are being used from unexpected endpoints, so containment can't wait."
+    },
+    {
+      "id": "pattern-inside-high",
+      "type": "mcq",
+      "topic": "pattern-recognition",
+      "difficulty": "hard",
+      "prompt": "Mid-triage on a High EDR incident you spot Critical-shaped markers in the Evidence, admin credential abuse plus lateral movement. The incident is still tagged High. What does the lesson say to do?",
+      "choices": [
+        "Bump to senior and treat as Critical; isolate the host. The pattern is the trigger, not the tag.",
+        {
+          "label": "Re-grade the severity to Critical yourself in the portal.",
+          "rationale": "Severity is the SOC's call. Bump rather than re-grade."
+        },
+        {
+          "label": "Finish the High workflow as recommended, the SOC tagged it High for a reason.",
+          "rationale": "The High tag was what the SOC had when the report opened; you now have new context from the Evidence."
+        },
+        {
+          "label": "Reply to the SOC asking 'should this be Critical?' and hold containment until they confirm the re-classification.",
+          "rationale": "Defensible to send in parallel, but containment doesn't wait for re-tagging."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Recognising the pattern is the tech's contribution. The response model switches the moment the markers are clear, regardless of the incoming tag. Don't wait for the SOC to re-tag."
+    },
+    {
+      "id": "recommendation-tells",
+      "type": "mcq",
+      "topic": "recommendation-cues",
+      "difficulty": "medium",
+      "prompt": "Which Recommendation phrasing is a tell that you're looking at a Critical incident, even if you missed the severity tag?",
+      "choices": [
+        "Recommendation leads with 'isolate the host immediately' or mentions 'preserve evidence.'",
+        {
+          "label": "Recommendation says 'approve the autoruns remediation'.",
+          "rationale": "Standard High-shape language. Not a Critical tell on its own."
+        },
+        {
+          "label": "Recommendation says 'no action required, closing as benign'.",
+          "rationale": "The opposite, a Low-shape recommendation."
+        },
+        {
+          "label": "Recommendation says 'verify the affected host before approving the remediation, then close the incident normally.'",
+          "rationale": "Routine verification language, not a Critical-specific tell."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Those phrases signal the SOC classified the activity as needing containment now, and that deeper response is above the helpdesk ceiling."
+    },
+    {
+      "id": "response-order",
+      "type": "order",
+      "topic": "response-shape",
+      "difficulty": "medium",
+      "prompt": "Order the helpdesk's response actions on a Critical incident.",
+      "items": [
+        "Contain, isolate the host or run the ITDR compromise playbook on the affected identity.",
+        "Notify the on-call senior in parallel.",
+        "Document what you've done in the PSA.",
+        "Pass the deeper investigation to whoever owns it."
+      ],
+      "explanation": "Containment is first because containment is fast. Escalation runs in parallel with it. Documentation is the live record while the senior takes the deeper response."
+    },
+    {
+      "id": "careful-end-to-end",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"If I'm careful, I can handle a Critical end-to-end like a High.\" What does the lesson say?",
+      "choices": [
+        "The escalation ceiling rules it out regardless of skill level. Blast radius and stakes differ.",
+        {
+          "label": "Correct if the tech has been on the platform for at least 12 months and has handled similar incidents before.",
+          "rationale": "The ceiling isn't time-on-platform-gated."
+        },
+        {
+          "label": "Correct if the senior is unreachable.",
+          "rationale": "Unreachable senior means escalate up the on-call chain, not take the investigation over."
+        },
+        {
+          "label": "Correct as long as the tech documents thoroughly.",
+          "rationale": "Documentation doesn't change the scope rule."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The ceiling is a scope rule, not a skill gate. Critical investigation is above the line because the blast radius is different, not because of how careful the tech is."
+    },
+    {
+      "id": "over-reacting-framing",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"Containment will look like over-reacting if it turns out to be benign.\" Why does the lesson reject this framing?",
+      "choices": [
+        "The cost asymmetry is the whole reason Critical exists as a category.",
+        {
+          "label": "Customers aren't told when an isolation happens, so the appearance doesn't matter.",
+          "rationale": "Wrong on the facts. Customers are informed."
+        },
+        {
+          "label": "Huntress refunds the isolation if it turns out to be benign.",
+          "rationale": "Fabricated commercial mechanic."
+        },
+        {
+          "label": "The SOC only raises Criticals when they're certain it's malicious.",
+          "rationale": "Overstates the SOC's certainty. Critical is raised when activity needs containment now."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The customer conversation after a benign isolation is much easier than after an un-contained spread. Cost asymmetry, the price of a benign isolation is dramatically lower than the price of un-contained spread."
+    },
+    {
+      "id": "senior-says-no-remediations",
+      "type": "mcq",
+      "topic": "senior-direction",
+      "difficulty": "medium",
+      "prompt": "You've isolated and bumped the senior on a Critical. The senior confirms and says: \"I'll take it from here, you stay on it for the comms side. Don't approve any further remediations.\" A previously queued autoruns remediation on the same host is still sitting in the workflow. What do you do?",
+      "choices": [
+        {
+          "label": "Continue with the autoruns remediation, the senior didn't explicitly say to stop that one.",
+          "rationale": "Worst response. 'Don't approve any further remediations' means all of them, including queued ones."
+        },
+        "Pause all remediation actions. Handle customer comms per the senior's direction.",
+        {
+          "label": "Approve the autoruns remediation but not anything else, on the grounds it was already queued.",
+          "rationale": "Same family of mistake. The queue state from before the Critical doesn't override the senior's current direction."
+        },
+        {
+          "label": "Ask the senior whether the autoruns remediation counts as 'further'.",
+          "rationale": "Over-clarifying. The senior was unambiguous; act on the direction."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Document the timeline in the PSA. The senior is now driving. You're supporting. Don't free-lance remediations under their direction."
+    },
+    {
+      "id": "most-evidence",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "easy",
+      "prompt": "Critical means the most evidence to review carefully before acting.",
+      "correct": false,
+      "explanation": "Opposite. Critical means contain first and read evidence only as context for what was contained. Thoroughness on a Low becomes a time-cost on a Critical."
+    }
+  ]
+}

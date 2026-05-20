@@ -1,0 +1,87 @@
+---
+slug: 23-where-ceiling-sits-on-siem
+vendor: huntress
+level: l3
+title: "Where the ceiling sits on SIEM"
+summary: "Four categories of in-scope SIEM work, six categories that escalate, and why the SIEM ceiling matters more than feel when the portal exposes tuning surfaces."
+estimatedMinutes: 7
+order: 23
+topics:
+  - siem
+  - escalation-ceiling
+updated: 2026-05-20
+---
+
+SIEM looks like a tuning surface in a way EDR and ITDR do not. The platform exposes detection rules, query languages, filtering configurations, retention settings, and ingestion-architecture knobs. A tech who reaches for those will sometimes find they are technically reachable while being firmly above the helpdesk ceiling. This lesson names the line so the drift does not happen.
+
+## What is in scope
+
+Four categories. This is the full list.
+
+1. **Alert response.** The six-step flow from the previous lesson. Claim, review, act, verify, close, document.
+2. **Data-source health from a runbook.** The five-cause diagnostic. Run it, apply the runbook fix, document.
+3. **Routine data-source additions.** When the runbook covers the source, senior authorisation is in place, and the architecture is standard.
+4. **SOC coordination on alert specifics.** Clarifying questions, providing customer context the SOC asked for. Covered in the next lesson.
+
+## What is out of scope
+
+Six categories that escalate. Every time.
+
+- **Detection tuning.** Changing the rules that decide what fires an Incident Report. Even when the pattern looks obviously benign, the tuning request goes through the exclusion-request flow or the senior.
+- **Custom queries against the SIEM data.** Writing or running ad-hoc queries to investigate beyond the Recommendation. Query authorship is senior-or-above territory.
+- **Retention changes.** How long logs are kept, how they roll off, what gets archived. Affects compliance and storage costs.
+- **Billing data-source decisions.** Adding sources, removing sources, changing source scope. All have per-source billing implications.
+- **Ingestion architecture.** Where forwarders sit, how sources route, whether to consolidate sources.
+- **Anything irreversible at the platform level.** Removing a customer's SIEM subscription, deleting historical logs, changing tenant-level settings.
+
+## Why the ceiling is sharp on SIEM
+
+Three reasons this matters more than feel:
+
+**The portal exposes tuning surfaces.** EDR and ITDR mostly hide tuning from the helpdesk seat. SIEM exposes more knobs: detection rule editors, query interfaces, retention dials. A tech who reaches one by accident can change real things. Visibility is at the role level; authorisation is at the ceiling level. They are not the same.
+
+**The risk is asymmetric.** A detection-tuning change that "reduces noise" may also blind the SOC to a real attack pattern. Visible noise is the cost of a functioning detection. Silent missed detections are the danger. The risks are not symmetric.
+
+**Architecture decisions are durable.** A data source added today is paid for, ingested through, and depended on for months. A forwarder reroute persists until someone undoes it. Helpdesk actions should be reversible within a shift; architecture decisions are not.
+
+## The exclusion-request flow for SIEM
+
+The same exclusion-request discipline from the EDR course applies to SIEM detections. A detection that fires benign repeatedly across many incidents for the same customer is the legitimate exclusion candidate. The path: documented exclusion-request flow, senior review, SOC decision. Closing repeat SIEM incidents informally as "dismiss" bypasses the review and hides the pattern from the senior.
+
+## Senior-directed exceptions
+
+When the senior explicitly asks you to run an ad-hoc query or perform a task above the normal ceiling, that delegation moves the line temporarily for the named task. Run exactly what the senior asked. Document the result. Return the data. Do not expand the scope beyond what they named. The line moves back when the task is done.
+
+<Callout type="warn" title="Visibility is not authorisation">
+If you can see the rule editor, the query interface, or the retention dial, that does not mean you can use them. SIEM exposes more surfaces than EDR or ITDR at the helpdesk level. The four-category in-scope list above is the check, not what the portal shows you.
+</Callout>
+
+## Decision walkthrough
+
+Over three weeks, you have handled 12 SIEM incidents on the same customer. Same pattern: a service-account login that the SOC has classified as benign each time (the customer's documented nightly automation). The IT manager is frustrated and asks you to "make these stop." You can see the detection's threshold setting in the portal's rule editor.
+
+<DecisionTree client:load
+  title="Recurring benign detections: what do you do?"
+  description="The temptation is to adjust the threshold yourself. You have 12 benign classifications, customer confirmation, and portal visibility into the rule editor. The question is whether that adds up to authorisation."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "How do you handle the recurring pattern?", choices: [
+      { label: "Adjust the detection threshold yourself to reduce the noise", next: "tune" },
+      { label: "File an exclusion request via the documented path", next: "exclusion" },
+      { label: "Close future recurrences as dismiss to bypass the noise", next: "dismiss" },
+      { label: "Tell the customer you cannot make them stop", next: "refuse" },
+    ]},
+    { type: "outcome", id: "tune", label: "Direct tuning is above the ceiling", tone: "bad",
+      body: "Detection tuning is above the helpdesk ceiling regardless of how reasonable the change looks. You would also be changing the SOC's detection in ways you cannot fully predict." },
+    { type: "outcome", id: "exclusion", label: "Exclusion-request flow", tone: "success",
+      body: "Right path. Name the 12 incidents, the pattern, the SOC's consistent benign classification, and the customer's confirmation of the legitimate process. Senior reviews. SOC applies any exclusion." },
+    { type: "outcome", id: "dismiss", label: "Informal dismissal bypasses review", tone: "bad",
+      body: "Closing as dismiss hides the pattern from the senior and the SOC. The exclusion-request flow exists so detection changes go through review." },
+    { type: "outcome", id: "refuse", label: "Wrong tone", tone: "warn",
+      body: "The exclusion path exists for this case. Refusing without naming it treats the customer's answer as no when it is yes via the right process." },
+  ]}
+/>
+
+Two days later, the senior messages: "Can you run a query on the customer's SIEM data to pull all login events from that service account in the last 30 days? I want to confirm the exclusion scope before approving it." Custom queries are above the ceiling. But the senior's explicit delegation moves the line for this specific task. Run the query exactly as asked, document the result, return the data, and do not expand the scope.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-siem-ceiling" client:visible />

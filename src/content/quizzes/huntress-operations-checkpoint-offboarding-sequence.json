@@ -1,0 +1,219 @@
+{
+  "slug": "huntress-operations-checkpoint-offboarding-sequence",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the offboarding sequence",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "sequence-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Put the six offboarding steps in the order documented in the lesson.",
+      "items": [
+        "Pause new alert notifications for the customer's organisation.",
+        "Disconnect ITDR integrations (M365 and/or Workspace).",
+        "Bulk uninstall agents via the RMM.",
+        "Disconnect SIEM data sources (if applicable).",
+        "Archive or export incidents per retention policy.",
+        "Raise the billing-closure ticket for the senior."
+      ],
+      "explanation": "Pause first so subsequent steps don't fan out to the customer; ITDR before agents (bigger blast radius); SIEM after the sources are quiet; archive after the platform is quiet; billing last because every prior step is reversible."
+    },
+    {
+      "id": "uninstall-is-offboarding",
+      "type": "mcq",
+      "topic": "common-misconception",
+      "difficulty": "easy",
+      "prompt": "\"Uninstalling agents is offboarding.\" Why does the lesson call this out as a misconception?",
+      "choices": [
+        "Uninstall is one of six steps.",
+        {
+          "label": "Uninstall is part of offboarding but only if the customer specifically asks; otherwise leave agents installed.",
+          "rationale": "Bulk uninstall is step 3 on every offboarding, not conditional on the customer's request."
+        },
+        {
+          "label": "Uninstall is the last step, not the first; the misconception is about ordering.",
+          "rationale": "Uninstall is step 3, not last. Billing closure is last."
+        },
+        {
+          "label": "Uninstalling agents triggers an automatic ITDR disconnect.",
+          "rationale": "The two are independent and must be disconnected separately."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Doing it alone leaves ITDR live, SIEM ingesting, notifications fanning out, and the org commercially open. Offboarding is a sequence, not a single technical action. Half-done offboardings are the most common state to inherit."
+    },
+    {
+      "id": "pause-first",
+      "type": "mcq",
+      "topic": "pause-alerts",
+      "difficulty": "medium",
+      "prompt": "Why is \"pause new alert notifications\" the first step rather than a parallel housekeeping task?",
+      "choices": [
+        "Every step after this generates signals, ITDR disconnect, bulk uninstall, SIEM disconnect.",
+        {
+          "label": "Huntress requires the pause as a hard gate before allowing any other offboarding action.",
+          "rationale": "Not a platform-enforced gate."
+        },
+        {
+          "label": "Pausing alerts also disconnects ITDR automatically.",
+          "rationale": "The two are independent steps."
+        },
+        {
+          "label": "It's a billing-side step the senior wants done early.",
+          "rationale": "Pause is technical, not billing. Billing closure is step 6."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Without the pause, those signals fan out to the customer who has just left. The pause costs 30 seconds; the cleanup if you skip it costs a customer-relationship apology."
+    },
+    {
+      "id": "order-matters",
+      "type": "mcq",
+      "topic": "order-matters",
+      "difficulty": "medium",
+      "prompt": "The lesson says \"the order is not a preference; it is the way each step makes the next one cleaner.\" Which pairing illustrates that?",
+      "choices": [
+        "ITDR is disconnected before bulk agent uninstall so the bigger-blast-radius identity surface closes first;",
+        {
+          "label": "Billing closure runs first so the senior knows you're starting.",
+          "rationale": "Billing closure is last because every prior step is reversible and billing is the irreversible commercial step."
+        },
+        {
+          "label": "SIEM is disconnected first because it's the smallest surface.",
+          "rationale": "SIEM is step 4, not first."
+        },
+        {
+          "label": "Incident archive runs first so you have a record before doing anything.",
+          "rationale": "Archive is step 5, after the platform has gone quiet, so the export captures a stable state."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The agent uninstall then runs without identity events landing during the window. Identity (bigger blast radius) before endpoints (long-tail surface) is the lesson's framing."
+    },
+    {
+      "id": "account-manager",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The account manager messages you: \"We lost the customer, they're moving providers. Please get them offboarded by Friday.\" What do you do first?",
+      "choices": [
+        {
+          "label": "Schedule the bulk-uninstall job for Friday.",
+          "rationale": "Bulk uninstall is step 3 of 6. Starting there means steps 1 and 2 didn't happen."
+        },
+        "Confirm the offboarding with the senior.",
+        {
+          "label": "Delete the customer from the portal so they're \"definitely gone.\"",
+          "rationale": "Permanent org deletion is not on the sequence; the senior owns it; the rest of the offboarding becomes harder."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(the account manager isn't necessarily the authorising senior). Then start at step 1: pause notifications. Two things at once: verify authority (the account manager is messaging, not necessarily authorising), and start the sequence at step 1."
+    },
+    {
+      "id": "residual-state",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "You've paused alerts, disconnected ITDR, and bulk-uninstalled. Portal shows 4 of 198 agents still online (resistant). Friday is tomorrow. The account manager pings: \"Are we done? Can I tell them they're off?\"",
+      "choices": [
+        {
+          "label": "Tell the account manager yes; 194 of 198 is close enough.",
+          "rationale": "The four are still phoning home. The sequence has more steps. 'Close enough' isn't the standard."
+        },
+        "Tell the account manager what's left.",
+        {
+          "label": "Push the bulk-uninstall job a second time on the four, then declare done.",
+          "rationale": "Resistant agents need per-endpoint follow-up, not bulk re-push. And SIEM, archive, and billing are still left."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Four resistant agents, SIEM disconnect (if applicable), incident archive, billing-closure ticket. Give a realistic estimate (maybe Monday). Don't declare done until done. The account manager's job is managing the customer's expectations; you give them the real picture."
+    },
+    {
+      "id": "deletion-misconception",
+      "type": "mcq",
+      "topic": "common-misconception",
+      "difficulty": "medium",
+      "prompt": "\"Deleting the org is the final step.\" Why is this misconception worth correcting?",
+      "choices": [
+        "Permanent org deletion is not on the sequence at all.",
+        {
+          "label": "Org deletion is the final step but the senior runs it, not the tech.",
+          "rationale": "Deletion is not on the standard sequence at all, even seniors usually leave the org archived for years."
+        },
+        {
+          "label": "Deletion is step 7, the lesson just doesn't mention it explicitly.",
+          "rationale": "There are six steps, not seven."
+        },
+        {
+          "label": "Deletion is automated by Huntress 90 days after billing closure.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The senior owns the decision, usually weeks or months later; most MSPs leave the org archived for record-retention. Don't conflate offboarding with deletion. Deletion is irreversible and senior-owned, usually later."
+    },
+    {
+      "id": "billing-closure-scope",
+      "type": "mcq",
+      "topic": "billing-closure",
+      "difficulty": "medium",
+      "prompt": "Why is the billing-closure ticket raised by the tech but not closed by the tech?",
+      "choices": [
+        "The senior owns the commercial wrap-up.",
+        {
+          "label": "Closing the ticket requires senior credentials in the PSA.",
+          "rationale": "Not necessarily a permissions issue; the reason is scope of authority over commercial decisions."
+        },
+        {
+          "label": "Closing the ticket triggers the agent uninstall.",
+          "rationale": "Wrong on the workflow."
+        },
+        {
+          "label": "Tech-closed billing tickets bypass the audit log.",
+          "rationale": "Not a real workflow constraint; the reason is ownership."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Subscription cancellation with Huntress, contractual closure. The call on whether to permanently deactivate the org later. The tech raises and routes; the senior owns the close. Same boundary lesson 1 opened with."
+    },
+    {
+      "id": "skip-pause",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "\"I can skip the pause-alerts step if I'm fast.\" What's the lesson's response?",
+      "choices": [
+        "No, the other steps generate signals;",
+        {
+          "label": "Yes, if the rest of the sequence happens within an hour, the pause is unnecessary.",
+          "rationale": "Inverts the lesson. There's no 'speed exempts you' rule."
+        },
+        {
+          "label": "Yes, Huntress holds alerts for 24 hours after the last sync, so they won't fan out anyway.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Only on customers with fewer than 50 endpoints.",
+          "rationale": "No size-based exemption."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Without the pause, those signals reach the customer who has left. The pause costs 30 seconds; the cleanup costs a customer-relationship apology. The pause is the cheapest insurance in the sequence."
+    },
+    {
+      "id": "branding-cleanup",
+      "type": "tf",
+      "topic": "scope",
+      "difficulty": "easy",
+      "prompt": "Lifting the partner-level branding from the customer's organisation is one of the six documented offboarding steps.",
+      "correct": false,
+      "explanation": "Branding usually inherits from the partner level and doesn't need per-customer cleanup. Not on the standard sequence."
+    }
+  ]
+}

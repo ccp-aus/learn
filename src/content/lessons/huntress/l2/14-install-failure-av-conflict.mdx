@@ -1,0 +1,75 @@
+---
+slug: 14-install-failure-av-conflict
+vendor: huntress
+level: l2
+title: Install failure, AV conflict
+summary: The most common install-failure cause. The right fix is documented exclusions pushed via the AV management console, not disabling AV. The customer's IT shouldn't have to know the agent's install was bumpy.
+estimatedMinutes: 8
+order: 14
+topics:
+  - agent
+  - install-failure
+  - av
+  - exclusions
+updated: 2026-05-20
+---
+
+AV blocks are the most common install-failure cause and the one with the cleanest fix path when handled correctly. They're also the failure new techs get wrong most often by assuming the customer's existing AV is "the problem" and asking the customer to disable it. The right move is rarely *disable AV*; it's *add the documented exclusions so AV and Huntress can coexist*. Done well, the customer's IT never has to know the install was bumpy.
+
+## What an AV-blocked install looks like
+
+The signature is anything that points at the AV touching the agent binary or service directly:
+
+- RMM exit code non-zero with "access denied" or "file in use" on the agent binary.
+- Install reports success on the RMM side, but the agent binary is quarantined or removed and the service never starts.
+- Service starts briefly, then dies. The AV is killing the process after the fact.
+- Repeated install attempts produce different failure modes; the AV's heuristics are firing inconsistently.
+
+What doesn't point at AV: AppLocker or CodeIntegrity events in the system log (lesson 15), TCP-refused errors during first phone-home (lesson 17), "unsupported OS" messages (lesson 16). Reading the install log before changing anything is what tells these apart.
+
+## The fix path
+
+Huntress publishes the canonical exclusion targets: file paths, processes, sometimes ports. Your MSP's runbook should pair that list with the per-AV mechanism (Defender, Bitdefender, Sophos, SentinelOne, CrowdStrike, ESET, Trend, others). Push the exclusions via the AV management console; don't touch the endpoint by hand.
+
+<Callout type="warn" title="Disable-AV is not the default move">
+Disabling AV during install is a fallback for specific persistent cases (extremely aggressive AV, broken management consoles where exclusions don't push reliably). A disabled AV during install means a vulnerable endpoint during install, and customers notice. The runbook decides when disabling is appropriate; the default is documented exclusions.
+</Callout>
+
+<StepThrough client:load>
+  <Step title="Confirm AV is the cause from the logs">
+    The agent's install log on the endpoint names the failure in plain text. Cross-reference against the AV's own logs when available. Don't change anything before the log confirms AV interference.
+  </Step>
+  <Step title="Identify which AV product">
+    Defender, Bitdefender, Sophos, SentinelOne, CrowdStrike, ESET, Trend. Each has its own exclusion mechanism and management console.
+  </Step>
+  <Step title="Apply the documented exclusions at the management console">
+    Per-endpoint manual exclusions don't survive the next policy refresh. Push from the management console so the exclusion stays put.
+  </Step>
+  <Step title="Wait for the exclusion policy to apply">
+    Some AV products propagate in minutes; some take a full policy refresh cycle. Don't retry the install before the policy has actually applied.
+  </Step>
+  <Step title="Re-run the install from the RMM">
+    Targeted at the same endpoint, single attempt. Five-in-a-row is the signature of someone who hasn't read the failure.
+  </Step>
+  <Step title="Verify enrolment in the portal">
+    Lesson 13's verify step. RMM exit code zero is half the answer; the portal is the other half.
+  </Step>
+</StepThrough>
+
+The PSA record should name which AV product was on the endpoint and the exclusion path used. The next tech inherits that pattern; the next AV-blocked install on the same customer takes minutes instead of half an hour.
+
+## When to escalate
+
+- The customer's AV management console is one your MSP doesn't manage. That's a customer-side change request: the customer's IT applies the exclusion, not you. Bump.
+- The exclusion policy push appears to work but the AV keeps quarantining the agent binary. Could be a sub-policy override, could be a customer-side restriction. Bump.
+- The customer asks to be left without Huntress on that endpoint "because the AV is enough." Different layers (Course 1). Product-mix question; senior owns the conversation.
+
+## A worked ticket: Able Moose Accounting
+
+You pushed a Huntress install to `WS-AMOOSE-MGR04`. The RMM reports failure with exit code 1 and "access denied" in the output. Able Moose runs Bitdefender, managed via the customer's own console.
+
+The wrong move is asking Able Moose's IT to disable Bitdefender on the endpoint while you re-run the install. You'd be removing AV coverage during the install window and training them to reach for *disable AV* whenever something gets in the way. The right move: pull the Huntress install log from the endpoint to confirm the binary is being quarantined, then ask the customer's IT to apply the documented Huntress exclusions in their Bitdefender console.
+
+The exclusions go in; the customer's IT confirms the policy is in place. You re-run the install. RMM reports success. Twenty minutes later, the agent still isn't in the Agents view. The wrong reflex is "the AV is still blocking, ask for more exclusions." The RMM exit code is clean now; the failure has moved on. Treat the install failure and the registration failure as separate problems with separate diagnostics, even when they appear back-to-back. Lesson 17 (blocked outbound) is the next stop.
+
+<Checkpoint slug="huntress-operations-checkpoint-install-failure-av-conflict" client:visible />

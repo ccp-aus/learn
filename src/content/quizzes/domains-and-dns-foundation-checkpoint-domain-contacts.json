@@ -13,13 +13,22 @@
       "topic": "registrant-trap",
       "prompt": "During a routine audit, you find a long-term client's domain is registered with the registrant set to 'John Smith' — a staff member who left the company two years ago. What's the calibrated next step?",
       "choices": [
-        "Email John Smith (if you can reach him) and ask him to authorise a change.",
-        "Surface to the client owner: their domain's legal registrant is an ex-employee. The change-of-registrant process moves ownership to the client's business entity but typically triggers a 60-day outbound-transfer lock. Schedule it during a calm period.",
-        "Edit the registrant in the registrar panel directly to the client's company name; no notification needed.",
-        "Leave it — John Smith doesn't work there anymore so it's effectively under the company's control."
+        {
+          "label": "Email John Smith (if reachable) and ask him to authorise the change.",
+          "rationale": "The ex-employee is not the right party to involve. The client owner needs to drive this."
+        },
+        "Surface it to the client owner.",
+        {
+          "label": "Edit the registrant directly in the registrar panel to the client's company name.",
+          "rationale": "Change-of-registrant is a formal process with verification emails and a 60-day lock. You can't just edit the field."
+        },
+        {
+          "label": "Leave it. John Smith doesn't work there so it's effectively under the company's control.",
+          "rationale": "The registrant is the legal owner. If John Smith disputes, he's the named party on record."
+        }
       ],
       "correct": 1,
-      "explanation": "The registrant is the legal owner. If John Smith ever disputes (or if a registrar-level account-recovery process is triggered), he's the named party. Changing the registrant requires an explicit change-of-registrant process at most registrars — it triggers a 60-day outbound lock and produces verification emails. Surface to the client owner first; don't quietly edit it, and don't email an ex-employee. Documenting the change is part of the work."
+      "explanation": "The change-of-registrant triggers a 60-day transfer lock; schedule it during a calm period. The registrant is the legal owner. If John Smith ever disputes, he's the named party. Changing the registrant requires a formal change-of-registrant process at most registrars, triggers a 60-day outbound lock, and produces verification emails. Surface to the client owner first; don't quietly edit it, and don't email an ex-employee."
     },
     {
       "id": "ck-contacts-admin-vs-registrant",
@@ -28,13 +37,22 @@
       "topic": "role-distinction",
       "prompt": "Which statement is correct about the registrant and admin contact roles?",
       "choices": [
-        "The admin contact and the registrant are the same role; the labels are interchangeable.",
-        "The registrant owns the domain; the admin contact is authorised to make changes. They can be the same person but the roles are independent.",
-        "The admin contact owns the domain; the registrant is just the billing party.",
-        "Only one of the four contacts matters; the others are filler."
+        {
+          "label": "The admin contact and the registrant are the same role; the labels are interchangeable.",
+          "rationale": "They can be the same person, but the roles are structurally different in the registry data model."
+        },
+        "The registrant owns the domain; the admin contact has operational authority. Separate roles.",
+        {
+          "label": "The admin contact owns the domain; the registrant is just the billing party.",
+          "rationale": "Reversed. The registrant has legal standing; the billing contact handles payment."
+        },
+        {
+          "label": "Only one of the four contacts matters; the others are filler fields.",
+          "rationale": "All four roles serve specific purposes: ownership, authority, notifications, billing."
+        }
       ],
       "correct": 1,
-      "explanation": "The registrant has legal standing; the admin contact has operational authority. Different roles in the registry's data model, sometimes filled by the same human. All four roles serve specific purposes (ownership, authority, notifications, billing); none are filler."
+      "explanation": "The registrant has legal standing; the admin contact has operational authority. Different roles in the registry's data model, sometimes filled by the same human. All four roles serve specific purposes; none are filler."
     },
     {
       "id": "ck-contacts-admin-ex-employee",
@@ -43,13 +61,22 @@
       "topic": "admin-failure",
       "prompt": "A transfer-out request fails because the approval email is bouncing. You check the admin contact and it's the email of someone who left the client 18 months ago. What's the fix?",
       "choices": [
-        "Re-initiate the transfer; emails sometimes bounce intermittently.",
-        "Email the previous employee at their old address asking them to forward the approval.",
-        "Update the admin contact to a live email at the client (or a shared mailbox the client controls), wait for any registry verification, then re-initiate with a fresh auth code.",
-        "Tell the client the transfer can't proceed; their previous admin contact is locked in."
+        {
+          "label": "Re-initiate the transfer; emails sometimes bounce intermittently.",
+          "rationale": "The address is dead (ex-employee), not intermittent. Re-initiating produces the same bounce."
+        },
+        {
+          "label": "Email the previous employee at their old address asking them to forward the approval.",
+          "rationale": "Their email is bouncing. Even if it weren't, routing transfer approvals through ex-employees is a security risk."
+        },
+        "Update the admin contact to a live email, wait for registry verification.",
+        {
+          "label": "Tell the client the transfer can't proceed; the admin contact is permanently locked.",
+          "rationale": "Admin contacts are editable at the registrar. Nothing is locked in."
+        }
       ],
       "correct": 2,
-      "explanation": "The address is dead, not intermittent. Re-initiating without fixing the contact produces the same failure. Admin contacts are editable; nothing is locked in. The fix is updating the contact first, then re-initiating."
+      "explanation": "Then re-initiate with a fresh auth code. The address is dead, not intermittent. Re-initiating without fixing the contact produces the same failure. Admin contacts are editable at the registrar; nothing is locked in. Update the contact first, then re-initiate."
     }
   ]
 }

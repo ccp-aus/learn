@@ -1,0 +1,223 @@
+{
+  "slug": "huntress-operations-checkpoint-standard-edr-incident-workflow",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the standard EDR incident workflow",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "six-steps",
+      "type": "mcq",
+      "topic": "six-steps",
+      "difficulty": "easy",
+      "prompt": "Which set names the six steps of the standard EDR incident workflow, in order?",
+      "choices": [
+        "Claim, review, approve remediations, verify, close, document.",
+        {
+          "label": "Investigate, classify, recommend, approve, verify, document.",
+          "rationale": "Investigate / classify / recommend are the SOC's pre-handoff steps, not the tech's workflow."
+        },
+        {
+          "label": "Read, decide, act, document, close, file.",
+          "rationale": "Skips claim and verify."
+        },
+        {
+          "label": "Claim, approve remediations, close, document.",
+          "rationale": "Skips review and verify. Verify is the step new techs skip first when the queue is busy."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The six-step spine. Each step has its own habit; verify and document are the two new techs most often skip."
+    },
+    {
+      "id": "verify-meaning",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "What does the verify step actually mean?",
+      "choices": [
+        {
+          "label": "Re-read the Incident Report to make sure you understood the Recommendation.",
+          "rationale": "Verification is the endpoint-state check, not a re-read of the report. They're different checks."
+        },
+        "Confirm the end state on the endpoint matches what the Recommendation aimed for.",
+        {
+          "label": "Wait for the SOC analyst to confirm the remediation worked.",
+          "rationale": "The SOC doesn't ratify the tech's verify step. The tech does the end-state check."
+        },
+        {
+          "label": "Have the customer's IT contact sign off that the remediation looks fine.",
+          "rationale": "The customer isn't the body that ratifies remediation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Persistence object gone, no longer producing the same detection. Verify is about endpoint state, not report content. The portal flipping to \"applied\" means the command ran; verifying the state is the \"did it work\" check."
+    },
+    {
+      "id": "misrouted-critical",
+      "type": "mcq",
+      "topic": "claim-step",
+      "difficulty": "medium",
+      "prompt": "A Critical is misrouted to your routine queue at the claim step. What's the right move?",
+      "choices": [
+        {
+          "label": "Claim it and start working — it's in your queue.",
+          "rationale": "A Critical misrouted to your queue is the moment to escalate, not to start working. Critical breaks the routine workflow."
+        },
+        "Don't claim — escalate per the runbook so the right body picks it up.",
+        {
+          "label": "Claim it but flag a senior in parallel; work it while you wait.",
+          "rationale": "Working a Critical at the routine helpdesk level is the cardinal Critical-incidents mistake."
+        },
+        {
+          "label": "Leave it unclaimed and hope someone else picks it up.",
+          "rationale": "Silent inaction. An active escalation is what the workflow asks for."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The claim step is also where you decide whether the incident belongs to you. Claiming is also a routing decision. Misrouted Criticals get surfaced, not absorbed."
+    },
+    {
+      "id": "low-overkill",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"The six-step workflow is overkill for routine Lows.\" Why is that wrong?",
+      "choices": [
+        "It looks like overhead until you skip a step and create a re-detection or PSA drift.",
+        {
+          "label": "Lows need a senior to sign them off, so all six steps gate that approval.",
+          "rationale": "Lows don't need senior sign-off; that's not the reason."
+        },
+        {
+          "label": "Each Low has SLA reporting requirements that demand the full six steps.",
+          "rationale": "SLA isn't the reason. The reason is the failure modes the steps prevent."
+        },
+        {
+          "label": "Routine Lows are the only incidents where all six steps are mandatory.",
+          "rationale": "The six steps apply across Low and High alike."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The six steps are the minimum, not the maximum. Skipping verify creates re-detections; skipping the PSA close creates drift. The minimum-not-maximum framing is the point."
+    },
+    {
+      "id": "doc-timing",
+      "type": "mcq",
+      "topic": "documentation",
+      "difficulty": "easy",
+      "prompt": "When should the incident note be written?",
+      "choices": [
+        "While the context is fresh.",
+        {
+          "label": "After-the-fact, end-of-shift, in one batch.",
+          "rationale": "Memory degrades; batch-writing produces vague notes that don't survive a cold read."
+        },
+        {
+          "label": "Only if the senior asks you to.",
+          "rationale": "The note is part of the standard workflow, not on-demand."
+        },
+        {
+          "label": "Just before the SOC closes the incident on their side.",
+          "rationale": "The SOC's close timing isn't the trigger. Fresh context is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "During or immediately after the work. By end-of-shift the day's incidents blur and the notes get vague."
+    },
+    {
+      "id": "severity-shift",
+      "type": "mcq",
+      "topic": "severity",
+      "difficulty": "medium",
+      "prompt": "How does the six-step workflow shift between Low and High severity?",
+      "choices": [
+        "Same shape; tempo, SLA clock, and pairing with other actions.",
+        {
+          "label": "High adds two extra steps; Low has only four.",
+          "rationale": "The six-step spine holds across Low and High; step count doesn't change."
+        },
+        {
+          "label": "High removes the verify step because the SLA clock is too tight.",
+          "rationale": "Tight SLA does not license skipping verify; if anything it tightens it."
+        },
+        {
+          "label": "Low skips the documentation step; High keeps it.",
+          "rationale": "Documentation is non-optional on both."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(isolation, user verification) differ. Critical breaks the shape; Low and High share it. Tempo and pairing scale with severity."
+    },
+    {
+      "id": "low-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Low EDR Incident Report. Host: WS-EXAMPLE-ACCOUNTING-03. Recommendation: approve the autoruns remediation. Evidence: an autoruns entry pointing to an obscure backup tool's binary. What's the right first move?",
+      "choices": [
+        {
+          "label": "Investigate the autoruns entry to confirm it's malicious before approving.",
+          "rationale": "The SOC has already triaged; re-doing the analysis is the second-guessing failure mode."
+        },
+        "Claim, review the header and Recommendation.",
+        {
+          "label": "Approve the remediation, close the Huntress ticket, move on.",
+          "rationale": "Worst response. Skips verification, PSA close, documentation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Confirm the host is in example.com, approve the autoruns remediation, verify, close in both systems, document. Standard six-step workflow on a standard Low. Four to six minutes of work done cleanly."
+    },
+    {
+      "id": "applied-vs-verified",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "You approved a remediation; the portal shows \"applied.\" What's the last check before you close?",
+      "choices": [
+        "Confirm the persistence object no longer appears on the endpoint.",
+        {
+          "label": "Skip the check; the portal said \"applied,\" so the work is done.",
+          "rationale": "\"Applied\" means the command ran. Verifying the end state is the *did it work* check. The two are different."
+        },
+        {
+          "label": "Re-read the Incident Report to make sure you understood it.",
+          "rationale": "Re-reading the words doesn't tell you whether the remediation worked. The verify is endpoint state."
+        },
+        {
+          "label": "Ask the SOC analyst to confirm the remediation worked.",
+          "rationale": "The SOC doesn't ratify the verify."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(re-scan in the portal or RMM remote-command). The Recommendation aimed for the persistence to be gone; verifying the end state is the verify step."
+    },
+    {
+      "id": "step-order",
+      "type": "order",
+      "topic": "workflow-order",
+      "difficulty": "medium",
+      "prompt": "Put the six steps of the standard EDR incident workflow in the correct order.",
+      "items": [
+        "Claim the incident in the portal (and/or PSA).",
+        "Review the Incident Report — header, recommendation, affected entity.",
+        "Approve the recommended remediations.",
+        "Verify the end state on the endpoint.",
+        "Close in both Huntress and the PSA.",
+        "Document — write the incident note for the next reader."
+      ],
+      "explanation": "Claim, review, approve, verify, close, document. Verify and document are the most-skipped steps."
+    },
+    {
+      "id": "verify-misconception",
+      "type": "tf",
+      "topic": "verify",
+      "difficulty": "easy",
+      "prompt": "Verification means re-reading the Recommendation to make sure you understood it.",
+      "correct": false,
+      "explanation": "Verification confirms the end state on the endpoint. Re-reading the words is not the same check."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+---
+slug: 01-customer-onboarding-model
+vendor: huntress
+level: l2
+title: The customer-onboarding model, runbook vs. commercial decisions
+summary: Onboarding is the part of the platform where mistakes touch commercials. Runbook execution stays on the helpdesk floor; subscription, product-mix, and deployment-strategy decisions bump every time.
+estimatedMinutes: 8
+order: 1
+topics:
+  - onboarding
+  - escalation-ceiling
+updated: 2026-05-20
+---
+
+Onboarding is where mistakes start touching commercials. An incorrect remediation can be reversed. A customer onboarded with the wrong product mix, or pushed against the wrong endpoint scope, creates billing disputes, scope creep, and contract questions that a senior, not you, has to sort out. The ceiling on the rest of this course is not about whether you *can* do the work. It is about who *owns* the decision the work commits to.
+
+## What runbook execution covers
+
+Runbook execution is yours. When a senior has decided which products the customer is getting, on which endpoints, with what naming convention, you run the documented procedures that make it happen. That covers most of the next ten lessons:
+
+- Creating the organisation in the portal with the right name, branding, and notification routing.
+- Running the ITDR integration wizards for Microsoft 365 and (where relevant) Google Workspace.
+- Pushing the EDR agent to the agreed endpoint list via the RMM.
+- Verifying coverage, that agents landed where they were meant to land.
+- The equivalent reverse procedures at offboarding.
+
+Each of those has a runbook your MSP maintains. The runbook names the convention to use, which template to apply, which RMM job to run. The work is procedural.
+
+## What stays above the line
+
+The senior owns decisions that commit the customer to something:
+
+- **Subscription and billing.** Which Huntress products the customer is buying, how many endpoints they are paying for, what the renewal cadence is.
+- **Product mix.** Whether the customer gets EDR, ITDR, SIEM, or some combination. The senior makes this call against the contract.
+- **Deployment strategy.** Which endpoint groups get the agent, on what cadence, with what supervision. The senior makes this call against the customer's environment and the MSP's own delivery process.
+- **Permanent organisation deletion.** Once an offboarding is done, the senior decides whether to remove the org from the portal versus archiving it. The action is irreversible.
+
+Each of those is something a contract or a delivery plan commits to. None of them is "which menu do I click."
+
+## Spotting a decision dressed as a portal action
+
+Some onboarding questions arrive in tech-shape (a clear procedure, a clear portal action) but carry a decision underneath. The shapes to recognise:
+
+- *"Should we deploy to the workstations as well as the servers?"* Deployment strategy. Bump.
+- *"Can we leave SIEM off for now?"* Product mix. Bump.
+- *"The customer wants to keep their old MDR running alongside Huntress for a month."* Deployment strategy with a billing flavour. Bump.
+- *"Should I delete the org or archive it?"* Permanent commercial. Bump.
+- *"Should I name the org Example Holdings or Example Inc.?"* Naming convention. If the runbook is silent, bump *for the runbook to be updated*, not for a one-off ruling.
+
+Each arrives looking like a portal action. Each carries a decision the senior owns.
+
+<Callout type="tip" title="What &quot;bump&quot; means in practice">
+Escalating an onboarding question is not an apology. It is one line: *"Customer wants X, sounds like a product-mix question, can you confirm before I touch the wizard?"* Most seniors respond inside the hour and the work moves on. The tech who tries to call it themselves to avoid bothering the senior is the tech who ends up in a contract argument three weeks later.
+</Callout>
+
+## A worked ticket: Able Moose Accounting
+
+A new onboarding lands. The runbook says: create the org, integrate M365 for ITDR, push EDR to Able Moose's workstation OU via the RMM. Mid-onboarding, the customer's IT manager mentions, *"Oh, and we have about a dozen Linux servers we would like covered too. Can you grab those while you are at it?"*
+
+<DecisionTree
+  client:load
+  title="Linux servers requested mid-onboarding. What now?"
+  description="The runbook said workstation OU. The IT manager just verbally added Linux servers. The shape under the question is a deployment-strategy change with billing flavour, the kind of decision lesson 2.1 keeps above the line."
+  startId="root"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "What do you do with the Linux request?",
+      choices: [
+        { label: "Add the Linux servers to the rollout, Linux is supported", next: "add-it" },
+        { label: "Tell the customer it is a good addition, but it is a deployment-strategy question, bump first", next: "bump" },
+        { label: "Add the servers and flag it in the ticket so the senior catches it on review", next: "middle" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "add-it",
+      label: "Wrong, you have committed scope on a verbal request",
+      tone: "bad",
+      body: "Per-endpoint pricing means there is likely a billing implication. The delivery process has one too: Linux servers were not in the runbook, so nobody documented them, so the support ticket two months from now is a mystery to the next tech.",
+    },
+    {
+      type: "outcome",
+      id: "bump",
+      label: "Right, route the decision to the layer that commits to it",
+      tone: "success",
+      body: "You are not refusing. You are bumping. The senior either confirms (one-line response, you proceed) or flags a billing or contract step you would not have seen. Add it to the next rollout window once the answer comes back.",
+    },
+    {
+      type: "outcome",
+      id: "middle",
+      label: "Wrong middle path, action before decision",
+      tone: "bad",
+      body: "Even if a reviewer catches it later, the customer now expects coverage and the conversation gets harder. Bump first, click second.",
+    },
+  ]}
+/>
+
+The senior comes back an hour later: *"Linux is in scope per their contract, fine to deploy, but check the OU before pushing, not all twelve are production."* You confirm with the IT manager which servers are production, push to those, document the decision and the excluded set in the ticket. You did what the senior asked. You documented the exclusion so the next tech knows why three Linux boxes aren't in the portal. You didn't expand scope past the authorisation.
+
+## What this looks like across the rest of the course
+
+Read your MSP's onboarding runbook before working any onboarding ticket. The named decisions inside it are the ones a senior has already committed to; treat those as the runbook speaking for the senior. Anything not named is a candidate question. Bump those before clicking. The rest of this course walks the procedural side of the work; this lesson is the disposition you bring to each procedure.
+
+<Checkpoint slug="huntress-operations-checkpoint-customer-onboarding-model" client:visible />

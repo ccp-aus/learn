@@ -1,0 +1,70 @@
+---
+slug: 11-compromise-playbook-remove-inbox-rules
+vendor: huntress
+level: l3
+title: "Compromise playbook: remove inbox rules and forwarding"
+summary: Step 3 closes the data-exfiltration paths the attacker set up. Two mechanisms, inbox rules and mailbox-level forwarders, both need attention.
+estimatedMinutes: 8
+order: 11
+topics:
+  - itdr
+  - playbook
+  - inbox-rules
+updated: 2026-05-20
+---
+
+Step 3 of the playbook closes the data-exfiltration paths. Sessions are revoked, credentials are reset. The attacker can no longer get back in. **The inbox rules and forwarders they set up while they had access are still doing their work**: forwarding mail externally, hiding traffic, suppressing notifications. Removing both kinds of mechanism is what stops the data leaving.
+
+## What gets removed
+
+Three categories:
+
+**Malicious inbox rules.** Rules created during the compromise that forward, delete, mark-as-read, or move mail in attacker-pattern ways. The Evidence in the Incident Report names specific rules. The Recommendation says to remove them.
+
+**Mailbox-level forwarders.** `ForwardingSmtpAddress` and `ForwardingAddress` in M365; equivalent settings in Google Workspace. These are set at the mailbox level rather than as per-message rules. Often the second exfiltration mechanism alongside an inbox rule.
+
+**Hidden folder routing.** Some inbox rules move mail to hidden or auto-created folders. Removing the rule stops new mail from being routed there, but the existing routed mail is still in those folders. Worth knowing where it went, especially for the customer's audit of what may have been read.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Pull the user's current inbox rules">
+    Via the portal's identity surface or a direct Exchange / Google Workspace admin tool path your runbook specifies. Compare against the rules named in the Incident Report's Evidence.
+  </Step>
+  <Step title="Remove the malicious rules from the Recommendation">
+    Some portals expose a one-click remediation. Others require an admin-tool step. Remove only what the Recommendation names.
+  </Step>
+  <Step title="Check mailbox-level forwarders">
+    Check `ForwardingSmtpAddress` and `ForwardingAddress` (M365) or the GWS equivalent. If either is set to an external address that was not there before the compromise, remove it if in the Recommendation. If found and not in the Recommendation, reply to the SOC.
+  </Step>
+  <Step title="Note where existing mail was routed">
+    If the rule moved mail to "RSS Subscriptions" or a hidden folder, note this in the incident record. The customer's IT or the user may want to know what is there.
+  </Step>
+  <Step title="Verify the removal">
+    The named rules no longer exist. The forwarder fields are empty. No further mail is being routed. The Timeline shows no new "rule created" or "forwarder set" events post-remediation.
+  </Step>
+</StepThrough>
+
+## The two-mechanism discipline
+
+The central pattern: checking the inbox rules but not the mailbox-level forwarder leaves the second exfiltration path open. Both mechanisms need attention on every step-3 pass. Even if the Recommendation only names inbox rules, check the forwarder fields. Surface what you find.
+
+## Common mistakes
+
+**Removing the rule but not the forwarder.** Both exfiltration paths need closing. The forwarder keeps sending mail externally even after the rule is removed.
+
+**Forgetting that some rules are tenant-wide.** A mailbox may have inbox rules. The tenant may also have transport rules at the Exchange level that affect mail flow. Transport rules are usually senior territory. If the Recommendation mentions tenant-wide rules, that is a tenant-wide compromise indicator (covered in the tenant-wide lesson).
+
+**Closing the step without noting what mail had already been routed.** A rule that moved 500 emails to a hidden folder over the past three hours is not just "a rule." It is a potential exfiltration trail. Note the folder and the volume.
+
+## When to escalate
+
+- The user has many other inbox rules that look unusual but are not in the Recommendation. Could be legitimate user organisation. Could be additional compromise artefacts. Reply to the SOC with the list. Do not remove unilaterally.
+- Tenant-wide transport rules or mail-flow connectors are involved. Senior territory.
+- The mailbox-level forwarder is set to an internal address that looks legitimate (a delegated mailbox in the same tenant). Could be legitimate delegation. Could be lateral movement. Bump rather than remove without context.
+
+<Callout type="info" title="Forwarder not in the Recommendation?">
+If you find a mailbox-level `ForwardingSmtpAddress` set to the same attacker address as the removed rule but the Recommendation did not mention it, reply to the SOC: "Mailbox-level ForwardingSmtpAddress also set to the attacker address. Should this be cleared as part of the response?" Continue the playbook while waiting. The SOC owns the disposition.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-remove-inbox-rules" client:visible />

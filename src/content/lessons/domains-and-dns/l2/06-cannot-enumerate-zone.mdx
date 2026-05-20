@@ -51,12 +51,11 @@ Since you cannot ask the authoritative server *give me everything*, the practica
 
 ## Decision walkthrough
 
-A new client onboards. Their domain is managed at a DNS host the previous MSP set up; you have no panel access. The client asks *can you give us a list of all our current DNS records so we know what we have?*
-
 <DecisionTree
   client:load
   startId="root"
   title="Enumerating without panel access"
+  description="A new client onboards. Their domain is managed at a DNS host the previous MSP set up; you have no panel access. The client asks: 'can you give us a list of all our current DNS records so we know what we have?'"
   nodes={[
     {
       type: "question",

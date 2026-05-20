@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-google-workspace-playbook",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: the same playbook in Google Workspace",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "forwarding-divergence",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "Which forwarding-related divergence between M365 and GWS does the lesson call out?",
+      "choices": [
+        "M365's ForwardingSmtpAddress is one field.",
+        {
+          "label": "M365 forwards mail without rules; GWS requires a rule for any forwarding.",
+          "rationale": "Both platforms support both rule-level and mailbox-level forwarding."
+        },
+        {
+          "label": "GWS forwards only between GWS tenants.",
+          "rationale": "Wrong. External forwarding is possible."
+        },
+        {
+          "label": "M365 does not have mailbox-level forwarding.",
+          "rationale": "M365 has ForwardingSmtpAddress and ForwardingAddress."
+        }
+      ],
+      "correct": 0,
+      "explanation": "GWS has multiple mechanisms: SendAs aliases, IMAP forwarding via filters, vacation responder auto-forwards. Checking external forwarding requires more places in GWS. GWS has a wider forwarding surface area. Three mechanisms to check instead of one field."
+    },
+    {
+      "id": "super-admin",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "A user account in a GWS tenant has the super-admin role. The Incident Report shows compromise on this account. What does the lesson say?",
+      "choices": [
+        "Treat as tenant-wide.",
+        {
+          "label": "Treat as single-user; the playbook applies normally.",
+          "rationale": "Super-admin compromise crosses the tenant ceiling."
+        },
+        {
+          "label": "Treat as low priority; admin compromise is rare.",
+          "rationale": "Wrong on prioritisation."
+        },
+        {
+          "label": "Open a Huntress support ticket for guidance.",
+          "rationale": "Senior is the escalation path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Compromise on a super-admin in GWS is tenant-wide territory the moment it is recognised. Bump. GWS tenants often have less admin/user separation. Super-admin compromise is tenant-wide."
+    },
+    {
+      "id": "first-move-gws",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "hard",
+      "prompt": "High ITDR incident on Daniel at a Google Workspace tenant. Recommendation: revoke sessions, reset password and 2-step verification, remove malicious Gmail filter, revoke OAuth grant. First move?",
+      "choices": [
+        {
+          "label": "Look for an Entra ID admin centre to start the session revoke.",
+          "rationale": "Wrong tooling. GWS uses the Google Admin console."
+        },
+        "Open the Huntress portal's ITDR view for Daniel and trigger session revoke via the portal.",
+        {
+          "label": "Tell the customer to revoke the session themselves because you are not familiar with GWS.",
+          "rationale": "The Huntress portal exposes the action. The runbook covers the verify paths."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Verify in the Google Admin console (User, Security, Sign out user) if needed. The Huntress portal abstracts the tooling. Verification falls back to the GWS admin console with the right vocabulary."
+    },
+    {
+      "id": "sendas-check",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "hard",
+      "prompt": "You remove the malicious Gmail filter per the Recommendation. The Recommendation did not mention checking SendAs aliases or the vacation auto-forward. What do you do?",
+      "choices": [
+        {
+          "label": "Close the step; the Recommendation did not mention them.",
+          "rationale": "Half-right. The GWS-specific forwarding-mechanism checks still apply."
+        },
+        "Check SendAs aliases and the vacation responder.",
+        {
+          "label": "Remove SendAs aliases and the vacation responder yourself to be thorough.",
+          "rationale": "Acting on context the Recommendation did not include. Surface to SOC."
+        }
+      ],
+      "correct": 1,
+      "explanation": "If unchanged from pre-compromise, document and close. If modified in the compromise window, reply to the SOC. GWS-specific additional checks happen even when the Recommendation only names the filter. Surface findings to the SOC."
+    },
+    {
+      "id": "m365-vocab-mistake",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "Why is it a mistake to use M365 vocabulary in a GWS conversation with the customer's admin?",
+      "choices": [
+        "\"Have you checked the Entra ID admin centre?\" makes no sense on GWS.",
+        {
+          "label": "Huntress only supports M365 vocabulary internally.",
+          "rationale": "Internal vocabulary does not drive customer-facing language."
+        },
+        {
+          "label": "GWS customers consider M365 vocabulary offensive.",
+          "rationale": "The issue is comprehension, not offence."
+        },
+        {
+          "label": "M365 vocabulary is forbidden by Google's terms of service.",
+          "rationale": "Not a real constraint."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Use the customer's vocabulary so the conversation lands. The customer hears \"this person does not know our platform\" when you use the wrong tooling vocabulary."
+    },
+    {
+      "id": "identical-assumption",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "\"The GWS playbook is identical to M365.\" What is the cleanest correction?",
+      "choices": [
+        "Mostly is, but the forwarding-mechanisms and OAuth-visibility differences are real.",
+        {
+          "label": "Completely identical. Same steps, same tools.",
+          "rationale": "Tools differ."
+        },
+        {
+          "label": "Completely different. No shared concepts.",
+          "rationale": "The six steps map across."
+        },
+        {
+          "label": "GWS does not have a playbook.",
+          "rationale": "This lesson is the GWS playbook."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Check the runbook's GWS-specific notes. Conceptually identical, divergent in specific mechanisms. The forwarding surface and OAuth visibility are the main differences."
+    },
+    {
+      "id": "domain-wide-delegation",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "A GWS compromise involves Domain-wide delegation grants. What does the lesson say?",
+      "choices": [
+        "Tenant-level mechanism. Bump.",
+        {
+          "label": "Revoke at the user level.",
+          "rationale": "User-level revoke does not touch domain-wide delegation."
+        },
+        {
+          "label": "Ignore. Domain-wide delegation is always benign.",
+          "rationale": "Compromise involving DWD is a tenant-wide signal."
+        },
+        {
+          "label": "Open a Huntress support ticket.",
+          "rationale": "Senior is the escalation surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Domain-wide delegation crosses the tenant ceiling. Senior territory."
+    },
+    {
+      "id": "oauth-aggregation",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "A genuine divergence: GWS's admin console aggregates OAuth grants by ___, not by ___.",
+      "choices": [
+        "By app, not by user.",
+        {
+          "label": "By tenant, not by app.",
+          "rationale": "Aggregation is by app."
+        },
+        {
+          "label": "By date, not by user.",
+          "rationale": "Date is a sort/filter, not the aggregation."
+        },
+        {
+          "label": "GWS does not expose OAuth grants in the admin console.",
+          "rationale": "They are visible, just aggregated differently."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Finding a specific user's grants takes a different path than M365's per-user view. App-aggregated visibility in GWS versus user-aggregated in M365. Finding a specific user's grants requires a different navigation path."
+    },
+    {
+      "id": "runbook-silent",
+      "type": "mcq",
+      "topic": "gws-playbook",
+      "difficulty": "medium",
+      "prompt": "The GWS-specific runbook is silent on a step you need to perform. What does the lesson say?",
+      "choices": [
+        "Bump rather than improvise.",
+        {
+          "label": "Figure it out yourself by searching Google's documentation.",
+          "rationale": "Wrong reflex during incident response. Bump."
+        },
+        {
+          "label": "Skip the step and proceed.",
+          "rationale": "Skipping a needed step leaves a foothold."
+        },
+        {
+          "label": "Use the M365 equivalent and assume it works the same.",
+          "rationale": "The mechanisms diverge."
+        }
+      ],
+      "correct": 0,
+      "explanation": "GWS has more API paths than the admin console exposes, and the right path matters. Improvising on undocumented GWS paths during incident response is risky. Bump."
+    },
+    {
+      "id": "mfa-terminology",
+      "type": "tf",
+      "topic": "gws-playbook",
+      "difficulty": "easy",
+      "prompt": "GWS calls MFA \"2-Step Verification.\" The attacker's MFA-tampering pattern is different from M365.",
+      "correct": false,
+      "explanation": "Same concept, different field names. The attacker's tampering pattern (adding rogue methods, removing legitimate ones) is identical across both platforms."
+    }
+  ]
+}

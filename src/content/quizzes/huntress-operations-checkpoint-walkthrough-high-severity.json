@@ -1,0 +1,236 @@
+{
+  "slug": "huntress-operations-checkpoint-walkthrough-high-severity",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: a High-severity walkthrough",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "low-plus-what",
+      "type": "mcq",
+      "topic": "shape",
+      "difficulty": "easy",
+      "prompt": "The lesson summarises a High as \"a Low plus what\"?",
+      "choices": [
+        "Tighter SLA, paired actions (often isolation).",
+        {
+          "label": "More investigation work by the tech.",
+          "rationale": "Investigation isn't part of the High shape. The SOC has triaged for both."
+        },
+        {
+          "label": "A different SOC team.",
+          "rationale": "The SOC team is the same; the analyst's classification differs."
+        },
+        {
+          "label": "Mandatory senior sign-off on every action.",
+          "rationale": "High doesn't require senior sign-off; Critical breaks the shape, not High."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The customer call. Same components; different tempo, coordination, and stakes."
+    },
+    {
+      "id": "what-makes-high",
+      "type": "mcq",
+      "topic": "severity-drivers",
+      "difficulty": "medium",
+      "prompt": "The walkthrough cites three things that made this incident High rather than Low. Which set?",
+      "choices": [
+        "Active outbound to a known-bad domain;",
+        {
+          "label": "Customer's MSP tier; the day of the week; SLA clock starting.",
+          "rationale": "Severity is a SOC classification of activity/target/blast radius, not commercial-tier driven."
+        },
+        {
+          "label": "Number of remediations needed; SOC analyst's seniority; tenant size.",
+          "rationale": "None of these are severity drivers."
+        },
+        {
+          "label": "Whether the host was on the corporate network or remote.",
+          "rationale": "Network location isn't a severity driver."
+        }
+      ],
+      "correct": 0,
+      "explanation": "PowerShell with encoded commands; the affected host has elevated access to financial systems (blast radius if the activity had time to spread). Known-bad infra + attacker technique + elevated-access blast radius. Any one alone might land it in High."
+    },
+    {
+      "id": "walkthrough-order",
+      "type": "order",
+      "topic": "sequence",
+      "difficulty": "medium",
+      "prompt": "Put the High walkthrough's major actions in the order they occurred.",
+      "items": [
+        "Claim and review — header, recommendation, in-scope check.",
+        "Isolate — agent picks up policy within 30 seconds.",
+        "Call the user / IT manager — plain-language explanation plus verify-with-user question.",
+        "Approve the scheduled-task remediation once user verification confirms not legitimate.",
+        "Verify — task gone, no re-detection in post-remediation window.",
+        "Recovery checklist, then un-isolate.",
+        "Confirm with user (via IT manager) that machine is back working.",
+        "Close in Huntress; close in PSA with the running note."
+      ],
+      "explanation": "Claim/review, isolate, call, remediate, verify, checklist + un-isolate, confirm, close. Eight beats; the High shape end to end."
+    },
+    {
+      "id": "call-first-failure",
+      "type": "mcq",
+      "topic": "rhythm-breaker",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"On a High with isolation recommended, I usually call the user before clicking Isolate — feels less aggressive.\" What's the failure?",
+      "choices": [
+        "Calling first gives the attacker the time it takes to find the user.",
+        {
+          "label": "No failure — calling first is the polite version of the workflow.",
+          "rationale": "Inverts the rule."
+        },
+        {
+          "label": "Calling first is fine if the user is a senior executive.",
+          "rationale": "The walkthrough's scenario IS the senior-executive case and explicitly applies isolate-first."
+        },
+        {
+          "label": "Calling first is fine if the customer's MSP tier is Platinum.",
+          "rationale": "Tier doesn't license the inversion."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The right call shape is isolate-then-call — 30 seconds after, not 30 minutes before. The 30-second-vs-30-minute trade. Politeness doesn't license giving the attacker more time."
+    },
+    {
+      "id": "user-callback",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "90 seconds in, you clicked Isolate. The portal confirms isolation active. The user calls frustrated: \"What did you just do to my machine? I'm in the middle of a board prep.\" What do you say?",
+      "choices": [
+        {
+          "label": "\"We had to isolate your workstation, please bear with us.\"",
+          "rationale": "\"Had to\" sounds like no choice; tells the user nothing about scope or timing."
+        },
+        "Four-move explanation (trigger, action, limits, next step).",
+        {
+          "label": "\"I can't talk right now, I'm in the middle of fixing it.\"",
+          "rationale": "Hanging up on the affected user mid-incident."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Then piggy-back the SOC's verification question on the call. The explanation calms her down; the verification question piggy-backs instead of needing a separate call."
+    },
+    {
+      "id": "customer-pushback",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "After un-isolation, the user calls back: \"I'm back, but I missed a key part of my board prep. We should talk about whether this isolation thing was really necessary.\" What's the right response?",
+      "choices": [
+        {
+          "label": "Apologise and tell her you'll make sure it doesn't happen again.",
+          "rationale": "You can't promise that. Isolation will happen again; pre-promising otherwise sets up a worse moment later."
+        },
+        "\"I understand the timing hurt.",
+        {
+          "label": "Tell her the SOC made the call and you just executed it.",
+          "rationale": "Passes the buck; distances you from the action. The customer-facing tech owns the action."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The activity was real — encoded PowerShell calling a known-bad domain. Isolation contained it before more damage was done. I'm flagging your board-prep impact to the account manager so they can talk with your team about coordinating around high-priority days. The isolation itself was the right call.\" Honest about the action, honest about the impact, names a destination (account manager) for the relationship piece."
+    },
+    {
+      "id": "psa-running-entry",
+      "type": "mcq",
+      "topic": "documentation",
+      "difficulty": "medium",
+      "prompt": "Why a \"running entry\" in the PSA on a High rather than writing the note at the end?",
+      "choices": [
+        "On a High with multiple actions and contacts.",
+        {
+          "label": "Huntress requires real-time PSA updates on High incidents.",
+          "rationale": "Not a Huntress requirement. The lesson recommends running entries as a tech discipline."
+        },
+        {
+          "label": "End-of-incident notes are forbidden on Highs by most PSA configurations.",
+          "rationale": "Not the framing."
+        },
+        {
+          "label": "Running entries are billed at a higher rate.",
+          "rationale": "Not in the lesson and not a billing distinction."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The running entry pays off: you get times right, contact names right, verifications right, without reconstructing afterwards. Reconstruction after the fact loses times and names. Running entries don't."
+    },
+    {
+      "id": "time-comparison",
+      "type": "mcq",
+      "topic": "tempo",
+      "difficulty": "medium",
+      "prompt": "The High walkthrough closes in 28 minutes; the Low closed in 11. How does the lesson frame the difference?",
+      "choices": [
+        "Roughly three times as long, which is normal.",
+        {
+          "label": "Highs should always take exactly the same time as Lows; longer means something's wrong.",
+          "rationale": "Highs ARE longer because of paired actions and contacts."
+        },
+        {
+          "label": "Highs should take 2+ hours; 28 minutes is suspiciously fast.",
+          "rationale": "25–45 minutes is the clean range."
+        },
+        {
+          "label": "28 vs 11 is a sign the tech skipped a step.",
+          "rationale": "Inverts. 28 minutes is a model of the High running cleanly."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The shape is the same; tempo, paired actions, and documentation length scale with severity. Tempo and pairing scale; the six-step spine stays the same."
+    },
+    {
+      "id": "critical-flavoured",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The activity on the endpoint looks Critical-shaped (ransomware-like, lateral movement, admin-credential abuse) despite the High tag. What does the lesson say?",
+      "choices": [
+        "Bump and let the senior weigh whether to re-grade.",
+        {
+          "label": "Re-grade the severity to Critical in the portal yourself.",
+          "rationale": "The tech doesn't re-grade. The senior plus SOC do."
+        },
+        {
+          "label": "Ignore the Critical-shaped signals; the SOC's tag is the final word.",
+          "rationale": "New signal is the surface for a reply; bumping to senior is the right move."
+        },
+        {
+          "label": "Continue the High workflow as written; the signals are coincidence.",
+          "rationale": "The lesson explicitly says bump when the activity looks Critical-shaped."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Don't unilaterally upgrade severity. Bump on Critical-shaped signals; don't re-grade unilaterally."
+    },
+    {
+      "id": "same-spine",
+      "type": "mcq",
+      "topic": "shape",
+      "difficulty": "medium",
+      "prompt": "What stayed the same between the Low and High walkthroughs?",
+      "choices": [
+        "The six-step spine — claim, review.",
+        {
+          "label": "Nothing — Highs are completely different workflows.",
+          "rationale": "Same shape, different tempo."
+        },
+        {
+          "label": "The customer call was the same length in both walkthroughs.",
+          "rationale": "The Low had no customer call; the High had multiple."
+        },
+        {
+          "label": "The remediation type — autoruns — was the same in both.",
+          "rationale": "The Low was autoruns; the High was scheduled task."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Action(s), verify, close in both systems, document. Tempo and paired actions are what differ. Same six-step spine. Tempo and pairing scale with severity."
+    }
+  ]
+}

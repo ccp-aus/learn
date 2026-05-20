@@ -1,0 +1,86 @@
+---
+slug: 27-choosing-comms-channel
+vendor: huntress
+level: l3
+title: "Choosing the right comms channel: phone, email, or ticket"
+summary: "The wrong channel for the situation wastes the work the response did. Apply a severity-and-preference matrix to decide whether an incident notification goes by phone, email, or ticket update."
+estimatedMinutes: 6
+order: 27
+topics:
+  - comms
+  - channel
+  - severity-matrix
+updated: 2026-05-20
+---
+
+A Critical handled cleanly but communicated only via email that the customer reads three hours later is a Critical they experienced as "no one called us." A Low communicated via phone interrupts the customer's day for something a ticket update would have covered. Matching the channel to the situation is its own skill, separate from writing the message itself.
+
+## The default matrix
+
+| Severity | During business hours | After hours |
+| --- | --- | --- |
+| Critical | Phone, immediate, plus email follow-up | Phone, immediate, plus email follow-up |
+| High | Phone or email per customer preference; ticket update as backup record | Email plus ticket update; phone for high-tier customers or material incidents |
+| Low | Ticket update; email if the customer prefers; no phone | Ticket update only |
+
+Two modifiers shift the matrix:
+
+- **Customer preference.** Some customers ask to be called for every High. Some ask not to be called even for overnight Criticals. The documented customer-comms preference in your MSP's customer record is the source of truth. Customer preferences override the default matrix.
+- **Time of day.** After-hours comms is its own discipline (covered in the next lesson). The right channel after hours is rarely the same as during business hours.
+
+## Why the channel matters more than the message text
+
+The same well-written notification lands differently depending on how the customer received it:
+
+- **Phone:** the customer feels the urgency was real and the team is engaged.
+- **Email:** the customer reads in their own time; urgency is buffered; the message is fully digested.
+- **Ticket update only:** the customer notices on their next check of the system.
+
+A Critical communicated by ticket update alone feels neglectful, even if the technical response was perfect. A Low communicated by phone feels intrusive. Match the channel to the customer's expected urgency at this severity.
+
+## When to use more than one channel
+
+**Phone plus email follow-up.** Standard for Critical incidents. The phone call confirms awareness. The email is the durable record the customer will forward to leadership or refer back to. Skipping the email leaves no written trail. Skipping the phone when one was called for leaves the customer feeling neglected.
+
+**Ticket update plus email summary.** Standard for High incidents where the customer's IT contact wants both the running detail (in the ticket) and the post-resolution summary (in the email).
+
+**All three channels.** Rare. Reserve for genuinely customer-relationship-significant Criticals where the volume of update is high and the audience is wide.
+
+## The customer-preference layer
+
+Your MSP's customer record should document each customer's communication preferences. Common variants:
+
+- "All Highs and above: phone first, email follow-up."
+- "Anything during business hours: email plus ticket; no phone."
+- "Single point of contact (the IT manager); never contact end-users directly."
+- "After-hours: only contact the on-call number; no individual phones."
+
+Read the preference before deciding the channel. If the preference seems wrong for the situation (a Critical at a customer with "email only" preference), surface to senior. The preference may need updating, or the situation may warrant a deviation that is not yours to call.
+
+<Callout type="info" title="Document, don't improvise">
+When a customer asks "what is the right way for us to hear about these?", that is a conversation for the senior or account manager to lead. The output is a documented preference in the customer record, not an ad hoc agreement the tech carries in their head.
+</Callout>
+
+## A worked scenario
+
+14:30 Tuesday. You have closed out a High-severity EDR incident on `WS-ACME-FINANCE-12`. The host was isolated, remediation applied, un-isolated. The user was on the verification call. Customer preference: "Highs: phone or email, account manager will route; ticket update on every incident."
+
+<StepThrough client:load>
+  <Step title="Update the ticket">
+    Write the incident note with the full timeline (actions taken, verified states, contacts made, open items). This is the running record.
+  </Step>
+  <Step title="Send the email summary">
+    Short email to the IT manager using the correct-framing template from the previous lesson. Phone or email is the preference for Highs; email is appropriate for a contained High mid-business-day. The ticket update covers the "every incident" requirement.
+  </Step>
+  <Step title="Handle the follow-up">
+    Two hours later, the IT manager replies asking what "isolation" means and whether it will happen often. Reply by email with a plain-language explanation. An email reply gives them something to refer back to. Switching to phone for an educational follow-up question is over-channelling.
+  </Step>
+</StepThrough>
+
+## Common mistakes
+
+- **Defaulting to email for everything.** Easy for the tech. Under-communicative for serious incidents.
+- **Calling for every incident "to be safe."** Wastes the customer's time on Lows. Trains them to dread calls from the MSP. Lowers the urgency of genuine Critical calls.
+- **Skipping the documented customer preference.** Most customers told your MSP how they want to be contacted. Using a different channel breaks trust regardless of how well the message lands.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-choosing-comms-channel" client:visible />

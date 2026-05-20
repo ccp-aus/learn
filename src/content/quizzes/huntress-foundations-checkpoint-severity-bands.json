@@ -1,0 +1,250 @@
+{
+  "slug": "huntress-foundations-checkpoint-severity-bands",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: severity bands and SLAs",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "re-grading",
+      "type": "mcq",
+      "topic": "re-grading",
+      "difficulty": "easy",
+      "prompt": "A new tech says: \"This incident looks Low to me, not High. I'll re-grade it.\" What's the right correction?",
+      "choices": [
+        "Re-grading is the SOC's call. Asking the analyst to revisit is fine;",
+        {
+          "label": "Re-grading is encouraged when the tech has more local context than the SOC.",
+          "rationale": "Customer context goes back to the analyst in a reply; it doesn't justify unilateral re-grading."
+        },
+        {
+          "label": "Re-grading is fine as long as you document it.",
+          "rationale": "Documentation doesn't make unilateral override correct."
+        },
+        {
+          "label": "Re-grading is impossible — the portal locks the field.",
+          "rationale": "The lesson doesn't say the field is locked; it says you don't re-grade regardless."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Doing it yourself unilaterally is second-guessing the recommendation. Severity is the SOC's call. Ask, don't override."
+    },
+    {
+      "id": "low-isnt-ignore",
+      "type": "mcq",
+      "topic": "low-misconception",
+      "difficulty": "medium",
+      "prompt": "\"Low severity means I can ignore it.\" Why is that misconception harmful?",
+      "choices": [
+        "Low means the SOC confirmed it as worth your time.",
+        {
+          "label": "Because the SLA on Low is tighter than on High.",
+          "rationale": "Wrong on the SLA shape. Low's SLA is typically the most permissive."
+        },
+        {
+          "label": "Because Low incidents are usually graded incorrectly.",
+          "rationale": "Wrong on the misconception's cause."
+        },
+        {
+          "label": "Because Low incidents are billed at a higher rate.",
+          "rationale": "Wrong on the commercial model."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Just not at the Critical tempo; Ignoring Low is how queues become backlogs. Low is normal tempo, not ignore."
+    },
+    {
+      "id": "high-after-hours",
+      "type": "mcq",
+      "topic": "after-hours",
+      "difficulty": "medium",
+      "prompt": "A High incident lands after hours. What does the lesson recommend as the typical pattern?",
+      "choices": [
+        {
+          "label": "Wake the senior; High is always wake-the-senior after-hours.",
+          "rationale": "Wrong. Critical wakes someone; High waits for the morning at most MSPs."
+        },
+        "Note the incident;.",
+        {
+          "label": "Action it immediately yourself, regardless of the time.",
+          "rationale": "High doesn't have an immediate-action requirement; it has a customer-SLA clock."
+        },
+        {
+          "label": "Close it as benign; High after-hours is usually a false positive.",
+          "rationale": "Worst response. Closing without action and without dialogue is the cardinal mistake."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Action it in the morning unless your MSP's after-hours policy says otherwise. Typical pattern: High waits for the morning. Check your MSP's policy for the exact rule."
+    },
+    {
+      "id": "critical-response-shape",
+      "type": "mcq",
+      "topic": "critical-response",
+      "difficulty": "medium",
+      "prompt": "Critical incidents have a \"different response model from Low and High.\" What's the difference?",
+      "choices": [
+        "Contain first (isolate or run the compromise playbook), escalate in parallel.",
+        {
+          "label": "Investigate first to confirm severity, then contain.",
+          "rationale": "Investigation before containment on a Critical is exactly what the lesson prevents."
+        },
+        {
+          "label": "Same response shape as High but with a 1-hour SLA.",
+          "rationale": "The response shape itself differs; it isn't a faster High."
+        },
+        {
+          "label": "Wait for the senior to take over completely; don't take any action yourself.",
+          "rationale": "The tech contains in parallel with escalating."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Do NOT investigate. Forensics and persistence-hunting are above the helpdesk ceiling. Contain and escalate; don't investigate."
+    },
+    {
+      "id": "friday-queue",
+      "type": "mcq",
+      "topic": "friday-queue",
+      "difficulty": "medium",
+      "prompt": "4:30pm Friday. You finish at 5pm; on-call starts at 6pm. Incident A: High EDR, encoded PowerShell scheduled task on a file server. Incident B: Low EDR, autoruns from an obscure software vendor. What do you do?",
+      "choices": [
+        {
+          "label": "Work both before 5pm — they're both your responsibility.",
+          "rationale": "Rushing both at the end of a shift is how mistakes happen on the more serious one."
+        },
+        "Work the High before 5pm. Leave the Low in the queue for Monday.",
+        {
+          "label": "Escalate both to the on-call rotation as the shift ends.",
+          "rationale": "On-call is for incidents that arrive after hours or outpace your shift."
+        },
+        {
+          "label": "Reduce the High to a Low to fit them both into your time.",
+          "rationale": "Re-grading is the SOC's call, not a queue-management tool."
+        }
+      ],
+      "correct": 1,
+      "explanation": "High has the tighter SLA. Low can wait two-and-a-half business days without harm."
+    },
+    {
+      "id": "customer-context-mid-action",
+      "type": "mcq",
+      "topic": "customer-context",
+      "difficulty": "hard",
+      "prompt": "Continuing the Friday High: while working it, the customer's IT contact says they think the scheduled task was created during a software install last night. They're confident it's benign. What do you do?",
+      "choices": [
+        {
+          "label": "Close as benign on the customer's word and move on.",
+          "rationale": "The customer's context is new signal, not a disposition. Same family as second-guessing the SOC."
+        },
+        "Reply to the analyst with the new context.",
+        {
+          "label": "Reduce the severity from High to Low yourself, given the customer's confidence.",
+          "rationale": "Re-grading on a customer claim is two mistakes in one click."
+        },
+        {
+          "label": "Approve the remediation immediately to clear the ticket before 5pm.",
+          "rationale": "Acting before the analyst weighs the new context is the angry-follow-up pattern."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Leave the incident open, finish your shift, hand to on-call with a note. Signal goes to the layer that decides; the ticket doesn't get dropped on the floor."
+    },
+    {
+      "id": "sla-source",
+      "type": "mcq",
+      "topic": "sla-source",
+      "difficulty": "easy",
+      "prompt": "Huntress's severity bands map to your MSP's SLAs. Where do the actual numbers come from?",
+      "choices": [
+        {
+          "label": "Huntress sets and enforces them globally.",
+          "rationale": "Huntress doesn't enforce an SLA on your side."
+        },
+        "Your MSP's contract with each customer.",
+        {
+          "label": "The customer sets them at onboarding.",
+          "rationale": "The customer agrees at contract; they aren't unilaterally set per ticket."
+        },
+        {
+          "label": "The senior on shift decides them ad-hoc.",
+          "rationale": "Ad-hoc SLAs aren't a thing."
+        }
+      ],
+      "correct": 1,
+      "explanation": "With after-hours rules set by your MSP's policy. SLAs are partner-specific. Read your MSP's document at least once."
+    },
+    {
+      "id": "tag-text-mismatch",
+      "type": "mcq",
+      "topic": "tag-text-mismatch",
+      "difficulty": "medium",
+      "prompt": "You read an incident: Low severity, but the Recommendation says \"isolate the host immediately.\" What does the lesson suggest you do?",
+      "choices": [
+        {
+          "label": "Ignore the recommendation; if it's Low, you don't isolate.",
+          "rationale": "Ignoring the Recommendation is the cardinal mistake."
+        },
+        "Send a clarifying reply to the analyst.",
+        {
+          "label": "Isolate immediately because the Recommendation says so, ignore the mismatch.",
+          "rationale": "You should not just act; a 30-second reply costs nothing before something irreversible."
+        },
+        {
+          "label": "Re-grade the severity to Critical to match the Recommendation.",
+          "rationale": "Re-grading is the SOC's call."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The tag and the text don't match, and it's worth confirming before acting. Mismatch between tag and text is information. The right surface is a clarifying reply."
+    },
+    {
+      "id": "high-example",
+      "type": "mcq",
+      "topic": "examples",
+      "difficulty": "easy",
+      "prompt": "Which of these is the lesson's example of a High-severity signal?",
+      "choices": [
+        "A scheduled task running PowerShell with encoded commands.",
+        {
+          "label": "A ransomware canary trip.",
+          "rationale": "Critical example, not High."
+        },
+        {
+          "label": "An autoruns entry from a legitimate-but-uncommon software vendor.",
+          "rationale": "Low example, not High."
+        },
+        {
+          "label": "Mass deletion of files across a tenant.",
+          "rationale": "Critical example, not High."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Encoded-PowerShell scheduled tasks sit in the High band alongside malicious inbox rules and unrecognised OAuth grants."
+    },
+    {
+      "id": "not-critical",
+      "type": "mcq",
+      "topic": "examples",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT a Critical-severity example from the lesson?",
+      "choices": [
+        {
+          "label": "Ransomware canary trip.",
+          "rationale": "Critical example."
+        },
+        {
+          "label": "Mass deletion of files.",
+          "rationale": "Critical example."
+        },
+        {
+          "label": "Lateral movement indicators.",
+          "rationale": "Critical example."
+        },
+        "A sign-in from a new country that the user later confirms."
+      ],
+      "correct": 3,
+      "explanation": "New-country sign-in with user confirmation is the lesson's Low example, not Critical."
+    }
+  ]
+}

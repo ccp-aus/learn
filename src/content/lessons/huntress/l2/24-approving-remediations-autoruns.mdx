@@ -1,0 +1,83 @@
+---
+slug: 24-approving-remediations-autoruns
+vendor: huntress
+level: l2
+title: "Approving remediations: autoruns"
+summary: What the autoruns remediation does on the endpoint, what it doesn't do, how to verify it cleanly, and the re-detection pattern that turns a routine approve into a containment-and-escalate call.
+estimatedMinutes: 7
+order: 24
+topics:
+  - edr
+  - remediation
+  - autoruns
+updated: 2026-05-20
+---
+
+Autoruns are the most common persistence mechanism attackers use, and the most common remediation type approved during routine triage. The mechanism is simple: entries that make code run automatically on login, boot, or specific events. The cleanup is more than "delete the registry key," though, and knowing what the remediation actually does is what separates click-approve-and-hope from approve, verify, move on.
+
+## What counts as an autoruns entry
+
+"Autoruns" is borrowed from Sysinternals' tool of the same shape: the set of mechanisms Windows (and macOS / Linux equivalents) uses to launch code automatically without the user asking. On Windows that includes Run and RunOnce registry keys, startup folders, services configured to start at boot, WMI subscriptions firing on system events, browser helper objects, Winlogon entries, image file execution options, and AppInit DLLs.
+
+Scheduled tasks are a separate remediation type in the Huntress flow (covered next lesson), even though Sysinternals' Autoruns tool includes them in its inventory.
+
+Attackers favour autoruns because the persistence survives reboot. Once their code is in an autoruns entry, killing the running process doesn't help; it will be back at next boot. That is why the SOC flags suspicious autoruns and recommends the remediation.
+
+## What the remediation does
+
+When you approve, the Huntress agent on the endpoint executes:
+
+- **Removal of the autoruns mechanism itself** (the registry key, the startup-folder shortcut, the WMI subscription, etc.).
+- **Removal of the backing file** if the SOC has classified it as malicious and the remediation includes it.
+- **A re-scan** to confirm the entry no longer appears in the inventory.
+
+The remediation does not reboot the endpoint. It does not stop a currently-running process. If the malicious binary is running right now, isolation or a separate process-kill is what addresses that; the autoruns remediation removes the *persistence*, which is what stops the activity from coming back.
+
+## The procedure
+
+1. Confirm the autoruns remediation is in the Recommendation, not just mentioned in Evidence.
+2. Confirm the host is the right host in the right customer organisation.
+3. Approve via the portal's recommended-action button.
+4. Wait for the agent to process. Typically seconds to minutes, depending on check-in cadence.
+5. Verify: the portal shows the remediation completed, and a re-scan confirms the autoruns entry is gone.
+6. Close in Huntress and the PSA. Document.
+
+## Verify
+
+- The remediation shows **completed** in the portal.
+- The previously-detected autoruns entry no longer appears in the endpoint's persistence inventory.
+- No re-detection within the next hour or so.
+- Incident note records the remediation, the verify check, and the closure.
+
+<Callout type="warn" title="The applied flag is not the verify check">
+The portal flipping to "applied" means the remediation command ran. Verifying the end state on the endpoint is the *did it work* check. The case where this bites: the agent is offline at the wrong moment or the remediation hits an unexpected condition, and you don't know until the same detection re-fires.
+</Callout>
+
+## When to escalate
+
+A re-detection of the same autoruns entry within an hour of a clean remediation is the signal that persistence is being re-installed by something still active on the endpoint. That is not a re-approve scenario. Approving again removes the new entry; the next re-install fires a few hours later. The right move is to isolate and bump in parallel. This is the same pattern as scheduled-task or service re-detections, and it is the Critical-recognition territory covered later in the arc.
+
+The other escalation triggers are simpler: the remediation fails to apply after one retry, or the customer's IT contact tells you the autoruns entry is something they set up deliberately (new signal — reply to the analyst with the user's confirmation before approving).
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="Same persistence keeps coming back — what's going on?"
+  description="Low EDR Incident Report on example.com, host WS-EXAMPLE-MARKETING-05. You approved the autoruns remediation; the portal showed it applied five minutes later and you confirmed the registry entry is gone. Two hours later, the portal flags a new incident on the same host: same autoruns entry, same path. Pick the next move."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Same entry re-appearing two hours after a clean remediation. What now?", choices: [
+      { label: "Approve the remediation again; it worked the first time, it will work again", next: "tail" },
+      { label: "Isolate the host. Escalate to senior in parallel. Document the pattern in the new Incident Report", next: "contain" },
+      { label: "Reply to the SOC asking what to do", next: "slow" },
+    ]},
+    { type: "outcome", id: "tail", label: "Chasing your tail", tone: "bad",
+      body: "The remediation did work; you verified. The persistence reappeared, which means something on the endpoint is re-installing it. Approving the remediation again will remove it again; the next re-install fires hours later. Whack-a-mole." },
+    { type: "outcome", id: "contain", label: "Contain first, escalate in parallel", tone: "success",
+      body: "Right answer. Clean removal followed by re-establishment within hours is a containment-and-escalate signal. The persistence had a friend on the endpoint that is still active. Isolate to shrink the attacker's time window; bump to senior; the SOC will weigh the next move with the new context." },
+    { type: "outcome", id: "slow", label: "Defensible but too slow", tone: "warn",
+      body: "Asking the SOC is reasonable, but containment matters and the time-on-the-endpoint window for the attacker is shrinking. The right reflex on this pattern is isolate first, then communicate. The SOC will get a clean Incident Report update once the host is contained." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-approving-remediations-autoruns" client:visible />

@@ -63,12 +63,11 @@ Before any DNS change on a live domain:
 
 ## Decision walkthrough
 
-A client emails: *the previous MSP set up DNSSEC on our domain `example.com`. We don't need it. Please disable it and move our DNS to Cloudflare in the same change so we can use their analytics.*
-
 <DecisionTree
   client:load
   startId="root"
   title="Which cardinal sin does the request trigger?"
+  description="A client emails: 'the previous MSP set up DNSSEC on our domain example.com. We don't need it. Please disable it and move our DNS to Cloudflare in the same change so we can use their analytics.'"
   nodes={[
     {
       type: "question",

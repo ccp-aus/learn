@@ -1,0 +1,76 @@
+---
+slug: 03-incident-type-impossible-travel
+vendor: huntress
+level: l3
+title: "Incident type: impossible travel"
+summary: Impossible travel is one of the most reliable compromise signals on the platform and one of the most reliable false-positive sources. The skill is reading the SOC's classification.
+estimatedMinutes: 8
+order: 3
+topics:
+  - itdr
+  - impossible-travel
+  - sign-in
+updated: 2026-05-20
+---
+
+Impossible travel fires when the same identity signs in from two locations within a window of time that is physically impossible to cover by travel. **Sign-in from London at 10:00 and Singapore at 10:15.** The geography and the timing do not add up. It is one of the most reliable identity-compromise signals on the platform, and one of the most reliable false-positive signals when a user has a VPN exiting in a different country.
+
+## What the SOC weighs
+
+Behind the scenes the SOC weighs:
+
+- **Geographic distance and travel time.** Faster than physically possible.
+- **IP reputations.** Both clean, one clean and one anonymising proxy, both VPN-shaped.
+- **The user's historical pattern.** Frequent traveller, never travels, uses a corporate VPN.
+- **Client type.** Browser, mobile app, IMAP, SMTP. IMAP and SMTP cache credentials and can fire impossible-travel artefacts even on benign users.
+
+The classification accounts for these. Your job is to read the Recommendation.
+
+## True compromise markers
+
+When the Evidence and Timeline show all four of these, the SOC's Recommendation will be aggressive:
+
+1. One location matches the user's known pattern (normal office or home country).
+2. The other is somewhere the user has never signed in from.
+3. The anomalous IP is on a residential-proxy, anonymising-service, or known-malicious list.
+4. The anomalous sign-in is followed within minutes by suspicious activity: inbox rule, MFA method addition, OAuth grant.
+
+Execute the full compromise playbook per the Recommendation.
+
+## VPN false-positive markers
+
+When the SOC has these, the Recommendation will be softer:
+
+1. The anomalous location is a known corporate VPN exit with months of prior clean sign-ins.
+2. No follow-on suspicious activity in the Timeline.
+3. The user has a documented travel pattern or remote-work VPN.
+
+The Recommendation may be "verify with user, no further action if confirmed" or "closing as benign, VPN exit pattern." Read the Recommendation. The SOC has weighed the false-positive shape.
+
+## Two failure modes
+
+**Treating every impossible-travel signal as Critical.** Burns customer relationships, especially with remote-worker-heavy customers where VPN signals fire regularly. The Recommendation tells you whether the SOC thinks this one is real.
+
+**Dismissing them all as "probably a VPN" without reading the Recommendation.** Misses the real ones. Attackers also use VPNs. The SOC's classification weighs both possibilities. Do not blanket-dismiss based on the word "VPN."
+
+The third path: read the Recommendation. The SOC has already weighed VPN, travel, and compromise patterns.
+
+## A worked scenario
+
+<StepThrough client:load>
+  <Step title="Scenario A: true compromise">
+    High-severity ITDR on `alex.kim@example.com`. Sign-in from Sydney at 09:14 (normal) and Bangkok at 09:27. Timeline: Bangkok sign-in followed at 09:31 by an inbox rule forwarding `*payment*` mail externally, and at 09:34 by an OAuth grant. Recommendation: revoke sessions, reset password and MFA, remove inbox rules. Execute per the compromise playbook. The inbox rule is already forwarding. Calling Alex first delays containment.
+  </Step>
+  <Step title="Scenario B: documented travel">
+    Same shape on `jordan.lee@example.com`. Sydney at 09:14, Bangkok at 09:27. Timeline: only those two sign-ins, no follow-on. Recommendation: "User has documented travel pattern (Bangkok in 6 of the last 12 months). Sydney sign-in may be cached IMAP credential. Verify with user. No further action if confirmed." Call Jordan, verify, close per the Recommendation.
+  </Step>
+  <Step title="The difference">
+    Identical signal. Different Timelines. Different Recommendations. The signal alone is not the disposition. The Recommendation is. The Timeline's follow-on activity (or absence of it) is what the SOC weighed.
+  </Step>
+</StepThrough>
+
+<Callout type="warn" title="IMAP and SMTP cached credentials">
+Legacy IMAP and SMTP clients cache credentials and can fire impossible-travel-shaped events for benign users. The SOC's classification weighs this. If you see "cached IMAP credential" in the Summary, the SOC has already accounted for it.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-impossible-travel" client:visible />

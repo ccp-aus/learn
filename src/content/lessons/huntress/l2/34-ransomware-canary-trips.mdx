@@ -1,0 +1,88 @@
+---
+slug: 34-ransomware-canary-trips
+vendor: huntress
+level: l2
+title: Ransomware canary trips
+summary: A canary trip is unambiguous, either a decoy file was touched or it wasn't. See the trip, isolate inside 60 seconds, escalate in parallel. Investigation of the canary is for after, and not by you.
+estimatedMinutes: 7
+order: 34
+topics:
+  - canary
+  - ransomware
+  - containment
+updated: 2026-05-20
+---
+
+Canary trips are the cleanest Critical you'll see. Either a canary file was touched in a ransomware-shaped pattern, or it wasn't. The temptation new techs feel is to investigate the trip first, "let me check if it was really ransomware or maybe just a user clicking around", and that's the moment ransomware spreads. The skill in this lesson is reflex: see canary trip, contain, escalate. Investigation is for after.
+
+## What canaries are, and where they live
+
+A ransomware canary is a decoy file the Huntress agent drops in plausible-looking locations. A share named *Important - Do Not Touch*. A folder named *Backup-2024*. A file named *Customer Database.xlsx* in a directory where someone might expect a real customer database. Realistic filenames, realistic file types, plausible folder structures, crafted to look attractive to ransomware's typical file-walking and encryption logic.
+
+Legitimate users and applications generally don't touch them. A user has no reason to open *Backup-2024/Vault.7z* they didn't create. A Windows Search indexer might list the file in its inventory but won't write to it or rename it. A backup tool walks files to copy, not to alter.
+
+Ransomware walks the filesystem and encrypts (or in modern variants, exfiltrates and then encrypts) whatever it finds. Canary files get touched in the same pattern as real files, and the agent watches for that touch.
+
+<Callout type="warn" title="Canaries ride inside EDR, they aren't a fourth surface">
+The Huntress agent that runs Managed EDR is the same agent that places and watches the canaries. Canaries are a feature of the EDR product, not a separate product surface. When you read "Huntress is three surfaces, EDR, ITDR, SIEM", the canaries are already counted; they live inside EDR. The temptation to round up to four surfaces is wrong on the product structure.
+</Callout>
+
+## What a canary-trip Incident Report looks like
+
+A canary-trip incident:
+
+- Carries a **Critical** severity tag.
+- Names the canary file in the Evidence: which file, on which path, when it was touched, by what process if the agent could identify it.
+- Often includes a Recommendation that leads with **"isolate the host immediately."**
+- May also include "preserve evidence" and "escalate to incident response" notes, both above the helpdesk ceiling and a signal to stop after containment.
+
+A canary-trip incident is usually the *first* signal that ransomware activity is in flight. There may not yet be other evidence: encrypted user files, ransom notes, performance impact. Canaries trip before users notice, and that's the point.
+
+## The reflex, and the procedure behind it
+
+See canary trip → isolate host → escalate in parallel. No reading the Evidence first. No checking whether the trip was "a real one." No calling the user before isolation. The isolation rule from earlier in this course applies with extra force on Critical, isolate first, every time.
+
+<StepThrough client:load>
+  <Step title="Recognise the canary trip">
+    Critical severity tag, canary indicator in the Evidence, Recommendation starting with "isolate the host immediately." The three together are unambiguous. Recognition takes seconds.
+  </Step>
+  <Step title="Isolate the host immediately">
+    Use the portal's isolation action on the named host. Target containment within 30 seconds of seeing the incident. The agent does the heavy lifting; you click and confirm.
+  </Step>
+  <Step title="Notify the on-call senior in parallel">
+    Phone first, dedicated chat channel as backup, PSA priority flag as durable record. Do all three on a Critical. The bump message is short and specific: "Critical canary trip on SRV-EXAMPLE-FILE-01, isolated at 03:14, on the line, who's available?"
+  </Step>
+  <Step title="Document the isolation timestamp">
+    PSA running entry with the timestamps. Who isolated, when, what the incident ID was, who you bumped. The live record while the senior takes the deeper response.
+  </Step>
+  <Step title="Stand by for senior direction">
+    The senior usually takes the response over fully. They may direct you on specific support tasks: customer comms, isolating related hosts as more incidents fire, etc. Don't free-lance.
+  </Step>
+  <Step title="Do not investigate the canary trip yourself">
+    No reading the Evidence to decide if it's "real." No checking the canary file's modification time. No calling the user to ask "did you touch anything weird?" All of that comes after, from a senior or a vendor's incident-response service.
+  </Step>
+</StepThrough>
+
+## Why "don't investigate" holds even when you're sure you could help
+
+Two reasons.
+
+The SOC has already classified the trip. If the SOC raised an Incident Report at Critical, the canary trip is a real trip. Tech-level investigation, "let me check if it was really ransomware or maybe just a user clicking around," is the second-guessing failure applied to the most time-critical incident type on the platform. The cost is measured in minutes, and ransomware spreads fast.
+
+By the time you've finished investigating from the tech seat, the attacker has had the same minutes to keep encrypting on other hosts. Containment is the only response that closes the time window. Investigation extends it.
+
+## When the second trip lands
+
+Saturday 03:14. A Critical Incident Report lands for Northwind Logistics, file server `SRV-NORTHWIND-FILE-01`, title "Ransomware canary tripped." You isolate within 40 seconds and phone the on-call senior. Senior is on the line. They say: "Good. Stay on the line. Don't touch anything else on Northwind's portal. I'm going to look at the network-level scope; there may be other hosts." Two minutes later a second Critical lands: same customer, host `SRV-NORTHWIND-APP-02`, same canary-tripped title.
+
+The senior said "don't touch anything else." A literal reading is wait for permission. A correct reading is that *don't touch anything else* meant don't freelance investigation or comms outside the containment workflow. A new canary trip on a new host is the containment workflow. Isolate `SRV-NORTHWIND-APP-02` immediately, confirming with the senior in real time as you do it ("second canary just fired on `SRV-NORTHWIND-APP-02`, isolating now"). The reflex doesn't pause for per-host permission; the senior is on the line, and they get told as you act, not asked for sign-off on each Critical.
+
+## When the customer pushes back
+
+The customer's IT contact phones in mid-response: "Un-isolate that file server now, we're sure that canary trip was a mistake, we need the server back online." That's a customer-relationship escalation, and it's the senior's call. The isolation stays until cleared by the senior leading the response, not by the customer's preference. Acknowledge the call, explain that a senior is leading the response and you can't lift the isolation on a customer request, route the conversation up.
+
+## When the senior is unreachable
+
+Phone goes to voicemail, chat channel quiet. The waiting cost is the attacker's continuing movement. Escalate up the on-call chain per the runbook, don't loop on the same name and don't fill the gap with tech-seat investigation. The isolation stays; the up-the-chain escalation is what unsticks the response.
+
+<Checkpoint slug="huntress-operations-checkpoint-ransomware-canary-trips" client:visible />

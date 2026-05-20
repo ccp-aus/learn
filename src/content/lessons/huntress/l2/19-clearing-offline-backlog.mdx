@@ -1,0 +1,77 @@
+---
+slug: 19-clearing-offline-backlog
+vendor: huntress
+level: l2
+title: Clearing an offline backlog
+summary: Backlogs are a category problem disguised as a count problem. Categorise first, batch only within a category, document each endpoint. The customer wants the count down for the right reason, not cosmetically.
+estimatedMinutes: 9
+order: 19
+topics:
+  - agent
+  - offline
+  - backlog
+updated: 2026-05-20
+---
+
+Backlog clearing is where lesson 18's individual offline diagnostic pays off or fails to. One offline at a time is easy. Ten at a time is where techs either get the diagnostic right and move fast, or apply one fix to everything and discover later that half of them weren't fixed by it. Backlogs also have a social pressure shape: the customer is asking for the count to come down, and the temptation is to make the number drop rather than to make each endpoint actually return to service.
+
+## The backlog mindset
+
+Three things to carry before opening the offline list:
+
+- **The number on the dashboard is a count, not a problem.** Twelve offlines split as nine powered-off, two network-blocked, and one uninstalled is a 25% real-work load. Twelve offlines that are all uninstalled is a five-alarm fire. The count doesn't tell you which.
+- **Per-endpoint accountability survives at scale.** Every endpoint gets categorised, gets the right fix, and gets a one-line PSA note. Skipping documentation to "save time" is what makes the same backlog reappear next month.
+- **Batching is allowed within a category, not across.** Re-pushing to ten uninstalled agents in one RMM job is fine. Re-pushing to ten *offline* agents (mixed causes) is the make-the-number-drop failure mode.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Pull the offline list, sort by last-seen oldest first">
+    Stale offlines that have been there for weeks tell you something different from offlines that started this morning.
+  </Step>
+  <Step title="Categorise each entry using lesson 18's two-question diagnostic">
+    RMM online? Huntress service running? Record the cause against each entry in a worksheet, scratchpad, or your runbook's template.
+  </Step>
+  <Step title="Look for patterns within the categorisation">
+    Five service-stopped on the same OU? Same OS patch level? Same day? Shared cause, shared fix. Three uninstalled on the same site? An AV update on that site is a likely culprit.
+  </Step>
+  <Step title="Apply fixes by category, in order">
+    Powered off (no action, document). Service stopped (start the service via RMM; don't loop on restarts). Network blocked (lesson 17). Uninstalled (investigate why before re-pushing).
+  </Step>
+  <Step title="Verify the count comes down for the right reason">
+    Each category processed should produce a measurable drop. Categories you can't fix yourself get documented and escalated, not left invisible.
+  </Step>
+  <Step title="Close out per endpoint, summarise per category">
+    PSA notes per endpoint (cause + action). One-line summary to the customer's IT contact with the category split, not just the new total.
+  </Step>
+</StepThrough>
+
+## Common slips
+
+- **Re-pushing to every offline indiscriminately to make the number drop.** Wrong fix for three of the four causes; doesn't change anything for two of them (powered off, network blocked); creates churn in the RMM. The category-then-fix discipline takes longer up-front and finishes faster overall.
+- **Skipping the "why was it uninstalled" question.** Re-installing on top of the same condition repeats the failure. AV removed it, the user removed it, a deployment tool removed it. Find the cause first.
+- **Dropping documentation to "save time."** Same backlog appears next month with no record of what fixed which. Documentation is the compounding return; without it, you're running the same diagnostic on the same endpoints monthly.
+
+## The customer summary
+
+Not just a number. The customer's IT contact needs the category split, because the categories drive whether next month's backlog is preventable:
+
+> *Of fourteen: eight endpoints powered off (weekend, leave, decommissioned); three service-stopped (Windows update on the tier-2 OU; service restarted, cause documented for the next push); two uninstalled (executive laptops, SCCM cleanup task; exclusion added, re-pushed); one remote worker behind a hotel captive portal (resumes on a clean network).*
+
+## When to escalate
+
+- A material fraction of the backlog is uninstalled with no clear cause. A customer-side dynamic is removing agents and you need a senior in the customer conversation.
+- The backlog reveals coverage gaps the customer's IT pushes back on. Customer-relationship piece; senior owns.
+- The backlog includes endpoints the MSP shouldn't be covering at all (the *In AD, not in RMM* category from coverage verification). Deployment-strategy question; senior owns.
+
+## A worked backlog: Able Moose Accounting
+
+It's Monday morning. Able Moose's portal shows 14 offline agents. The account manager has flagged it: *can we get this number down before the weekly review on Thursday?*
+
+The wrong reflex is *re-push the install to all 14*. Bulk re-push without categorising is the make-the-number-drop failure mode. The right reflex is the categorisation worksheet: two minutes per endpoint is 28 minutes of work that prevents the half-day of misapplied fixes the bulk re-push would have caused. You also get a real answer to give the account manager by mid-morning.
+
+The categorisation comes back: eight powered off (matching weekend-off / leave / decommissioned patterns), three service-stopped (all on the same OU, all show a Windows update event yesterday), two uninstalled (both executive laptops, both show an SCCM cleanup task in the local logs), one network-blocked (a remote-worker laptop on hotel WiFi behind a captive portal).
+
+Each gets the right fix. Start the service on the three service-stopped endpoints; document the Windows-update-shaped cause so next month's update doesn't surprise anyone. Add the documented exclusion for the SCCM cleanup task on the two executive laptops, then re-push. Tell the remote worker the captive portal blocks our outbound and coverage resumes when they're back on a clean network. The eight powered-off get a one-line each in the PSA and no further action. The customer gets a category-split summary, not a count.
+
+<Checkpoint slug="huntress-operations-checkpoint-clearing-offline-backlog" client:visible />

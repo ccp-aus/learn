@@ -1,0 +1,241 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-clicking-approve-and-see",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: the click-and-see reflex",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "definition",
+      "type": "mcq",
+      "topic": "click-and-see",
+      "difficulty": "easy",
+      "prompt": "What is \"click approve and see\" in the lesson's framing?",
+      "choices": [
+        "Taking an action when you do not fully understand what it does.",
+        {
+          "label": "Approving a recommendation after carefully reading and understanding it.",
+          "rationale": "That is the correct disposition. The lesson's reflex is the opposite."
+        },
+        {
+          "label": "Asking the SOC a clarifying question before acting.",
+          "rationale": "The opposite reflex, the one the lesson installs."
+        },
+        {
+          "label": "Bulk-closing similar-looking incidents to clear the queue.",
+          "rationale": "That is Trap 1 from the helpdesk-traps lesson, a related but different failure mode."
+        }
+      ],
+      "correct": 0,
+      "explanation": "On the assumption you will find out as it executes. Action without understanding, justified by 'we'll see.' The common shape across all the examples the lesson names."
+    },
+    {
+      "id": "not-a-reason",
+      "type": "mcq",
+      "topic": "consequences",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT one of the three reasons the lesson gives for why click-and-see ends careers?",
+      "choices": [
+        {
+          "label": "The platform's actions affect real customers.",
+          "rationale": "One of the three reasons named in the lesson."
+        },
+        {
+          "label": "The action is recorded in the portal's audit log.",
+          "rationale": "One of the three reasons named in the lesson."
+        },
+        "Huntress automatically flags click-and-see patterns to your MSP's management.",
+        {
+          "label": "The pattern compounds and the tech's reliability score drops.",
+          "rationale": "One of the three reasons named in the lesson."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The lesson does not claim Huntress flags patterns to management. The senior reviewing your work catches the pattern; it is an internal MSP signal."
+    },
+    {
+      "id": "ui-forgiving-trap",
+      "type": "mcq",
+      "topic": "traps",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson call the portal \"forgiving in the UI\" a trap?",
+      "choices": [
+        "Low UI friction (most actions just need a confirm dialog) does not match the action's real consequence.",
+        {
+          "label": "The UI has bugs that let you click the wrong button.",
+          "rationale": "The UI works correctly; that is part of the problem."
+        },
+        {
+          "label": "The UI is hard to navigate so you will click something by accident.",
+          "rationale": "The lesson's point is the opposite. Actions are easy to take, which makes them dangerous."
+        },
+        {
+          "label": "Huntress hides destructive actions behind hidden menus.",
+          "rationale": "Wrong. The actions are exposed and the dialog is the only friction."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The cost is hidden until later, when the customer feels it. UI friction does not track action weight on a security platform. Low friction masks high consequence."
+    },
+    {
+      "id": "pause-habit",
+      "type": "mcq",
+      "topic": "alternative",
+      "difficulty": "easy",
+      "prompt": "What is the ten-second pause the lesson installs as a habit?",
+      "choices": [
+        {
+          "label": "Always wait five minutes before any portal action.",
+          "rationale": "Wrong duration and wrong criterion. The pause is brief and conditional."
+        },
+        "Ask yourself: do I know what this action does.",
+        {
+          "label": "Ask Huntress support before any approval.",
+          "rationale": "Misuses support. Most approvals are routine; the pause is for the unsure ones."
+        },
+        {
+          "label": "Refresh the portal twice before clicking.",
+          "rationale": "Not the lesson's framing."
+        }
+      ],
+      "correct": 1,
+      "explanation": "On this customer, in this situation? If yes, click. If no, escalate or clarify. The pause is the practice. Recognising the reflex matters more than memorising any specific rule."
+    },
+    {
+      "id": "senior-annoyance",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"The senior would be annoyed if I asked.\" What is wrong with this framing?",
+      "choices": [
+        {
+          "label": "Seniors are required to be friendly; they cannot be annoyed.",
+          "rationale": "Wrong on the facts and not the lesson's framing."
+        },
+        {
+          "label": "Only ask via the ticket comment thread, never face-to-face.",
+          "rationale": "Wrong channel rule. The lesson allows senior, SOC reply, or runbook re-read."
+        },
+        "Almost never true.",
+        {
+          "label": "You should never ask the senior and always figure it out yourself.",
+          "rationale": "Inverts the lesson entirely."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The senior is far more annoyed by recovery work from a wrong click than by a clarifying question. Asking is cheap; recovery is not. The senior's actual preference inverts the tech's assumption. Recovery work from a wrong click costs more than a thirty-second question."
+    },
+    {
+      "id": "speed-misconception",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "A new tech says: \"Speed is the goal. Slow-and-correct will get me flagged for being too slow.\" What is the right correction?",
+      "choices": [
+        "Speed at the cost of correctness on a security platform is the failure mode.",
+        {
+          "label": "Speed is the goal, but only on Lows. Highs and Criticals deserve more care.",
+          "rationale": "Wrong calibration. All severity classes need the do-I-understand-this check."
+        },
+        {
+          "label": "Tell the senior the queue is too big and refuse to work until it shrinks.",
+          "rationale": "Does not address the per-ticket correctness issue."
+        },
+        {
+          "label": "Click approve faster on tickets that look similar to ones you have closed before.",
+          "rationale": "The autopilot pattern combined with click-and-see. Worse, not better."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Slow-and-correct beats fast-and-wrong every time. Queue pressure is real, but correctness is the metric the customer feels. The mismatch is what the reflex exploits."
+    },
+    {
+      "id": "pattern-compounding",
+      "type": "mcq",
+      "topic": "consequences",
+      "difficulty": "hard",
+      "prompt": "A peer clicked-and-seen on three tickets in a fortnight. The senior catches the pattern in review. Why does this matter more than any one bad click?",
+      "choices": [
+        {
+          "label": "Because Huntress raises the customer's subscription fee if click-and-see patterns are detected.",
+          "rationale": "Wrong on the commercial model. Click-and-see is not a billing event."
+        },
+        "A single bad click is recoverable.",
+        {
+          "label": "Each individual click is irreversible by design.",
+          "rationale": "Most portal actions are reversible at some cost. The lesson's point is the pattern, not individual reversibility."
+        },
+        {
+          "label": "The pattern triggers an automatic Huntress support ticket against the tech.",
+          "rationale": "Wrong on the facts. Huntress does not auto-flag tech-side patterns."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The pattern is not. Once flagged, the tech's reliability drops, the senior's trust drops, and the runway shortens. The compounding is the third reason careers end. A single miss is a learning moment; a pattern of misses is a reliability signal."
+    },
+    {
+      "id": "alternative-order",
+      "type": "order",
+      "topic": "alternative-workflow",
+      "difficulty": "medium",
+      "prompt": "Order the steps of the calibrated alternative to click-and-see when you are not confident about an action.",
+      "items": [
+        "Notice the urge to click and pause for ten seconds.",
+        "Ask: do I know what this action does, on this customer, in this situation?",
+        "Name the uncertainty (to yourself, to the senior, or in a reply to the SOC).",
+        "Re-read the runbook, ask the senior, or reply to the SOC with the specific question.",
+        "Once resolved, proceed with the action or hand off cleanly."
+      ],
+      "explanation": "Pause, test, name, clarify, proceed. The recognition moment is the whole skill; without the pause, the rest does not happen."
+    },
+    {
+      "id": "legalsoft-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High-severity EDR Incident Report on WS-EXAMPLE-LEGAL-08. Recommendation: approve the autoruns remediation on C:\\Program Files\\LegalSoft\\update.exe. You have never heard of LegalSoft. The customer is a law firm. What do you do?",
+      "choices": [
+        {
+          "label": "Click approve. The SOC said so.",
+          "rationale": "The Recommendation says approve, but the path looks like legitimate business-software. 'The SOC said so' is sometimes right and sometimes the cardinal mistake."
+        },
+        {
+          "label": "Click approve to see if it breaks the customer's legal software.",
+          "rationale": "The verbatim reflex this lesson exists to prevent."
+        },
+        "Pause and reply to the SOC.",
+        {
+          "label": "Close the incident as benign because the path looks like legitimate business software.",
+          "rationale": "Worse than click-and-see. Overriding the SOC's High-severity Recommendation on path alone is the cardinal mistake."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The path matches an installed legal-industry software vendor for this customer. Confirm the binary classification is malicious despite the legitimate-vendor path, before approving. Twenty seconds to write the question. One minute to wait. The analyst confirms (binary tampered, malicious despite the path) and you proceed with confidence, or clarifies and you avoid a customer-impact mistake."
+    },
+    {
+      "id": "post-clarification",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Continuing the LegalSoft scenario: the SOC analyst confirms the binary is malicious, the attacker dropped a fake update.exe into the LegalSoft directory. What do you do next?",
+      "choices": [
+        "Approve the remediation and acknowledge the analyst with a one-line reply.",
+        {
+          "label": "Ask the analyst again, to be sure.",
+          "rationale": "Relitigating a clear answer. The analyst's response resolved the question."
+        },
+        {
+          "label": "Click approve immediately without responding to the analyst.",
+          "rationale": "Functionally right, but skipping the acknowledgement is a courtesy gap."
+        },
+        {
+          "label": "Also block the LegalSoft directory at the firewall to prevent re-drop.",
+          "rationale": "Extending the action set on context the SOC did not recommend. If you think the firewall should also act, that is another clarifying reply, not a unilateral extension."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The pause-and-clarify did its job. The acknowledgement closes the loop cleanly with the SOC."
+    }
+  ]
+}

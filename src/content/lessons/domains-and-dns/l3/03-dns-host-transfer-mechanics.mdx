@@ -78,12 +78,11 @@ Recovery: revert the nameserver change at the registrar (slow — parent NS TTL 
 
 ## Decision walkthrough
 
-A client wants to move DNS from GoDaddy (their current registrar's default DNS) to Cloudflare DNS. The website and mail are working. *Minimal downtime* is the requested outcome.
-
 <DecisionTree
   client:load
   startId="root"
   title="First move on a DNS host transfer"
+  description="A client wants to move DNS from GoDaddy (their current registrar's default DNS) to Cloudflare DNS. The website and mail are working. 'Minimal downtime' is the requested outcome."
   nodes={[
     {
       type: "question",

@@ -1,0 +1,25 @@
+{
+  "slug": "huntress-foundations",
+  "vendor": "huntress",
+  "level": "l1",
+  "title": "Huntress foundations",
+  "shortTitle": "Foundations",
+  "summary": "Settle into the self-paced cadence, name the escalation ceiling, then build the mental model of Huntress as a managed security platform with a 24/7 SOC. Read an Incident Report the right way round, recognise the four product surfaces, navigate the portal without acting on the wrong customer.",
+  "estimatedMinutes": 88,
+  "prereqs": [],
+  "lessons": [
+    "01-how-this-course-works",
+    "02-capturing-questions-for-your-senior",
+    "03-what-ready-for-live-tickets-looks-like",
+    "04-what-huntress-is",
+    "05-managed-soc-model",
+    "06-product-surfaces",
+    "07-portal-walkthrough-global-view",
+    "08-portal-walkthrough-inside-an-org",
+    "09-severity-bands",
+    "10-reading-an-incident-report",
+    "11-recommendation-vs-context"
+  ],
+  "quiz": "huntress-foundations-final",
+  "status": "live"
+}

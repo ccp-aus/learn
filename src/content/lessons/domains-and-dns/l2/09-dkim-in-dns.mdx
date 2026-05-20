@@ -77,6 +77,123 @@ The mail server signs with one selector at a time. When the vendor rotates the k
 
 For setup: M365's wizard gives you *two* CNAMEs. Don't skip the second because *the first one looks enough*. Rotation will silently fail.
 
+## Practice: verify a DKIM selector
+
+After publishing M365's two DKIM CNAMEs, verify they resolve.
+
+<Console
+  client:load
+  title="dkim-selector-check"
+  steps={[
+    {
+      narration: "Check whether selector1 resolves. The CNAME should point at Microsoft's published key.",
+      variants: {
+        bash: {
+          choices: [
+            "dig CNAME selector1._domainkey.example.com +short",
+            {
+              label: "dig TXT example.com +short",
+              rationale: "DKIM doesn't live at the apex. It lives at the selector subdomain: selector1._domainkey.example.com.",
+            },
+            {
+              label: "dig TXT _domainkey.example.com +short",
+              rationale: "Close but missing the selector prefix. The full name is selector1._domainkey.example.com.",
+            },
+          ],
+          correctIndex: 0,
+          response: "selector1-example-com._domainkey.example.onmicrosoft.com.",
+          comment: "CNAME resolves to Microsoft's published key location. selector1 is live.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName selector1._domainkey.example.com -Type CNAME",
+            {
+              label: "Resolve-DnsName example.com -Type TXT",
+              rationale: "TXT at the apex returns SPF and verification tokens, not DKIM. DKIM lives at the selector subdomain.",
+            },
+            {
+              label: "Resolve-DnsName _domainkey.example.com -Type TXT",
+              rationale: "Missing the selector prefix. Query selector1._domainkey.example.com.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name     : selector1._domainkey.example.com\nType     : CNAME\nNameHost : selector1-example-com._domainkey.example.onmicrosoft.com",
+          comment: "CNAME points to Microsoft's key. selector1 is correctly published.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=CNAME selector1._domainkey.example.com",
+            {
+              label: "nslookup -type=TXT example.com",
+              rationale: "DKIM lives at the selector subdomain, not the apex. Query selector1._domainkey.example.com.",
+            },
+            {
+              label: "nslookup selector1._domainkey.example.com",
+              rationale: "Without -type=CNAME, nslookup may follow the CNAME chain and return the final TXT. Explicit CNAME type confirms the pointer is in place.",
+            },
+          ],
+          correctIndex: 0,
+          response: "selector1._domainkey.example.com    canonical name = selector1-example-com._domainkey.example.onmicrosoft.com",
+          comment: "CNAME is in place. selector1 points to Microsoft's key.",
+        },
+      },
+    },
+    {
+      narration: "Now check selector2. Both must be present for key rotation to work.",
+      variants: {
+        bash: {
+          choices: [
+            "dig CNAME selector2._domainkey.example.com +short",
+            {
+              label: "dig CNAME selector1._domainkey.example.com +short",
+              rationale: "You already verified selector1. Check selector2 to confirm both are in place.",
+            },
+            {
+              label: "dig TXT selector2._domainkey.example.com +short",
+              rationale: "For the CNAME form (M365's default), check CNAME first. If the record is the direct TXT form, TXT would be right, but M365 uses CNAMEs.",
+            },
+          ],
+          correctIndex: 0,
+          response: "selector2-example-com._domainkey.example.onmicrosoft.com.",
+          comment: "Both selectors resolve. Key rotation will work when Microsoft switches signing between them.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName selector2._domainkey.example.com -Type CNAME",
+            {
+              label: "Resolve-DnsName selector1._domainkey.example.com -Type CNAME",
+              rationale: "Already verified. Check selector2.",
+            },
+            {
+              label: "Resolve-DnsName selector2._domainkey.example.com -Type TXT",
+              rationale: "M365 uses CNAME form. Check CNAME to confirm the pointer is in place. The TXT lives at Microsoft's end.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name     : selector2._domainkey.example.com\nType     : CNAME\nNameHost : selector2-example-com._domainkey.example.onmicrosoft.com",
+          comment: "Both selectors in place. M365 DKIM setup is complete.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=CNAME selector2._domainkey.example.com",
+            {
+              label: "nslookup -type=CNAME selector1._domainkey.example.com",
+              rationale: "Already checked selector1. Verify selector2.",
+            },
+            {
+              label: "nslookup selector2._domainkey.example.com",
+              rationale: "Without -type=CNAME, nslookup may follow the chain. Explicit type confirms the CNAME itself is published.",
+            },
+          ],
+          correctIndex: 0,
+          response: "selector2._domainkey.example.com    canonical name = selector2-example-com._domainkey.example.onmicrosoft.com",
+          comment: "Both selectors resolve. DKIM setup complete; key rotation is covered.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## What this is NOT
 
 - "DKIM is one key per domain." It's one key per selector; a domain can have many selectors.
@@ -85,17 +202,11 @@ For setup: M365's wizard gives you *two* CNAMEs. Don't skip the second because *
 
 ## Decision walkthrough
 
-A client onboards to M365. The wizard provides two CNAMEs to add. You publish both. Two minutes later:
-
-```text
-dig CNAME selector1._domainkey.example.com    # returns the expected target ✓
-dig CNAME selector2._domainkey.example.com    # NXDOMAIN ✗
-```
-
 <DecisionTree
   client:load
   startId="root"
   title="The second CNAME isn't resolving"
+  description="A client onboards to M365. The wizard provides two DKIM CNAME records to add. You publish both. Two minutes later, selector1._domainkey resolves correctly, but selector2._domainkey returns NXDOMAIN."
   nodes={[
     {
       type: "question",

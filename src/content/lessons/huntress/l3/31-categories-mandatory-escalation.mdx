@@ -1,0 +1,80 @@
+---
+slug: 31-categories-mandatory-escalation
+vendor: huntress
+level: l3
+title: "The categories of mandatory escalation"
+summary: "Six categories of work that always escalate regardless of how the ticket arrives, how confident the customer's IT contact sounds, or how reasonable a senior's offhanded 'just go ahead' sounds. The list is short; carrying it as a mental check is the practice."
+estimatedMinutes: 7
+order: 31
+topics:
+  - judgement
+  - escalation
+  - mandatory-escalation
+updated: 2026-05-20
+---
+
+Half the failure modes covered so far reduce to one habit gap: not noticing that a ticket has crossed a category line. This lesson is the list. The list is short. Memorising it at the row level is one of the highest-leverage things to do in the capstone.
+
+## The six categories
+
+These categories escalate every time. Recognition is the skill.
+
+| # | Category | Trip shape |
+|---|---|---|
+| 1 | **Critical incidents** | Anything Critical by default, or the markers from the Critical-incident lesson (canary trip, mass deletion, lateral movement, admin-credential abuse). Contain-and-escalate-in-parallel. |
+| 2 | **Tenant-wide identity compromise** | Multi-user patterns, admin involvement, tenant-level grants or app registrations. Single-identity playbook is in scope. Tenant-wide response is above the line. |
+| 3 | **SIEM tuning requests** | Detection rules, query configuration, retention settings, ingestion architecture. The portal exposes these surfaces. Visibility isn't authorisation. |
+| 4 | **Subscription, billing, or permanent commercial actions** | Deployment-strategy decisions, subscription scope, product-mix changes, permanent organisation deletion. Runbook execution is in scope; decisions that commit the customer are not. |
+| 5 | **Anything irreversible the tech doesn't fully understand** | Permanent org deletions, bulk un-isolations across many hosts, tenant-wide credential rotations. Two-question test fails: irreversible plus no clean articulation of why this is the right action. |
+| 6 | **Customer-versus-SOC tension** | The customer wants the host released, the OAuth grant left, the inbox rule restored. Any time customer preference and SOC recommendation pull in different directions, the senior owns the conversation. |
+
+Most tickets aren't in any category. Standard EDR, ITDR, and SIEM workflow applies; do the work. The categories trip when something pushes past the line: a senior's casual instruction, a customer's pushback, a Recommendation that includes tuning language.
+
+<Callout type="warn" title="Visibility isn't authorisation">
+The portal exposes the SIEM tuning surface, the org-deletion control, the bulk un-isolation action. Being able to click is not the same as being permitted to click. Category 3, 4, and 5 trip on the *action*, not on whether the UI lets the tech reach it.
+</Callout>
+
+## How a category trips on a quiet day
+
+Three patterns show up more than others.
+
+A senior walking past the desk: *while you're at it, can you delete those three legacy orgs?* Category 4. Permanent organisation deletion is the archetypal commercial action. A corridor instruction isn't a documented delegation.
+
+A customer's IT manager on the phone: *release Bob's machine, he's sure he was the one signing in*. Category 6. Customer preference vs. SOC remediation. The senior owns that call.
+
+A SOC Recommendation that reads, halfway down: *consider tuning the threshold for this detection on this source*. Category 3. The remediation portion is in scope; the tuning portion is above the line, even though it lives in the same report.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The senior's casual ask, end of a quiet afternoon"
+  description="A senior tech (not your direct manager, more experienced) messages you between tickets: 'Can you delete those three legacy organisations in the portal? They've been archived for months.' You have the access. The portal allows it. The senior is asking nicely. The category trip is the entire question."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do first?", choices: [
+      { label: "Delete them. A senior asked, the portal allows it.", next: "delete" },
+      { label: "Ask the senior to either run the deletions themselves or document the delegation as a runbook update.", next: "delegate" },
+      { label: "Delete one as a test to see whether anything breaks.", next: "test" },
+    ]},
+    { type: "outcome", id: "delete", label: "Cardinal mistake, category 4 trip", tone: "bad",
+      body: "Permanent organisation deletion is the archetypal category-4 action. A senior's verbal ask in passing is not the documented form of authorisation the category needs. The deletion runs, the audit trail names you as the actor, and 'the senior said it was fine' is a weaker post-incident answer than 'the runbook authorised it.'" },
+    { type: "outcome", id: "delegate", label: "Calibrated response", tone: "success",
+      body: "You are not refusing. You are putting the irreversible action behind the gate the category puts it behind. Either the senior runs the deletions themselves (they have the authority and want the action) or the runbook gets updated to delegate the action with the controls the category needs." },
+    { type: "outcome", id: "test", label: "Click-and-see on a permanent action", tone: "bad",
+      body: "Test deletions on irreversible commercial actions combine the cardinal click-and-see reflex with a category-4 trip. The 'test' frames the action as low-stakes; the action is permanent regardless of framing." },
+  ]}
+/>
+
+The senior pushes back: *they have been dead for months, do it, I'll vouch for you*. The vouch is the senior's social safety net, not a process one. The cleanest response names the underlying gap and proposes the fix: *if these really are stale, this is paperwork. Can we update the offboarding runbook to delegate permanent deletion for orgs older than X months? Covers this case and the next ten. I'll wait until then.* The senior gets the path forward; the category stays gated; the runbook earns the rule.
+
+## Common misconceptions
+
+- *If a senior tells me to do it, that's the authorisation.* Sometimes. Verbal corridor instructions are not documented delegations for category-4 actions. The form matters.
+- *If the customer asks me directly, that's their authority.* The customer's request does not authorise the tech to act against the SOC's recommendation. Customer-versus-SOC tension is automatic escalation.
+- *If I read the runbook carefully enough, I can navigate the categories myself.* The categories exist because the MSP has decided the tech-level decision lacks the full picture. Reading more carefully does not change the scope.
+
+## What to do with this
+
+Run the six-category check on every non-routine ticket. Most tickets pass through it in two seconds. When a category trips, the action is the same every time: name the category to the senior out loud, hand off cleanly, support per their direction. Naming the category is what makes the hand-off legible.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-mandatory-escalation" client:visible />

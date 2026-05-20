@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-when-to-isolate-before-contacting-user",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: when to isolate before contacting the user",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "why-isolate-first",
+      "type": "mcq",
+      "topic": "rationale",
+      "difficulty": "medium",
+      "prompt": "Why \"isolate first, then call\" on Critical and isolation-recommended High?",
+      "choices": [
+        "The time between \"we saw the activity\" and \"the user is isolated\" is time the attacker has to do more damage, exfiltrate more, or escalate.",
+        {
+          "label": "Because calling first is a regulatory violation under most cyber-insurance policies.",
+          "rationale": "Not the reason. The reason is operational, not contractual."
+        },
+        {
+          "label": "Because the SOC doesn't want techs talking to customers directly.",
+          "rationale": "Wrong on the model. The customer call happens; it happens 30 seconds after isolation, not 30 minutes before."
+        },
+        {
+          "label": "Because the customer's phone might be compromised too.",
+          "rationale": "Not the framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Most attackers move fast once discovered. The 30-second-vs-30-minute trade. The user gets a call about an isolation that already happened, not a heads-up."
+    },
+    {
+      "id": "unsanctioned-isolation",
+      "type": "mcq",
+      "topic": "unilateral-isolation",
+      "difficulty": "medium",
+      "prompt": "A High incident has a remediation Recommendation but NO isolation in it. You think isolation would be safer. What do you do?",
+      "choices": [
+        {
+          "label": "Add isolation; it's safer.",
+          "rationale": "Second-guessing the SOC and acting on context in the same move. \"Not in the Recommendation\" is the disposition."
+        },
+        "Run the standard workflow.",
+        {
+          "label": "Call the user and ask if they think isolation would be helpful.",
+          "rationale": "The customer doesn't decide isolation."
+        },
+        {
+          "label": "Wait an hour and isolate if the situation hasn't improved.",
+          "rationale": "Unilateral isolation on a delay is still unilateral."
+        }
+      ],
+      "correct": 1,
+      "explanation": "If new signal emerges during triage, reply to the SOC with the new information rather than isolating unilaterally. The SOC has weighed isolation. \"Not in the Recommendation\" is itself the disposition. New signal goes via reply, not unilateral action."
+    },
+    {
+      "id": "user-unreachable",
+      "type": "mcq",
+      "topic": "unreachable",
+      "difficulty": "medium",
+      "prompt": "The Recommendation is \"isolate the host.\" You can't reach the user. What do you do?",
+      "choices": [
+        "Isolate. Document the attempt.",
+        {
+          "label": "Wait for the user. Trying to reach them is the prerequisite for isolating.",
+          "rationale": "Trying to reach the user is a courtesy; the isolation is the action. Waiting gives the attacker more time."
+        },
+        {
+          "label": "Escalate to a senior and ask them to make the call.",
+          "rationale": "Bumping every time the user is unreachable wastes senior time; the action is in scope for the tech."
+        },
+        {
+          "label": "Try the user's spouse or personal phone to reach them faster.",
+          "rationale": "Overstepping into personal contacts isn't the tech's relationship to make."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Try alternative contacts (customer's IT manager, on-call). User notification is a courtesy on top of the recommended action, not a prerequisite. Isolate, document, try alternatives. Don't wait indefinitely."
+    },
+    {
+      "id": "user-vs-it",
+      "type": "mcq",
+      "topic": "who-to-call",
+      "difficulty": "medium",
+      "prompt": "When do you call \"the user\" versus \"the customer's IT manager\"?",
+      "choices": [
+        "User: \"did you do this?\" questions (a sign-in, a script, an inbox rule).",
+        {
+          "label": "Always call the IT manager; the user is never the right contact.",
+          "rationale": "The user is the right contact when only they can confirm or deny activity on their account or machine."
+        },
+        {
+          "label": "Always call the user first; IT manager is only a fallback.",
+          "rationale": "The right phone number depends on the question, not on a default order."
+        },
+        {
+          "label": "The SOC tells you which to call in every Incident Report.",
+          "rationale": "The Recommendation may say \"verify with user,\" but the *who* depends on the question's shape; the tech makes that call."
+        }
+      ],
+      "correct": 0,
+      "explanation": "IT manager: operational questions (does this server need to stay running, is this task production, when's the next maintenance window). The question's shape decides the phone number."
+    },
+    {
+      "id": "cfo-first-move",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High EDR Incident Report. Host: WS-EXAMPLE-EXECUTIVE-02, the CFO's laptop. Recommendation: isolate, approve scheduled-task remediation, verify with user. Evidence: encoded PowerShell calling a known-bad domain. What's your first move?",
+      "choices": [
+        {
+          "label": "Call the CFO and explain what's happening before isolating.",
+          "rationale": "Wrong despite being polite. The call comes AFTER isolation, not before. The minutes spent reaching a CFO before isolating is what the attacker uses."
+        },
+        "Isolate the host.",
+        {
+          "label": "Skip isolation, run the remediation, then call the CFO.",
+          "rationale": "Skipping isolation from a Recommendation that explicitly includes it is the softening failure."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Then call the CFO with the plain-language explanation. Then approve the scheduled-task remediation. Isolation first, call second, remediation third. 30 seconds is the right trade, not 30 minutes."
+    },
+    {
+      "id": "verify-with-user-unreachable",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Continuing the CFO scenario: you've isolated. CFO voicemail; IT manager voicemail. The Recommendation said \"verify with user\" before approving the remediation. What do you do?",
+      "choices": [
+        {
+          "label": "Hold off on the remediation until you reach somebody.",
+          "rationale": "Holding indefinitely while a known-bad task could fire again is the wrong trade. With encoded PowerShell calling known-bad infrastructure, the recommendation isn't ambiguous."
+        },
+        "Document the attempts to reach the user.",
+        {
+          "label": "Try the CFO's spouse / personal phone / home number.",
+          "rationale": "Overstepping into personal contacts isn't your relationship to make."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Reply to the SOC with the unreachable status. Either approve per the Recommendation (the isolation already contains the immediate risk) or bump to senior per your MSP's runbook. Verify-with-user is paired guidance. With the user unreachable, you either escalate or approve per the runbook — you don't sit silent."
+    },
+    {
+      "id": "low-isolation",
+      "type": "mcq",
+      "topic": "low",
+      "difficulty": "medium",
+      "prompt": "You feel a Low in your queue probably should have been Higher and you want to isolate as a precaution. What does the lesson say?",
+      "choices": [
+        "Don't isolate. If you think the severity is wrong, reply to the SOC.",
+        {
+          "label": "Isolate; precautionary isolation is always allowed.",
+          "rationale": "Precautionary unilateral isolation is the second-guessing failure."
+        },
+        {
+          "label": "Re-grade the severity to High in the portal and then isolate.",
+          "rationale": "The tech doesn't re-grade severity unilaterally."
+        },
+        {
+          "label": "Isolate but immediately un-isolate after 10 minutes.",
+          "rationale": "A 10-minute isolation has all the customer-relationship damage and none of the containment value."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Adding isolation to a Low whose Recommendation doesn't include it is acting on context. Severity mismatch → reply to the SOC. Don't isolate unilaterally to \"be safe.\""
+    },
+    {
+      "id": "polite-call-first",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"I always call the user first on an isolation-recommended High because it's polite.\" Cleanest correction?",
+      "choices": [
+        "Polite, but expensive.",
+        {
+          "label": "Correct — calling first is the recommended pattern.",
+          "rationale": "Inverts the rule."
+        },
+        {
+          "label": "Calling first is fine as long as the call takes under 5 minutes.",
+          "rationale": "Even a fast call is time the attacker doesn't have to spend."
+        },
+        {
+          "label": "Only call first if the user is a senior executive.",
+          "rationale": "The CFO scenario in the lesson is exactly the case where the lesson says don't call first."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Calling first gives the attacker the time it takes to reach the user. The right shape is isolate-then-call: 30 seconds after, not 30 minutes before. The 30-second-vs-30-minute trade. Seniority doesn't license inversion."
+    },
+    {
+      "id": "catastrophic-timing",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "hard",
+      "prompt": "The Recommendation includes isolation, but the customer is in the middle of something genuinely catastrophic (live board presentation, real-time trade). What do you do?",
+      "choices": [
+        "Bump to senior before action.",
+        {
+          "label": "Isolate immediately; timing doesn't change the rule.",
+          "rationale": "Catastrophic timing is the explicit senior-bump-before-action surface."
+        },
+        {
+          "label": "Wait until the presentation ends, then isolate.",
+          "rationale": "Unilateral delay on a known-active threat. Bump and let the senior weigh."
+        },
+        {
+          "label": "Call the customer and ask if they'd like you to isolate now or later.",
+          "rationale": "The customer doesn't decide isolation timing; the SOC plus senior do."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Not \"isolate anyway.\" The senior weighs the timing trade-off with authority the tech doesn't have. Catastrophic timing is a senior-bump-before-action case. The senior has the authority the tech doesn't."
+    },
+    {
+      "id": "critical-rule",
+      "type": "tf",
+      "topic": "critical",
+      "difficulty": "easy",
+      "prompt": "On a Critical incident, the right move is always to isolate first and notify / escalate in parallel — never to call the user first.",
+      "correct": true,
+      "explanation": "Critical breaks the standard shape; isolation comes before everything else."
+    }
+  ]
+}

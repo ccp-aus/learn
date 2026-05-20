@@ -64,6 +64,123 @@ You can quickly hit 10 by combining a few vendor includes. Over-limit = `permerr
 
 The fix at the *design* level is **SPF flattening**: replacing `include:` mechanisms with explicit `ip4:` and `ip6:` ranges, which don't count as lookups. Done manually it's brittle (vendors change IPs); done with a managed SPF service it's automatic. Either way, flattening is design territory and escalation, not helpdesk.
 
+## Practice: verify SPF before adding a sender
+
+A client wants to add a new CRM that sends as their domain. Before you touch the record, check the current state.
+
+<Console
+  client:load
+  title="spf-verify"
+  steps={[
+    {
+      narration: "Look up the current SPF record to see what's already published.",
+      variants: {
+        bash: {
+          choices: [
+            "dig TXT example.com +short",
+            {
+              label: "dig SPF example.com",
+              rationale: "The SPF DNS record type was deprecated in 2014 (RFC 7208). SPF is published as a TXT record. Query TXT.",
+            },
+            {
+              label: "dig MX example.com",
+              rationale: "MX shows mail exchange servers. SPF is a TXT record that authorises sending IPs. Different record type.",
+            },
+          ],
+          correctIndex: 0,
+          response: "\"v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com -all\"\n\"google-site-verification=abc123xyz\"",
+          comment: "Two TXT records, but only one starts with v=spf1. That's the SPF. The other is a site-verification token (ignore it for SPF purposes).",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type TXT | Select-Object -ExpandProperty Strings",
+            {
+              label: "Resolve-DnsName example.com -Type MX",
+              rationale: "MX shows mail routing, not SPF. SPF is published as a TXT record.",
+            },
+            {
+              label: "Resolve-DnsName example.com",
+              rationale: "Without -Type TXT, you get A records. SPF lives in TXT.",
+            },
+          ],
+          correctIndex: 0,
+          response: "v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com -all\ngoogle-site-verification=abc123xyz",
+          comment: "One SPF record (v=spf1...) and one unrelated verification TXT. Good: only one SPF. Two includes so far.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=TXT example.com",
+            {
+              label: "nslookup -type=MX example.com",
+              rationale: "MX shows mail servers, not SPF. SPF is a TXT record.",
+            },
+            {
+              label: "nslookup example.com",
+              rationale: "Default nslookup returns A records. SPF is published as TXT.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com    text = \"v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com -all\"\nexample.com    text = \"google-site-verification=abc123xyz\"",
+          comment: "One SPF (v=spf1) plus one unrelated verification token. Only one SPF record: the one-SPF rule is satisfied.",
+        },
+      },
+    },
+    {
+      narration: "The SPF has two includes (M365, Salesforce). The CRM wants to add a third. Check whether the lookup count can absorb it.",
+      variants: {
+        bash: {
+          choices: [
+            {
+              label: "dig TXT spf.protection.outlook.com +short",
+              rationale: "Right instinct (recursively count includes), but doing this manually for every include chain is slow and error-prone. Use an SPF-checking tool (MXToolbox, EasyDMARC) that counts recursively in one step.",
+            },
+            {
+              label: "dig TXT _spf.salesforce.com +short",
+              rationale: "Same as above: manual recursive counting. The checking tools do this in one request and give you the total.",
+            },
+            "Use an online SPF checker (MXToolbox or EasyDMARC) to count recursive lookups against the 10-lookup limit.",
+          ],
+          correctIndex: 2,
+          response: "SPF record for example.com: 8 of 10 DNS lookups used.\nM365: 5 lookups | Salesforce: 3 lookups",
+          comment: "8 of 10 used. Room for the CRM if it uses 2 or fewer. Check the CRM's include separately to confirm. If it pushes over 10, escalate.",
+        },
+        powershell: {
+          choices: [
+            {
+              label: "Resolve-DnsName spf.protection.outlook.com -Type TXT",
+              rationale: "Manual recursive counting. Feasible but slow and easy to miscount. SPF checking tools do this in one request.",
+            },
+            "Use an online SPF checker (MXToolbox or EasyDMARC) to count recursive lookups against the 10-lookup limit.",
+            {
+              label: "Resolve-DnsName _spf.salesforce.com -Type TXT",
+              rationale: "Manual approach to counting Salesforce's contribution. Checking tools automate this.",
+            },
+          ],
+          correctIndex: 1,
+          response: "SPF record for example.com: 8 of 10 DNS lookups used.\nM365: 5 lookups | Salesforce: 3 lookups",
+          comment: "8 of 10. Check the CRM's include count. If the total stays at or under 10, merge and publish. Over 10 means escalation.",
+        },
+        cmd: {
+          choices: [
+            {
+              label: "nslookup -type=TXT spf.protection.outlook.com",
+              rationale: "Manual recursive counting. An SPF checking tool does this in one step and gives you the total.",
+            },
+            {
+              label: "nslookup -type=TXT _spf.salesforce.com",
+              rationale: "Same: manual counting. Use a purpose-built checker.",
+            },
+            "Use an online SPF checker (MXToolbox or EasyDMARC) to count recursive lookups against the 10-lookup limit.",
+          ],
+          correctIndex: 2,
+          response: "SPF record for example.com: 8 of 10 DNS lookups used.\nM365: 5 lookups | Salesforce: 3 lookups",
+          comment: "8 lookups used. Adding the CRM is safe only if its include uses 2 or fewer. Over 10 total means escalation for SPF flattening.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## When to escalate
 
 This lesson stops at identify-and-apply. The following are escalation:
@@ -87,18 +204,11 @@ If the lookup count would exceed 10, stop and escalate.
 
 ## Decision walkthrough
 
-A client onboards a new marketing-email platform. The platform's instructions say: *add `include:_spf.example-marketing.example` to your SPF*. The client's current SPF is:
-
-```text
-example.com. IN TXT "v=spf1 include:spf.protection.outlook.com include:_spf.salesforce.com include:sendgrid.net ~all"
-```
-
-The first three already total around 12 lookups (M365 ~5 + Salesforce ~3 + SendGrid ~4).
-
 <DecisionTree
   client:load
   startId="root"
   title="SPF over the limit. Now what?"
+  description="A client onboards a new marketing-email platform. The platform says: add include:_spf.example-marketing.example to your SPF. The current SPF already includes M365, Salesforce, and SendGrid (around 12 lookups total). The 10-lookup limit is already exceeded."
   nodes={[
     {
       type: "question",

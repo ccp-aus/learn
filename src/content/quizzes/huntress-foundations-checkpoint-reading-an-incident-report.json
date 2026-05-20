@@ -1,0 +1,241 @@
+{
+  "slug": "huntress-foundations-checkpoint-reading-an-incident-report",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: reading an Incident Report",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "reading-order",
+      "type": "order",
+      "topic": "reading-order",
+      "difficulty": "medium",
+      "prompt": "Put the steps of reading an Incident Report in the order the lesson teaches.",
+      "items": [
+        "Header — severity, surface, affected entity, customer",
+        "Recommendation — what does the SOC want done?",
+        "Verify the affected entity (same host or user, same customer)",
+        "Summary if the Recommendation surprised you",
+        "Evidence and Timeline as you need them — for client comms, replies, documentation"
+      ],
+      "explanation": "Header first, then Recommendation, then verify the entity, then Summary as needed, then Evidence as context. Top-down ends in the cardinal mistake."
+    },
+    {
+      "id": "act-on-section",
+      "type": "mcq",
+      "topic": "sections",
+      "difficulty": "easy",
+      "prompt": "Which Incident Report section is the one you ACT ON?",
+      "choices": [
+        {
+          "label": "Evidence.",
+          "rationale": "Context, not action. Acting on Evidence is the cardinal mistake."
+        },
+        "Recommendation.",
+        {
+          "label": "Summary.",
+          "rationale": "Context. Reading on a need-to basis."
+        },
+        {
+          "label": "Header.",
+          "rationale": "Metadata, not action."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The Recommendation is the action the SOC wants taken — the section you act on, full stop."
+    },
+    {
+      "id": "most-common-mistake",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "The lesson names a \"most common new-tech mistake\" in reading order. What is it?",
+      "choices": [
+        "Reading the Evidence and forming a disposition before reading the Recommendation.",
+        {
+          "label": "Reading the Header twice to memorise the incident ID.",
+          "rationale": "Not a named mistake."
+        },
+        {
+          "label": "Skipping the Summary entirely.",
+          "rationale": "The lesson says you skip Summary and Evidence on the first pass and read them as needed."
+        },
+        {
+          "label": "Replying to the analyst before reading the Evidence.",
+          "rationale": "Clarifying replies are welcomed; timing isn't the mistake."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Building a mental case from the raw signal makes the Recommendation feel optional. It isn't."
+    },
+    {
+      "id": "timeline-surface",
+      "type": "mcq",
+      "topic": "timeline",
+      "difficulty": "easy",
+      "prompt": "The Incident Report Timeline view appears primarily on which surface?",
+      "choices": [
+        {
+          "label": "EDR only.",
+          "rationale": "Wrong. The lesson says \"ITDR mostly, and a growing subset of EDR.\""
+        },
+        "ITDR Incident Reports, with a growing subset of EDR reports.",
+        {
+          "label": "SIEM only.",
+          "rationale": "Wrong. SIEM isn't named as the primary Timeline surface."
+        },
+        {
+          "label": "Every Incident Report regardless of surface.",
+          "rationale": "Wrong. The Timeline is on a subset of reports."
+        }
+      ],
+      "correct": 1,
+      "explanation": "ITDR mostly; EDR is catching up."
+    },
+    {
+      "id": "timeline-misuse",
+      "type": "mcq",
+      "topic": "timeline-misuse",
+      "difficulty": "medium",
+      "prompt": "The lesson warns against one specific misuse of the Timeline. What is it?",
+      "choices": [
+        {
+          "label": "Using the Timeline to walk a client through the sequence of events.",
+          "rationale": "Wrong. That's exactly what the Timeline is FOR."
+        },
+        {
+          "label": "Reading the Timeline twice for understanding.",
+          "rationale": "Re-reading for understanding isn't a misuse."
+        },
+        "Using the Timeline to argue with the Recommendation.",
+        {
+          "label": "Showing the Timeline to the customer.",
+          "rationale": "Client comms is a named legitimate use."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Second-guessing in slow motion. Building a counter-argument from the analyst's chronological view is second-guessing in slow motion."
+    },
+    {
+      "id": "worked-report-first",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "An EDR Incident Report lands. Header: High severity, customer Contoso, host SRV-FILE02, analyst Sam P. Summary: encoded PowerShell scheduled task. Evidence: decoded payload. Recommendation: approve the scheduled-task remediation. What do you read FIRST?",
+      "choices": [
+        {
+          "label": "Summary, top to bottom.",
+          "rationale": "Wrong reading order. The Recommendation tells you what to do."
+        },
+        "Recommendation. Then verify the host. Then the Summary if needed.",
+        {
+          "label": "Evidence — the decoded payload tells you what kind of incident this is.",
+          "rationale": "The disposition is already made; re-deciding from Evidence is the cardinal mistake."
+        },
+        {
+          "label": "Analyst signature, so you know who to reply to.",
+          "rationale": "Signature is for the conversation; it's not where you start reading."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Recommendation, verify entity, Summary as needed."
+    },
+    {
+      "id": "evidence-overreach",
+      "type": "mcq",
+      "topic": "evidence-overreach",
+      "difficulty": "hard",
+      "prompt": "Same incident: the decoded payload in Evidence ALSO shows the script tried (and failed) to copy itself to two other hosts. The Recommendation doesn't mention those hosts. What do you do?",
+      "choices": [
+        {
+          "label": "Approve the recommendation, then isolate the two other hosts on the strength of the Evidence.",
+          "rationale": "The Recommendation explicitly didn't include those hosts; acting on them is going beyond what the SOC asked for."
+        },
+        "Approve the recommendation as written.",
+        {
+          "label": "Hold off on the recommended action until Sam P. clarifies HOST-A and HOST-B.",
+          "rationale": "Delaying execution to argue scope on Evidence is the stuck-ticket the SOC model is designed to avoid."
+        },
+        {
+          "label": "Escalate to a senior because the Evidence shows more hosts than the Recommendation lists.",
+          "rationale": "The right body is the analyst, not the senior. Raise it as a factual reply."
+        }
+      ],
+      "correct": 1,
+      "explanation": "In parallel, reply to Sam P. asking whether HOST-A and HOST-B should be checked or remediated. Execute the Recommendation cleanly; raise the Evidence-side question as a factual reply to the analyst."
+    },
+    {
+      "id": "wrong-host-sibling",
+      "type": "mcq",
+      "topic": "wrong-host",
+      "difficulty": "medium",
+      "prompt": "The wrong-tenant rule from the previous lesson has a sibling in this lesson. What is it?",
+      "choices": [
+        "Wrong-host — acting on the affected entity without confirming the right host inside the right customer.",
+        {
+          "label": "Wrong-time — acting before checking the incident timestamp.",
+          "rationale": "Not named as a parallel mistake."
+        },
+        {
+          "label": "Wrong-severity — acting on a tag without reading the body.",
+          "rationale": "Different concept; severity-driven response is the severity lesson."
+        },
+        {
+          "label": "Wrong-analyst — replying to the wrong analyst on a multi-analyst case.",
+          "rationale": "Not a named issue."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two customers can have the same hostname; the wrong-host check sits next to the wrong-tenant check."
+    },
+    {
+      "id": "above-ceiling-recommendation",
+      "type": "mcq",
+      "topic": "ceiling-escalation",
+      "difficulty": "medium",
+      "prompt": "A Recommendation reads: \"Preserve forensic evidence; do not isolate.\" What's the right action for a helpdesk tech?",
+      "choices": [
+        "Surface to a senior.",
+        {
+          "label": "Take a screenshot of the Incident Report and save it to OneDrive.",
+          "rationale": "A screenshot doesn't constitute forensic preservation."
+        },
+        {
+          "label": "Isolate anyway — better safe than sorry.",
+          "rationale": "Explicitly overrides the Recommendation. Cardinal mistake."
+        },
+        {
+          "label": "Reply to the analyst asking what \"forensic evidence\" means.",
+          "rationale": "Reasonable instinct, but the framing is to escalate to a senior for this action class."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Preserving forensic evidence is outside the helpdesk ceiling. Don't half-do it. Forensic preservation is above the helpdesk ceiling; surface to a senior who has the procedure."
+    },
+    {
+      "id": "self-check",
+      "type": "mcq",
+      "topic": "self-check",
+      "difficulty": "easy",
+      "prompt": "The lesson lists self-checks to confirm the reading-order has landed. Which IS one of them?",
+      "choices": [
+        "Point at the Recommendation section in under five seconds.",
+        {
+          "label": "Recite the analyst's professional background from memory.",
+          "rationale": "Not in the self-check list."
+        },
+        {
+          "label": "Translate the Recommendation into the customer's preferred language.",
+          "rationale": "Not in the self-check list."
+        },
+        {
+          "label": "Confirm the customer's billing tier from the Incident Report.",
+          "rationale": "Not in the self-check list and not something reports surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Speed at locating the Recommendation is the load-bearing self-check."
+    }
+  ]
+}

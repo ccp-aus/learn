@@ -1,0 +1,460 @@
+{
+  "slug": "huntress-judgement-and-identity-final",
+  "course": "huntress-judgement-and-identity",
+  "kind": "final",
+  "title": "Huntress judgement and identity: final check",
+  "drawCount": 12,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "fa-satellite-office-scope",
+      "type": "mcq",
+      "topic": "onboarding-ceiling",
+      "difficulty": "hard",
+      "prompt": "A new customer's IT manager messages mid-onboarding: \"We're standing up a 12-seat satellite office next quarter. Just add the EDR agent on those endpoints when they come online and bill us at the end of the year.\" Your MSP's runbook covers the standard onboarding for this customer's existing 184 endpoints. No separate work order exists for the satellite office. What do you do?",
+      "choices": [
+        "Bump to the senior or account manager. More seats, a different site, and no work order is a scope question.",
+        {"label": "Add the 12 endpoints when they appear; the IT manager has authorised it and the runbook covers the install steps.", "rationale": "Customer-side authorisation is not MSP-side authorisation. Adding seats without a work order is the named onboarding ceiling failure."},
+        {"label": "Tell the IT manager Huntress doesn't support multi-site customers.", "rationale": "Fabricates a platform constraint that doesn't exist. The platform supports multi-site; the issue is the MSP-internal scope decision, not a technical limitation."},
+        {"label": "Wait until the endpoints actually appear in the RMM, then add them silently and flag it on the next monthly report.", "rationale": "Defers the commercial discussion past the point where it can be done cleanly and creates a customer-relationship hazard."}
+      ],
+      "correct": 0,
+      "explanation": "The 12 satellite endpoints are a subscription and coverage-scope question (more seats, different site, no work order), so anything touching money or coverage scope stays with the senior. The customer's casual 'same arrangement' doesn't substitute for an actual work order."
+    },
+    {
+      "id": "fa-coverage-gap-verification",
+      "type": "mcq",
+      "topic": "coverage-verification",
+      "difficulty": "hard",
+      "prompt": "72 hours into a rollout. Portal shows 198 of 198 agents. M365 ITDR integration is green. AD has 247 computer objects total, so 49 are in AD but not in the RMM and therefore not covered by Huntress. The customer's onboarding session is in two hours. What do you do?",
+      "choices": [
+        {"label": "Push the agent to the 49 to close the gap before the customer notices in the session.", "rationale": "Adds 49 endpoints into scope without sign-off. Deploying to endpoints outside the agreed scope is a deployment-strategy decision taken unilaterally by the tech."},
+        {"label": "Mark coverage verification as complete (198 of 198 in scope) and don't mention the AD count.", "rationale": "Quietly omitting the AD count from verification is dishonest. Coverage verification is the three-way reconcile."},
+        "Surface the gap to the senior: 'AD shows 247, RMM and Huntress both cover 198, 49 unmanaged.' The senior owns the scope decision.",
+        {"label": "Tell the customer in the session that they have 49 unprotected endpoints and they should sign an expansion order.", "rationale": "Wrong audience and wrong messenger. The commercial conversation belongs to the senior or account manager."}
+      ],
+      "correct": 2,
+      "explanation": "AD-not-RMM is the named coverage-verification escalation. The senior owns the deployment-scope decision before the onboarding session because scope of coverage is a commercial decision, not a runbook execution decision."
+    },
+    {
+      "id": "fa-low-workflow-documentation",
+      "type": "mcq",
+      "topic": "edr-low-workflow",
+      "difficulty": "hard",
+      "prompt": "Mid-shift, you process a Low EDR Incident Report on WS-EXAMPLE-FINANCE-09. Recommendation: approve the scheduled-task remediation. You approve. Portal shows 'applied' within two minutes; the registry-side check confirms the task is gone. No re-detection in the next ten minutes. The PSA ticket is open with no notes yet. What's the right next step?",
+      "choices": [
+        {"label": "Close the Huntress incident now; finish PSA notes at end of shift when you've got time.", "rationale": "Trap 4 in real time. End-of-shift batch documentation for routine Lows is the named drift pattern that erodes the canonical record."},
+        "Close the Huntress incident and complete the PSA close-out with specific timestamps and actual time spent.",
+        {"label": "Reply to the SOC asking whether the remediation worked since verify is mandatory.", "rationale": "Misuses the SOC reply channel. Verify is the tech's own check on endpoint state, not a question for the analyst."},
+        {"label": "Close both systems with generic time entry and category to keep the queue moving.", "rationale": "Generic time and category produces the reporting drift the lesson warns against."}
+      ],
+      "correct": 1,
+      "explanation": "The Low workflow's verify and document steps are non-optional. The PSA close-out needs the four mandatory sections (what you did, what you verified, who you contacted, open follow-ups) with specific timestamps and time entry per actual time spent. That record is what the next tech and the auditor inherit."
+    },
+    {
+      "id": "fa-high-isolation-deposition",
+      "type": "mcq",
+      "topic": "edr-isolation-timing",
+      "difficulty": "hard",
+      "prompt": "High EDR on WS-EXAMPLE-LEGAL-06 (a paralegal's laptop). Recommendation: isolate the host, approve the file-quarantine remediation, verify with user whether they downloaded Invoice_April_Statement.exe from email. The paralegal is in a deposition until 16:00; it's 14:20 now. What do you do?",
+      "choices": [
+        {"label": "Wait until 16:00 so the paralegal can verify before isolation; the deposition is time-sensitive.", "rationale": "Inverts the rule. The SOC's Recommendation accounts for blast radius; delaying gives the attacker 100 minutes of endpoint access."},
+        {"label": "Isolate and approve, then skip user verification because the Recommendation is clear and the file is already quarantined.", "rationale": "The Recommendation said verify with the user; skipping that step is softening the Recommendation even though the quarantine succeeded."},
+        {"label": "Add a credentials reset and session revocation 'while you're at it' since the user touched a malicious file.", "rationale": "Acting on context the Recommendation didn't include. Identity actions on an EDR-only Recommendation are out of scope."},
+        "Isolate now, approve the quarantine, notify the IT contact, verify with the paralegal after the deposition."
+      ],
+      "correct": 3,
+      "explanation": "The Recommendation includes isolation, so isolation goes first. Reach the customer's documented IT-side contact within the comms window. User verification is a paired action, not a precondition; schedule it for when the paralegal is available."
+    },
+    {
+      "id": "fa-canary-ransomware-board",
+      "type": "mcq",
+      "topic": "critical-containment",
+      "difficulty": "hard",
+      "prompt": "Critical EDR at 09:14: ransomware canary file modified on SRV-EXAMPLE-FILES-02. Recommendation: isolate the server, approve all listed remediations, escalate per Critical playbook. The server hosts the primary file share for 140 staff. The IT manager calls: \"We can't lose that server, board meeting at 10:00 and they need the share. Can you wait?\"",
+      "choices": [
+        "Isolate now, escalate to the senior in parallel, and tell the IT manager calmly with a 30-minute update commitment.",
+        {"label": "Pause isolation; phone the senior; let the senior decide whether to isolate given the board meeting.", "rationale": "Pausing containment on a confirmed canary trip is the cardinal Course 5 failure. Containment runs in parallel with the senior call, not after it."},
+        {"label": "Isolate but don't tell the IT manager until the senior is on the line.", "rationale": "Silence on a confirmed Critical breaks the comms discipline. The customer needs what happened, what was done, and what's next within minutes."},
+        {"label": "Negotiate: ask the IT manager whether they'd accept a 30-minute delay so the board meeting can finish first.", "rationale": "The encryption window doesn't pause for board meetings. The customer-relationship cost of a successful ransomware run vastly exceeds the cost of a missed share."}
+      ],
+      "correct": 0,
+      "explanation": "Canary trips are containment-first. Commercial pressure doesn't delay isolation on a Critical. The server stays in isolation until safe to return, the board uses an alternative, and the IT manager hears specificity, calm tone, and the next-update commitment."
+    },
+    {
+      "id": "fa-critical-marker-recognition",
+      "type": "mcq",
+      "topic": "critical-markers",
+      "difficulty": "hard",
+      "prompt": "A High EDR detection lands. Title: encoded PowerShell with credential-dumping pattern on WS-EXAMPLE-IT-03. Reading the Evidence: the same host had a successful remediation two hours ago for a different persistence; the new detection's command-line references two OTHER hostnames on the customer's estate. Severity stamp says High. What do you do?",
+      "choices": [
+        {"label": "Process per the standard High workflow. The severity stamp is the SOC's classification.", "rationale": "Misses the marker recognition. The severity stamp can lag a developing situation; recognising the cluster is the discipline."},
+        {"label": "Reply to the SOC asking whether the severity is correct given the lateral references.", "rationale": "Defensible but slow. The time-on-endpoint window is shrinking while the reply sits in the queue. Containment first, questions second."},
+        "Treat this as a Critical pattern. Isolate the host and escalate to senior in parallel.",
+        {"label": "Approve the remediation only, skip isolation since it's not in the Recommendation, and watch for the next incident.", "rationale": "Click-and-see on a Critical-shaped pattern. Waiting for the next incident is exactly what lateral movement counts on."}
+      ],
+      "correct": 2,
+      "explanation": "Repeat-on-same-host plus lateral-movement signals are Course 5 Critical markers regardless of the High severity stamp. Containment-first applies; the severity stamp can lag a developing situation."
+    },
+    {
+      "id": "fa-critical-ceiling-hunting",
+      "type": "mcq",
+      "topic": "critical-ceiling",
+      "difficulty": "hard",
+      "prompt": "You've contained a Critical (host isolated, remediations approved, senior on the line). While waiting for the senior to take over, you notice the Evidence references a domain you haven't seen before. The portal has a search interface that would let you query all traffic to that domain across the customer's estate. What do you do?",
+      "choices": [
+        {"label": "Run the query. The senior is busy and the lead is time-sensitive; this is the kind of fast initiative seniors reward.", "rationale": "Visibility-as-authorisation. Having access to the search interface doesn't move the Critical-investigation ceiling. The senior's preference for fast initiative doesn't change scope."},
+        "Pass the domain to the senior verbally and in the PSA note. Don't run the cross-host query yourself.",
+        {"label": "Run the query but only on the originally-isolated host.", "rationale": "The narrower scope doesn't change the surface. Cross-source threat hunting on a Critical is the senior's surface."},
+        {"label": "Wait silently until the senior asks for the domain; don't surface it unprompted.", "rationale": "Surfacing observations to the senior is in scope; running the investigation yourself isn't. Surface the lead."}
+      ],
+      "correct": 1,
+      "explanation": "Cross-host threat hunting on a live Critical is above the helpdesk ceiling. Investigation surface visibility isn't authorisation to investigate. Hand the lead to the right body and keep supporting containment."
+    },
+    {
+      "id": "fa-itdr-inbox-rule-cfo",
+      "type": "mcq",
+      "topic": "itdr-inbox-rule",
+      "difficulty": "hard",
+      "prompt": "ITDR Incident Report (M365): malicious inbox rule on cfo@example.com auto-forwarding externally plus move-to-RSS-Subscriptions plus mark-as-read. Recommendation: revoke sessions, reset password, remove the inbox rule, force MFA re-enrolment, review OAuth grants. The CFO is presenting to the board; the IT manager pings: \"Wait an hour until the board is done.\"",
+      "choices": [
+        "Run the playbook now per the Recommendation. Identity blast radius compounds in minutes.",
+        {"label": "Wait the hour as the IT manager requested. Identity actions are reversible; the relationship cost of disrupting the board outweighs the risk.", "rationale": "Inverts the identity blast-radius lesson. The inbox rule is actively exfiltrating during the wait. Every minute is more data out the door."},
+        {"label": "Remove the inbox rule only and skip the other actions to minimise CFO disruption.", "rationale": "The rule indicates compromise; removing only the symptom leaves the attacker with the session. Selective execution on the customer's timing is the cardinal Course 6 failure."},
+        {"label": "Reply to the SOC saying the customer wants to wait; ask whether actions can be deferred.", "rationale": "Customer-vs-SOC tension is mandatory escalation to the senior (category 6), not relayed to the SOC for ratification."}
+      ],
+      "correct": 0,
+      "explanation": "Identity-side aggressiveness is the Course 6 keystone. The inbox rule is high-confidence compromise; tell the IT manager the actions will sign the CFO out mid-board and that's the necessary trade. Inbox rule plus impossible-travel-shape evidence outranks a board-meeting timing objection."
+    },
+    {
+      "id": "fa-gws-impossible-travel",
+      "type": "mcq",
+      "topic": "itdr-gws",
+      "difficulty": "hard",
+      "prompt": "ITDR on a Google Workspace customer: impossible-travel pattern on sales@example.org. Successful login from Sydney 13:42, then successful login from Lagos 14:08. Both via password (not SSO). Recommendation: revoke active sessions in Admin console, reset password, force MFA re-enrolment, review recent OAuth grants. What do you do?",
+      "choices": [
+        {"label": "Don't run the playbook. GWS impossible-travel is often the user's VPN or mobile, not real compromise.", "rationale": "Inverts the Recommendation. The SOC has already weighted the VPN possibility; two password logins from different continents in 26 minutes is the marker."},
+        {"label": "Wait for the user to confirm whether they were travelling before acting.", "rationale": "Identity-side blast radius doesn't wait for user verification. Verification is a paired action after containment, not a precondition that delays it."},
+        {"label": "Run the M365 playbook (Entra session revoke, etc.) since you know it better.", "rationale": "Wrong surface entirely. The user is on GWS. The playbook logic translates; the surface paths don't."},
+        "Run the GWS playbook per the Recommendation. Same shape as M365; the surfaces are GWS-side (Admin console, not Entra)."
+      ],
+      "correct": 3,
+      "explanation": "Revoke sessions, reset password, force MFA, review OAuth. The playbook is the same across M365 and GWS; the differences are surface names, not logic. Impossible-travel via password is high-confidence compromise on either platform."
+    },
+    {
+      "id": "fa-tenant-wide-three-users",
+      "type": "mcq",
+      "topic": "tenant-wide-compromise",
+      "difficulty": "hard",
+      "prompt": "Mid-shift: three ITDR Incident Reports land in 18 minutes against three different users at the same customer (example.com, M365). All three: successful sign-in from same anomalous IP, then inbox rule created, then OAuth grant to an unfamiliar app. Each individual report is High severity. What do you do?",
+      "choices": [
+        {"label": "Run the standard ITDR playbook on each of the three users in parallel to contain quickly.", "rationale": "Three Highs with shared signal isn't three independent Highs; it's one tenant-wide incident. Per-user playbooks miss the tenant-level actions the senior needs to coordinate."},
+        "Stop. Tenant-wide pattern (multiple users, shared signal, same window). Mandatory escalation to the senior.",
+        {"label": "Process them in queue order, one at a time; ITDR works on a per-user basis.", "rationale": "Slowest possible response on a tenant-wide compromise. By the time you start the third user, the attacker has the first two plus everyone else."},
+        {"label": "Reply on each Incident Report asking the SOC whether they're seeing related signal at this customer.", "rationale": "The SOC IS seeing it; they sent the three reports. Asking a confirmation question instead of escalating delays the only response that matters."}
+      ],
+      "correct": 1,
+      "explanation": "Tenant-wide identity compromise is a named mandatory-escalation category (category 2). The senior owns the tenant-wide response, which includes calls the tech can't make. Running individual playbooks on three Highs with shared signal wastes time on the wrong response."
+    },
+    {
+      "id": "fa-siem-cross-surface",
+      "type": "mcq",
+      "topic": "siem-response",
+      "difficulty": "hard",
+      "prompt": "A SIEM Incident Report at a customer who runs both Managed SIEM and EDR. Recommendation: block destination IP 203.0.113.47 at the perimeter firewall per the network-blocking runbook AND check WS-EXAMPLE-LOGISTICS-07 for related EDR signal. The firewall block is in the documented runbook for you. What do you do?",
+      "choices": [
+        "Run both: push the firewall block and check the host's EDR incident list for related signal.",
+        {"label": "Push the firewall block only; bump the EDR cross-check to senior because it spans two products.", "rationale": "Over-escalates. EDR cross-checks at the helpdesk level are routine; each portion runs per its applicable runbook. Splitting an in-scope Recommendation delays the customer."},
+        {"label": "Push the firewall block, then write a query to find every other host that has talked to the destination IP in the last 30 days.", "rationale": "Custom query authoring is above the SIEM ceiling regardless of how obvious the lead looks."},
+        {"label": "Skip the firewall block because you'd rather have the senior do firewall-side changes.", "rationale": "The runbook authorises the block for you. Declining in-scope time-sensitive work punishes the customer."}
+      ],
+      "correct": 0,
+      "explanation": "Cross-surface SIEM Recommendations are valid. The tech runs both portions when each is within scope per its applicable runbook, and documents the cross-reference."
+    },
+    {
+      "id": "fa-close-out-tone",
+      "type": "mcq",
+      "topic": "close-out-framing",
+      "difficulty": "hard",
+      "prompt": "You've cleanly resolved a High EDR (encoded-PowerShell scheduled task on WS-EXAMPLE-ACCOUNTS-04, remediation applied, host verified, no user disruption). You're drafting the customer close-out email. Which framing fits?",
+      "choices": [
+        {"label": "\"URGENT: we just prevented a major attack on your accounts machine! Caught the malware before it could spread; sorry for any disruption this might cause. Please review your security awareness training.\"", "rationale": "Dramatic framing inflates the threat (no compromise occurred); the apology inflates disruption that didn't happen; the training pitch is sales surface."},
+        {"label": "\"Resolved an event on Sarah's machine, all good. Let us know if you have questions.\"", "rationale": "Vague framing. No specific facts, no named actions, no security outcome. The next person reading the thread learns nothing."},
+        "Specific timestamp, named action ('we approved the remediation'), security outcome ('persistence is gone'), and 'no action needed from your side.'",
+        {"label": "\"The platform's automated detection caught a threat and the issue has been resolved by the system. Please find the technical details in the attached report.\"", "rationale": "Attributes the work to 'the platform' rather than to the SOC and the tech. Customer trust is built by naming the work, not crediting automation."}
+      ],
+      "correct": 2,
+      "explanation": "Four close-out elements (what happened, what was done, what the client should do, what was learned), specific timestamps, active voice, work attributed to the SOC and the tech. Example: 'At 11:42 today our SOC identified an encoded-PowerShell scheduled task on the accounts workstation, classified as malicious. We approved the remediation; the persistence is gone.'"
+    },
+    {
+      "id": "fa-soc-reply-classification",
+      "type": "mcq",
+      "topic": "soc-reply-discipline",
+      "difficulty": "hard",
+      "prompt": "The SOC's Recommendation on a High EDR reads: approve the file-quarantine remediation on LegalApp_Updater.exe. You've seen this filename across three other customers' legitimate legal-software installs and you think the classification might be wrong. The portal lets you reply to the analyst directly. What do you do?",
+      "choices": [
+        {"label": "Reply: \"I disagree with this classification. We've seen this filename on legit installs at other customers; please reconsider.\"", "rationale": "Relitigates the classification on gut feel rather than bringing new signal. The named anti-pattern from the keystone rule."},
+        {"label": "Don't reply; close the incident as benign because the filename looks legitimate.", "rationale": "Second-guessing the SOC by unilateral closure. The filename hunch isn't proof of misclassification. Customer-context belongs in a reply, not a unilateral decision."},
+        {"label": "Reply with three questions: \"What does the classification cover? Why this severity? Is this a false positive?\"", "rationale": "Multi-question reply slows the SOC and includes the named bad framing ('is this a false positive' is a re-classification request)."},
+        "Reply with the customer-context and ask whether classification is on hash or behaviour, not filename."
+      ],
+      "correct": 3,
+      "explanation": "The reply brings new customer-context without relitigating the classification. A single scoped factual reply: 'We've seen this filename used by a vendor across other customers. Can you confirm the classification is on the binary's hash or behaviour rather than the filename pattern?' Factually anchored, scoped to one question, customer-context not analyst-correcting."
+    },
+    {
+      "id": "fa-calibrated-flicker",
+      "type": "mcq",
+      "topic": "calibrated-uncertainty",
+      "difficulty": "hard",
+      "prompt": "You're hovering over Approve on a High EDR remediation. The Recommendation is clear. The Evidence is detailed. The host is right. You feel a tiny \"wait\" but you can't name what's wrong. The senior is on a call; the queue is moderate. What do you do?",
+      "choices": [
+        {"label": "Click. The Recommendation is clear and the queue matters; 'wait' feelings without a specific concern aren't actionable signal.", "rationale": "The exact dismissal the lesson warns against. Calibrated uncertainty IS the signal; treating it as noise is how the eighth Low catches the tech off guard."},
+        "Don't click yet. Re-read the Recommendation and Evidence slowly and run the two-question test before proceeding.",
+        {"label": "Click on a different incident first, then come back to this one with fresh eyes.", "rationale": "Deferring the flicker doesn't address it. The flicker is on this ticket; moving past it parks the unresolved concern instead of resolving it."},
+        {"label": "Escalate to the senior immediately without trying to identify the concern.", "rationale": "Over-escalates. The senior bump comes after the tech runs the test internally. Bumping with 'feels off' wastes the senior's time."}
+      ],
+      "correct": 1,
+      "explanation": "The flicker is the calibrated-uncertainty signal firing. The two-question test: 'Is this reversible?' and 'Do I understand why this is the right action?' If either answer is anything less than a clean yes, find the specific concern or wait for the senior. Partial yes isn't pass."
+    },
+    {
+      "id": "fa-batch-close-peer",
+      "type": "mcq",
+      "topic": "trap-recognition",
+      "difficulty": "hard",
+      "prompt": "End of shift, queue is heavy. A peer slides over: \"I've got 14 similar-looking PUP autoruns Lows across three customers, all the same pattern. I batch-closed them all as benign in three minutes. You should do the same with yours.\" What do you do?",
+      "choices": [
+        "Decline. Process each remaining Low through the standard walkthrough.",
+        {"label": "Take the peer's approach for similar Lows on your queue; they've already validated the pattern across three customers.", "rationale": "Peer pressure isn't authorisation. The peer's three minutes saved is exactly the shape of Trap 1 (suppressing alerts to clear the queue)."},
+        {"label": "Escalate the peer's behaviour to the senior immediately.", "rationale": "Over-escalates AND wrong target. The senior bump is for the recurring-pattern observation, not for policing the peer's choices."},
+        {"label": "Batch-close half (the most obvious benigns) and walk through the other half carefully as a compromise.", "rationale": "The trap is named exactly because 'obvious benigns' is the same autopilot signal the calibrated-uncertainty test exists to guard against."}
+      ],
+      "correct": 0,
+      "explanation": "Three Course 9 failures load on the peer's suggestion: ignoring calibrated uncertainty, the click-and-see reflex at scale, and Trap 1 (suppressing alerts to clear the queue). Flag the recurring pattern in the EOD handover; recognising the intersection is the synthesis the course teaches."
+    },
+    {
+      "id": "siem-pre-endpoint-clean",
+      "type": "mcq",
+      "topic": "siem-pre-endpoint",
+      "difficulty": "hard",
+      "prompt": "A High SIEM incident lands. Recommendation: block IP at firewall, check for EDR signals on WS-EXAMPLE-FINANCE-04. You've blocked the IP and the EDR check returns no related incidents. What do you do?",
+      "choices": [
+        {"label": "Conclude the SIEM detection was a false positive since EDR is clean.", "rationale": "Inverts SIEM's value-add. Pre-endpoint signal beats EDR's later visibility."},
+        {"label": "Add an EDR isolation on the host to be safe.", "rationale": "The Recommendation said 'check,' not 'isolate.' Acting beyond the Recommendation is overstepping."},
+        "Document the EDR clean state in the Incident Report. Close the SIEM incident.",
+        {"label": "Reopen the SIEM incident and wait for EDR to catch up before confirming the block was warranted.", "rationale": "The block is in place; reopening with no new signal is second-guessing in slow motion."}
+      ],
+      "correct": 2,
+      "explanation": "SIEM's value-add is catching pre-endpoint signal before EDR has a chance to see it. Document the cross-reference so the SOC has it; close the incident since the Recommendation's two actions are complete. Absence of EDR signal isn't a veto on the SIEM Recommendation."
+    },
+    {
+      "id": "siem-mixed-recommendation",
+      "type": "mcq",
+      "topic": "siem-ceiling",
+      "difficulty": "hard",
+      "prompt": "A SIEM Recommendation reads: \"Block destination IP at the firewall per the network-blocking runbook AND tune the detection threshold to reduce future false positives.\" What do you do?",
+      "choices": [
+        {"label": "Run both. The SOC asked for both and the rule editor is visible in your account.", "rationale": "Visibility isn't authorisation. Tuning is above the ceiling regardless."},
+        "Run the firewall block. Bump the tuning portion to senior. Document the split.",
+        {"label": "Bump the whole Recommendation to the senior since part of it is above your ceiling.", "rationale": "Over-escalates. The firewall block is in scope and time-sensitive."},
+        {"label": "Decline both and ask the SOC to issue a new Recommendation without the tuning ask.", "rationale": "The firewall block is in scope; declining punishes the customer for the SOC's drafting choice."}
+      ],
+      "correct": 1,
+      "explanation": "Splitting a mixed Recommendation into the tech-doable piece and the senior piece is the right pattern. The firewall block runs now; the tuning goes to the senior."
+    },
+    {
+      "id": "siem-tuning-peer",
+      "type": "mcq",
+      "topic": "siem-tuning-ceiling",
+      "difficulty": "hard",
+      "prompt": "A peer says: \"This detection fires false-positive on Acme every other day. I have rule-editor visibility. Let me just nudge the threshold down by 10%.\" What's the right intervention?",
+      "choices": [
+        {"label": "Nothing. The peer has access, so the tuning is authorised.", "rationale": "Visibility-as-authorisation is the named misconception."},
+        {"label": "Suggest they make a smaller change (5%) to be cautious.", "rationale": "Smaller isn't safer when the change itself is out of scope."},
+        "Stop them. Point them at the exclusion-request flow.",
+        {"label": "Ask them to document the tuning change in the PSA after they make it so there's a paper trail.", "rationale": "Documentation doesn't authorise an out-of-scope change."}
+      ],
+      "correct": 2,
+      "explanation": "Tuning is the canonical above-the-ceiling action. The exclusion-request flow exists for exactly this case."
+    },
+    {
+      "id": "siem-exclusion-pressure",
+      "type": "mcq",
+      "topic": "siem-exclusion-flow",
+      "difficulty": "hard",
+      "prompt": "Three weeks of the same detection firing benign on the same customer's nightly automation. The customer's IT manager is frustrated and says \"make these stop.\" The portal exposes the rule editor to your account. What's the right path?",
+      "choices": [
+        {"label": "Adjust the rule's threshold yourself. The SOC's repeated benign classification supports the change.", "rationale": "Direct tuning is above the ceiling regardless of how supported the change feels."},
+        {"label": "Close future recurrences as 'dismiss' to bypass the noise.", "rationale": "Informal dismissal bypasses the review the exclusion-request flow exists to provide."},
+        {"label": "Tell the customer 'we can't make those stop, sorry.'", "rationale": "The exclusion path exists for exactly this case. Refusing without naming it treats the answer as 'no' when it's 'yes, via the right process.'"},
+        "File an exclusion request via the documented path. Senior reviews and applies."
+      ],
+      "correct": 3,
+      "explanation": "The exclusion request cites repeated incidents, SOC-classified benign each time, customer-confirmed legitimate process, narrow scope. Combines the SIEM ceiling rule (tuning is out of scope) with the exclusion-request discipline (the right channel for recurring benign patterns)."
+    },
+    {
+      "id": "siem-response-unfamiliar-field",
+      "type": "mcq",
+      "topic": "siem-soc-coordination",
+      "difficulty": "hard",
+      "prompt": "You complete a SIEM Recommendation cleanly (firewall block in place, EDR cross-check clean) and document. The SOC's annotation referenced an unfamiliar log field you couldn't interpret. What's the right next step?",
+      "choices": [
+        "Close the incident. Ask the SOC a scoped factual question about the field if it would help future work.",
+        {"label": "Don't close yet. Investigate the unfamiliar field on your own first, then close once you understand it.", "rationale": "Investigation isn't part of close-out. The Recommendation's actions are done."},
+        {"label": "Reply with multiple questions: 'What does field X mean? Why is it relevant? Why did you weight it this way?'", "rationale": "Multi-question reply slows the SOC; relitigating-via-questions is the named anti-pattern."},
+        {"label": "Close without comment and hope to encounter the field again in a future report.", "rationale": "Defensible but wastes a learning opportunity. The scoped clarifying reply is the right surface."}
+      ],
+      "correct": 0,
+      "explanation": "The actions are complete so close the incident. Understanding unfamiliar fields goes through scoped factual replies, one question per reply."
+    },
+    {
+      "id": "comms-framing-channel",
+      "type": "mcq",
+      "topic": "comms-framing",
+      "difficulty": "hard",
+      "prompt": "A Critical EDR canary trip lands at 10:30 on a Tuesday. Customer is a high-tier financial-services client; preference is \"phone-first for Highs and Criticals, plus email follow-up.\" You're drafting the email follow-up after the phone call. Which combination fits?",
+      "choices": [
+        {"label": "Dramatic email leading with 'URGENT: active compromise prevented' to reinforce the urgency.", "rationale": "Dramatic framing inflates threat and re-panics the customer after the phone call already established awareness."},
+        {"label": "Vague email saying 'we caught and resolved a security event; all good' since the phone call already covered the detail.", "rationale": "The email's job is the durable record. Vagueness leaves no written trail."},
+        "Phone call (already done) plus Version-3 email follow-up with timestamps and named actions.",
+        {"label": "Skip the email entirely. Phone call was enough; email is overkill for a Critical that's already resolved.", "rationale": "Critical equals phone PLUS email; skipping the email leaves the customer without the durable record."}
+      ],
+      "correct": 2,
+      "explanation": "Combines Version-3 framing with the phone-plus-email default for Critical at a high-tier customer, plus the four-elements close-out shape."
+    },
+    {
+      "id": "comms-after-hours-on-call",
+      "type": "mcq",
+      "topic": "after-hours-escalation",
+      "difficulty": "hard",
+      "prompt": "02:47 Sunday. A Critical lands for a customer whose documented preference is \"no after-hours phone to individual users; on-call number only.\" You contain per playbook, reach the on-call senior, and now need to notify the customer. Which channel combination fits?",
+      "choices": [
+        {"label": "Skip phone entirely because the customer's preference forbids after-hours phone.", "rationale": "Misreads the preference. 'On-call number only' is still a phone channel; the preference excludes individual user phones, not the on-call line."},
+        "Phone the on-call number. Email follow-up to the IT-manager distribution list.",
+        {"label": "Phone the customer's IT manager's personal mobile since Critical overrides the after-hours preference.", "rationale": "Breaks the documented preference. Channel breach regardless of how good the message lands."},
+        {"label": "Email only and wait for the next business day to phone.", "rationale": "Critical doesn't downgrade to email-only. The on-call line exists for exactly this."}
+      ],
+      "correct": 1,
+      "explanation": "The preference says 'on-call number only' not 'no phone.' Phone the on-call number plus email follow-up covers both the preference and the Critical matrix."
+    },
+    {
+      "id": "comms-soc-close-out",
+      "type": "mcq",
+      "topic": "close-out-soc-thread",
+      "difficulty": "hard",
+      "prompt": "Mid-incident, you reply to the SOC with new customer-context. The analyst updates the Recommendation. You finish the response. You're drafting the close-out to the customer. How do the updates feed the close-out?",
+      "choices": [
+        "Fold the analyst's updates into the close-out. Customer sees the final picture, not the back-and-forth.",
+        {"label": "Quote the analyst's replies directly in the customer close-out to show the depth of investigation.", "rationale": "Internal SOC-coordination detail isn't customer-facing material; quoting it muddies the close-out."},
+        {"label": "Mention that you disagreed with the original Recommendation but the analyst eventually agreed.", "rationale": "Misframes both sides and positions the tech as having outsmarted the SOC, which inverts the colleague-to-colleague reality."},
+        {"label": "Skip the close-out entirely because the SOC handled the case after your reply.", "rationale": "The SOC's role was analysis; the MSP owns customer comms. Close-out is yours."}
+      ],
+      "correct": 0,
+      "explanation": "The customer sees the resolved state, not the negotiation that produced it. The close-out uses the final picture from the SOC's updated narrative."
+    },
+    {
+      "id": "comms-failure-trio",
+      "type": "mcq",
+      "topic": "comms-trust-failures",
+      "difficulty": "hard",
+      "prompt": "Across lessons on notification, channel, and close-out, the same customer-trust failure shows up in three disguises. Which trio describes them?",
+      "choices": [
+        {"label": "Phone-plus-email on Critical; ticket-update on Low; email-summary on High: three correct defaults, not failures.", "rationale": "Inverts the question. These are the right defaults."},
+        {"label": "Specific timestamps; named actions; one-line lessons learned: three Version-3 strengths, not failures.", "rationale": "Inverts the question."},
+        {"label": "Always escalate to the senior before writing anything customer-facing.", "rationale": "Wrong framing entirely."},
+        "Dramatic notification, ticket-only on a Critical, triumphalist close-out. Three forms of theatre."
+      ],
+      "correct": 3,
+      "explanation": "Dramatic framing inflates the threat; ticket-only on a Critical under-channels; triumphalist close-out positions the MSP as hero instead of naming the work. All three are theatre instead of work, mapped to the same trust-erosion mechanism."
+    },
+    {
+      "id": "comms-through-line",
+      "type": "mcq",
+      "topic": "comms-through-line",
+      "difficulty": "hard",
+      "prompt": "What's the through-line that connects the monthly report, the incident notification, the close-out, and the SOC reply?",
+      "choices": [
+        {"label": "Always use phone for every customer surface.", "rationale": "Conflates channel with framing."},
+        "Specific facts in active voice, work attributed to the SOC and the tech rather than 'the platform.'",
+        {"label": "Always escalate to the senior before writing anything customer-facing to ensure quality.", "rationale": "The routine surfaces are the tech's; senior involvement is by exception."},
+        {"label": "Always avoid technical detail to keep customers comfortable.", "rationale": "Technical detail paired with security outcome is the discipline, not avoidance."}
+      ],
+      "correct": 1,
+      "explanation": "Across the monthly translation, Version-3 framing, four-element close-out, and factually-anchored reply, the same discipline applies: name the work in active voice."
+    },
+    {
+      "id": "judgement-click-see-legal",
+      "type": "mcq",
+      "topic": "click-and-see",
+      "difficulty": "hard",
+      "prompt": "EDR High on WS-EXAMPLE-LEGAL-08. Recommendation: approve the autoruns remediation. Autoruns entry points at C:\\Program Files\\LegalSoft\\update.exe. You haven't heard of LegalSoft. The customer is a law firm. What do you do?",
+      "choices": [
+        {"label": "Click approve immediately. The SOC said so.", "rationale": "Wrong reflex on this case. 'The SOC said so' is sometimes right and sometimes the cardinal mistake; the difference is whether you've understood why."},
+        {"label": "Click approve to see whether it breaks the customer's legal software.", "rationale": "The verbatim reflex this lesson exists to prevent."},
+        "Reply to the SOC asking whether classification is on the binary or the path.",
+        {"label": "Close the ticket as benign because the path looks like legitimate business software.", "rationale": "Worse. Second-guessing the SOC by unilateral closure."}
+      ],
+      "correct": 2,
+      "explanation": "Twenty seconds of writing, a minute of waiting. The analyst either confirms (proceed with confidence) or clarifies (avoid customer impact)."
+    },
+    {
+      "id": "judgement-host-mismatch",
+      "type": "mcq",
+      "topic": "calibrated-uncertainty",
+      "difficulty": "hard",
+      "prompt": "Eighth Low of your shift. You hover over Approve. You feel a tiny \"wait.\" Re-reading, you spot the affected host in the header is WS-EXAMPLE-MARKETING-04 but the path in Evidence is on WS-EXAMPLE-MARKETING-14. What do you do?",
+      "choices": [
+        "Reply to the SOC clarifying which host the recommendation targets.",
+        {"label": "Approve on both hosts to cover the discrepancy since one of them must be right.", "rationale": "Acting on context the Recommendation doesn't cover. The cardinal mistake from the foundations course."},
+        {"label": "Click approve and let the remediation figure it out.", "rationale": "Click-and-see on a known discrepancy."},
+        {"label": "Close the ticket as 'unclear which host' and move on.", "rationale": "Second-guessing the SOC by closure."}
+      ],
+      "correct": 0,
+      "explanation": "The flicker caught a real issue. A specific, factual, scoped clarifying reply is the right surface."
+    },
+    {
+      "id": "judgement-category-six-customer",
+      "type": "mcq",
+      "topic": "mandatory-escalation",
+      "difficulty": "hard",
+      "prompt": "The customer's IT manager calls: \"The SOC wants Bob's session revoked, his password reset, and an inbox rule removed. Skip the inbox rule. We like the auto-forwarding and it's deliberate.\" How do the categories and the keystone rule interact here?",
+      "choices": [
+        {"label": "Action the parts the SOC recommended (revoke, reset) and skip the inbox rule per the customer's request.", "rationale": "Skipping a recommended action on the customer's say-so is the cardinal mistake plus a category-6 trip ignored."},
+        {"label": "Reply to the SOC: 'Customer doesn't want the inbox rule removed, please confirm we can skip it.'", "rationale": "The customer-versus-SOC channel runs through the senior, not via the tech relaying customer preferences to the analyst."},
+        {"label": "Refuse to action the ticket at all because the customer disagrees.", "rationale": "The tech doesn't refuse work; the tech hands off to the senior."},
+        "Category 6 trip. Hand off to the senior. Don't skip the inbox-rule action."
+      ],
+      "correct": 3,
+      "explanation": "Customer-versus-SOC tension (category 6) is mandatory escalation to the senior because the customer is asking for something contradicting the Recommendation. The senior owns this conversation; the tech doesn't unilaterally skip recommended actions on the customer's say-so."
+    },
+    {
+      "id": "judgement-calibration-traps",
+      "type": "mcq",
+      "topic": "judgement-synthesis",
+      "difficulty": "hard",
+      "prompt": "You're working through the eighth similar-looking Low of the afternoon. You feel a tiny 'wait, am I sure?' but the queue is deep. A peer says: 'Just batch-close the rest like I did; we'll catch anything important when it lands as a High.' How does this map to the Course 9 framework?",
+      "choices": [
+        {"label": "Take the peer's advice. They're more experienced and the queue matters.", "rationale": "Peer pressure isn't authorisation. The calibration signal is faster than any external check."},
+        "Three Course 9 failures stacked. Pause, re-read the eighth ticket carefully, decline the peer's suggestion.",
+        {"label": "Escalate to a senior to take the rest of the queue since the volume is creating risk.", "rationale": "Over-escalates. The right move is to work the current ticket carefully, not hand off the routine queue."},
+        {"label": "Close the eighth ticket per the pattern and re-read the next one carefully.", "rationale": "The flicker is on the current ticket; addressing it now is the discipline, not deferring it."}
+      ],
+      "correct": 1,
+      "explanation": "Three lessons intersect on this situation. Recognising the intersection is the synthesis the course teaches."
+    },
+    {
+      "id": "judgement-assessment-two-question",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "hard",
+      "prompt": "A scenario describes: a senior asking you in passing to permanently delete four legacy organisations from the portal while the queue is quiet. The options include: 'Delete them,' 'Delete one to test,' 'Refuse and walk away,' and 'Name the category and propose a runbook delegation.' Loading the two-question test, which option is the calibrated answer?",
+      "choices": [
+        {"label": "Delete them. The senior asked.", "rationale": "Verbal passing instruction isn't documented authorisation; both two-question-test answers fail."},
+        {"label": "Delete one to test and see if anything breaks.", "rationale": "Click-and-see applied to a category-4 action."},
+        "Name the category and propose a runbook delegation.",
+        {"label": "Refuse and walk away; the tech doesn't have authorisation for irreversible actions.", "rationale": "Half-right but tone-deaf. The senior has a real point; the calibrated answer provides the path that updates the runbook."}
+      ],
+      "correct": 2,
+      "explanation": "Combines the two-question-test framing with category 4 and the decision-walkthrough pattern. The calibrated answer is the path that updates the runbook without compromising the category."
+    }
+  ]
+}

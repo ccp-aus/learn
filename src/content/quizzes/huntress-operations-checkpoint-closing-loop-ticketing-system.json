@@ -1,0 +1,219 @@
+{
+  "slug": "huntress-operations-checkpoint-closing-loop-ticketing-system",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: closing the loop in the ticketing system",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "cardinal-trap",
+      "type": "mcq",
+      "topic": "drift-trap",
+      "difficulty": "easy",
+      "prompt": "What's the cardinal close-out trap?",
+      "choices": [
+        "Closing the Huntress incident and walking away.",
+        {
+          "label": "Approving a remediation without reading the Evidence.",
+          "rationale": "Different failure; not this lesson's trap."
+        },
+        {
+          "label": "Calling the customer before isolating the host.",
+          "rationale": "Different lesson's failure."
+        },
+        {
+          "label": "Documenting the action in the PSA without copying the note to Huntress.",
+          "rationale": "Inverted direction; the named trap is the other way around."
+        }
+      ],
+      "correct": 0,
+      "explanation": "\"closed in Huntress, forgot the PSA.\" The Huntress side feels like the real work; The PSA close feels like paperwork. Both are required. Both systems hold the work. Closing one without the other is the drift trap named in the helpdesk-traps lesson."
+    },
+    {
+      "id": "checklist-order",
+      "type": "order",
+      "topic": "close-out-checklist",
+      "difficulty": "medium",
+      "prompt": "Put the six close-out steps in order.",
+      "items": [
+        "Close the Huntress incident with the right resolution disposition.",
+        "Match the PSA ticket — find the corresponding ticket.",
+        "Add the incident note to the PSA ticket.",
+        "Enter time per the actual time spent.",
+        "Set the category and resolution code on the PSA.",
+        "Close the PSA ticket."
+      ],
+      "explanation": "Six small steps, takes two minutes, prevents the drift trap."
+    },
+    {
+      "id": "why-psa-matters",
+      "type": "mcq",
+      "topic": "rationale",
+      "difficulty": "medium",
+      "prompt": "Why does PSA closure matter at all if Huntress already records the security action?",
+      "choices": [
+        "The PSA holds the time, the billing, and the customer-facing record.",
+        {
+          "label": "Huntress automatically purges incident data after 30 days; the PSA is the archive.",
+          "rationale": "Not the reason. The reason is auditing, billing, and customer-record."
+        },
+        {
+          "label": "The PSA is the only system the SOC can see.",
+          "rationale": "Inverts the reality. The SOC works in Huntress; the PSA is the MSP-side record."
+        },
+        {
+          "label": "Without PSA closure, the Huntress incident can't be closed either.",
+          "rationale": "Wrong on the mechanism. Huntress can close independently."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Auditors don't always have access to Huntress; the PSA is usually the canonical record. PSA is the canonical MSP-side record. Auditors and billing reads from the PSA, not from Huntress."
+    },
+    {
+      "id": "generic-category",
+      "type": "mcq",
+      "topic": "category",
+      "difficulty": "medium",
+      "prompt": "A tech enters generic time and category on a PSA close-out to \"save time.\" What does the lesson say happens?",
+      "choices": [
+        "Five seconds saved at close becomes ten minutes of explanation at month-end when the report makes no sense. Categorise specifically.",
+        {
+          "label": "Nothing — the PSA's reports aggregate any category.",
+          "rationale": "Generic categories produce noisy reports."
+        },
+        {
+          "label": "The PSA auto-corrects generic categories based on integration metadata.",
+          "rationale": "Not a feature."
+        },
+        {
+          "label": "Saving time on categories is the lesson's recommended practice for Lows.",
+          "rationale": "Inverts the rule entirely."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Specific category, actual time. The five seconds you save at close cost ten minutes at month-end."
+    },
+    {
+      "id": "end-of-shift-three-tickets",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "End of shift, 16:55. Three Huntress incidents in \"closed\" state but PSA tickets still open. Two have notes; one doesn't. You finish at 17:00. What do you do?",
+      "choices": [
+        {
+          "label": "Close the three PSA tickets quickly with generic time entry and category; leave the missing note for tomorrow.",
+          "rationale": "Generic time and category creates reporting noise; leaving the missing note for tomorrow means it never gets written (memory degrades overnight)."
+        },
+        "Spend the five minutes to close all three correctly — actual time per ticket, specific category, note copied for the one missing.",
+        {
+          "label": "Leave them all for tomorrow because the shift is ending.",
+          "rationale": "Tomorrow's queue starts with three half-done items from yesterday on top of new work."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Five minutes now versus tomorrow's reconstruction. End-of-shift discipline keeps tomorrow's queue clean."
+    },
+    {
+      "id": "mystery-psa",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "You find a PSA ticket open for a week with no Huntress incident matching it. The PSA description says \"EDR incident on WS-EXAMPLE-FIELD-12\" and references an incident ID that doesn't exist in Huntress. What do you do?",
+      "choices": [
+        {
+          "label": "Close the PSA ticket as \"unable to locate.\"",
+          "rationale": "Closing without investigating could hide real work that needed doing."
+        },
+        "Open the PSA fully. Read who created it, when, why.",
+        {
+          "label": "Bump to senior immediately.",
+          "rationale": "Defensible but premature. The investigation is in scope for a tech; senior would ask what you already found."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Search Huntress for the host's recent incidents, not just the referenced ID. Reconcile based on what you find, then close cleanly. The integration may have closed an old incident with a different ID; the typed reference may have a typo. Investigate first."
+    },
+    {
+      "id": "missing-integration",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The PSA ticket for the incident doesn't exist and no integration is in place to auto-create one. What's the recommendation?",
+      "choices": [
+        "Could be a one-off integration failure or a customer with different PSA mapping.",
+        {
+          "label": "Create a PSA ticket from scratch using your best guess.",
+          "rationale": "Creates noise if your guess differs from the customer's PSA structure."
+        },
+        {
+          "label": "Skip the PSA close and document only in Huntress.",
+          "rationale": "Defeats the close-the-loop discipline."
+        },
+        {
+          "label": "Email Huntress support to ask them to create the PSA ticket.",
+          "rationale": "Misuses support; PSA mapping isn't a Huntress-support question."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Bump rather than create-from-scratch on customers you don't know the conventions for. Don't invent PSA structure for customers you don't know. Bump."
+    },
+    {
+      "id": "stale-drift",
+      "type": "mcq",
+      "topic": "drift",
+      "difficulty": "medium",
+      "prompt": "You spot drift between a closed Huntress incident and an open PSA ticket from three weeks ago. What's the move?",
+      "choices": [
+        "Drift gets cleaned up when you find it.",
+        {
+          "label": "Old drift is fine to leave; the customer report is already out.",
+          "rationale": "Old drift means worse reconstruction work and worse audit trail."
+        },
+        {
+          "label": "Close the PSA without a note; Huntress has the detail.",
+          "rationale": "Loses the canonical PSA-side record."
+        },
+        {
+          "label": "Email the customer to apologise for the stale ticket.",
+          "rationale": "Misframes drift as a customer-relationship issue; it's an internal-record one."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Not \"next time.\" A drifted ticket from three weeks ago is harder to reconcile than one from three minutes ago. Reconcile when found. Cost grows with age."
+    },
+    {
+      "id": "missing-category",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The time-entry category needed isn't in the PSA's available list. What does the lesson say?",
+      "choices": [
+        "Could be the PSA has been restructured and the runbook is out of date. Bump.",
+        {
+          "label": "Use any close-enough category; categories don't matter long-term.",
+          "rationale": "Generic / wrong categories create downstream reporting problems."
+        },
+        {
+          "label": "Create a new category in the PSA on the fly.",
+          "rationale": "Inventing categories without coordination creates a reporting taxonomy mess."
+        },
+        {
+          "label": "Leave the category blank and close the ticket.",
+          "rationale": "Blank category compounds the reporting problem."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Missing category is a runbook-versus-PSA mismatch worth a senior look."
+    },
+    {
+      "id": "drift-shapes-tf",
+      "type": "tf",
+      "topic": "drift-shapes",
+      "difficulty": "medium",
+      "prompt": "Two PSA tickets existing for the same Huntress incident usually means the tech opened one manually while the integration also opened one — merge or close the duplicate.",
+      "correct": true,
+      "explanation": "Manual-plus-integration creation collision. The lesson's named drift shape."
+    }
+  ]
+}

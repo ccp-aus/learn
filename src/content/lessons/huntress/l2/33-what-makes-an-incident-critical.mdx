@@ -1,0 +1,93 @@
+---
+slug: 33-what-makes-an-incident-critical
+vendor: huntress
+level: l2
+title: What makes an incident Critical
+summary: Four markers tell you the response model has flipped, ransomware canary trip, mass deletion, lateral movement, admin-credential abuse. Recognise the shape and you switch from triage to contain-and-escalate before the severity tag confirms it.
+estimatedMinutes: 7
+order: 33
+topics:
+  - critical
+  - markers
+  - response-model
+updated: 2026-05-20
+---
+
+Course 5 is short because Critical incidents don't reward thoroughness. They reward speed, containment, and not investigating. The shape of the work changes the moment the markers are clear. Miss the switch and you do the wrong work efficiently while the customer's environment burns.
+
+## The four markers
+
+The SOC raises Critical when the activity needs containment now, not action after analysis. The patterns cluster into four shapes you'll see again and again.
+
+**Ransomware canary trip.** A canary file (lesson 34 covers these) was touched in a pattern consistent with ransomware. Critical by default. The assumption is that encryption is in flight on the endpoint or a network share.
+
+**Mass deletion.** Files are being deleted at a rate or pattern that's destructive: wiping data, removing backups, destroying logs. The pattern doesn't match user behaviour; it matches an attacker scrubbing evidence or running a destruction phase at the end of an attack.
+
+**Lateral movement signals.** The attacker is moving between hosts. Credentials being used from unexpected endpoints, remote-execution patterns spreading, network-share traversal at scale. One compromised host might land as Low or High; lateral movement is Critical because the blast radius is widening in real time.
+
+**Admin-credential abuse.** A service account, domain admin, or other elevated credential is being used in ways that don't match the legitimate workflow. The credential's blast radius equals the credential's privilege level; abuse of an admin credential is Critical because the next action could touch anything in the customer's environment.
+
+Identity-side Criticals and SIEM-correlated Criticals exist too; the four above are what you'll see most often.
+
+## Why the response model changes
+
+In the standard EDR workflow you learned earlier in this course, the work goes in order: claim, review, approve, verify, close, document. Time matters but it isn't critical-path. On a Critical, two things flip and a third drops out.
+
+**Time matters more than completeness.** Every minute before containment is a minute the attacker keeps doing what they're doing. A 30-second containment that's slightly imperfect is dramatically better than a 5-minute containment that's exactly right. Speed wins.
+
+**Containment and escalation happen in parallel, not in sequence.** On a Low or High you might handle the whole ticket and mention it at end-of-shift handover. On a Critical you contain *and* you tell the senior at the same time. The senior may take the response over; you may stay on it under their direction. What doesn't happen is "I handled it alone, will tell you tomorrow."
+
+**You don't investigate.** This is the hard one. The standard workflow trains the muscle of reviewing the Recommendation, sometimes the Evidence, before acting. On a Critical the Recommendation will lead with containment, and the Evidence is there for the senior's context, not the tech's analysis. The deeper investigation is above the helpdesk ceiling. Looking at it from the tech seat with tech tools while the attacker is active is the wrong trade against speed.
+
+<Callout type="danger" title="The line you don't cross">
+Contain (isolate the host, or run the ITDR compromise playbook on the affected identity). Notify the on-call senior in parallel. Document what you've done. Pass the deeper investigation to whoever owns it (senior, MSP's senior-level security analyst, sometimes a vendor's incident response service). Forensics and persistence-hunting are above the helpdesk ceiling, regardless of how confident you feel.
+</Callout>
+
+## Recognising Critical-shape inside a High
+
+A High Incident Report lands. Host: `WS-CONTOSO-IT-01`, a customer helpdesk workstation. Recommendation: approve the autoruns remediation. Standard High shape. Three minutes into your review, the Evidence catches your eye: the autoruns binary has signatures of a known credential-dumping tool, and the SOC's notes mention the workstation owner's domain-admin credential was used for a remote-execute on three other endpoints in the last six hours.
+
+That's two markers stacking inside what's still tagged High: admin-credential abuse plus lateral movement. The High tag is what the SOC had when the report opened. You now have new context from reading the Evidence.
+
+<DecisionTree client:load
+  title="Critical-shaped pattern inside a High-tagged incident"
+  description="The severity tag and the patterns in the Evidence have diverged. The tag is the SOC's call; the pattern is yours to recognise. The response model switches the moment the markers are clear, not when the tag catches up."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "You spot Critical-shaped markers (admin credential abuse, lateral movement) in the Evidence of a High-tagged incident. What do you do?", choices: [
+      { label: "Stop, isolate the host, bump the senior in parallel, hold further remediations", next: "act" },
+      { label: "Re-grade the severity to Critical yourself in the portal", next: "regrade" },
+      { label: "Finish the High workflow as recommended, the SOC tagged it for a reason", next: "finish" },
+      { label: "Reply to the SOC asking if it should be Critical, wait for re-tag", next: "wait" },
+    ]},
+    { type: "outcome", id: "act", label: "Contain and escalate, pattern is the trigger", tone: "success",
+      body: <>The pattern is the trigger; the tag follows the action. Isolate the host on the markers you've recognised, bump the senior, hold any queued remediations until the senior weighs in. Recognising the Critical shape inside a tagged-High is the tech's contribution; you don't wait for the SOC to re-tag before switching response models.</> },
+    { type: "outcome", id: "regrade", label: "Severity is the SOC's call", tone: "warn",
+      body: <>Severity classification is owned by the SOC. Don't change the tag yourself. The right move is to act on the pattern (contain, escalate) and let the senior or SOC update the tag through the normal channel. Action follows the pattern; the tag is paperwork that follows.</> },
+    { type: "outcome", id: "finish", label: "Misses the new context", tone: "bad",
+      body: <>The High tag was what the SOC had when the report opened. You now have context from your own read of the Evidence, two stacked Critical markers. Continuing the High workflow as-recommended ignores the signal you just picked up. The exact pattern this course is built to prevent.</> },
+    { type: "outcome", id: "wait", label: "Defensible but slow", tone: "warn",
+      body: <>The clarifying reply is fine to send in parallel. Containment doesn't wait for the SOC to re-tag. Send the question if you want, but isolate first; the cost of a minute's delay on a real lateral-movement pattern is much higher than the cost of a containment that gets confirmed legitimate later.</> },
+  ]}
+/>
+
+## Recommendation phrasing that's a Critical tell
+
+Even if you missed the tag at the top of the report, certain Recommendation phrases are a tell.
+
+- "Isolate the host immediately."
+- "Preserve evidence."
+- "Do not perform further actions until forensic review."
+- "Escalate to incident response."
+
+Those four phrases say the SOC has classified this as needing containment now and that the deeper response is above the helpdesk ceiling. A standard High Recommendation reads differently, "approve the autoruns remediation" or "verify the affected host before approving." If the wording leans toward containment and preservation, the response model has already switched whether or not the tag matches.
+
+## Misconceptions to drop early
+
+*Critical means the most evidence to review.* Opposite. Critical means contain first and read evidence only as context for what was contained. Thoroughness on a Low becomes a time-cost on a Critical.
+
+*If I'm careful, I can handle a Critical end-to-end like a High.* The escalation ceiling rules it out regardless of how careful you are. Critical investigation is above the line because the blast radius and stakes are different, not because of skill level.
+
+*Containment will look like over-reacting if it turns out to be benign.* It won't, and even if the customer is annoyed, the conversation is much easier than "we didn't contain it and the attacker spread laterally." The cost asymmetry is the whole reason Critical exists as a category.
+
+<Checkpoint slug="huntress-operations-checkpoint-what-makes-an-incident-critical" client:visible />

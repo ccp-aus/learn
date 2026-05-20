@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-agent-upgrades-version-compliance",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: agent upgrades and version compliance",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "self-upgrade",
+      "type": "mcq",
+      "topic": "self-upgrade",
+      "difficulty": "easy",
+      "prompt": "What's the normal upgrade flow?",
+      "choices": [
+        "The agent self-upgrades. The user sees nothing;",
+        {
+          "label": "Manual upgrades are the default; auto-upgrade has to be enabled per agent.",
+          "rationale": "Self-upgrade is the default."
+        },
+        {
+          "label": "The customer's super-admin approves each upgrade.",
+          "rationale": "The agent handles it."
+        },
+        {
+          "label": "Upgrades require a reboot signed off by the user.",
+          "rationale": "Not part of the normal flow."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The portal's version column updates. Manual upgrades are a symptom, not routine. Self-upgrade is the design; manual touch means something interrupted the normal flow."
+    },
+    {
+      "id": "upgrade-cause-mapping",
+      "type": "mcq",
+      "topic": "diagnosis",
+      "difficulty": "medium",
+      "prompt": "'An upgrade failure is rarely its own diagnostic class.' What pattern does the lesson teach?",
+      "choices": [
+        "Upgrade failures are install-failure causes.",
+        {
+          "label": "Upgrade failures are always caused by Huntress's back end.",
+          "rationale": "Most upgrade failures are MSP/customer-side."
+        },
+        {
+          "label": "Upgrade failures are always benign and self-resolving.",
+          "rationale": "Stale agents drift out of effective coverage; not benign."
+        },
+        {
+          "label": "Upgrade failures only happen on macOS.",
+          "rationale": "Not a real platform pattern."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(AV, policy, blocked outbound. Or resource shortage) showing up again on a different operation. Same diagnostic toolkit; different trigger."
+    },
+    {
+      "id": "silent-drift",
+      "type": "mcq",
+      "topic": "silent-drift",
+      "difficulty": "medium",
+      "prompt": "Why is 'online with a stale version' a problem despite the agent still phoning home?",
+      "choices": [
+        "Silent drift out of effective coverage.",
+        {
+          "label": "Stale agents send extra telemetry that costs more.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Stale agents trigger Critical incidents in the SOC queue.",
+          "rationale": "Not how the SOC operates."
+        },
+        {
+          "label": "Stale agents disable themselves after 90 days.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC's detections shift over time; an agent that can't take updates loses ground gradually. Online and stale is the silent-drift state; the version number is the only signal."
+    },
+    {
+      "id": "manual-upgrade-symptom",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is 'upgrading by hand without finding the cause' called out as wrong?",
+      "choices": [
+        "A manual upgrade fixes one endpoint;",
+        {
+          "label": "Manual upgrades void the warranty.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Manual upgrades require senior sign-off every time.",
+          "rationale": "Manual upgrades are a symptom-treatment regardless of who runs them."
+        },
+        {
+          "label": "Manual upgrades take longer than re-installs.",
+          "rationale": "Not the lesson's reason."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The next time the agent needs to upgrade, the same wall is in place and the endpoint goes stale again. Fix the cause, not the symptom. Manual upgrades treat a symptom and guarantee the same problem next time."
+    },
+    {
+      "id": "cluster-investigation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Quarterly review: 18 of 198 agents at a customer are two or more versions behind the target. Other customers in your portfolio show single-digit drift. What's the first investigation?",
+      "choices": [
+        {
+          "label": "Manually upgrade all 18 from the portal or RMM, one at a time.",
+          "rationale": "If the cause is shared, they re-stale next month. Find the cause first."
+        },
+        "Look at the 18 endpoints for patterns.",
+        {
+          "label": "Tell the customer's IT they have a problem with their endpoints.",
+          "rationale": "You haven't diagnosed; the problem might be on the MSP's side."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Same OU, same site, same OS patch level, same AV policy scope? Eighteen on one customer is the cluster shape that almost always has a shared cause."
+    },
+    {
+      "id": "applocker-stale-allowlist",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Pattern investigation finds: all 18 are on the customer's 'tier-2 user' GPO scope with a tighter AppLocker policy. The policy allow-listed Huntress paths months ago, but the new agent version's binary path is slightly different and isn't allowed. What do you do?",
+      "choices": [
+        "Ask the customer's IT to update the AppLocker GPO allow-list with the new Huntress agent binary path, push the policy.",
+        {
+          "label": "Remove the 18 endpoints from the tier-2 GPO scope.",
+          "rationale": "Weakening the customer's GPO to fit our tooling is hostile."
+        },
+        {
+          "label": "Upgrade the agents using a PowerShell bypass of AppLocker on each endpoint.",
+          "rationale": "Works once, next upgrade fails the same way, and you've taught the runbook a bypass."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Then re-attempt the upgrades. Document in the PSA so the next agent-version bump triggers a check of the same policy. Cause identified, fix at the policy level, all 18 unstick with one change."
+    },
+    {
+      "id": "compliance-check-procedure",
+      "type": "mcq",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "How do you check version compliance?",
+      "choices": [
+        "Open the customer's Agents view;",
+        {
+          "label": "Email each endpoint's owner asking which version is installed.",
+          "rationale": "Out of scope; the portal exposes the data."
+        },
+        {
+          "label": "Run a PowerShell script across all endpoints to query the local agent.",
+          "rationale": "Unnecessarily heavyweight; the portal is the canonical source."
+        },
+        {
+          "label": "Open a Huntress support ticket asking for a compliance report.",
+          "rationale": "Misuses support."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Sort or filter by version; identify the target version; flag agents more than one or two versions behind. The Agents view exposes the data; the portal is the canonical source."
+    },
+    {
+      "id": "rollback-territory",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The agent upgrades but the new version produces immediate offline or service-crash symptoms. What's the guidance?",
+      "choices": [
+        "Rollback territory; senior and Huntress support own that path.",
+        {
+          "label": "Roll back yourself via PowerShell.",
+          "rationale": "Same anti-pattern as PowerShell bypass; not a tech-level action."
+        },
+        {
+          "label": "Treat as a new install failure (lessons 14-17) and proceed.",
+          "rationale": "Misclassifies. A new-version regression is its own escalation surface."
+        },
+        {
+          "label": "Ignore it; the next upgrade will fix it.",
+          "rationale": "Hides the failure during a coverage gap."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Rollback isn't a tech-level action."
+    },
+    {
+      "id": "verify-watch-for-spike",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "After fixing an upgrade-failure cluster, what should you watch for?",
+      "choices": [
+        "No spike in offline agents in the same customer immediately after the fix.",
+        {
+          "label": "A spike in incident volume from the upgraded agents.",
+          "rationale": "Not the named symptom."
+        },
+        {
+          "label": "The customer's super-admin signing off via email.",
+          "rationale": "Not a lesson workflow."
+        },
+        {
+          "label": "Huntress support confirming the new version via ticket.",
+          "rationale": "The portal exposes the version state."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Upgrades that break the agent are rare but do happen. Verification isn't just 'version updated'; it's 'agents stayed online after the update.'"
+    },
+    {
+      "id": "tf-cluster-shared-cause",
+      "type": "tf",
+      "topic": "leverage",
+      "difficulty": "easy",
+      "prompt": "When multiple endpoints in the same customer are stuck on the same older version, the right move is to look for a shared cause (OU, AV policy, network site, OS patch level) before attempting upgrades one by one.",
+      "correct": true,
+      "explanation": "One investigation, one fix, many endpoints unstick."
+    }
+  ]
+}

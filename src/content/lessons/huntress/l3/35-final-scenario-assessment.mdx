@@ -1,0 +1,147 @@
+---
+slug: 35-final-scenario-assessment
+vendor: huntress
+level: l3
+title: "Final scenario assessment"
+summary: "The shape of the final assessment, the categories it weights, and worked scenarios that rehearse the judgement framework one last time before the scored run."
+estimatedMinutes: 10
+order: 35
+topics:
+  - judgement
+  - capstone
+  - assessment
+updated: 2026-05-20
+---
+
+The final assessment is the LMS's recommendation that you are ready for live tickets at the boundary this course describes. This lesson covers the assessment's shape, what it measures, and three worked scenarios that rehearse the judgement framework one last time.
+
+## The shape of the assessment
+
+Fifteen scored scenarios spanning Courses 2 through 8. Each scenario is multi-decision: usually two or three branching choices that test whether you can follow the right reflex through a realistic ticket end-to-end. The scenarios pull from:
+
+- **At least one onboarding decision-point** (Course 2).
+- **Mixed EDR scenarios** (Course 4). Standard workflow on Lows, Highs with paired actions and user verification.
+- **Critical scenarios** (Course 5). Canary trips, containment-first response, recognition of the markers.
+- **ITDR scenarios** (Course 6). At least one Google Workspace and one tenant-wide compromise pattern.
+- **SIEM scenario** if your MSP runs Managed SIEM (Course 7). Otherwise skipped.
+- **Communication scenarios** (Course 8). Choosing channels, writing close-outs, replying to the SOC.
+- **Judgement scenarios** (Course 9). Mandatory-escalation categories, calibrated-uncertainty triggers, recognising the traps.
+
+## The pass mark
+
+**Recommended: 12 of 15 (80%).** Your MSP may set a higher or lower bar.
+
+Two scenario categories are weighted for review even when the overall score is above 80%: **Critical scenarios (Course 5)** and **ITDR scenarios (Course 6)**. These are the highest-blast-radius categories. Getting them wrong on the assessment suggests the calibration is not yet right for live work in those areas. The senior may ask you to revisit specific lessons before sign-off.
+
+## What the assessment does not test
+
+- Memorisation of portal menu paths (these change).
+- Knowledge of specific runbooks (these are your MSP's).
+- Familiarity with specific customers (you do not have any yet).
+
+If a scenario seems to depend on customer-specific or runbook-specific knowledge, the scenario is testing whether you would ask the right question rather than guess.
+
+## Worked scenario 1: customer-versus-SOC tension
+
+<DecisionTree client:load
+  title="The IT manager wants the host released"
+  description="A customer's IT manager calls: 'Release the isolated host. The user confirmed they were signing in from the airport.' The SOC's Incident Report recommended the isolation and has not yet closed. The remediation is not verified."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Release the host per the customer's request.", next: "release" },
+      { label: "Escalate to the senior. Category 6: customer preference versus SOC recommendation.", next: "escalate" },
+      { label: "Reply to the SOC asking them to release on the customer's say-so.", next: "relay" },
+    ]},
+    { type: "outcome", id: "release", label: "Unilateral release against SOC recommendation", tone: "bad",
+      body: "Customer-versus-SOC tension is category 6 mandatory escalation. The tech does not release unilaterally regardless of customer authority over their own people." },
+    { type: "outcome", id: "escalate", label: "Calibrated response", tone: "success",
+      body: "Category 6 trips. The senior owns the conversation between customer preference and SOC recommendation. You surface the customer's request, you do not action it." },
+    { type: "outcome", id: "relay", label: "Bypasses the senior", tone: "bad",
+      body: "The customer-versus-SOC channel runs through the senior, not via the tech relaying customer preferences to the analyst." },
+  ]}
+/>
+
+## Worked scenario 2: unfamiliar detection with extra Evidence
+
+<DecisionTree client:load
+  title="Confident Recommendation, extra signals in Evidence"
+  description="An EDR Incident Report with a clean, well-formatted Recommendation: approve the autoruns remediation. While reading the Evidence section, you notice additional signals (a scheduled task and a suspicious service) the Recommendation does not mention."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Approve the remediation and also remove the scheduled task and service.", next: "extend" },
+      { label: "Approve the remediation per the Recommendation. Raise the extra signals as a clarifying reply to the SOC.", next: "split" },
+      { label: "Close the incident as benign because the extra signals are suspicious but the Recommendation only mentions autoruns.", next: "close" },
+    ]},
+    { type: "outcome", id: "extend", label: "Extending the action set without authorisation", tone: "bad",
+      body: "Acting on context the Recommendation does not cover is the cardinal mistake from the recommendation-versus-context lesson. The extra signals go to the analyst as a clarifying reply, not as a unilateral extension." },
+    { type: "outcome", id: "split", label: "Calibrated response", tone: "success",
+      body: "Execute the Recommendation's action zone. Surface the additional Evidence to the analyst as a factual clarifying reply. The analyst weighs the extra signals and either updates the Recommendation or confirms they are already accounted for." },
+    { type: "outcome", id: "close", label: "Second-guessing the SOC", tone: "bad",
+      body: "Closing without acting overrides the SOC's Recommendation without new signal. The extra Evidence is not a reason to close; it is a reason to clarify." },
+  ]}
+/>
+
+## Worked scenario 3: the communication choice
+
+<DecisionTree client:load
+  title="How do you tell the customer?"
+  description="You have just resolved a High-severity EDR incident on a customer's finance server. Remediation applied, verified, endpoint clean. The customer's IT manager is expecting an update. You need to choose the notification framing."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Which notification framing do you use?", choices: [
+      { label: "Technical detail: 'Autoruns persistence object at C:\\Windows\\Temp\\svc_update.exe removed. SHA256 hash matched known Cobalt Strike loader. Remediation applied via Huntress portal.'", next: "technical" },
+      { label: "Plain language: 'We found and removed malicious software on YOURSERVER. The software was pretending to be a system update. The server is clean and back to normal operation. No data was accessed.'", next: "plain" },
+      { label: "Minimal: 'Incident resolved. No action needed.'", next: "minimal" },
+    ]},
+    { type: "outcome", id: "technical", label: "Wrong audience", tone: "bad",
+      body: "The IT manager is not the analyst. Technical detail belongs in the PSA note and the SOC reply. The customer notification needs specific facts in plain language." },
+    { type: "outcome", id: "plain", label: "Calibrated communication", tone: "success",
+      body: "Specific facts (what was found, what was done, what the state is now), named actions, useful framing, calm tone. The IT manager can forward this to their management without translation." },
+    { type: "outcome", id: "minimal", label: "Missing the teaching moment", tone: "bad",
+      body: "The customer paid for the service and the incident touched their server. 'Resolved, no action needed' answers the question but wastes the opportunity to build confidence in the MSP's response." },
+  ]}
+/>
+
+## The relationship to your MSP's sign-off
+
+Passing the assessment is the LMS's recommendation. Your MSP's sign-off process is the actual gate to live work.
+
+<StepThrough client:load>
+  <Step title="You pass the assessment">
+    The LMS recommends you are ready for the boundary the course describes. The assessment-pass triggers the senior review.
+  </Step>
+  <Step title="Your senior reviews your readiness">
+    The senior weighs the LMS recommendation alongside context the LMS does not have: shift performance, customer comms, observed reliability.
+  </Step>
+  <Step title="Shadow sessions">
+    You shadow live tickets. Your senior works them while you watch, or works them with you watching. Even one or two sessions accelerate pattern recognition.
+  </Step>
+  <Step title="Supervised work">
+    You work live tickets under direct senior review. The senior signs off each closure.
+  </Step>
+  <Step title="Unsupervised work at the boundary">
+    You are cleared for unsupervised work at the boundary the course describes. The boundary extends over time with experience.
+  </Step>
+</StepThrough>
+
+The assessment-pass is one input to the senior's decision. It is not the decision itself.
+
+## How to prepare
+
+Three things worth doing before the assessment:
+
+**Re-read pattern lessons.** Lessons 1.2 (managed-SOC keystone), 1.8 (recommendation vs. context), 4.5 (when to isolate), 5.1 (Critical markers), 6.1 (identity blast-radius), 9.1 (mandatory escalation), 9.4 (common traps). These are the lessons whose judgement shows up most across scenarios.
+
+**Re-read shadow session notes** if you have shadowed any live tickets. Real ticket experience calibrates the scenarios.
+
+**Glance at the outline.** Refreshing which surfaces each course covers helps the scenarios feel mapped rather than novel.
+
+## The test you carry in
+
+The two-question test from Course 9 loads throughout the assessment: is this reversible? Do I understand why this is the right action? If either internal answer is no, the scenario's options usually include "escalate" or "clarify before acting." That is the calibrated answer.
+
+When in doubt during the assessment, the most reliable instinct is the one this course has been installing: trust the SOC's Recommendation, act on the action zone, surface context to the right body, escalate at the categories, and do not click-and-see.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-final-scenario-assessment" client:visible />

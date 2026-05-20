@@ -1,0 +1,246 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-identity-bigger-blast-radius",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: identity blast radius",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "itdr-response-why-aggressive",
+      "type": "mcq",
+      "topic": "blast-radius",
+      "difficulty": "easy",
+      "prompt": "Why is the ITDR response model more aggressive than EDR?",
+      "choices": [
+        "Identity compromise damage compounds in minutes.",
+        {
+          "label": "Identity providers charge per-incident and Huntress wants to minimise the bill.",
+          "rationale": "Not a real commercial mechanic. The reason is the damage profile, not pricing."
+        },
+        {
+          "label": "EDR detections are slower to fire than ITDR ones.",
+          "rationale": "Speed of detection is not the framing. The framing is cost-of-waiting once the signal exists."
+        },
+        {
+          "label": "ITDR runs on more operating systems than EDR.",
+          "rationale": "OS coverage is not the issue. The aggressiveness is about damage tempo."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(mailbox content, contact phishing, financial workflows), while an EDR incident is mostly bounded to one endpoint. Blast radius is measured in users, customers, and money, not endpoints. The same minute of attacker access does more damage on an identity."
+    },
+    {
+      "id": "not-one-of-three-differences",
+      "type": "mcq",
+      "topic": "response-shape",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT one of the three ways ITDR response differs from EDR?",
+      "choices": [
+        {
+          "label": "Faster default actions (session revoke, password reset, MFA reset bundled).",
+          "rationale": "Named in the lesson as the first of the three differences."
+        },
+        {
+          "label": "Less waiting for user verification on many incidents.",
+          "rationale": "Named in the lesson as the second difference."
+        },
+        "Longer SLA windows because identity incidents are typically lower priority.",
+        {
+          "label": "Wider escalation triggers (multi-user, admin involvement, tenant-wide).",
+          "rationale": "Named in the lesson as the third difference."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The lesson names three differences, and all three go the other way: faster, not slower. The aggressiveness is the point."
+    },
+    {
+      "id": "single-user-bounded-misconception",
+      "type": "mcq",
+      "topic": "blast-radius",
+      "difficulty": "medium",
+      "prompt": "\"A single-user compromise is bounded to that user.\" Why is this a dangerous misconception?",
+      "choices": [
+        {
+          "label": "Because Huntress treats every user compromise as tenant-wide automatically.",
+          "rationale": "Tenant-wide is a separate classification and is not automatic."
+        },
+        "The user's contacts, permissions, and financial-workflow access are all in the radius.",
+        {
+          "label": "Because users always share passwords across accounts.",
+          "rationale": "Password reuse is a separate problem and is not the lesson's framing."
+        },
+        {
+          "label": "Because the SOC requires every single-user incident to be escalated to senior.",
+          "rationale": "Single-identity playbook execution stays in the helpdesk scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "One mailbox can phish hundreds of contacts in hours. Blast radius equals the user's reach times the attacker's speed. Mailbox, contacts, permissions, financial workflows, delegated admin access."
+    },
+    {
+      "id": "cfo-unreachable-action",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High-severity ITDR incident on the CFO. Inbox rule forwarding payment mail externally. CFO is in a board meeting, unreachable for two hours. Recommendation: revoke sessions, reset password and MFA, remove inbox rule. What do you do?",
+      "choices": [
+        {
+          "label": "Wait until the CFO is reachable to verify the activity before acting.",
+          "rationale": "The inbox rule is already exfiltrating. The cost of waiting is high. The SOC has classified the activity."
+        },
+        {
+          "label": "Revoke sessions only and wait on the rest until the CFO is reachable.",
+          "rationale": "Partial response gives the attacker time to re-establish via the password and MFA they may already hold."
+        },
+        "Execute the Recommendation now, document."
+      ],
+      "correct": 2,
+      "explanation": "Reach the IT manager or EA to inform of the lockout and credential-handoff plan. The lockout is cheap to reverse on confirmation. The exfiltration would not be. The aggressiveness is the trade the Recommendation has weighed."
+    },
+    {
+      "id": "keystone-rules-still-apply",
+      "type": "mcq",
+      "topic": "keystone-rules",
+      "difficulty": "easy",
+      "prompt": "What stays the same about the keystone rules when you move from EDR to ITDR?",
+      "choices": [
+        {
+          "label": "Nothing; ITDR replaces the keystone rules with its own model.",
+          "rationale": "The lesson is explicit that the keystone rules still apply."
+        },
+        "The SOC drives the analysis, the tech reads and executes the Recommendation.",
+        {
+          "label": "Only severity bands carry across; the rest is reset.",
+          "rationale": "Severity, SOC trust, and the Recommendation-vs-context test all apply to ITDR."
+        },
+        {
+          "label": "Only the second-guessing rule still applies; the Recommendation-vs-context test is replaced.",
+          "rationale": "Both Course 1 disciplines carry across."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Acting on context instead of the Recommendation is the cardinal mistake. The aggressiveness of ITDR's response model does not lower the bar on the keystone rules."
+    },
+    {
+      "id": "blast-radius-not-component",
+      "type": "mcq",
+      "topic": "blast-radius",
+      "difficulty": "medium",
+      "prompt": "The lesson names five components of an identity's blast radius. Which is NOT one of them?",
+      "choices": [
+        {
+          "label": "The user's mailbox (read, send, delete, forward).",
+          "rationale": "Named in the lesson as the primary component."
+        },
+        "The endpoint hardware the user's account is signed into.",
+        {
+          "label": "The user's contacts (phishing from a trusted mailbox).",
+          "rationale": "Named in the lesson."
+        },
+        {
+          "label": "Financial workflows the user touches (AP, AR, payroll).",
+          "rationale": "Named in the lesson."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Identity blast radius is measured in identity-side reach, not endpoint hardware. The endpoint surface is EDR's concern."
+    },
+    {
+      "id": "user-verify-reversed-on-itdr",
+      "type": "mcq",
+      "topic": "response-shape",
+      "difficulty": "medium",
+      "prompt": "\"User verification should always come before action on identity incidents, like on High EDR.\" Why is this often wrong on ITDR?",
+      "choices": [
+        "The SOC's Recommendation may lead with action and user verification is the follow-up call.",
+        {
+          "label": "Users on identity incidents are usually unreachable.",
+          "rationale": "Reachability is not the issue. The issue is the cost-of-waiting on the activity itself."
+        },
+        {
+          "label": "Identity providers do not allow user verification before action.",
+          "rationale": "Not a real platform constraint."
+        },
+        {
+          "label": "User verification on identity is the SOC's job, not the tech's.",
+          "rationale": "User verification is in the tech's scope when the Recommendation calls for it."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The cost asymmetry favours action over waiting. The lockout is cheap to reverse on confirmation. Waiting while exfiltration runs is expensive."
+    },
+    {
+      "id": "multi-user-escalation-trigger",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "hard",
+      "prompt": "Which pattern triggers tenant-wide-compromise territory rather than single-identity-playbook execution?",
+      "choices": [
+        {
+          "label": "A High-severity incident on a non-admin user.",
+          "rationale": "Single-user High on a regular user is single-identity playbook territory."
+        },
+        {
+          "label": "An incident where the SOC recommends a password reset.",
+          "rationale": "Password reset is a standard playbook action, not a tenant-wide trigger."
+        },
+        "A multi-user pattern landing across several identities in one tenant in a short window.",
+        {
+          "label": "An incident where the user is unreachable for an hour.",
+          "rationale": "Reachability changes the comms shape, not the playbook scope."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Multi-user signals push toward tenant-wide territory faster than equivalent EDR patterns push toward Critical. Bump to senior."
+    },
+    {
+      "id": "identity-like-endpoint-correction",
+      "type": "mcq",
+      "topic": "blast-radius",
+      "difficulty": "medium",
+      "prompt": "\"Identity incidents are like endpoint incidents, just with users instead of machines.\" What is the cleanest correction?",
+      "choices": [
+        {
+          "label": "Completely unrelated; nothing carries across.",
+          "rationale": "Overstates the gap. The keystone rules still apply."
+        },
+        {
+          "label": "Identical; the playbooks translate one-for-one.",
+          "rationale": "The response model is more aggressive; they do not translate one-for-one."
+        },
+        {
+          "label": "Identity is always lower priority because endpoints have ransomware exposure.",
+          "rationale": "Inverts the lesson's framing. Identity has the bigger blast radius."
+        },
+        "True at the surface level."
+      ],
+      "correct": 3,
+      "explanation": "Different in operation: the blast radius and response model differ in material ways. Same skeleton, different physics. The Course 1 keystone rules carry across, but the response aggressiveness differs."
+    },
+    {
+      "id": "post-lockout-customer-framing",
+      "type": "mcq",
+      "topic": "customer-comms",
+      "difficulty": "medium",
+      "prompt": "After executing the playbook, the user calls in annoyed about the lockout. What is the right framing?",
+      "choices": [
+        {
+          "label": "Apologise and say you wish you had been able to wait.",
+          "rationale": "The apology frames the action as a mistake. It was not."
+        },
+        {
+          "label": "Tell the user the SOC made the call and you just executed it.",
+          "rationale": "Distances you from the action. Hiding behind the SOC weakens trust."
+        },
+        "Name the trade-off honestly.",
+        {
+          "label": "Offer to skip the lockout next time as a courtesy.",
+          "rationale": "Undermines the response model. The lockout is the correct trade."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The SOC saw the compromise pattern, every minute of waiting extended the damage. The lockout was reversible while the exfiltration would not have been. Own the action. Name the trade-off. Have the credential handoff ready as the practical next step."
+    }
+  ]
+}

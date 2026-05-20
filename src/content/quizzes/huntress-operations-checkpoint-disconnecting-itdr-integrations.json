@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-operations-checkpoint-disconnecting-itdr-integrations",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: disconnecting ITDR integrations",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "why-skipped",
+      "type": "mcq",
+      "topic": "why-it-matters",
+      "difficulty": "easy",
+      "prompt": "Why is the ITDR disconnect the step half-done offboardings most often skip?",
+      "choices": [
+        "Once the agents are removed and billing is closed, it feels done.",
+        {
+          "label": "It requires Huntress support to action, so techs forget to file the ticket.",
+          "rationale": "The disconnect is a portal action the tech runs; it doesn't require a support ticket."
+        },
+        {
+          "label": "It's automated by the bulk-uninstall job, so techs assume it's already done.",
+          "rationale": "The two are independent and must be disconnected separately."
+        },
+        {
+          "label": "It's only required for M365, not for Workspace.",
+          "rationale": "Both surfaces need explicit disconnect."
+        }
+      ],
+      "correct": 0,
+      "explanation": "But the OAuth grant on the customer's tenant is still there, and identity telemetry keeps flowing into the portal for weeks. The disconnect is a single action per tenant; the discipline is doing it, verifying it, and documenting it."
+    },
+    {
+      "id": "single-tenant",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Disconnecting one tenant when the customer had both.\" What's the consequence?",
+      "choices": [
+        "The portal continues to receive telemetry from the remaining connected tenant;",
+        {
+          "label": "Huntress automatically disconnects the second tenant 24 hours later.",
+          "rationale": "Not a real platform behaviour. There's no auto-disconnect cascade."
+        },
+        {
+          "label": "The disconnect on the first tenant reverses itself.",
+          "rationale": "The first disconnect stands; the issue is the second isn't done."
+        },
+        {
+          "label": "The OAuth grant on the disconnected tenant becomes a security risk.",
+          "rationale": "The disconnected tenant is fine; the problem is the still-connected one continues to ingest."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The offboarding looks complete but isn't. A customer with both M365 and Workspace needs both disconnected. Doing one and not the other is the named half-state."
+    },
+    {
+      "id": "customer-side-removal",
+      "type": "mcq",
+      "topic": "customer-side-removal",
+      "difficulty": "medium",
+      "prompt": "The runbook calls for \"customer-side removal\" of the OAuth artefact. What does that mean in practice?",
+      "choices": [
+        "After the portal disconnect, the customer's admin removes the enterprise application.",
+        {
+          "label": "Huntress sends the customer an automated email asking them to remove the app themselves.",
+          "rationale": "Not a real platform behaviour. The MSP coordinates the customer-side step."
+        },
+        {
+          "label": "The customer disconnects the integration from their side, instead of from the Huntress portal.",
+          "rationale": "The portal disconnect happens first; customer-side removal is the second step."
+        },
+        {
+          "label": "The customer pays a \"removal fee\" to Huntress.",
+          "rationale": "No such commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(M365) or revokes the OAuth grant (Workspace) from their own tenant, so the artefact doesn't linger. Some MSPs treat customer-side removal as part of a clean handover; others leave it to the customer. The runbook decides."
+    },
+    {
+      "id": "both-tenants",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Mid-offboarding for the customer, who has both M365 and Workspace connected. Senior's note says: \"Disconnect both, customer-side removal is part of our standard offboarding.\" What do you do?",
+      "choices": [
+        {
+          "label": "Disconnect M365, leave Workspace for a few days \"in case the customer needs it.\"",
+          "rationale": "The customer is offboarding; you don't keep telemetry flowing in case they want it later."
+        },
+        "Disconnect both in the portal.",
+        {
+          "label": "Disconnect both and skip the customer-side removal, the customer is gone, they don't care.",
+          "rationale": "The senior's note included customer-side removal. Cutting it short is a quiet deviation from the runbook."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Schedule a short call with the customer's admin to remove the OAuth grants on the customer side, per the senior's note. Portal disconnect on both, plus customer-side removal per the runbook. Loop closed cleanly."
+    },
+    {
+      "id": "late-event",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Next morning after disconnecting both tenants, the portal shows a new ITDR Incident Report against an account at the customer's domain arrived overnight, after both disconnects were confirmed. What do you do?",
+      "choices": [
+        {
+          "label": "Close as benign, the customer is offboarded.",
+          "rationale": "The new incident is the signal that something didn't take. Dismissing it without investigation lets the underlying issue continue."
+        },
+        "Investigate: was it a state-sync glitch, was the disconnect reverted.",
+        {
+          "label": "Re-run the disconnect on both tenants without investigating.",
+          "rationale": "You might be solving the right problem, or papering over a state-sync issue that re-disconnect won't fix."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Or is it a late-arriving event from before the disconnect timestamp? Confirm which, then act. Treat the new incident as a debugging signal, not routine triage. Then act on what the investigation tells you."
+    },
+    {
+      "id": "verify-disconnect",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "Which is the right verify step the morning after an ITDR disconnect?",
+      "choices": [
+        "Confirm the integration shows \"Not connected,\" last-event timestamp is from before the disconnect.",
+        {
+          "label": "Confirm the customer's super-admin received the disconnect confirmation email.",
+          "rationale": "Not a Huntress-side check. The portal is the verify surface."
+        },
+        {
+          "label": "Open a Huntress support ticket to confirm the disconnect propagated.",
+          "rationale": "The portal exposes the state directly."
+        },
+        {
+          "label": "Re-run the disconnect to confirm idempotency.",
+          "rationale": "Not a real verification approach; re-running can introduce state-sync issues."
+        }
+      ],
+      "correct": 0,
+      "explanation": "No identity-related Incident Reports for this customer arrived in the last 24 hours. State, timestamp, and absence of new incidents are the three checks. If a new incident did arrive, the disconnect didn't take."
+    },
+    {
+      "id": "no-day-after-check",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Not verifying with a 24-hour check.\" Why is this called a common mistake?",
+      "choices": [
+        "Disconnects almost always work;",
+        {
+          "label": "The disconnect doesn't fully complete until 24 hours later.",
+          "rationale": "The disconnect is immediate; the 24-hour check is verification, not propagation delay."
+        },
+        {
+          "label": "Huntress only sends the disconnect confirmation email 24 hours later.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "The customer-side removal can't be confirmed until the next business day.",
+          "rationale": "Not the lesson's reason."
+        }
+      ],
+      "correct": 0,
+      "explanation": "When they don't, the failure is silent, the portal shows \"Not connected\" but events continue to arrive. A glance the next day catches this. State-sync glitches are rare but not zero. The only way to detect them is the next-day check."
+    },
+    {
+      "id": "customer-restriction",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer's admin can't remove the enterprise application from their tenant, the tenant has restrictions or the original consenting admin has left. What do you do?",
+      "choices": [
+        "Bump, customer-side change management; the senior owns the resolution.",
+        {
+          "label": "Force-remove the application from the Huntress side.",
+          "rationale": "Not a Huntress-side action. Huntress can't remove what's in someone else's directory."
+        },
+        {
+          "label": "Tell the customer to ignore the artefact; it's harmless after the Huntress-side disconnect.",
+          "rationale": "Possibly true depending on the runbook, but cutting the senior out of a customer-side change-management decision is wrong."
+        },
+        {
+          "label": "Open a Huntress support ticket asking them to clean up the customer's tenant.",
+          "rationale": "Huntress doesn't have access to clean up a customer's own tenant."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer-side change management is the senior's territory."
+    },
+    {
+      "id": "audit-trail-request",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer says they don't want the app removed from their tenant: \"we might need this audit trail.\" What do you do?",
+      "choices": [
+        "Bump, that's a customer-handover negotiation, not a technical step.",
+        {
+          "label": "Agree on the spot, they're the customer, it's their tenant.",
+          "rationale": "Out of scope for the tech to make customer-handover concessions unilaterally."
+        },
+        {
+          "label": "Override the customer and remove it anyway.",
+          "rationale": "Removing an artefact from the customer's tenant against their wishes is well above the helpdesk floor."
+        },
+        {
+          "label": "Document it as a runbook exception.",
+          "rationale": "The tech doesn't create runbook exceptions; that's the senior's call."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The customer's wish is a handover decision the senior owns."
+    },
+    {
+      "id": "header-strip",
+      "type": "mcq",
+      "topic": "pre-flight",
+      "difficulty": "easy",
+      "prompt": "Why does the lesson explicitly mention \"header strip discipline\" before running the disconnect?",
+      "choices": [
+        "Disconnecting ITDR on the wrong customer is the most expensive single-click mistake in the offboarding sequence, you'd cut telemetry for an active customer.",
+        {
+          "label": "The Huntress portal occasionally swaps tenants mid-session.",
+          "rationale": "Not a real platform behaviour. The discipline is about the tech's attention."
+        },
+        {
+          "label": "Header strip strips the headers off the OAuth grant before disconnecting.",
+          "rationale": "Misreads the metaphor. Header-strip is a cognitive discipline."
+        },
+        {
+          "label": "Huntress requires the customer-name confirmation before allowing disconnect.",
+          "rationale": "Not a platform-enforced gate."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Confirming you're in the right customer's organisation is the cheap insurance step."
+    }
+  ]
+}

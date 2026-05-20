@@ -1,0 +1,80 @@
+---
+slug: 24-coordinating-with-soc-on-siem
+vendor: huntress
+level: l3
+title: "Coordinating with the SOC on SIEM-driven incidents"
+summary: "Four properties of a clean SOC reply, three reasons to reply, two reasons not to, and the tone that makes SIEM coordination work."
+estimatedMinutes: 6
+order: 24
+topics:
+  - siem
+  - soc
+  - communication
+updated: 2026-05-20
+---
+
+SIEM Incident Reports involve more cross-source context than EDR or ITDR, which means more opportunities for clarifying questions to the SOC. Done well, these replies sharpen the response and feed customer-specific context back into the SOC's classification. Done badly, they become litigation: the tech argues with the analyst's disposition, repeats the same question, or pushes for tuning changes through the wrong channel.
+
+## What a good reply looks like
+
+A clean SOC reply has four properties:
+
+1. **Factually anchored.** Specific log line, specific timestamp, specific entity. Not "the activity looks unusual." Instead: "the log line at 14:22 shows a connection from `10.4.2.18` to `198.51.100.42`, port 4444. Is that the connection you classified as known-bad, or is the classification on a different log line?"
+2. **Scoped to a specific question.** One question per reply. Multiple questions slow the SOC's response and lose the thread.
+3. **Customer-context-bringing, not analyst-second-guessing.** "Customer's IT manager confirms this service account is part of their nightly automation; should that change the classification, or proceed per Recommendation?" brings context. "I think this is benign, can you reclassify?" second-guesses.
+4. **Respects what the SOC already weighed.** "I saw the annotation in the Evidence already, confirming I am reading it right" beats "the Evidence says X but I think it is actually Y."
+
+## Three reasons to reply
+
+**New customer context.** You have learned something during triage that the SOC did not have when writing the Recommendation. The customer's IT confirms an automated process. The customer changed an integration setting recently. The affected entity is part of a documented workflow.
+
+**Action-zone clarification.** The Recommendation is not clear about which exact action to take. The Evidence references an IP that maps to several hosts. The Recommendation says "block at firewall" but does not specify which rule.
+
+**Cross-surface coordination.** The Recommendation directed both a SIEM-side action and an EDR-side check. You have done both and the EDR side returned something unexpected. Reply with the cross-surface finding.
+
+## Two reasons not to reply
+
+**Re-litigating the classification.** "I think the SOC got this wrong" without new signal is the second-guessing failure mode expressed as a reply. The classification stands until new information arrives.
+
+**Tuning or exclusion requests via reply.** "Can you stop this detection from firing?" belongs to the exclusion-request flow, not to a per-incident reply thread. The SOC's per-incident workflow is not the channel for stop-the-detection requests.
+
+## The tone
+
+The SOC analyst is a colleague doing the same work on a different surface. Not a vendor-support queue. Not a higher authority. Not a subordinate. The tone is colleague-to-colleague: specific, respectful, factually anchored, brief.
+
+<Callout type="info" title="One question per reply">
+Multiple questions in one reply force the SOC to address each in turn, which slows the exchange and loses the thread. Scope to one question. If you have two, the second reply follows the first answer.
+</Callout>
+
+## Framing matters
+
+"Is this a real threat or a false positive?" is the wrong framing. The SOC has classified. The Recommendation is the action zone. A better framing: "Is this finding part of the same incident, or a separate event?" Specific and scoped to a fact the SOC can answer without re-classifying.
+
+## Decision walkthrough
+
+High SIEM incident on a customer. Recommendation: block IP `198.51.100.42` at firewall and check for EDR signals on `WS-CONTOSO-FINANCE-04`. You have done both. Firewall block in place. No related EDR incidents. The Recommendation did not specify what to do if EDR returns clean.
+
+<DecisionTree client:load
+  title="Closing the loop with the SOC"
+  description="You have completed both actions. The EDR side returned clean. The question is how to reply to the SOC to close the incident cleanly."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Which reply do you send?", choices: [
+      { label: "The Recommendation does not tell me what to do next. Can you clarify?", next: "vague" },
+      { label: "Block at firewall is in place (timestamp 14:42). EDR check returned no related incidents. Closing as remediation-complete; let me know if further action is needed on the EDR side.", next: "clean" },
+      { label: "I disagree that EDR needs to check; the firewall block should be enough. Can we close?", next: "litigate" },
+    ]},
+    { type: "outcome", id: "clean", label: "Factually anchored close", tone: "success",
+      body: "Right shape. Factually anchored, scoped, respects the Recommendation's structure, and gives the SOC an explicit redirect opportunity if they need further action." },
+    { type: "outcome", id: "vague", label: "Vague and not anchored", tone: "warn",
+      body: "The SOC has to ask what you mean. State what you did, what you found, and what you plan to do. Then offer the redirect." },
+    { type: "outcome", id: "litigate", label: "Second-guessing the dual-action structure", tone: "bad",
+      body: "The Recommendation said both. You already did both. Questioning the structure after completing the actions wastes the thread." },
+  ]}
+/>
+
+Two days later, a similar SIEM incident on the same customer lands (different IP, same host). The Recommendation is similar. You want to flag the recurring pattern.
+
+The right move: run the new incident through the standard flow. Surface the recurring-pattern observation in your end-of-shift handover to senior: "Two SIEM incidents on this customer in 48 hours, similar pattern, surfacing in case it is relevant at the portfolio level." Cross-incident patterns belong to the senior, not to a per-incident SOC reply.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-coordinating-soc-siem" client:visible />

@@ -54,6 +54,120 @@ dig AAAA example.com @ns1.cloudflare.com
 If the answers point at different IPs, you've found the bug. The fix depends on whether the new host serves IPv6: update AAAA to match, or delete AAAA entirely.
 </Callout>
 
+## Practice: dual-stack diagnostic
+
+A client reports: "the website works for me but my colleague next to me gets an error." Walk through the diagnostic.
+
+<Console
+  client:load
+  title="a-aaaa-mismatch"
+  steps={[
+    {
+      narration: "First: query the A record against the authoritative server to see the IPv4 target.",
+      variants: {
+        bash: {
+          choices: [
+            "dig A example.com @ns1.example.com",
+            {
+              label: "dig example.com @ns1.example.com",
+              rationale: "Without specifying the record type, dig defaults to A. It works here, but being explicit avoids confusion when you query AAAA next.",
+            },
+            {
+              label: "ping example.com",
+              rationale: "ping resolves to one IP and checks reachability. It won't show you both A and AAAA, so it hides the mismatch.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    3600    IN    A    198.51.100.42",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A -Server ns1.example.com",
+            {
+              label: "Resolve-DnsName example.com -Server ns1.example.com",
+              rationale: "Without -Type, PowerShell returns all record types. Works but noisy. Specifying -Type A isolates the IPv4 answer.",
+            },
+            {
+              label: "Test-Connection example.com",
+              rationale: "Test-Connection is ping. It resolves one IP and checks reachability. Doesn't show both record types.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 3600\nIPAddress : 198.51.100.42",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=A example.com ns1.example.com",
+            {
+              label: "nslookup example.com ns1.example.com",
+              rationale: "Without -type, nslookup returns A by default. Explicit is clearer when you follow up with AAAA.",
+            },
+            {
+              label: "ping example.com",
+              rationale: "ping resolves one IP and checks reachability. It hides the A vs AAAA split.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  ns1.example.com\nAddress: 203.0.113.53\n\nName:    example.com\nAddress: 198.51.100.42",
+        },
+      },
+    },
+    {
+      narration: "A record points at the new server. Now query AAAA to see if IPv6 matches.",
+      variants: {
+        bash: {
+          choices: [
+            "dig AAAA example.com @ns1.example.com",
+            {
+              label: "dig A example.com @8.8.8.8",
+              rationale: "You already checked the A record. The question is whether AAAA points somewhere different. Query the AAAA type.",
+            },
+            {
+              label: "dig ANY example.com @ns1.example.com",
+              rationale: "ANY is unreliable. Many servers don't return all records for ANY queries. Query the specific type you need.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    3600    IN    AAAA    2001:db8::99",
+          comment: "Different server than the A record (198.51.100.42 vs 2001:db8::99). IPv6 users reach the old host. Update AAAA to match or remove it.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type AAAA -Server ns1.example.com",
+            {
+              label: "Resolve-DnsName example.com -Type A -Server 8.8.8.8",
+              rationale: "Repeats the A check against a different resolver. The question is whether the AAAA type disagrees, not whether A is cached.",
+            },
+            {
+              label: "Resolve-DnsName example.com -Server ns1.example.com",
+              rationale: "Returns all types. Noisier than needed; -Type AAAA isolates the IPv6 answer for a clean comparison.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : AAAA\nTTL       : 3600\nIPAddress : 2001:db8::99",
+          comment: "AAAA points at a different server. The colleague on an IPv6 network reaches the old host. Update AAAA or remove it.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=AAAA example.com ns1.example.com",
+            {
+              label: "nslookup -type=A example.com 8.8.8.8",
+              rationale: "Repeats the A check. You need to query the AAAA type to find the IPv6 mismatch.",
+            },
+            {
+              label: "nslookup example.com",
+              rationale: "Default nslookup returns A records. You need -type=AAAA to see the IPv6 answer.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  ns1.example.com\nAddress: 203.0.113.53\n\nName:    example.com\nAddress: 2001:db8::99",
+          comment: "AAAA returns a different address than the A record. IPv6-capable users hit the old server. Fix: update AAAA to match, or delete it.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## What this is NOT
 
 - "AAAA is optional; IPv4 is enough." Increasingly less true. Mobile networks are increasingly IPv6-preferred. AAAA is part of the standard set for most managed hosts now.

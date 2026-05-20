@@ -1,0 +1,218 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-remove-inbox-rules",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: remove inbox rules and forwarding",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "three-categories",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "easy",
+      "prompt": "What three categories does this playbook step remove?",
+      "choices": [
+        "Malicious inbox rules, mailbox-level forwarders.",
+        {
+          "label": "Spam filters, signature blocks, and out-of-office replies.",
+          "rationale": "Those are not the named categories."
+        },
+        {
+          "label": "Mailbox quotas, archive policies, and retention tags.",
+          "rationale": "Compliance-adjacent settings, not compromise artefacts."
+        },
+        {
+          "label": "Inbox rules only.",
+          "rationale": "Incomplete. The lesson's whole point is the multi-mechanism shape."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(ForwardingSmtpAddress/ForwardingAddress). Routing to hidden folders (with the existing routed mail noted). Three categories: inbox rules, mailbox-level forwarders, and hidden-folder routing with documentation. The multi-mechanism check is the discipline."
+    },
+    {
+      "id": "rule-not-forwarder",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "\"Removing the rule but not the forwarder\" leaves what risk?",
+      "choices": [
+        "Both exfiltration paths need closing.",
+        {
+          "label": "The rule re-creates itself if the forwarder is left in place.",
+          "rationale": "Wrong on platform behaviour."
+        },
+        {
+          "label": "Removing the rule alone causes a portal error.",
+          "rationale": "Wrong on platform behaviour."
+        },
+        {
+          "label": "There is no risk; the forwarder is read-only and harmless.",
+          "rationale": "The forwarder actively forwards mail."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The forwarder keeps sending mail externally even after the rule is removed. Two mechanisms, two removals. The inbox rule and the mailbox-level forwarder are independent exfiltration paths."
+    },
+    {
+      "id": "scenario-multiple-rules",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "hard",
+      "prompt": "Recommendation: remove \"AP Filter\" (forwards *invoice* to attacker, deletes original). You list the user's rules and find: (a) \"AP Filter\" (malicious), (b) \"Move newsletters to Reading folder\" (months old, personal), (c) \"Forward customer-success mail to my manager\" (set up 2 days ago, in the compromise window). What do you do?",
+      "choices": [
+        {
+          "label": "Remove all three rules to be thorough.",
+          "rationale": "Acts beyond the Recommendation. The newsletter rule is legitimate; the manager-forward needs SOC review."
+        },
+        "Remove \"AP Filter\" per the Recommendation.",
+        {
+          "label": "Remove only \"AP Filter\" and do not mention the others.",
+          "rationale": "Half-right. The 2-day-old forward is in the compromise window and worth flagging to the SOC."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Note the newsletter rule as legitimate. Reply to the SOC about the manager-forward (set within the compromise window). Document what was checked. Targeted action per the Recommendation. Ambiguous-in-window rules surface to the SOC. Documentation serves the next reader."
+    },
+    {
+      "id": "forwarder-not-in-rec",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "hard",
+      "prompt": "You check ForwardingSmtpAddress: set to the attacker address, same as the removed rule. The Recommendation did not mention it. What do you do?",
+      "choices": [
+        {
+          "label": "Remove the forwarder yourself because it is obviously malicious.",
+          "rationale": "Acting on context the Recommendation did not include. The SOC owns the disposition."
+        },
+        "Reply to the SOC: \"Mailbox-level ForwardingSmtpAddress also set to the attacker address.",
+        {
+          "label": "Stop the playbook until the SOC responds.",
+          "rationale": "Sessions and password are already addressed. The rest of the playbook continues in parallel."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Should this be cleared?\" Continue the playbook. Surface to the SOC rather than act unilaterally. Continue the playbook while waiting for the SOC's response."
+    },
+    {
+      "id": "tenant-wide-transport",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "The Recommendation mentions removing a tenant-wide transport rule. What does the lesson say?",
+      "choices": [
+        "Tenant-wide transport rules are senior territory.",
+        {
+          "label": "Remove the transport rule yourself.",
+          "rationale": "Tenant-wide is above the helpdesk ceiling."
+        },
+        {
+          "label": "Ignore tenant-wide rules; they are not in scope.",
+          "rationale": "Ignoring is wrong; bumping is the action."
+        },
+        {
+          "label": "Wait 24 hours and check if the transport rule is still there.",
+          "rationale": "Wrong delay; bump is the action."
+        }
+      ],
+      "correct": 0,
+      "explanation": "This is a tenant-wide-compromise indicator. Bump. Tenant-wide transport rules sit above the helpdesk ceiling. Bump to senior."
+    },
+    {
+      "id": "hidden-folder-volume",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "A removed inbox rule had moved 500 emails to a hidden folder over the past three hours. What is the right framing?",
+      "choices": [
+        {
+          "label": "Delete the hidden folder and its contents.",
+          "rationale": "The mail may be the only record of what the attacker read; deletion destroys evidence."
+        },
+        "Note the folder and the volume so the customer can review what was there.",
+        {
+          "label": "Ignore the routed mail. Only the rule itself matters.",
+          "rationale": "The routed mail is part of the compromise impact."
+        },
+        {
+          "label": "Forward all 500 emails to the SOC for review.",
+          "rationale": "The SOC does not ingest forwarded mail that way. Document the folder and volume."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The routed mail is a potential exfiltration trail. The routed mail is a potential exfiltration trail. Document the folder and volume for the customer's record."
+    },
+    {
+      "id": "delegated-internal",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "The mailbox-level forwarder is set to an internal address that looks legitimate (a delegated mailbox in the same tenant). What do you do?",
+      "choices": [
+        {
+          "label": "Remove it because forwarders are always malicious.",
+          "rationale": "Many internal forwarders are legitimate delegation."
+        },
+        {
+          "label": "Leave it because internal forwarders are always safe.",
+          "rationale": "Could be lateral attacker movement within the tenant."
+        },
+        "Bump rather than remove without context.",
+        {
+          "label": "Send a message to the delegated mailbox owner to ask.",
+          "rationale": "Senior coordinates customer-side comms during an active incident."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Could be legitimate delegation; could be lateral movement. Ambiguous internal-delegation patterns escalate. The senior or SOC provides context before action."
+    },
+    {
+      "id": "verify-check",
+      "type": "mcq",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "Which is the right post-removal verification check?",
+      "choices": [
+        {
+          "label": "Portal shows the action complete; nothing else needed.",
+          "rationale": "Action complete is not the full state check."
+        },
+        "Named inbox rules no longer exist;",
+        {
+          "label": "Ask the user to confirm they no longer have the rule.",
+          "rationale": "The platform state is the source of truth; users may not see the changes immediately."
+        },
+        {
+          "label": "Wait 24 hours and check then.",
+          "rationale": "Wrong delay; verification is immediate."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Forwarder fields are empty; Timeline shows no new rule-created or forwarder-set events post-remediation; documented in the Incident Report. Four checks: rules gone, forwarder fields empty, no new routing events, documented. Immediate verification catches silent failures."
+    },
+    {
+      "id": "unusual-rules-soc",
+      "type": "tf",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "If the user has many unusual inbox rules that are not in the Recommendation, you should remove them all to be safe.",
+      "correct": false,
+      "explanation": "Reply to the SOC with the list. Do not remove unilaterally. They may be legitimate user organisation or additional compromise artefacts the SOC should evaluate."
+    },
+    {
+      "id": "procedure-order",
+      "type": "order",
+      "topic": "inbox-rules",
+      "difficulty": "medium",
+      "prompt": "Put the inbox-rule and forwarder removal procedure in order.",
+      "items": [
+        "Pull the user's current inbox rules and compare against the Incident Report's Evidence.",
+        "Remove the malicious rules named in the Recommendation.",
+        "Check ForwardingSmtpAddress and ForwardingAddress; remove or surface to SOC.",
+        "Note where existing mail was routed (hidden folders) for the customer's record.",
+        "Verify: rules gone, forwarder fields empty, no new routing events."
+      ],
+      "explanation": "List, remove targeted rules, check forwarders, note routed mail, verify. The forwarder check is the step most often skipped."
+    }
+  ]
+}

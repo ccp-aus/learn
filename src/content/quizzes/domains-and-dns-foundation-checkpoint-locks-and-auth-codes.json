@@ -14,12 +14,12 @@
       "prompt": "A gaining registrar asks the client for the 'EPP code.' The losing registrar's panel shows a field labelled 'Authorization Key.' What's the relationship?",
       "choices": [
         "They're different things; you need both.",
-        "They're the same thing. Auth code, EPP code, transfer code, and authorization key are interchangeable terms for the per-domain transfer secret.",
+        "They're the same thing.",
         "EPP code is a newer standard; authorization key is being phased out.",
         "The authorization key is encrypted; the EPP code is the decrypted form."
       ],
       "correct": 1,
-      "explanation": "The terminology drifts across registrars but the underlying value is one secret. Treat any of these terms as a synonym."
+      "explanation": "Auth code, EPP code, transfer code, and authorization key are interchangeable terms for the per-domain transfer secret. The terminology drifts across registrars but the underlying value is one secret. Treat any of these terms as a synonym."
     },
     {
       "id": "ck-auth-code-staleness",
@@ -44,12 +44,12 @@
       "prompt": "WHOIS for a domain shows `serverTransferProhibited` (not `clientTransferProhibited`). The client wants to transfer out. What's different?",
       "choices": [
         "Nothing different; toggle it off in the registrar's panel.",
-        "The server-level lock is set by the registry and requires the registry's involvement to remove. This is escalation territory.",
+        "The server-level lock is set by the registry and requires the registry's involvement to remove.",
         "The lock will lift automatically after 60 days.",
         "Bypass by transferring directly through ICANN."
       ],
       "correct": 1,
-      "explanation": "Server-level locks (serverTransferProhibited and friends) are set at the registry, not the registrar. Rare, usually applied to premium domains, government-related domains, or by special request. Removal requires escalation; you don't toggle them."
+      "explanation": "This is escalation territory. Server-level locks (serverTransferProhibited and friends) are set at the registry, not the registrar. Rare, usually applied to premium domains, government-related domains, or by special request. Removal requires escalation; you don't toggle them."
     }
   ]
 }

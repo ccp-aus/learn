@@ -1,0 +1,78 @@
+---
+slug: 29-writing-incident-notes
+vendor: huntress
+level: l2
+title: Writing incident notes
+summary: Four sections, every time. What you did, what you verified, who you contacted with names and times, open items. The note is for the next reader; the cold-read test is the standard.
+estimatedMinutes: 7
+order: 29
+topics:
+  - edr
+  - documentation
+updated: 2026-05-20
+---
+
+The incident note isn't for you. It's for the next shift, the senior reviewing your work, the auditor pulling the record six months from now, and the future-you who has to answer "what did we do on this?" The note that reads cleanly cold is the one that does its job. The note that reads as "I was there, I remember it, here are some words" doesn't survive contact with the next reader. Five minutes of writing now saves the next tech twenty minutes of reconstruction.
+
+## The four sections
+
+<StepThrough client:load>
+  <Step title="What you did">
+    The actions taken, in order. "Approved autoruns remediation. Isolated host. Approved scheduled-task remediation. Verified persistence inventory clean. Un-isolated host." Each action a discrete sentence. No narrative; no "I thought it might be" reasoning. The actions themselves.
+  </Step>
+  <Step title="What you verified">
+    The end states confirmed. "Autoruns entry removed from registry. Scheduled task no longer present. Endpoint reachable on network after un-isolation. User confirmed machine working." Each verification specific and concrete: what you actually checked, not "I verified the remediation worked."
+  </Step>
+  <Step title="Who you contacted, when, and what was said">
+    The communication trail. "Called user Sarah Johnson at 14:23, voicemail. Called IT manager Tom Reilly at 14:25, confirmed scheduled task unfamiliar to him, approved remediation. Called Sarah at 14:48, machine released, no issues." Names, times, content. The next tech reading this knows whom to call back.
+  </Step>
+  <Step title="Open questions or follow-ups">
+    Anything that didn't get resolved. "Re-detection at 15:42 of a similar autoruns entry; bumped to senior on duty." Loose ends explicitly named, with a destination. If nothing's open, a single "no open items" line tells the next reader so directly.
+  </Step>
+</StepThrough>
+
+## What doesn't belong
+
+- **Reasoning the SOC already provided.** The note doesn't re-state the Recommendation; the note records what you did with it.
+- **Speculation about cause.** "I think this might have been from a phishing email" without evidence is noise. Facts only.
+- **Personal commentary.** "Frustrating customer, took forever to reach them" doesn't survive an audit and doesn't help the next tech.
+- **Restatement of the obvious.** The incident type, severity, and customer are visible in the Incident Report header.
+
+## Length and timing
+
+A typical note runs 3–8 lines for a Low and 6–15 for a High. Past 20 lines, either the incident was genuinely complex (Critical with branching actions) or the note is padded. Cut padding.
+
+Write the note while the context is fresh. Ideal: during the work, in a scratchpad or as a running PSA entry. Acceptable: immediately after verify and before closing. Worst: end-of-shift while catching up. By end-of-shift the four incidents blur together and the notes get vague.
+
+<Callout type="info" title="The cold-read test">
+Would the next tech, with no context, reading this note for the first time, understand what happened? If yes, the note is done. If you have to mentally fill in details to answer yes, it isn't.
+</Callout>
+
+## When to escalate
+
+- The note keeps growing past the expected range for the severity. Some incidents are senior-write-up, not helpdesk-write-up.
+- The open-items list grows past three or four. That's the signal the incident wasn't fully resolved at the tech level; bump rather than close.
+- You're unsure whether something you saw belongs in the note. Including ambiguous things in a permanent record is worse than asking first.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The IT manager makes an off-handed customer-context comment"
+  description={"You've finished a High on WS-EXAMPLE-LEGAL-02. During the call, IT manager Joel Tran mentioned: \"The legal team really doesn't like isolation events because they're often in client calls.\" You're not sure whether to include it in the note. Pick the move."}
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Joel's off-handed customer-context comment — does it go in the note?", choices: [
+      { label: "Skip it; it's an off-handed comment, not action-relevant", next: "skip" },
+      { label: "Include it in the follow-up section as a flag to the senior or account manager", next: "flag" },
+      { label: "Include it in the actions section as \"told Joel we'd avoid isolating legal endpoints during business hours\"", next: "promise" },
+    ]},
+    { type: "outcome", id: "skip", label: "Customer-context signals are easy to lose", tone: "warn",
+      body: "Joel's comment is the kind of customer-context observation worth surfacing. It informs how future isolation events on legal endpoints should be communicated. Cheap to capture; easy to lose if not." },
+    { type: "outcome", id: "flag", label: "Capture as follow-up", tone: "success",
+      body: "Right answer. \"Joel Tran noted legal team prefers minimal isolation during business hours due to client calls; flagging to senior / account manager for awareness.\" Captures the signal, names a destination, doesn't try to act on it from a helpdesk seat." },
+    { type: "outcome", id: "promise", label: "Promised something you can't deliver", tone: "bad",
+      body: "Worst response. You haven't promised that, you can't without senior authority, and writing it as if it's been promised creates a future customer-relationship problem when isolation does happen on a legal endpoint during business hours." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-writing-incident-notes" client:visible />

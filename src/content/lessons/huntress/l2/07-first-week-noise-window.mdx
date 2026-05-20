@@ -1,0 +1,116 @@
+---
+slug: 07-first-week-noise-window
+vendor: huntress
+level: l2
+title: First-week monitoring, the noise window
+summary: A new customer typically generates a Low-severity wave for one to two weeks as the SOC learns their environment. Two opposite failure modes are reacting too hard and suppressing the queue to clear it. The middle path is the standard Low workflow, on each one, every time.
+estimatedMinutes: 9
+order: 7
+topics:
+  - onboarding
+  - noise-window
+updated: 2026-05-20
+---
+
+The first week of a new customer is the most error-prone moment in the customer's whole lifecycle on the platform. The agent has learned what is normal on each endpoint, the SOC has learned what is normal for this customer, and the customer hasn't seen any incidents yet so their tolerance for *weird-looking* stuff is high. Two opposite mistakes show up here. The first is treating every initial Low detection as a real incident, exhausting yourself and the customer. The second is worse, suppressing the initial detections to *clear the queue* before they are triaged. Both come from misreading what the noise window is.
+
+## What the noise window actually is
+
+When the Huntress agent first lands on an endpoint, the SOC has to learn what is normal *on this particular endpoint and customer*. The baseline period exists because:
+
+- Legitimate-but-unusual software ships with autoruns, scheduled tasks, and services the SOC hasn't seen for this customer.
+- Custom in-house tools (the IT team's PowerShell scripts, the accounting plugin everyone runs) look suspicious until labelled benign.
+- The customer's environment-specific patterns (a particular admin tool, a particular AV exception, a particular RMM script) need recognising.
+
+During this period, the SOC errs toward *raising and analysing* rather than silently absorbing. The result is a Low-severity wave, detections that may turn out to be benign once the SOC has classified them, but which warrant a look the first time they are seen.
+
+The wave usually subsides over the first one to two weeks. Customers with a complex environment (heavy admin-tool use, line-of-business apps with unusual installers) take longer. Clean environments are quieter from the start.
+
+## What it looks like in the portal
+
+For a fresh customer:
+
+- A burst of Low-severity EDR detections in the first 24 to 72 hours after rollout completes.
+- A scattering of *unusual sign-in* or *unrecognised application* ITDR signals as the SOC learns the customer's normal identity behaviour.
+- Most accompanied by analyst recommendations that resolve as *no action required, closing as benign*, sometimes with a *we've added this to baseline* annotation.
+
+A few of them won't be benign. A real Low detection in week one looks the same as a baseline-noise Low detection. You can't tell them apart from the title. You tell them apart by reading the recommendation.
+
+## The right disposition for week one
+
+1. **Stay close to the portal for that customer.** Daily glance at the Incidents view, not every 20 minutes.
+2. **Work each Low through the standard workflow.** The recommendation tells you what to do. If it is *no action required, baseline now logged*, document and close. If it is a real remediation, treat it as a real Low.
+3. **Let the SOC do the classification work.** That is what they are there for in the baseline period. Don't pre-classify by gut.
+4. **Communicate the noise expectation to the customer's IT contact ahead of time.** Set it during the rollout call, set it again at coverage verification.
+
+A customer who hears the expectation in advance is calm about week one. The one who doesn't reacts to every notification email as if the building is on fire.
+
+## The two failure modes
+
+**Failure mode A: treating every initial detection as a real incident.** You spend the week running every Low at full tempo, calling the customer about each one, calling seniors about ambiguous ones. By Friday you are exhausted, the customer is tired of hearing from you, and the SOC's resolution rate (most as *baseline, closing benign*) tells you in retrospect that most of what you reacted to didn't need reacting to.
+
+**Failure mode B: suppressing initial detections to clear the queue.** This one is worse. The tech, having seen a few baseline-closures, decides the Lows are *all noise* and starts closing them without reading the recommendation, or worse, requesting exclusions for the underlying behaviours. The platform now has gaps the SOC didn't approve, and a real Low hidden among the noise gets closed without action.
+
+Failure mode A is exhausting. Failure mode B is dangerous. The discipline is the middle: read the recommendation on each, do what it says, don't try to pre-classify, don't try to clear the queue by short-circuiting analysis.
+
+<Callout type="danger" title="Don't request exclusions during the noise window">
+Exclusion requests during the noise window are a real problem. The SOC is still classifying; an exclusion against a behaviour the SOC was about to baseline-approve creates a permanent gap. The exclusion-request workflow lives later in the platform for a reason. Week one is the wrong time. Week three is the right time, if the detection is still firing.
+</Callout>
+
+## A worked ticket: day three for Able Moose
+
+Day three after rollout for new customer Able Moose Accounting. The portal shows 14 Low-severity EDR incidents in Able Moose's queue, all from the last 48 hours. The IT manager calls: *"Is this normal? We're getting a lot of alerts. Should we be worried?"*
+
+The wrong response is *"it's working as designed, ignore them, we'll close them out for you."* You have dismissed the alerts the customer is seeing in their inbox; if one of the 14 is real, you have undercut yourself for when you have to escalate it. The customer also now thinks *ignore Huntress alerts* is the takeaway. Worse still is *"let me request exclusions for the noisy detections so they stop firing"*, offering to suppress detections during the baseline period to make the customer feel better.
+
+The right answer names what is happening: *"You're seeing the noise window, the SOC is learning what's normal for your environment, so the first one to two weeks tend to be heavier on Low-severity items. We're working each one through the recommendation; most will resolve as baseline-benign. We'll let you know if any of them are real."* The customer can stand down.
+
+Working through the 14 that afternoon, you find one whose recommendation says *"Approve the scheduled-task remediation, this task is a known persistence mechanism, no legitimate use."* It looks identical at a glance to the other 13 baseline closures.
+
+<DecisionTree
+  client:load
+  title="Real Low among baseline noise. What do you do?"
+  description="The cardinal mistake from the SOC-model lesson, in onboarding clothing. The other 13 had baseline-benign recommendations; this one has an actual remediation. The recommendation is the difference."
+  startId="root"
+  nodes={[
+    {
+      type: "question",
+      id: "root",
+      prompt: "The Low has a real remediation recommendation. The 13 around it were baseline closures. What now?",
+      choices: [
+        { label: "Close as benign like the others, surrounding noise suggests it is the same", next: "close" },
+        { label: "Treat it as a real Low, claim, approve the remediation, document, close", next: "action" },
+        { label: "Escalate to a senior, you can't tell baseline from real", next: "escalate" },
+      ],
+    },
+    {
+      type: "outcome",
+      id: "close",
+      label: "Wrong, ignoring the Recommendation because the surrounding noise blurred it",
+      tone: "bad",
+      body: "Same family as the cardinal SOC-model mistake. The recommendation is the difference; closing because the neighbours were baseline is exactly the failure mode that hides the real Low.",
+    },
+    {
+      type: "outcome",
+      id: "action",
+      label: "Right, the standard Low workflow",
+      tone: "success",
+      body: "The recommendation tells you it is real. The fact that it is surrounded by 13 baseline closures doesn't change that. The whole point of noise-window discipline is to read each recommendation and not let the baseline volume blur the real one when it appears.",
+    },
+    {
+      type: "outcome",
+      id: "escalate",
+      label: "Wrong reflex, failure mode A in slow motion",
+      tone: "bad",
+      body: "The recommendation tells you the difference. Escalating every real detection in week one because of surrounding noise exhausts the senior and the tech together. Bump is for unusual patterns, not for 'the Low looks scary in context.'",
+    },
+  ]}
+/>
+
+## When to escalate
+
+- **Volume materially above expectation.** Hundreds of Lows in 24 hours on a 200-endpoint customer, or sustained High volume in the noise window. Could be a real incident hiding in the baseline.
+- **Customer is calling repeatedly about the volume despite expectation-setting.** Relationship management is senior territory.
+- **The same detection repeating across many endpoints in the same customer.** Could be baseline pattern the SOC will absorb; could be a real spreading process. Bump rather than wait and see.
+
+<Checkpoint slug="huntress-operations-checkpoint-first-week-noise-window" client:visible />

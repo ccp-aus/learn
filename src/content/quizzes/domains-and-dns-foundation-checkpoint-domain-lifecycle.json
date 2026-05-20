@@ -28,13 +28,13 @@
       "topic": "redemption-recovery",
       "prompt": "A client says their domain 'auto-renews automatically every year, so it can't have expired.' WHOIS shows `pendingDelete` and the card on file expired four months ago. What's the calibrated answer?",
       "choices": [
-        "Auto-renew failed silently when the card declined. The domain is now past redemption and in pendingDelete, which is the no-recovery stage. Surface this honestly to the client; recovery at this point is no longer available at the registrar layer.",
-        "Auto-renew always succeeds; tell the client there's a registrar bug and escalate to the registrar's support.",
-        "Wait a few days; pendingDelete sometimes lifts automatically.",
-        "Pay the standard renewal fee through the registrar panel to restore it immediately."
+        "Auto-renew failed silently. The domain is past redemption in pendingDelete; recovery isn't available.",
+        {"label": "Auto-renew always succeeds; tell the client there's a registrar bug and escalate to support.", "rationale": "Auto-renew is best-effort. It fails silently when the card declines or expires."},
+        {"label": "Wait a few days; pendingDelete sometimes lifts automatically.", "rationale": "pendingDelete is a one-way stage. It doesn't lift. The domain drops to the open market."},
+        {"label": "Pay the standard renewal fee through the registrar panel to restore it immediately.", "rationale": "Standard renewal only works during the grace period. pendingDelete is past that window."}
       ],
       "correct": 0,
-      "explanation": "Auto-renew is best-effort — it fails silently if the card on file declines or expired. By the time the domain reaches pendingDelete it has already passed grace (~30 days) and redemption (~30 days, expensive but recoverable). Recovery at pendingDelete isn't available; the conversation is about whether to attempt to register the name when it drops back to the public market."
+      "explanation": "Auto-renew is best-effort; it fails silently if the card on file declines or expires. By the time the domain reaches pendingDelete, it has passed grace (~30 days) and redemption (~30 days, expensive but recoverable). Recovery at pendingDelete isn't available. The conversation now is whether to watch for the name to drop back to the public market."
     },
     {
       "id": "ck-lifecycle-auto-renew-myth",

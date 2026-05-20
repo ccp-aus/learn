@@ -71,6 +71,123 @@ For any planned DNS change where propagation speed matters:
 If you skip steps 1 and 2, the change still propagates, but caches with the old TTL hold the old value for the old duration (potentially 24 hours). The drop step is the difference between *5-minute cutover* and *day-long inconsistency*.
 </Callout>
 
+## Practice: checking TTL before a cutover
+
+You're preparing for a mail migration next Thursday. Current MX has a high TTL. Walk through the pre-flight check.
+
+<Console
+  client:load
+  title="ttl-preflight-check"
+  steps={[
+    {
+      narration: "Check the current TTL on the MX record to know how far in advance you need to drop it.",
+      variants: {
+        bash: {
+          choices: [
+            "dig MX example.com +noall +answer",
+            {
+              label: "whois example.com",
+              rationale: "whois shows registrar metadata (registrant, expiry, nameservers). It doesn't show DNS record TTLs.",
+            },
+            {
+              label: "dig MX example.com +short",
+              rationale: "+short strips everything including the TTL. You need the TTL value to plan the pre-flight timing.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    86400    IN    MX    10 mail.example.com.",
+          comment: "TTL 86400 (24 hours). You need to drop this well before Thursday's cutover.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type MX | Format-List",
+            {
+              label: "Resolve-DnsName example.com -Type MX",
+              rationale: "Default table output can truncate columns. Format-List shows all fields including TTL.",
+            },
+            {
+              label: "Get-DnsClientCache | Where-Object { $_.Entry -eq 'example.com' }",
+              rationale: "Local stub-resolver cache. Shows remaining TTL from your machine, not the authoritative value.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nQueryType : MX\nTTL       : 86400\nExchange  : mail.example.com\nPreference: 10",
+          comment: "TTL 86400 seconds (24 hours). Drop to 300 now; the lower TTL needs at least one full cycle to propagate before Thursday.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=MX -debug example.com",
+            {
+              label: "nslookup -type=MX example.com",
+              rationale: "Default nslookup hides TTL. The -debug flag shows the full DNS response including TTL values.",
+            },
+            {
+              label: "nslookup example.com",
+              rationale: "Without -type=MX, nslookup returns A records. You need MX to check the mail record's TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Got answer:\n    ANSWERS:\n    ->  example.com\n        MX preference = 10, mail exchanger = mail.example.com\n        ttl = 86400 (1 day)",
+          comment: "24-hour TTL. Drop to 300 now, wait 24 hours for downstream caches to pick up the lower value, then make the MX change Thursday.",
+        },
+      },
+    },
+    {
+      narration: "Tuesday afternoon. You dropped the TTL to 300 yesterday. Verify the lower TTL has propagated to public resolvers.",
+      variants: {
+        bash: {
+          choices: [
+            "dig MX example.com @8.8.8.8 +noall +answer",
+            {
+              label: "dig MX example.com @ns1.example.com +noall +answer",
+              rationale: "The authoritative always shows the current TTL. You need a public resolver to confirm downstream caches picked up the lower value.",
+            },
+            {
+              label: "dig MX example.com +short",
+              rationale: "+short strips the TTL. You need to see the TTL value to confirm the drop propagated.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    300    IN    MX    10 mail.example.com.",
+          comment: "TTL 300 at Google's resolver. The drop propagated. Thursday's cutover will propagate within 5 minutes for most users.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type MX -Server 8.8.8.8 | Format-List",
+            {
+              label: "Resolve-DnsName example.com -Type MX -Server ns1.example.com | Format-List",
+              rationale: "Authoritative always shows current TTL. Check a public resolver to confirm caches have the lower value.",
+            },
+            {
+              label: "Clear-DnsClientCache",
+              rationale: "Clears your local cache. Doesn't tell you whether public resolvers have picked up the lower TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nQueryType : MX\nTTL       : 300\nExchange  : mail.example.com\nPreference: 10",
+          comment: "TTL 300 at Google's resolver. Pre-flight complete. Ready for Thursday's cutover.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=MX -debug example.com 8.8.8.8",
+            {
+              label: "nslookup -type=MX example.com",
+              rationale: "Queries the system resolver. You need to check a public resolver (8.8.8.8) to confirm the lower TTL reached downstream caches.",
+            },
+            {
+              label: "ipconfig /flushdns",
+              rationale: "Flushes your local cache. Doesn't confirm whether public resolvers have the lower TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  dns.google\nAddress: 8.8.8.8\n\n    MX preference = 10, mail exchanger = mail.example.com\n    ttl = 300 (5 mins)",
+          comment: "TTL shows 300 at Google's resolver. Pre-flight confirmed. Thursday's MX change will propagate in minutes.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## What this is NOT
 
 - "TTL controls propagation." TTL controls cache lifetime. Propagation is the effect of caches expiring. The TTL that matters for a specific change is the *old* TTL on the *old* record.
@@ -79,12 +196,11 @@ If you skip steps 1 and 2, the change still propagates, but caches with the old 
 
 ## Decision walkthrough
 
-A client says: *we're moving our website to a new web host on Thursday at 9pm. We want minimal downtime visible to users.* Today is Tuesday. The current A record has TTL 86400 (24 hours).
-
 <DecisionTree
   client:load
   startId="root"
   title="What do you do today?"
+  description="A client says: 'we're moving our website to a new web host on Thursday at 9pm. We want minimal downtime visible to users.' Today is Tuesday. The current A record has TTL 86400 (24 hours)."
   nodes={[
     {
       type: "question",

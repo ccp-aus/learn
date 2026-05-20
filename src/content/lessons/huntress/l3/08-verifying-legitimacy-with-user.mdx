@@ -1,0 +1,96 @@
+---
+slug: 08-verifying-legitimacy-with-user
+vendor: huntress
+level: l3
+title: Verifying legitimacy with the user
+summary: User verification on identity incidents has a specific shape. Done badly, it becomes the social-engineering surface the attacker exploits.
+estimatedMinutes: 8
+order: 8
+topics:
+  - itdr
+  - verification
+  - social-engineering
+updated: 2026-05-20
+---
+
+User verification on identity incidents is a different conversation than on EDR. The user is the one whose account is in question. Their answer matters. The attacker, if the compromise is active, has incentive to interfere with the conversation. **Done well, verification confirms or rules out the activity quickly. Done badly, it becomes the social-engineering surface the attacker exploits.**
+
+## When verification is the right next step
+
+The SOC's Recommendation tells you. Three common patterns:
+
+- **"Verify with user, then proceed with the playbook if not confirmed."** Likely-suspicious, worth a user check before acting.
+- **"Verify with user, no further action if confirmed."** Explainable-by-user range (impossible-travel false positive, documented travel).
+- **"Execute the playbook, contact user to verify post-containment."** Blast-radius and pattern make pre-verification too costly. The call happens after the action.
+
+When the Recommendation does not mention verification, the playbook runs without it. Do not manufacture a verification step.
+
+## The four-step verification shape
+
+### 1. Initiate the call yourself, on a known-good channel
+
+Do not accept the user's call back as the verification step. If the user calls you about a security event before you have called them, treat the inbound call with suspicion. Could be the legitimate user. Could be the attacker who intercepted the alert and is calling first. Initiate the call yourself, using a contact number from your MSP's documentation.
+
+### 2. Confirm identity before discussing the incident
+
+The first 30 seconds are not about the incident. They are about confirming you are talking to the right person: a documented out-of-band identifier (employee ID, security challenge question, video call). Avoid identifiers that leak from a compromised mailbox: recent email content, calendar entries, anything an attacker reading the mailbox would know.
+
+### 3. Ask narrow, specific questions
+
+Do not ask "did you do anything suspicious today?" Ask "did you sign in to your Microsoft account at 09:14 this morning from a Bangkok IP address?" Specific, time-bounded, factually-anchored. The user can answer yes or no without you giving the attacker prompting details about what happened.
+
+### 4. Note the answer and the timing
+
+If confirmed: document it, close per the Recommendation. If denied: the playbook proceeds, confirm the user understands they will be locked out and will need a credential handoff. **If uncertain ("maybe, I do not remember the time"): treat as denial.** The cost of acting on a maybe-real compromise is much lower than the cost of waiting on a real one.
+
+## The "attacker is also calling" pattern
+
+A specific social-engineering attack: the attacker, after compromising the user, calls the helpdesk impersonating the user to ask you to "confirm everything is fine" or "remove the security alert." The framing is friendly, the timing is too quick (often within minutes of the SOC alert), and the caller resists out-of-band verification.
+
+The reflex: never accept an inbound call as the verification step. If you did not initiate the call, you do not know who you are talking to.
+
+## When verification is impossible
+
+User unreachable. Multiple attempts (phone, message, IT manager) all fail. The Recommendation says verify before acting.
+
+The decision rule: if the activity is blast-radius-significant (mailbox forwarding, OAuth grant, MFA tampering), the cost of waiting is higher than the cost of acting without verification. Proceed with the playbook, document the verification attempts in detail, brief the customer's IT contact as soon as you reach anyone.
+
+If the activity is low-risk and the Recommendation says "no action if verification not confirmed within X hours," follow the Recommendation.
+
+## A worked scenario
+
+ITDR Incident Report on `cfo@example.com`. Recommendation: "Verify with user; if denied, execute compromise playbook." Two minutes after the incident lands, you receive an inbound call: "Hi, this is Daniel, the CFO. My IT manager said something fired on my account. I have a board meeting in three minutes. Can you confirm everything is okay?"
+
+<DecisionTree client:load
+  title="Inbound call two minutes after the alert"
+  description="The timing is suspicious. The tone is rushing. The caller wants to skip verification. This is the attacker-is-also-calling shape until proven otherwise."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do with the inbound call?", choices: [
+      { label: "Confirm the alert is being investigated, verify identity via the out-of-band path", next: "verify" },
+      { label: "Tell Daniel everything is clear, let him go to his meeting", next: "clear" },
+      { label: "Tell Daniel to call back on the documented number", next: "callback" },
+    ]},
+    { type: "outcome", id: "verify", label: "Out-of-band check is the test", tone: "success",
+      body: "The inbound call is suspicious by timing and by tone. The out-of-band check is the test. If Daniel passes, you proceed with verification. If he cannot or will not, you have a strong signal of social engineering." },
+    { type: "outcome", id: "clear", label: "Skipping verification on a self-identifying call", tone: "bad",
+      body: "You skipped verification on the strength of a self-identifying inbound call. If the caller is the attacker, you have given them an 'everything is fine' confirmation." },
+    { type: "outcome", id: "callback", label: "Right principle, wrong handling", tone: "warn",
+      body: "The principle is correct (do not trust the inbound call). But telling the caller to call back lets them spoof the inbound on the documented number. You initiate the callback yourself. You control the channel." },
+  ]}
+/>
+
+<StepThrough client:load>
+  <Step title="Verification attempts fail">
+    You initiate a callback to Daniel's documented number. Voicemail. Executive assistant: voicemail. IT manager: voicemail. The Timeline includes an inbox rule actively forwarding mail externally. Active exfiltration in progress.
+  </Step>
+  <Step title="Proceed with the playbook">
+    The cost-of-waiting is high. The inbox rule is exfiltrating. Verification attempts are exhausted. Execute the compromise playbook, document the attempts in detail, keep trying customer-side contacts. Brief whoever picks up first.
+  </Step>
+</StepThrough>
+
+<Callout type="warn" title="Customer-side pressure to skip verification">
+The customer's IT manager pushes: "It is definitely Marcus, just reset his password." Do not skip. Verification protects the customer even when the customer is asking you to skip it. The legitimate user, briefed correctly by their IT, will accept the verification step. Refusal is a red flag.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-verifying-legitimacy" client:visible />

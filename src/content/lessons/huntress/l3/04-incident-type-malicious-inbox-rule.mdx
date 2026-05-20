@@ -1,0 +1,70 @@
+---
+slug: 04-incident-type-malicious-inbox-rule
+vendor: huntress
+level: l3
+title: "Incident type: malicious inbox rule and suspicious forwarding"
+summary: Attackers create inbox rules within minutes of getting access because rules are durable. Even after the attacker loses access, the rule keeps forwarding mail.
+estimatedMinutes: 8
+order: 4
+topics:
+  - itdr
+  - inbox-rule
+  - forwarding
+updated: 2026-05-20
+---
+
+Malicious inbox rules and suspicious forwarding are the most common single-action artefact of an identity compromise. **Attackers create them within minutes of getting access because they are durable.** Even if the attacker loses access later, the rule keeps forwarding mail. The two failure modes: missing the rule (because the Evidence describes it in mailbox-rule vocabulary you have not seen before) and removing only part of it (because there is a rule and a separate forwarder, and you only spotted one).
+
+## Two related mechanisms
+
+**Inbox rules** are mailbox-level rules the user (or an attacker as the user) creates. They act on incoming mail: forward to an external address, move to a hidden folder, mark as read, delete.
+
+**Mailbox forwarders** are tenant-level or mailbox-level configurations. M365 has `ForwardingSmtpAddress` (mailbox-level) and `ForwardingAddress` (delegated) as the two main mechanisms. Forwarders apply to all incoming mail and do not show up in the user's normal Outlook rules interface.
+
+The two mechanisms can be set up together. An attacker who creates a forwarding inbox rule and configures `ForwardingSmtpAddress` has two paths to exfiltrate mail. **Removing the rule but not the forwarder leaves the second path intact.**
+
+## Common malicious patterns
+
+| Pattern | How it works |
+|---|---|
+| Forward and hide | Rule forwards mail with keywords (`invoice`, `payment`, `wire`) to an external address, then deletes or moves the original to a hidden folder |
+| Suppress security alerts | Rule moves emails from `security@microsoft.com` or MFA-notification senders to a hidden folder and marks as read |
+| Fake auto-reply | Rule sends "I am out of office, please contact..." to specific contacts the attacker wants to social-engineer |
+| Stealth forwarder | `ForwardingSmtpAddress` set to external address with `DeliverToMailboxAndForward: true` so the user still sees their mail and does not notice |
+
+Hidden folders attackers use include "RSS Subscriptions," "Conversation History," and folders named "." (a single dot). These are rarely visited by users, which is the point.
+
+## The response discipline
+
+When the Recommendation says "remove malicious inbox rule," check whether `ForwardingSmtpAddress` or `ForwardingAddress` is also set. If they are and were not already in the Recommendation, reply to the SOC: "Mailbox-level forwarder also configured to the same external address. Should this be removed as part of the response?" The additional finding goes back to the layer that decides, not into unilateral action.
+
+The compromise playbook (lesson 11 in this course) handles both inbox-rule removal and forwarder removal together.
+
+## A worked scenario
+
+High-severity ITDR on `accounts.payable@example.com`. Evidence describes a rule named "AP Filter" that forwards `*invoice*` mail to `accounts-payable-backup@example.net` (note the lookalike domain) and moves originals to RSS Subscriptions. Recommendation: revoke sessions, reset password and MFA, remove the malicious inbox rule.
+
+<DecisionTree client:load
+  title="Inbox rule removed. Is the playbook complete?"
+  description="The Recommendation named the inbox rule. You removed it. Before declaring done, check whether a second mechanism is present."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "You check the mailbox. ForwardingSmtpAddress is also set to the same external address with DeliverToMailboxAndForward: true. The Recommendation did not mention it.", choices: [
+      { label: "Remove the forwarder yourself as part of the response", next: "unilateral" },
+      { label: "Execute the Recommendation as written, and reply to the SOC about the forwarder", next: "correct" },
+      { label: "Wait for the SOC to update the Recommendation before doing anything", next: "wait" },
+    ]},
+    { type: "outcome", id: "correct", label: "Execute and surface the finding", tone: "success",
+      body: "Execute the named actions (revoke sessions, reset password and MFA, remove the inbox rule). In parallel, reply to the SOC about the forwarder. The additional finding goes to the layer that decides." },
+    { type: "outcome", id: "unilateral", label: "Acting on context outside the Recommendation", tone: "bad",
+      body: "Even an obviously malicious finding goes back to the SOC. Unilateral action on context the Recommendation did not include is the same mistake from the Beginner course." },
+    { type: "outcome", id: "wait", label: "The named rule is exfiltrating now", tone: "warn",
+      body: "The inbox rule the Recommendation named is actively exfiltrating. Execute the named actions while the additional finding is in transit to the SOC." },
+  ]}
+/>
+
+<Callout type="warn" title="User-created does not mean legitimate">
+If the user's account was compromised at the time, the user is the one who created the rule in the audit log. The Timeline view (lesson 2) tells you whether the rule creation correlates with a suspicious sign-in. Do not dismiss a rule as user-created without checking the Timeline.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-malicious-inbox-rule" client:visible />

@@ -1,0 +1,81 @@
+---
+slug: 11-recommendation-vs-context
+vendor: huntress
+level: l1
+title: "Recommendation vs. context — what the SOC is asking you to do"
+summary: "Every Incident Report has a context zone (Summary, Evidence, Timeline) and an action zone (Recommendation). One test before any action — did the analyst say to do this, in the Recommendation? If no, stop."
+estimatedMinutes: 7
+order: 11
+topics:
+  - incident-report
+  - cardinal-mistake
+  - action-zone
+updated: 2026-05-20
+---
+
+The reading-order lesson set up the structure of an Incident Report. This lesson is one mistake, repeated across the rest of the course, named and made hard to slip into: acting on the Evidence section when you should be acting on the Recommendation. New techs do it for understandable reasons. The Evidence is detailed, it feels like the *real* information, and the Recommendation can look short by comparison. Naming the failure is what stops it.
+
+## Two zones, one test
+
+Every report has two zones that look similar but mean different things.
+
+**The context zone.** Summary, Evidence, Timeline, the analyst's reasoning. This is *why* the incident landed. It tells you what the analyst looked at and how they weighed it. It is not a list of actions.
+
+**The action zone.** The Recommendation. This is *what to do*. It is the only section that lists actions the SOC wants you to take.
+
+The boundary between them is sharper than it looks because everything in the context zone is evidence the analyst already weighed. They didn't recommend isolating the second host because they decided isolation wasn't the right move there. They didn't ask you to revoke an OAuth grant because they assessed it as legitimate. The absence of an action in the Recommendation is itself a decision, not an oversight.
+
+## The is-it-in-the-Recommendation test
+
+<DecisionTree client:load
+  title="The is-it-in-the-Recommendation test"
+  description="Before any action, ask the question below. The tree exists to keep the 'yes-but' rationalisation out."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "You're about to do something on this incident. Is the action you're about to take written in the Recommendation section?", choices: [
+      { label: "Yes — it's listed in the Recommendation", next: "proceed" },
+      { label: "No — but the Evidence supports it", next: "but" },
+      { label: "No — and I want to skip an action the Recommendation does list", next: "skip" },
+    ]},
+    { type: "outcome", id: "proceed", label: "Proceed", tone: "success",
+      body: "You're on the action zone. Execute cleanly. Verify the host and customer first (the wrong-entity check), then act. If the Recommendation lists multiple actions, do all of them; partial execution is the same family of mistake as second-guessing." },
+    { type: "outcome", id: "but", label: "Stop — reply to the analyst", tone: "warn",
+      body: "The 'but' is the smell. You're on the context zone, and acting on context is the cardinal mistake. The right move is a factual clarifying reply to the analyst on the Incident Report: 'Evidence shows X, should that be part of the response?' Wait for the answer; then execute the analyst's call." },
+    { type: "outcome", id: "skip", label: "Stop — softening is the worst class", tone: "bad",
+      body: "Skipping a recommended action because the Evidence suggests something else matters more is the cardinal mistake at its most expensive. The lesson's exact framing: you're not adding actions, you're skipping recommended ones, and the analyst-prescribed remediation doesn't happen. Execute the full Recommendation; if you believe something is off, raise the question in parallel — don't pre-empt." },
+  ]}
+/>
+
+## What acting on context looks like
+
+The pattern is the same regardless of surface. Three flavours that show up often:
+
+- The Recommendation says approve the scheduled-task remediation. The Evidence mentions the process tried to write to a network share. The tech also blocks the share at the firewall, on their own initiative, because the Evidence *supported* it.
+- The Recommendation says revoke the user's session and remove a malicious inbox rule. The Evidence shows the user clicked through three different phishing pages. The tech also disables the user's account, because the Evidence *supported* it.
+- The Recommendation says no action required, closing as benign. The Evidence shows the process was unusual. The tech reopens the incident, because the Evidence *supports* further work.
+
+In all three, the tech has expanded the recommended action set unilaterally. The analyst's scope of action gets quietly broader; the analyst's *no* gets quietly overridden. Evidence is being treated as a to-do list.
+
+<Callout type="danger" title="The cardinal mistake, named and worst class">
+Acting on context is second-guessing in the disguise of *being thorough*. Adding actions beyond the Recommendation is the common shape. **Skipping actions** the Recommendation lists, because the Evidence suggests a different vector matters more, is the worst class. The analyst-prescribed remediation doesn't happen, and the misuse of Evidence as decision input gets all the way to a real exposure.
+</Callout>
+
+## Why the SOC writes it this way
+
+The split is deliberate. The analyst is making explicit trade-offs you don't see: actions they considered and rejected (often for customer-context reasons), actions they're confident enough about to recommend, and information that you might need for client comms or your own context. By keeping the Recommendation tight, the SOC narrows the action space to what has been weighed and approved. By keeping the Evidence detailed, the SOC gives you the information you need to *talk about* the incident without expanding the action you take *on* it.
+
+If the Recommendation feels too narrow, that is the surface for a clarifying reply. The SOC will usually either expand the Recommendation (when convinced by the new context) or explain why they kept it where they did. A senior reviewing your ticket who asks *why did you also do X?* when X isn't in the Recommendation is using the polite framing of *you crossed the line*; documenting that you reached for X *based on the Evidence* is documenting the mistake.
+
+## A worked OAuth grant
+
+A High-severity ITDR Incident Report lands. User: bob@example.com. Summary: malicious inbox rule created during a session originating from a new country, forwarding mail with *invoice* in the subject to an external address. Evidence: full sign-in history (three suspicious logins over two days), the inbox rule details, a list of forwarded messages, a screenshot of an OAuth grant Bob added to a third-party app the day before the rule was created. Recommendation: revoke sessions, reset password and MFA, remove the malicious inbox rule. The OAuth grant is mentioned in the Evidence but not in the Recommendation.
+
+The OAuth grant goes through the test. Is it in the Recommendation? No. *But the Evidence supports revoking it.* The "but" is the smell. The analyst saw the grant, considered it, decided not to recommend revoking it. The right move is: execute the Recommendation as written; reply to the analyst with *Evidence shows an OAuth grant added the day before, is that part of the compromise or separate? Should it be revoked as part of this response?* The analyst will either expand the Recommendation or confirm separation.
+
+When the analyst replies *OAuth grant is to a legitimate accounting plugin Bob's team rolled out last week, not part of the compromise, proceed with the Recommendation as written*, you proceed and you note their answer for client comms. Revoking the grant anyway, *to be safe*, is the rationalisation the cardinal mistake uses.
+
+## What to do with this
+
+On every incident, run the test before doing anything: *did the analyst say to do this, in the Recommendation?* If yes, proceed. If no, stop. Read the next lesson and the rest of the course with this question always loaded; every action you take on a Huntress ticket gets it.
+
+<Checkpoint slug="huntress-foundations-checkpoint-recommendation-vs-context" client:visible />

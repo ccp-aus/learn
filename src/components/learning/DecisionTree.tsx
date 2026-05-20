@@ -17,6 +17,25 @@ import { shuffle } from "@/lib/quiz";
  * Outcome bodies are React.ReactNode, so MDX authors can still embed JSX inside
  * them by writing the prop value as `<>plain prose with <strong>JSX</strong></>`
  * if they need richer content.
+ *
+ * Authoring discipline — the card is self-contained:
+ *
+ *   Lead-in framing belongs INSIDE the card. Use `title` for the card's name
+ *   (e.g. "The is-it-in-the-Recommendation test") and `description` for the
+ *   one- or two-sentence scenario setup that used to live in a paragraph
+ *   immediately above the card. Don't put a setup paragraph immediately
+ *   before the <DecisionTree> — push it into `description` instead, so the
+ *   card stands on its own and the rendered page doesn't read as "prose,
+ *   then a duplicated reframing inside a box."
+ *
+ *   <DecisionTree
+ *     client:load
+ *     title="The is-it-in-the-Recommendation test"
+ *     description="Before any action, ask the question below. The tree exists
+ *       to keep the 'yes-but' rationalisation out."
+ *     startId="root"
+ *     nodes={[ ... ]}
+ *   />
  */
 
 export type ChoiceConfig = {
@@ -41,22 +60,37 @@ export type DecisionNode =
 
 interface DecisionTreeProps {
   title?: string;
+  description?: React.ReactNode;
   startId: string;
   nodes: DecisionNode[];
   className?: string;
 }
 
+// Outcome card visual treatment: a 4px solid left stripe in the tone colour,
+// plus a desaturated, low-opacity tint of the same hue for the card body so
+// the text stays high-contrast. The whole-card saturated fills were too loud
+// and the wrong-choice text in particular read as red-on-red.
 const toneClasses: Record<string, string> = {
-  neutral: "border-border bg-card",
-  good: "border-emerald-500/40 bg-emerald-500/5",
-  success: "border-emerald-500/40 bg-emerald-500/5",
-  info: "border-sky-500/40 bg-sky-500/5",
-  warn: "border-amber-500/40 bg-amber-500/5",
-  bad: "border-rose-500/40 bg-rose-500/5",
+  neutral: "border-l-border bg-muted/30",
+  good: "border-l-emerald-500 bg-emerald-500/[0.06]",
+  success: "border-l-emerald-500 bg-emerald-500/[0.06]",
+  info: "border-l-sky-500 bg-sky-500/[0.06]",
+  warn: "border-l-amber-500 bg-amber-500/[0.06]",
+  bad: "border-l-rose-500 bg-rose-500/[0.06]",
+};
+
+const toneLabelClasses: Record<string, string> = {
+  neutral: "text-foreground",
+  good: "text-emerald-700 dark:text-emerald-300",
+  success: "text-emerald-700 dark:text-emerald-300",
+  info: "text-sky-700 dark:text-sky-300",
+  warn: "text-amber-700 dark:text-amber-300",
+  bad: "text-rose-700 dark:text-rose-300",
 };
 
 export function DecisionTree({
   title,
+  description,
   startId,
   nodes,
   className,
@@ -102,24 +136,31 @@ export function DecisionTree({
       )}
       aria-roledescription="branching decision tree"
     >
-      <header className="flex items-center justify-between border-b border-border px-5 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <GitBranch className="h-4 w-4 text-primary" />
-          {title ?? "Triage flow"}
+      <header className="border-b border-border px-5 py-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-2 text-base font-semibold tracking-tight">
+            <GitBranch className="h-4 w-4 shrink-0 text-primary" />
+            {title ?? "Triage flow"}
+          </div>
+          <div className="flex shrink-0 gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={back}
+              disabled={path.length === 1}
+            >
+              Back
+            </Button>
+            <Button size="sm" variant="ghost" onClick={restart}>
+              <RotateCcw className="h-3.5 w-3.5" /> Restart
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={back}
-            disabled={path.length === 1}
-          >
-            Back
-          </Button>
-          <Button size="sm" variant="ghost" onClick={restart}>
-            <RotateCcw className="h-3.5 w-3.5" /> Restart
-          </Button>
-        </div>
+        {description && (
+          <div className="mt-1.5 text-sm leading-relaxed text-muted-foreground [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
+            {description}
+          </div>
+        )}
       </header>
 
       <div className="px-5 py-5">
@@ -133,7 +174,7 @@ export function DecisionTree({
           >
             {current.type === "question" ? (
               <div>
-                <div className="mb-4 text-sm font-medium text-foreground">
+                <div className="mb-4 text-base font-medium leading-relaxed text-foreground">
                   {current.prompt}
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -142,10 +183,10 @@ export function DecisionTree({
                       key={c.label}
                       type="button"
                       onClick={() => choose(c.next)}
-                      className="group flex items-center justify-between rounded-md border border-border bg-background px-4 py-3 text-left text-sm transition-all hover:border-primary/50 hover:bg-primary/5"
+                      className="group flex items-center justify-between rounded-md border border-border bg-background px-4 py-3 text-left text-base leading-relaxed transition-all hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                     >
                       <span>{c.label}</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                     </button>
                   ))}
                 </div>
@@ -153,17 +194,22 @@ export function DecisionTree({
             ) : (
               <div
                 className={cn(
-                  "rounded-md border-l-2 px-4 py-3",
+                  "rounded-md border-l-4 px-4 py-3",
                   toneClasses[current.tone ?? "neutral"],
                 )}
               >
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Outcome
                 </div>
-                <div className="text-sm font-semibold tracking-tight">
+                <div
+                  className={cn(
+                    "text-base font-bold tracking-tight",
+                    toneLabelClasses[current.tone ?? "neutral"],
+                  )}
+                >
                   {current.label}
                 </div>
-                <div className="mt-2 text-sm leading-relaxed text-foreground/85 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
+                <div className="mt-2 text-base leading-relaxed text-foreground [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
                   {current.body}
                 </div>
               </div>

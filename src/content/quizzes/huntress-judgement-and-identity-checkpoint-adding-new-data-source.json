@@ -1,0 +1,237 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-adding-new-data-source",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: adding a new data source",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-nds-authorisation",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "easy",
+      "prompt": "Adding a new data source has billing implications. What counts as authorisation?",
+      "choices": [
+        {
+          "label": "The customer's IT manager asking the helpdesk to add the source.",
+          "rationale": "Customer request is not authorisation. The senior coordinates the commercial side."
+        },
+        "Senior or account-manager sign-off, in writing.",
+        {
+          "label": "An open ticket from a peer technician saying 'go ahead.'",
+          "rationale": "A peer cannot authorise per-source billing decisions."
+        },
+        {
+          "label": "The Huntress portal allowing you to click 'add source.'",
+          "rationale": "UI visibility is not authorisation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Per-source pricing means every addition has commercial implications. Senior or account-manager sign-off, in writing, is the authorisation."
+    },
+    {
+      "id": "ck-nds-runbook-silent",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "The pre-flight checklist includes confirming runbook coverage. What do you do when the runbook is silent on the specific source variant?",
+      "choices": [
+        {
+          "label": "Adapt the closest runbook on the fly to fit the new source.",
+          "rationale": "Customising on the fly is an architecture decision above the helpdesk ceiling."
+        },
+        "Bump rather than improvise. Runbook silence means the architecture decision is not yours to make.",
+        {
+          "label": "Skip the source addition and tell the customer it is not supported.",
+          "rationale": "Premature. The senior may authorise a variant or coordinate with the customer."
+        },
+        {
+          "label": "Add the source without the runbook and figure out the configuration from the portal.",
+          "rationale": "No authorisation, no documented process, no verifiable end state."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Runbook silence is the trigger to bump. The architecture decision belongs to the senior who can weigh commercial and technical implications."
+    },
+    {
+      "id": "ck-nds-api-prerequisite",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "Adding an API integration source involves which customer-side prerequisite?",
+      "choices": [
+        "The customer's admin with the required role.",
+        {
+          "label": "The customer's helpdesk junior to read out the source's IP.",
+          "rationale": "OAuth/token issuance needs admin authority, not a junior reading IPs."
+        },
+        {
+          "label": "No customer-side prerequisite; the addition is fully Huntress-side.",
+          "rationale": "API integrations require the customer's admin to grant access."
+        },
+        {
+          "label": "A signed legal contract from the SaaS vendor.",
+          "rationale": "The OAuth grant is the authorisation mechanism, not a vendor contract."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(M365 Global Admin, GWS super-admin, Okta admin) on the call to run the OAuth consent or token issuance. API integrations require an authenticated grant from the SaaS source. The customer's admin with the right role runs the OAuth consent or token issuance."
+    },
+    {
+      "id": "ck-nds-volume-check",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "You added a Cisco ASA as an HEC source. The portal shows green status and 50 events/minute. Is that enough to declare done?",
+      "choices": [
+        {
+          "label": "Yes. Green status and moving last-event timestamp are sufficient.",
+          "rationale": "Missing the volume sanity check. The source could be logging a narrow subset."
+        },
+        "Half-right. The mechanical verification is done.",
+        {
+          "label": "No. Always wait 24 hours regardless.",
+          "rationale": "Verification is signal-driven, not clock-driven."
+        },
+        {
+          "label": "No. Open a Huntress support case to confirm configuration.",
+          "rationale": "The volume check is yours to run."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The volume check is the other half: compare against expected volume per the runbook or similar customers. Mechanical verification (green, moving timestamp) and volume verification (matches expected range) together confirm the source is fully working."
+    },
+    {
+      "id": "ck-nds-customise-danger",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "Why is \"customising the runbook on the fly\" dangerous?",
+      "choices": [
+        "Runbooks reflect standard setups.",
+        {
+          "label": "It is not dangerous; minor adaptations are fine.",
+          "rationale": "Even minor architectural deviations create downstream commitments the senior did not make."
+        },
+        {
+          "label": "Because the customer would not approve a non-standard setup.",
+          "rationale": "Customer optics are not the reason. Scope is."
+        },
+        {
+          "label": "Because Huntress support charges extra for non-standard setups.",
+          "rationale": "Invented commercial detail."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Differences the runbook does not cover are ingestion-architecture questions above the helpdesk ceiling. Runbook-silent variants are architecture questions. The helpdesk does not make durable architecture decisions; the senior does."
+    },
+    {
+      "id": "ck-nds-agent-toggle",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "Adding an agent-collected SIEM source on an endpoint that already has a Huntress agent and SIEM licensing is done how?",
+      "choices": [
+        "Toggle the SIEM ingestion setting for that endpoint in the Huntress portal.",
+        {
+          "label": "Uninstall and reinstall the agent with a different installer flag.",
+          "rationale": "Reinstall is not required. The SIEM module is enabled per-endpoint via portal toggle."
+        },
+        {
+          "label": "Install a separate SIEM agent alongside the EDR agent.",
+          "rationale": "The same Huntress agent does both EDR and SIEM ingestion."
+        },
+        {
+          "label": "Manually push a syslog forwarder config to the endpoint.",
+          "rationale": "Agent-collected does not use a separate syslog forwarder."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The agent picks up the configuration on its next check-in. When the agent is already in place and SIEM is licensed, enabling ingestion is a portal toggle. The agent picks up the new configuration automatically."
+    },
+    {
+      "id": "ck-nds-escalation-trigger",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "Which is a clear escalation trigger when adding a source?",
+      "choices": [
+        {
+          "label": "The runbook specifies an out-of-hours window for configuration.",
+          "rationale": "Standard runbook detail, not an escalation trigger."
+        },
+        "The customer requests log scope or filtering not covered by the documented standard configuration.",
+        {
+          "label": "The source is a documented firewall model with a standard runbook.",
+          "rationale": "Standard runbook coverage means in-scope."
+        },
+        {
+          "label": "The customer's admin needs to grant OAuth consent.",
+          "rationale": "Standard prerequisite, not an escalation trigger."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Custom filtering is an architecture decision that belongs to the senior. Documented standard configurations are in scope; non-standard requests escalate."
+    },
+    {
+      "id": "ck-nds-customer-pressure",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "hard",
+      "prompt": "A customer's IT manager messages: \"Can you add our internal HR system as a SIEM source today? We need it for an audit tomorrow.\" The HR system is not in your runbook and you have no senior sign-off. What do you do?",
+      "choices": [
+        {
+          "label": "Add the source by adapting a similar SaaS runbook. The audit deadline justifies the urgency.",
+          "rationale": "Audit pressure is not authorisation. Adapting the runbook on the fly is the named common mistake."
+        },
+        "Surface the request to senior immediately, given the audit deadline.",
+        {
+          "label": "Tell the IT manager 'we can't help' and end the conversation.",
+          "rationale": "Wrong tone. The senior may be able to authorise a path; refusing without surfacing is unhelpful."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Two pre-flight checks fail: runbook coverage and authorisation. Runbook-silent and unauthorised. The customer's deadline urgency goes to the senior who can weigh the commercial and architecture sides."
+    },
+    {
+      "id": "ck-nds-documentation",
+      "type": "mcq",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "The PSA documentation for a new source addition should record which of these?",
+      "choices": [
+        "Source name, mechanism, when added.",
+        {
+          "label": "Source name only; the rest is in the portal.",
+          "rationale": "Insufficient. The PSA is the long-term record; portal state changes."
+        },
+        {
+          "label": "Just the senior's name.",
+          "rationale": "Insufficient. Future techs need to know what was added and where."
+        },
+        {
+          "label": "A screenshot of the portal.",
+          "rationale": "Wrong medium for the structured record."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Who authorised, runbook reference. Observed event volume. Structured PSA documentation captures the full picture: what was added, how, when, by whose authority, and what the baseline volume looks like."
+    },
+    {
+      "id": "ck-nds-hec-bridge-order",
+      "type": "order",
+      "topic": "data-source",
+      "difficulty": "medium",
+      "prompt": "Order the steps for adding a Cisco ASA HEC source per the standard runbook.",
+      "items": [
+        "Confirm the customer-side HEC bridge is operational.",
+        "Configure the ASA's syslog forwarding to point at the bridge.",
+        "Verify the bridge is forwarding successfully to Huntress.",
+        "Verify the Huntress portal shows the new source ingesting.",
+        "Verify volume matches expected range and document in the PSA."
+      ],
+      "explanation": "Bridge first, then source-side configuration, then verify at each step: bridge forwarding, portal ingestion, and volume sanity."
+    }
+  ]
+}

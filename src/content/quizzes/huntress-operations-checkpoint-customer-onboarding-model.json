@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-customer-onboarding-model",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the customer-onboarding model",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ownership",
+      "type": "mcq",
+      "topic": "ownership",
+      "difficulty": "easy",
+      "prompt": "Who owns each side of the customer-onboarding split?",
+      "choices": [
+        "Tech owns runbook execution;.",
+        {
+          "label": "Tech owns everything technical; senior only handles customer comms.",
+          "rationale": "Conflates 'technical' with 'committal.' Subscription and product-mix choices are committal even though they don't involve menu clicks."
+        },
+        {
+          "label": "Senior owns the wizards; tech owns the policy.",
+          "rationale": "Inverted. The wizards are runbook work (tech); policy at the org level is above the helpdesk floor."
+        },
+        {
+          "label": "Huntress support owns onboarding; the MSP doesn't drive it.",
+          "rationale": "Onboarding is the MSP's work. Huntress support fields product questions, not delivery decisions."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Senior owns decisions that commit the customer (subscription, product mix, deployment strategy, permanent org deletion). Tech work is procedural; senior work is committal. The central frame of the lesson."
+    },
+    {
+      "id": "runbook-gap",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"If the runbook doesn't cover it, I should improvise.\" Why is that wrong?",
+      "choices": [
+        "A runbook gap is a senior question, not a tech improvisation.",
+        {
+          "label": "Because Huntress support has to approve every off-runbook action.",
+          "rationale": "Huntress support isn't the body that approves delivery deviations."
+        },
+        {
+          "label": "Because off-runbook actions void the customer's contract.",
+          "rationale": "Overclaim. The issue is operational drift, not contract voiding."
+        },
+        {
+          "label": "Improvising is fine as long as you document it after.",
+          "rationale": "Documenting after doesn't reframe an unauthorised commitment. The decision goes to the senior first."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Improvising creates undocumented customer-specific deviations the next tech won't know about. Improvising creates undocumented customer-specific deviations that future techs and seniors don't know about. The decision belongs above."
+    },
+    {
+      "id": "recognise-question",
+      "type": "mcq",
+      "topic": "decision-underneath",
+      "difficulty": "medium",
+      "prompt": "Which of these onboarding questions arrives in tech-shape but carries a decision the senior owns?",
+      "choices": [
+        {
+          "label": "\"Which menu do I click to add a notification address?\"",
+          "rationale": "Pure portal action, covered by the runbook. Tech work."
+        },
+        "\"Should we deploy to the workstations as well as the servers?\"",
+        {
+          "label": "\"Where do I find the agent installer for Windows?\"",
+          "rationale": "Documentation lookup, not a decision. Tech work."
+        },
+        {
+          "label": "\"Which RMM job runs the EDR push?\"",
+          "rationale": "Runbook lookup, not a customer commitment. Tech work."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Deployment-strategy questions arrive in tech-shape but commit the customer to scope and billing. Bump before clicking."
+    },
+    {
+      "id": "linux-scope",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Mid-onboarding, the customer's IT manager mentions: \"Oh, and we have about a dozen Linux servers we'd like covered too. Can you grab those while you're at it?\" The runbook only mentions the workstation OU. What do you do?",
+      "choices": [
+        {
+          "label": "Add the Linux servers to the rollout, Linux is supported by the agent.",
+          "rationale": "Scope change on a verbal request. Billing implications (per-endpoint pricing) plus delivery-process implications (undocumented additions confuse later support)."
+        },
+        "It's a good addition but it's a deployment-strategy question.",
+        {
+          "label": "Add the Linux servers and flag it in the ticket so the senior catches it on review.",
+          "rationale": "Action before decision. Even if caught on review, the customer now expects coverage and the conversation gets harder. Bump first, click second."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Bump to a senior, confirm scope, add to the next rollout window. Route the decision to the layer that commits to it. You're not refusing; you're bumping."
+    },
+    {
+      "id": "senior-qualifier",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The senior replies: \"Linux is in scope per their contract, fine to deploy, but check the OU before pushing, not all twelve are production.\" What do you do?",
+      "choices": [
+        {
+          "label": "Push to all twelve as the runbook directs.",
+          "rationale": "Ignores the qualifier in the senior's response, same family of mistake as acting on Evidence instead of Recommendation."
+        },
+        "Confirm with the IT manager which servers are production.",
+        {
+          "label": "Push to all twelve and mark four for 'review later' in your notes.",
+          "rationale": "'Review later' is a quiet way to say 'I committed to coverage I wasn't authorised to commit to.' Non-production servers wait for the senior's decision."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Push to those, document the decision and the excluded set. You did what the senior asked, documented the exclusion, and didn't expand beyond authorised scope."
+    },
+    {
+      "id": "bump-meaning",
+      "type": "mcq",
+      "topic": "bump",
+      "difficulty": "easy",
+      "prompt": "The lesson uses the word \"bump\" to describe an escalation. What does it mean in practice?",
+      "choices": [
+        "A one-line message to the senior.",
+        {
+          "label": "A formal ticket transfer that pauses all work for 24 hours.",
+          "rationale": "Overstates the cost. A bump is meant to keep the work moving."
+        },
+        {
+          "label": "A Huntress support ticket asking the vendor to confirm the action.",
+          "rationale": "Vendor support isn't the right body for delivery decisions; the MSP senior is."
+        },
+        {
+          "label": "A note in the customer's record to discuss at the next quarterly review.",
+          "rationale": "Too slow, onboarding decisions need answers in hours, not quarters."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(\"customer wants X, sounds like a product-mix question, can you confirm?\"); Most respond inside the hour and the work moves on. Not an apology, not a stop-everything escalation. A clarifying ping that keeps the work moving."
+    },
+    {
+      "id": "senior-annoyance",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"The senior will be annoyed if I bump every product-mix question.\" What's the right framing?",
+      "choices": [
+        "Annoyance from a quick \"should I do X?\" is fleeting;",
+        {
+          "label": "Bumping is always welcome; seniors love being asked everything.",
+          "rationale": "Overclaim. Seniors do get annoyed by trivial questions a runbook would answer."
+        },
+        {
+          "label": "Reduce bumping by guessing at the answer if you're 80% sure.",
+          "rationale": "Exactly the failure mode the lesson warns against."
+        },
+        {
+          "label": "Save all product-mix questions for the weekly check-in.",
+          "rationale": "Some are time-sensitive (customer is waiting on a call). If reversibility or understanding is 'no,' bump now."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Annoyance from a contract problem caused by an unauthorised commitment is permanent. The cost of a quick clarifying question is small and fleeting. The cost of a customer commitment you weren't authorised to make is durable."
+    },
+    {
+      "id": "two-question-test",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "medium",
+      "prompt": "The two-question test (reversible? understand why?) helps you decide which onboarding questions to bump now versus capture for the check-in. How does it apply?",
+      "choices": [
+        "If either answer is \"no,\" bump now.",
+        {
+          "label": "If both answers are \"yes,\" bump now to confirm. Otherwise proceed.",
+          "rationale": "Inverted. The test catches the irreversible or poorly-understood cases."
+        },
+        {
+          "label": "The two-question test doesn't apply to onboarding.",
+          "rationale": "It does, exactly as the filter for 'bump now vs. capture for check-in.'"
+        },
+        {
+          "label": "Run the test only after you've already touched the wizard.",
+          "rationale": "Backwards, the test runs before the action, not after."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Otherwise the question can sit on the running list for the next check-in. The test catches the irreversible or poorly-understood cases. Reversible-and-understood can wait for the check-in."
+    },
+    {
+      "id": "bump-feedback",
+      "type": "mcq",
+      "topic": "bump-vs-touch",
+      "difficulty": "hard",
+      "prompt": "A senior says \"you bumped that question to me, but you could have just done it.\" What's the right way to respond?",
+      "choices": [
+        "Note the feedback, ask which class of action they'd like the next bump for.",
+        {
+          "label": "Apologise and commit to never bumping that class of question again.",
+          "rationale": "Over-correction. Bumping was the right reflex for the ceiling category; learn the boundary, don't abandon the rule."
+        },
+        {
+          "label": "Stop bumping anything ambiguous from now on; the senior just told you to.",
+          "rationale": "Strong over-correction. Onboarding still has irreversible and committal categories that always bump."
+        },
+        {
+          "label": "Push back and explain why bumping was correct.",
+          "rationale": "Defensive. The conversation is more useful if you treat the senior's feedback as a chance to refine the boundary together."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Adjust the runbook if there's a category that's been under-defined. Treat the senior's feedback as a chance to refine the boundary, not to recalibrate silently or to capitulate entirely."
+    },
+    {
+      "id": "tier-cue",
+      "type": "tf",
+      "topic": "scope",
+      "difficulty": "easy",
+      "prompt": "Permanently deleting an offboarded organisation from the Huntress portal is a tech action once the offboarding sequence completes.",
+      "correct": false,
+      "explanation": "Permanent deletion is irreversible and senior-owned. Most MSPs leave the org archived for record-retention reasons regardless of when the offboarding sequence completes."
+    }
+  ]
+}

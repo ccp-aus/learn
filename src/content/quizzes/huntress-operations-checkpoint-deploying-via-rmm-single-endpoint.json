@@ -1,0 +1,234 @@
+{
+  "slug": "huntress-operations-checkpoint-deploying-via-rmm-single-endpoint",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: single-endpoint RMM deploy",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "not-preflight",
+      "type": "mcq",
+      "topic": "pre-flight",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT part of the single-endpoint pre-flight?",
+      "choices": [
+        {
+          "label": "Identify the correct customer organisation and the runbook's named installer for it.",
+          "rationale": "Step 1 of the pre-flight. Required."
+        },
+        {
+          "label": "Confirm the endpoint is online in the RMM.",
+          "rationale": "Step 3 of the pre-flight. A push to an offline endpoint queues silently."
+        },
+        "Open a Huntress support ticket announcing the planned install.",
+        {
+          "label": "Note any AV or policy compatibility steps for this customer.",
+          "rationale": "Step 4 of the pre-flight. Skipping it sets up downstream failure modes."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Routine single-endpoint installs don't require a Huntress-side notification; misuses support."
+    },
+    {
+      "id": "skipped-step",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "Which check does the lesson name as the most commonly skipped, the one that leaves dormant agents nobody knows about?",
+      "choices": [
+        {
+          "label": "Confirming the RMM exit code is zero.",
+          "rationale": "Techs do check the RMM. The skipped step is the next one."
+        },
+        "Opening the customer's Agents view in Huntress and confirming the new agent appeared with the expected hostname.",
+        {
+          "label": "Restarting the endpoint after install.",
+          "rationale": "No routine reboot post-install."
+        },
+        {
+          "label": "Filing a Huntress support ticket about the install.",
+          "rationale": "Not part of the workflow."
+        }
+      ],
+      "correct": 1,
+      "explanation": "RMM exit code zero is half the answer; the portal verify is the half that gets skipped."
+    },
+    {
+      "id": "org-key-from-chat",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is 'pasting an org key from chat or memory' called out as a common mistake?",
+      "choices": [
+        "Org keys go in runbook-managed installers or RMM jobs, not in ad-hoc commands.",
+        {
+          "label": "Org keys are case-sensitive in chat clients.",
+          "rationale": "Not a real concern. The issue is provenance, not chat formatting."
+        },
+        {
+          "label": "Huntress audits chat platforms for leaked keys.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "The portal blocks installs that originate from chat-sourced keys.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "A wrong-customer key sends the new agent to the wrong organisation. The runbook is the source of truth for the org key; chat history isn't."
+    },
+    {
+      "id": "verify-four-checks",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "easy",
+      "prompt": "Which set is the four-check verify list before closing the ticket?",
+      "choices": [
+        "RMM job completed (exit code zero);",
+        {
+          "label": "Customer signed off; reboot completed; AV scan clean; new agent in incident queue.",
+          "rationale": "None of these are the lesson's verify steps."
+        },
+        {
+          "label": "Huntress support confirmed the install; SOC analyst was notified; org key was rotated; agent ran a self-test.",
+          "rationale": "None of these are real workflow steps."
+        },
+        {
+          "label": "Only one check is needed, RMM exit code zero.",
+          "rationale": "The whole lesson exists to push back on this shortcut."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Agent in the Agents view with the expected hostname; agent shows online with a current version; PSA record updated with timestamp and hostname. Four ticks: RMM exit, agent appears in portal, agent online with current version, PSA updated."
+    },
+    {
+      "id": "two-laptops-where-to-start",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A customer's new laptop has just enrolled in the RMM. The customer's existing laptop is still in service during handover. Where do you start the Huntress deploy?",
+      "choices": [
+        {
+          "label": "Push the install from the RMM immediately.",
+          "rationale": "You haven't confirmed which customer org's installer to use. Two minutes of pre-flight saves two hours of un-pushing."
+        },
+        "Open the customer's organisation in Huntress, confirm the runbook's named installer for them.",
+        {
+          "label": "Push the installer for the customer's most similar customer because 'it'll probably work.'",
+          "rationale": "Wrong org key sends the agent to the wrong customer's portal."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Then push from the RMM targeted at the new laptop's hostname. Right org, right installer, right target. Three checks, one push."
+    },
+    {
+      "id": "rmm-success-no-portal",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The RMM job succeeds with exit code zero. You switch to Huntress. After 20 minutes, the new agent isn't in the Agents view. What's the right next step?",
+      "choices": [
+        {
+          "label": "Close the ticket; the RMM said it worked.",
+          "rationale": "Worst response. This is the dormant-installed-not-registered state. The next tech finds a workstation with no telemetry."
+        },
+        "Look at the agent locally on the endpoint.",
+        {
+          "label": "Re-push the install.",
+          "rationale": "Premature. You don't yet know why registration didn't take. Re-pushing on the same misconfiguration repeats the same failure."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Then check whether the org key bundled with your runbook's installer matches the customer's expected key. Pattern-first, action-second. Local logs lean you toward the blocked-outbound lesson or a wrong-key install you'll need to redo."
+    },
+    {
+      "id": "same-error-second-failure",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "Which of these is a named 'bump rather than chase' trigger in this lesson?",
+      "choices": [
+        "The install fails repeatedly with the same error after one retry.",
+        {
+          "label": "The agent took 12 minutes to appear in the portal.",
+          "rationale": "Within the normal window. Routine."
+        },
+        {
+          "label": "The RMM job exited with code zero on the first attempt.",
+          "rationale": "Expected outcome, not an escalation trigger."
+        },
+        {
+          "label": "The PSA was updated promptly.",
+          "rationale": "Routine documentation, not an escalation trigger."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same-error second failure is the right time to bump rather than chase a third attempt."
+    },
+    {
+      "id": "deploy-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Put the single-endpoint deploy steps in the order the lesson teaches.",
+      "items": [
+        "Pre-flight: right customer, runbook's named installer, right target online in the RMM, AV/policy compatibility checks.",
+        "Target the specific endpoint by name in the RMM and confirm before kicking the job.",
+        "Kick the install job and watch the RMM-side output for the exit code.",
+        "Switch to the Huntress portal and open the customer's Agents view to confirm the agent appeared.",
+        "Confirm the agent's hostname matches what you pushed.",
+        "Update the PSA with deployment timestamp and hostname."
+      ],
+      "explanation": "Pre-flight, target, kick, portal-verify, hostname-confirm, document. RMM exit code zero is half the answer; the portal is the other half."
+    },
+    {
+      "id": "similar-name-defence",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "What's the named defence against pushing to a similarly-named endpoint by mistake?",
+      "choices": [
+        "Confirm the target in the RMM before kicking.",
+        {
+          "label": "Use a regex to validate hostnames before the push.",
+          "rationale": "Not a real workflow; the runbook doesn't require this."
+        },
+        {
+          "label": "Always push to one endpoint per RMM job.",
+          "rationale": "Already the case in single-endpoint deploy; not the defence."
+        },
+        {
+          "label": "Always reboot the endpoint before pushing.",
+          "rationale": "No routine reboot."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Confirm the hostname in the portal after. Two checks, twenty seconds total. Two cheap checks that bookend the action: RMM before, portal after."
+    },
+    {
+      "id": "unclear-customer",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "easy",
+      "prompt": "You have a new endpoint to enrol but the customer isn't clear: multiple plausible matches in the RMM and no clear mapping to a Huntress organisation. What's the right move?",
+      "choices": [
+        "Bump rather than guess; that's the named escalation surface.",
+        {
+          "label": "Pick the most likely match and proceed.",
+          "rationale": "Guess-then-push is the route to a wrong-customer enrolment."
+        },
+        {
+          "label": "Push without an org key and let Huntress sort it out.",
+          "rationale": "The agent needs the org key to enrol."
+        },
+        {
+          "label": "Wait for the customer to email you about it.",
+          "rationale": "Reactive; the lesson teaches proactive escalation when you see the ambiguity."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer-to-organisation mapping ambiguity is explicit escalation surface."
+    }
+  ]
+}

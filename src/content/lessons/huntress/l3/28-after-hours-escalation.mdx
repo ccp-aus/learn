@@ -1,0 +1,107 @@
+---
+slug: 28-after-hours-escalation
+vendor: huntress
+level: l3
+title: "After-hours escalation"
+summary: "After-hours work has two opposite failure modes: waking the on-call senior for every High, or sitting on a Critical at 2am. The escalation matrix and the discipline of using it are the skill."
+estimatedMinutes: 7
+order: 28
+topics:
+  - comms
+  - after-hours
+  - escalation
+updated: 2026-05-20
+---
+
+After-hours work has two opposite failure modes. The first: over-escalating, waking the on-call senior for every High-severity incident and burning out the rotation. The second: under-escalating, sitting on a Critical at 2am because "the senior will see it in the morning." Both flow from not having a clear matrix of what wakes who, when. The matrix is your MSP's, documented in the on-call runbook. This lesson is the disposition for using it.
+
+## The matrix shape
+
+| Severity | After-hours disposition |
+| --- | --- |
+| Critical | Wake the on-call senior immediately. Phone, multiple channels, walk the escalation chain. |
+| High | Depends on customer tier, incident type, volume/clustering, and the customer's comms expectations. |
+| Low | Queue for next business day. No one woken, no customer phone call. |
+
+"After hours" means outside the customer's contracted business hours, or outside the MSP's standard staffed window. The two sometimes differ (different timezone, 24/7 operations, extended-hours contract).
+
+## Critical wakes someone, every time
+
+The on-call senior exists for this. The runbook specifies:
+
+- **Primary on-call number** (a phone call; text and email are insufficient for Critical).
+- **Backup on-call number** if the primary does not answer within the documented timeframe (often 5 minutes).
+- **Secondary escalation paths** (a manager, an emergency rotation) if both miss.
+
+Phone the primary. If they do not answer within the timeframe, phone the backup. Document each call attempt with timestamps. The runbook says when to keep walking the chain.
+
+While you try to reach someone, the response keeps going. Continue with containment per the playbook (isolation, comms-as-appropriate). Reaching the senior does not wait for the containment. Containment does not wait for the senior. Both run in parallel.
+
+## When a High wakes someone
+
+Less consistent than Critical. Four factors drive the call:
+
+1. **Customer tier.** A high-tier customer's High often warrants a senior call. A small-business customer's High often does not.
+2. **Incident type.** An EDR High on a financial system at a financial-services customer may warrant a wake-up. The same EDR High on an internal-only workstation may not.
+3. **Volume and clustering.** A single High on a quiet customer waits for morning. Three Highs in 30 minutes on the same customer is its own escalation pattern, even at the High tier.
+4. **Customer comms expectations.** Some customers want a phone call on after-hours Highs as part of their contract.
+
+The on-call runbook should specify the customer-tier matrix. If it does not, bump per the runbook gap.
+
+## When a Low waits
+
+A Low after hours goes into the queue for next business day. The exception: if a Low carries Critical-shaped Evidence (the pattern-recognition skill from the containment lessons), treat it as Critical. The severity tag is not gospel; the pattern recognition is.
+
+<Callout type="warn" title="Do not stop the escalation walk on a Critical">
+Stopping after one missed call on a Critical is a named failure mode. Walk the whole chain. The runbook documents the next step. Primary, then backup, then secondary, each with documented timestamps.
+</Callout>
+
+## What to do while waiting for the senior
+
+Containment does not wait. Isolate. Act per the playbook. Document timestamps. When the senior reaches you, hand them the timeline and the actions you have taken.
+
+If you have contained and the senior has not been reached:
+
+1. **Keep walking the escalation chain** per the runbook.
+2. **Watch for additional related incidents** on the same customer. Critical patterns sometimes land as a wave. Isolating each new affected host as they appear is the right reflex.
+
+## A worked scenario: Saturday 02:17
+
+Three incidents land in the last 15 minutes:
+
+- Critical ITDR incident on `cfo@example.com`: malicious inbox rule plus impossible travel.
+- High EDR incident on `WS-ACME-RECEPTION-04`: scheduled task with encoded PowerShell.
+- Low EDR incident on `SRV-CONTOSO-DEV-12`: autoruns entry from a niche software vendor.
+
+<DecisionTree client:load
+  title="Which incidents wake the on-call senior?"
+  description="Saturday 02:17. Three incidents from three different customers, three different severities. The matrix is the tool."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What is the right action sequence?", choices: [
+      { label: "Wake the on-call senior for all three because of the cluster.", next: "all-three" },
+      { label: "Phone the senior for the Critical only. Continue containment in parallel. The High on Acme waits for morning per matrix. The Low on Contoso waits.", next: "matrix-followed" },
+      { label: "Phone for the Critical only, ignore the other two until morning.", next: "half-right" },
+    ]},
+    { type: "outcome", id: "all-three", label: "Over-escalated", tone: "warn",
+      body: "The Low and the High at this hour are not waking-the-senior incidents. Calling for three when one warrants it inflates urgency unfairly." },
+    { type: "outcome", id: "matrix-followed", label: "Matrix followed", tone: "success",
+      body: "Phone the on-call senior for the Critical (ITDR on the CFO account). Continue containment in parallel. The High on Acme reception waits for morning per matrix (small-business customer, no after-hours contract). The Low on Contoso waits. Document that they landed and watch the High for clustering with anything else from Acme." },
+    { type: "outcome", id: "half-right", label: "Close but not complete", tone: "info",
+      body: "The senior call is right, but 'ignore' is not quite right. Document that the High and Low landed. Watch the High for clustering with anything else from that customer." },
+  ]}
+/>
+
+## Calibration over time
+
+A senior who responds to an over-escalation with "could've waited for morning, but appreciate the heads-up" is giving you a calibration cue. Your judgement was slightly off the matrix; adjust next time. A senior who responds to an under-escalation with "why didn't you call me at the time?" is a sharper signal: the matrix called for the wake-up and you missed it. Document the calibration for the post-mortem.
+
+The on-call rotation is a finite resource. Over-using it degrades the rotation; under-using it on Critical events creates real risk. The matrix, and the discipline of following it, is what keeps both in check.
+
+## When to escalate beyond the obvious
+
+- The on-call senior is unreachable after walking the full chain. Rare but it happens. The runbook should have a documented break-glass path. Follow it.
+- A customer's after-hours preference does not match the runbook. Bump to senior next morning. The expectation may have shifted.
+- You are consistently uncertain whether a specific incident type warrants a wake-up. Senior calibration in the next business-day check-in. Build judgement over time.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-after-hours-escalation" client:visible />

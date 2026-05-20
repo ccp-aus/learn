@@ -71,12 +71,11 @@ Leaving everything at 300 indefinitely isn't *wrong*, but it's noisier than nece
 
 ## Decision walkthrough
 
-A client emails Tuesday: *we're moving our website to a new host next Friday at 8pm. Please make sure the DNS change goes smoothly.* You check the current A record TTL: 86400.
-
 <DecisionTree
   client:load
   startId="root"
   title="When to lower TTL"
+  description="A client emails Tuesday: 'we're moving our website to a new host next Friday at 8pm. Please make sure the DNS change goes smoothly.' You check the current A record TTL: 86400."
   nodes={[
     {
       type: "question",

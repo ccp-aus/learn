@@ -1,0 +1,75 @@
+---
+slug: 25-pulling-monthly-summary-report
+vendor: huntress
+level: l3
+title: "The monthly summary report, and how to walk a customer through it"
+summary: "The monthly summary is the customer's most concrete evidence the service is working. Pull it from the customer's Reports view; translate the bands into security outcomes; lead with the story, not the section order."
+estimatedMinutes: 6
+order: 25
+topics:
+  - comms
+  - reporting
+  - monthly-summary
+updated: 2026-05-20
+---
+
+For many customers, the monthly summary report is the only regular touchpoint with their security posture. The PDF lands, an account manager forwards it, and the customer reads it without anyone walking them through what the numbers actually mean. A tech who can pull the report, scan it cold, and translate it into security outcomes in the customer's language is the tech the account manager wants on the call.
+
+## What the report contains
+
+The exact sections shift with Huntress versions and the customer's enabled surfaces, but the shape is consistent:
+
+| Section | What it shows |
+| --- | --- |
+| Cover and context | Customer name, month covered, products in scope (EDR, ITDR, SIEM) |
+| Coverage summary | Endpoint count, identity tenants connected, SIEM data-source count |
+| Incident summary | Totals by severity (Low / High / Critical), broken down by surface, often month-on-month |
+| Notable incidents | A handful of Highs and Criticals with brief narrative |
+| Trend or change notes | New endpoints, decommissions, platform-level changes Huntress wants to flag |
+| Recommendations | Optional platform suggestions ("your tenant would benefit from enabling X") |
+
+## How to pull it
+
+Reports live inside the customer's organisation, not in a global view. Navigate to the organisation, open the Reports view, pick the month and the monthly-summary report type, generate or download the PDF. Some MSPs automate this on a schedule; some pull manually per customer. The runbook should specify your MSP's pattern.
+
+## Translating numbers into security outcomes
+
+The numbers are accurate, the translation is the value-add. Three live examples:
+
+- **"Coverage: 198 endpoints, M365 connected, no SIEM."** Becomes: *we have monitoring on every workstation and server you manage with us, plus identity monitoring on your Microsoft 365 tenant; no log-source monitoring at this stage.*
+- **"Incidents: 23 Low, 4 High, 0 Critical."** Becomes: *twenty-three routine reviews of suspicious activity that turned out benign; four high-severity items contained and resolved; no critical events this month, which is the goal.*
+- **"Notable: BEC attempt against `cfo@`, contained."** Becomes: *one attempted business-email compromise against the CFO's account, caught and contained before any damage; detail's in the report; happy to walk through it.*
+
+Three things that translation does. Names the work, not the platform ("we and the SOC", not "Huntress did this"). Connects the metric to an outcome the customer cares about (not "23 Low", but "23 routine reviews that turned out benign"). Offers the deep-dive without forcing it.
+
+<Callout type="warn" title="The audit-log framing is the trap">
+Treating the report as an audit log produces a PDF in the customer's inbox with no narration. The customer either doesn't read it or reads it without the framing that makes the numbers mean anything. The report is a story about the customer's security posture for the month, told from the security team's seat. Not a data dump.
+</Callout>
+
+## A worked walk-through: Able Moose Group
+
+The account manager messages on a Friday: *Able Moose's IT lead came back on the monthly report saying "we don't understand what we're paying for, can we get someone to walk us through it?" Can you take 30 minutes on Monday?*
+
+The wrong prep is showing up and going section-by-section. The customer's question wasn't *tell me what each section is*. It was *help me understand what we're paying for*. Different framing, different call.
+
+The right prep is reading the report cold, picking out the strongest story for Able Moose this month (no Criticals, four Highs contained, twenty-three Lows triaged), and planning to lead with the security outcomes. Have specific incidents ready to deep-dive on. Don't ask the account manager to script the technical part. The technical-side of the walk-through is yours.
+
+Mid-call, expect the band question. *The report says four "High" incidents, what makes something High versus Low?* The plain-language ladder lands better than reading the formal definitions:
+
+> Low means our SOC saw activity worth a look, reviewed it, and we acted on it routinely. Mostly benign once examined. High means activity that needed prompt action. We contain the affected system and act inside a tight window. Critical means containment-first, escalate-everywhere events. We'd be calling you directly on those. Last month's four Highs were [list], all contained the same day.
+
+Ladders Low to Critical with what each means in practice, grounds the explanation in the specific incidents from the report. The customer leaves the call knowing what they're paying for.
+
+## When to surface a trend
+
+Per-incident cleanliness doesn't address the volume pattern. A customer running forty Lows this month versus twenty-two last month, each resolved cleanly, is a trend worth a senior bump even though every individual incident was handled. The trend may indicate something worth a closer look (a phishing campaign hitting a particular role, a config change that surfaced more noise, a new attack pattern landing across your portfolio). The tech doesn't make the trend-investigation call alone; the senior does, often with the account manager.
+
+A monthly Critical-incident count of zero on a healthy 200-endpoint customer is the opposite kind of moment. Expected. A sign of healthy operations. Frame it that way for the customer; don't apologise for it, don't imply the platform isn't doing anything.
+
+## What sits above the helpdesk ceiling
+
+- The customer asks for changes to the report's content or format. Senior. Usually involves Huntress-side configuration or the account manager's relationship work.
+- The customer asks for raw incident-data exports beyond what the report includes. Senior. May have compliance or contract implications.
+- A sustained trend (months of rising High volume on the same customer) warrants a deeper customer-side conversation. Senior plus account manager.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-monthly-summary-report" client:visible />

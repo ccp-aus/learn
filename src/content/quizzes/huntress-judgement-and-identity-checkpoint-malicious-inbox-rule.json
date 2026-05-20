@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-malicious-inbox-rule",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: malicious inbox rules",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "two-mechanisms",
+      "type": "mcq",
+      "topic": "mechanisms",
+      "difficulty": "easy",
+      "prompt": "What are the two related mechanisms an attacker can use to exfiltrate mail from a compromised mailbox?",
+      "choices": [
+        "Inbox rules (mailbox-level rules acting on incoming mail) and mailbox forwarders (ForwardingSmtpAddress / ForwardingAddress).",
+        {
+          "label": "Inbox rules and Conditional Access policies.",
+          "rationale": "Conditional Access is an admin-side control, not an attacker exfiltration mechanism."
+        },
+        {
+          "label": "Sent-items archiving and SharePoint sharing.",
+          "rationale": "Neither is the lesson's named pair."
+        },
+        {
+          "label": "Calendar delegation and Teams forwarding.",
+          "rationale": "Not the mail-exfiltration mechanism the lesson describes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two paths can be set up together. Removing one leaves the other."
+    },
+    {
+      "id": "hidden-folder-purpose",
+      "type": "mcq",
+      "topic": "attacker-tactics",
+      "difficulty": "medium",
+      "prompt": "Why do attackers route mail to folders named '.', 'RSS Subscriptions', or 'Conversation History'?",
+      "choices": [
+        {
+          "label": "Those folders archive faster and the attacker wants the mail to disappear.",
+          "rationale": "Not how Outlook archival works."
+        },
+        "Hidden or rarely-used folders mean the legitimate user does not see replies to phishing the attacker sent from their mailbox.",
+        {
+          "label": "Those folders are required for inbox-rule filtering to work.",
+          "rationale": "Wrong on the platform behaviour."
+        },
+        {
+          "label": "Those folders bypass Conditional Access policies.",
+          "rationale": "Folders do not interact with Conditional Access."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The attacker hides their tracks so the user does not notice the compromise activity."
+    },
+    {
+      "id": "removing-rule-not-enough",
+      "type": "mcq",
+      "topic": "response-discipline",
+      "difficulty": "medium",
+      "prompt": "\"Removing the inbox rule is enough.\" Why is this often wrong?",
+      "choices": [
+        {
+          "label": "Inbox rules cannot be removed without senior approval.",
+          "rationale": "Rule removal is in the helpdesk's playbook scope."
+        },
+        {
+          "label": "Removing rules requires a Huntress support ticket.",
+          "rationale": "Rule removal is a portal/admin-tool action."
+        },
+        "The attacker may also have configured a mailbox-level forwarder.",
+        {
+          "label": "Rules re-create themselves automatically when removed.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Same attack, two mechanisms. Removing only one leaves exfiltration intact. Check for ForwardingSmtpAddress separately. The lesson's central discipline: do not remove one of two mechanisms."
+    },
+    {
+      "id": "forward-and-hide-pattern",
+      "type": "mcq",
+      "topic": "malicious-patterns",
+      "difficulty": "medium",
+      "prompt": "Which inbox-rule pattern is MOST consistent with attacker behaviour per the lesson?",
+      "choices": [
+        {
+          "label": "Rule marks mail from the user's manager as high-priority.",
+          "rationale": "User-organisation pattern, not attacker-shaped."
+        },
+        {
+          "label": "Rule moves all newsletters to a 'Reading' folder.",
+          "rationale": "Personal organisation pattern, not attacker-shaped."
+        },
+        {
+          "label": "Rule moves project mail from one client into a project folder.",
+          "rationale": "Routine power-user routing, not attacker-shaped."
+        },
+        "Rule forwards mail with 'invoice', 'payment'."
+      ],
+      "correct": 3,
+      "explanation": "Or 'wire' keywords to an external address and deletes or moves the original. Forward and hide on financial keywords is the classic compromise shape."
+    },
+    {
+      "id": "suppress-security-notifications",
+      "type": "mcq",
+      "topic": "attacker-tactics",
+      "difficulty": "medium",
+      "prompt": "An inbox rule moves mail from security@microsoft.com to 'Conversation History' and marks as read. What is the attacker intent?",
+      "choices": [
+        "Suppress security notifications so the user does not see 'new sign-in detected' alerts.",
+        {
+          "label": "Reduce mailbox clutter.",
+          "rationale": "Mailbox-organisation framing for an obvious attacker intent."
+        },
+        {
+          "label": "Comply with retention policy.",
+          "rationale": "Retention policies are not user-rule territory."
+        },
+        {
+          "label": "Speed up mail processing.",
+          "rationale": "Marking as read does not speed up processing. It hides notifications."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Compromise-pattern by intent: hide the security alerts so the user does not notice the attacker's activity."
+    },
+    {
+      "id": "forwarder-found-what-do",
+      "type": "mcq",
+      "topic": "response-discipline",
+      "difficulty": "hard",
+      "prompt": "You find ForwardingSmtpAddress set to the same attacker domain. The Recommendation did not mention removing the forwarder. What do you do?",
+      "choices": [
+        {
+          "label": "Remove the forwarder yourself since it is obviously malicious.",
+          "rationale": "Acting on context the Recommendation did not include. The finding goes back to the SOC."
+        },
+        {
+          "label": "Wait for the SOC to update the Recommendation before doing anything.",
+          "rationale": "The named rule is exfiltrating now. Act on the named actions while surfacing the additional finding."
+        },
+        "Execute the Recommendation as written."
+      ],
+      "correct": 2,
+      "explanation": "In parallel reply to the SOC asking whether the forwarder should be removed. Execute the Recommendation cleanly. Surface the additional finding to the layer that decides."
+    },
+    {
+      "id": "deliver-and-forward-nasty",
+      "type": "mcq",
+      "topic": "attacker-tactics",
+      "difficulty": "medium",
+      "prompt": "Why is DeliverToMailboxAndForward: true a particularly effective attacker setting?",
+      "choices": [
+        {
+          "label": "It locks the user out of their own mailbox.",
+          "rationale": "The user keeps their mailbox. The attacker gets a copy."
+        },
+        {
+          "label": "It bypasses MFA.",
+          "rationale": "MFA is not involved in mail forwarding."
+        },
+        "The user still sees their mail in their inbox and does not notice.",
+        {
+          "label": "It deletes the user's existing mail.",
+          "rationale": "No deletion occurs. The user sees everything."
+        }
+      ],
+      "correct": 2,
+      "explanation": "While the attacker receives a copy externally. Stealth-by-design: the user sees nothing missing, while the attacker has a copy of everything."
+    },
+    {
+      "id": "user-created-rule-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"If the user is the one who created the rule, it must be legitimate.\" Why is this wrong?",
+      "choices": [
+        {
+          "label": "Users cannot create inbox rules without admin approval.",
+          "rationale": "Wrong on the platform behaviour."
+        },
+        {
+          "label": "Inbox rules are always created by attackers.",
+          "rationale": "Wrong. Most rules in most tenants are legitimate."
+        },
+        {
+          "label": "All inbox rules are malicious by default.",
+          "rationale": "Overcorrects. Many legitimate rules exist."
+        },
+        "Not if the user's account was compromised at the time."
+      ],
+      "correct": 3,
+      "explanation": "The Timeline tells you whether the rule creation correlates with a suspicious sign-in. The Timeline view discriminates. Rule creation during a compromise window is attacker activity wearing the user's identity."
+    },
+    {
+      "id": "weird-but-legitimate",
+      "type": "mcq",
+      "topic": "false-positives",
+      "difficulty": "medium",
+      "prompt": "Which of these is a 'weird but legitimate' inbox-rule pattern per the lesson?",
+      "choices": [
+        {
+          "label": "A rule that forwards *invoice* mail to an external Gmail address and deletes originals.",
+          "rationale": "That is the compromise pattern."
+        },
+        "A user forwarding their work mail to a personal address for weekend reading.",
+        {
+          "label": "A rule that moves security@microsoft.com mail to a hidden folder.",
+          "rationale": "That is the suppress-notifications attacker intent."
+        },
+        {
+          "label": "A rule that sends a fake out-of-office to specific contacts.",
+          "rationale": "That is the social-engineering attacker pattern."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Often against IT policy but not attacker-shaped. The SOC weighs context. The Recommendation tells you which case this is."
+    },
+    {
+      "id": "pre-execute-check",
+      "type": "mcq",
+      "topic": "response-discipline",
+      "difficulty": "medium",
+      "prompt": "What do you check before declaring the inbox-rule playbook complete?",
+      "choices": [
+        {
+          "label": "Whether the destination email is also used elsewhere in the mailbox.",
+          "rationale": "Defensible but secondary. The check the lesson centres on is different."
+        },
+        "Whether the mailbox also has ForwardingSmtpAddress or ForwardingAddress set.",
+        {
+          "label": "Skip any pre-check; execute exactly as written.",
+          "rationale": "Execute the Recommendation, yes. The check for an additional forwarder is what makes the response complete."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Since the second mechanism may be present alongside the rule. The lesson's central discipline: do not remove one of two mechanisms. Check for both."
+    }
+  ]
+}

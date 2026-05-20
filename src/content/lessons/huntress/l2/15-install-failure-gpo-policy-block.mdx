@@ -1,0 +1,85 @@
+---
+slug: 15-install-failure-gpo-policy-block
+vendor: huntress
+level: l2
+title: Install failure, GPO or policy block
+summary: Policy blocks look like AV blocks on the install log, but the fix lives in GPO, MDM, AppLocker, or WDAC. Reading the system event log alongside the install log is what separates them.
+estimatedMinutes: 7
+order: 15
+topics:
+  - agent
+  - install-failure
+  - gpo
+  - applocker
+  - policy
+updated: 2026-05-20
+---
+
+Policy blocks look like AV blocks at first glance: the install fails with permissions errors. The fix is in an entirely different place. AV blocks are about exclusions in the AV console; policy blocks are about Group Policy, MDM (Intune, Jamf), AppLocker, Windows Defender Application Control (WDAC), or local security policies. Mis-diagnose policy as AV and you'll get nowhere asking for AV exclusions. The diagnostic that separates them is reading the install log and the system event log together.
+
+## What a policy-blocked install looks like
+
+Symptoms that point at policy rather than AV:
+
+- "Access denied" or "operation requires elevation" on a job running as a system account that *should* have the elevation.
+- AppLocker, WDAC, or Software Restriction Policy events in the Windows Event Log around the install timestamp.
+- The installer runs to completion but the service either doesn't get created or doesn't start, with policy-shaped event-log entries.
+- MDM (Intune, Jamf) reports the package as "failed to install" with a policy-related reason code.
+
+The event log is what names the mechanism. Each mechanism fires under its own channel:
+
+| Mechanism | Event-log channel |
+|---|---|
+| AppLocker | `Microsoft-Windows-AppLocker` |
+| WDAC | `Microsoft-Windows-CodeIntegrity` |
+| Local security policy | System log (denial entries) |
+| Intune (MDM) | MDM-reported reason code |
+
+What looks like a policy block but isn't: an AV product that happens to log through a policy mechanism (still AV, lesson 14); a captive portal blocking the first phone-home (lesson 17, post-install).
+
+## The fix path
+
+The runbook lists the specific objects to allow: installer binary, agent binary, service paths, signed certificate, registry paths. The objects are specific because the customer's policy is specific; a blanket "allow all" rule weakens the policy the customer configured for a reason.
+
+<StepThrough client:load>
+  <Step title="Pull the install log from the endpoint">
+    Find the specific operation that failed. Your runbook has the documented log path.
+  </Step>
+  <Step title="Pull the Windows Event Log around the install timestamp">
+    Application and System logs together. AppLocker fires under `Microsoft-Windows-AppLocker`; WDAC under `Microsoft-Windows-CodeIntegrity`. macOS and Linux have equivalents in the runbook.
+  </Step>
+  <Step title="Identify which policy mechanism fired">
+    GPO via AD, Intune via MDM, AppLocker, WDAC, or local security policy. Each has a different fix surface.
+  </Step>
+  <Step title="Confirm who owns the policy">
+    Your MSP, or the customer? Some customers run their own AD or MDM; some delegate to the MSP. The fix path depends on who applies the change.
+  </Step>
+  <Step title="Apply the documented allow rule at the policy level">
+    Add the Huntress objects from the runbook's canonical list. Push via the policy mechanism (GPO, MDM, AppLocker policy), not the endpoint. Local-only fixes evaporate at the next refresh.
+  </Step>
+  <Step title="Wait for policy refresh, then re-run the install">
+    `gpupdate /force` on Windows, equivalent for MDM, or just wait the refresh cycle. Verify enrolment in the portal per lesson 13.
+  </Step>
+</StepThrough>
+
+The PSA should name the policy mechanism (GPO, Intune, WDAC, AppLocker) and the rule that was added. The next agent upgrade can fail under the same policy if the binary path drifts (see lesson 20); the documented rule makes recognition fast.
+
+## When to escalate
+
+- The policy mechanism is one your MSP doesn't manage (customer's own AD, customer's own MDM). Customer-side change request; the customer's IT contact owns the rule.
+- The customer's IT resists adding the allow rule "because policy is locked." That's a change-management negotiation, not a tech fix. Bump.
+- The policy mechanism is one neither side recognises (a third-party endpoint-hardening product, a legacy mechanism). If neither you nor the customer's IT can name it, escalate before guessing.
+
+## A worked ticket: Able Moose Accounting (executive scope)
+
+You push the Huntress install to `WS-AMOOSE-EXE01`, the CEO's laptop. The RMM reports failure with "access denied." You assumed AV at first and confirmed with Able Moose's IT that the Bitdefender exclusions are in place. The install still fails the same way.
+
+The wrong move is re-confirming the Bitdefender exclusions for a third time. The exclusions are in place; the failure is something else. The right move: pull the Windows Event Log on `WS-AMOOSE-EXE01` around the install timestamp.
+
+The event log shows AppLocker firing under `Microsoft-Windows-AppLocker/EXE and DLL` against the Huntress installer binary. Able Moose's IT confirms AppLocker is GPO-managed on this OU because executives have a tighter policy than the rest of the workforce.
+
+<Callout type="warn" title="Don't bypass the customer's policy">
+Two anti-fixes to drop. Asking the customer to remove the endpoint from the tighter OU temporarily weakens a policy they configured on purpose. Bypassing AppLocker via PowerShell as a one-off install evades a security control the customer set up deliberately, and the next agent upgrade fails the same way. The right move is asking the customer's IT to add the Huntress installer, agent binary, and signed certificate to the AppLocker allow-list at the GPO level, push the policy, and wait for refresh.
+</Callout>
+
+<Checkpoint slug="huntress-operations-checkpoint-install-failure-gpo-policy-block" client:visible />

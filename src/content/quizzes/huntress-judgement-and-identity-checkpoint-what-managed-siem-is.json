@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-what-managed-siem-is",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: what Managed SIEM is",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-siem-intro-optional",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "easy",
+      "prompt": "Course 7 is described as optional. What does \"optional\" mean here?",
+      "choices": [
+        "The course only applies if your MSP subscribes to Huntress Managed SIEM;",
+        {
+          "label": "The course is recommended but not graded.",
+          "rationale": "Optional refers to product subscription, not assessment weight."
+        },
+        {
+          "label": "SIEM doesn't differ from EDR or ITDR, so you can skip it.",
+          "rationale": "The course exists because SIEM adds new sources and diagnostics. The optional flag is about whether the MSP buys the product."
+        },
+        {
+          "label": "The course is being retired in a future release.",
+          "rationale": "Nothing in the lesson signals retirement."
+        }
+      ],
+      "correct": 0,
+      "explanation": "If not, skip Course 7 and pick up at Course 8. Optional means the MSP may or may not subscribe to Managed SIEM. If not, Course 7 doesn't apply day-to-day."
+    },
+    {
+      "id": "ck-siem-intro-response-model",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "easy",
+      "prompt": "When a SIEM Incident Report lands, what about the response shape is the same as EDR and ITDR?",
+      "choices": [
+        {
+          "label": "The tech writes detections after reviewing the incident.",
+          "rationale": "Detection writing is above the SIEM ceiling."
+        },
+        {
+          "label": "The tech investigates the log lines from scratch before acting.",
+          "rationale": "The SOC has already triaged. Investigating from scratch is the cardinal mistake."
+        },
+        "The header structure, severity bands, SOC-has-triaged keystone.",
+        {
+          "label": "The customer's IT contact triages the report before it reaches the helpdesk.",
+          "rationale": "The Incident Report comes from the SOC, not the customer."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Read-the-Recommendation-and-act discipline. The skeleton, severity bands, reading order, and Recommendation discipline are identical across all three surfaces."
+    },
+    {
+      "id": "ck-siem-intro-pre-endpoint",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "Which of these is something SIEM sees that EDR and ITDR don't?",
+      "choices": [
+        {
+          "label": "Process trees on Windows endpoints with the Huntress agent.",
+          "rationale": "That is EDR territory."
+        },
+        "Pre-endpoint activity: firewall, VPN.",
+        {
+          "label": "OAuth grants on Microsoft 365 mailboxes.",
+          "rationale": "That is ITDR's surface."
+        },
+        {
+          "label": "Whether AV is installed on a host.",
+          "rationale": "Not a visibility question on any Huntress surface."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Or SaaS log activity from before an attacker has a foot on an endpoint. SIEM ingests logs from sources EDR and ITDR don't reach, catching pre-endpoint movement in firewall, VPN, and SaaS logs."
+    },
+    {
+      "id": "ck-siem-intro-detection-myth",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "A new tech says \"SIEM means I have to learn to write detections.\" What is the correct response?",
+      "choices": [
+        {
+          "label": "Detection writing is optional but encouraged once the tech is confident.",
+          "rationale": "Detection writing is not a tech action regardless of confidence."
+        },
+        {
+          "label": "Only senior techs write detections; helpdesk runs them in a sandbox first.",
+          "rationale": "This invents a workflow the lesson doesn't describe. Detection writing belongs to Huntress."
+        },
+        {
+          "label": "Detections are auto-generated from the customer's RMM data.",
+          "rationale": "The Huntress SOC writes and tunes detections, not the RMM."
+        },
+        "Managed SIEM means Huntress owns detection writing and tuning."
+      ],
+      "correct": 3,
+      "explanation": "The tech responds to Incident Reports. Detection authorship is above the ceiling. Managed SIEM means Huntress writes and tunes detections. The helpdesk responds to Incident Reports the same way as on EDR and ITDR."
+    },
+    {
+      "id": "ck-siem-intro-complement",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "A peer claims SIEM is an alternative to EDR and ITDR and you can pick one. Why is that wrong?",
+      "choices": [
+        {
+          "label": "SIEM costs more, so customers stack them for budget reasons.",
+          "rationale": "Wrong commercial framing. The reason is complementary visibility, not price."
+        },
+        "The three surfaces are complementary.",
+        {
+          "label": "EDR and ITDR are being deprecated in favour of SIEM.",
+          "rationale": "All three remain active surfaces."
+        },
+        {
+          "label": "Huntress only sells the three together as a bundle.",
+          "rationale": "SIEM is optional per subscription."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Customers with all three see across endpoints, identities, and log sources together. EDR, ITDR, and SIEM see different things. They complement each other rather than compete."
+    },
+    {
+      "id": "ck-siem-intro-pricing",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "easy",
+      "prompt": "How is Managed SIEM priced compared to traditional SIEMs?",
+      "choices": [
+        {
+          "label": "Per-event-volume with hourly billing.",
+          "rationale": "That is what Huntress differentiates against, not what they do."
+        },
+        {
+          "label": "Per-endpoint, same as EDR.",
+          "rationale": "SIEM is per-source, not per-endpoint."
+        },
+        "Per-data-source with predictable pricing.",
+        {
+          "label": "Free for the first 90 days, then per-endpoint.",
+          "rationale": "Invented detail not in the lesson."
+        }
+      ],
+      "correct": 2,
+      "explanation": "In contrast to event-volume pricing common elsewhere. Huntress prices Managed SIEM per data source with predictable costs, rather than per event volume."
+    },
+    {
+      "id": "ck-siem-intro-evidence-shape",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "How does the Evidence in a SIEM Incident Report typically look different from an EDR report?",
+      "choices": [
+        "Log lines with timestamps, source IPs.",
+        {
+          "label": "Identical to EDR: process trees and command-line strings.",
+          "rationale": "Process trees are EDR's Evidence shape."
+        },
+        {
+          "label": "A free-text summary from the customer's IT contact.",
+          "rationale": "Evidence comes from log data, not the customer."
+        },
+        {
+          "label": "Screenshots of the SOC analyst's workstation.",
+          "rationale": "Invented and unrelated to the platform."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Event types rather than process trees or sign-in details. SIEM Evidence contains log lines with timestamps and fields from one or more sources, not the process trees of EDR or sign-in events of ITDR."
+    },
+    {
+      "id": "ck-siem-intro-edr-clean",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "hard",
+      "prompt": "You blocked a firewall destination per a SIEM Recommendation. EDR shows no related incident on the named host. The Recommendation said \"check for EDR signals,\" not \"isolate.\" What do you do?",
+      "choices": [
+        {
+          "label": "Conclude the firewall log was a false positive since EDR doesn't agree.",
+          "rationale": "SIEM's value is catching pre-endpoint signal before EDR sees it. Absence of EDR signal does not override the SIEM Recommendation."
+        },
+        {
+          "label": "Open an EDR isolation on the host because SIEM raised an incident on it.",
+          "rationale": "The Recommendation said \"check,\" not \"isolate.\" Adding isolation goes beyond what the SOC asked for."
+        },
+        "Document the EDR clean state in the Incident Report note."
+      ],
+      "correct": 2,
+      "explanation": "Close with the firewall block complete. The cross-check is documentation, not a veto. The Recommendation asked for an EDR cross-check. You did it, the result was clean, and that finding goes into documentation. Absence of EDR signal does not override the SIEM Recommendation."
+    },
+    {
+      "id": "ck-siem-intro-surface-match",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "Match Managed SIEM to what it primarily sees.",
+      "choices": [
+        {
+          "label": "Endpoint telemetry: process trees and persistence mechanisms.",
+          "rationale": "That is EDR's primary visibility."
+        },
+        {
+          "label": "Identity events: sign-ins, mailbox rules, OAuth grants.",
+          "rationale": "That is ITDR's primary visibility."
+        },
+        "Logs across sources: network device logs.",
+        {
+          "label": "Patch compliance percentages and vendor release notes.",
+          "rationale": "Patch compliance is the RMM's job, not any Huntress surface."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Firewall logs, application logs, SaaS logs EDR and ITDR don't cover. SIEM ingests logs across sources the other surfaces don't reach: firewalls, VPN, SaaS apps, custom applications."
+    },
+    {
+      "id": "ck-siem-intro-escalate-reflex",
+      "type": "mcq",
+      "topic": "siem",
+      "difficulty": "medium",
+      "prompt": "A High SIEM Incident Report lands. The Recommendation is to block a firewall destination and cross-check EDR. A tech says: \"SIEM is unfamiliar, I should escalate to a senior.\" Is that the right call?",
+      "choices": [
+        {
+          "label": "Yes. Any SIEM-tagged report is senior territory until formal training.",
+          "rationale": "The disposition carries across surfaces. Unfamiliarity with SIEM-shaped Evidence is not an escalation trigger."
+        },
+        "No. Read the Recommendation in the standard order.",
+        {
+          "label": "Yes. Block the firewall destination first, then escalate before the EDR cross-check.",
+          "rationale": "The EDR cross-check is in scope and the escalation is not warranted."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Run the firewall block per the runbook, cross-check EDR. The fundamentals carry across. The reading order, Recommendation discipline, and cross-surface verification carry across from EDR and ITDR. Unfamiliarity is not itself an escalation trigger."
+    }
+  ]
+}

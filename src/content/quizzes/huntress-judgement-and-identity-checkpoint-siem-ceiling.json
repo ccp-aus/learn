@@ -1,0 +1,250 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-siem-ceiling",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: where the ceiling sits on SIEM",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-ceiling-in-scope",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "easy",
+      "prompt": "The lesson names four categories of in-scope SIEM work. Which list captures them?",
+      "choices": [
+        {
+          "label": "Detection tuning, query authoring, retention configuration, ingestion architecture.",
+          "rationale": "Inverted. That is the out-of-scope list."
+        },
+        "Alert response, data-source health from a runbook.",
+        {
+          "label": "Whatever the customer asks for, as long as it is technically possible.",
+          "rationale": "Customer request is not the scope test."
+        },
+        {
+          "label": "Whatever the Huntress portal exposes to the tech account.",
+          "rationale": "Visibility is not authorisation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Routine data-source additions with senior authorisation, SOC coordination on alert specifics. Four categories and only four: alert response, data-source health, routine source additions, and SOC coordination."
+    },
+    {
+      "id": "ck-ceiling-tuning",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "easy",
+      "prompt": "A peer says: \"I see this detection fires false-positive every other day. I'm going to tweak the threshold in the rule editor. I have access.\" What is wrong with this plan?",
+      "choices": [
+        {
+          "label": "Nothing. If the tech has access, the change is authorised.",
+          "rationale": "Visibility is not authorisation. This is the lesson's named misconception."
+        },
+        "Direct detection tuning is above the SIEM ceiling.",
+        {
+          "label": "The plan is fine but the tech should add a comment in the rule editor.",
+          "rationale": "Documentation does not change the authorisation. The change itself should not happen at the helpdesk level."
+        },
+        {
+          "label": "Nothing if the change is small enough.",
+          "rationale": "'Small enough' is not the threshold. The change itself is out of scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Regardless of how reasonable the change looks. The exclusion-request flow is the right path. Detection tuning is the canonical above-the-ceiling action. The exclusion-request flow exists for recurring benign patterns."
+    },
+    {
+      "id": "ck-ceiling-query",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "You see a SIEM Incident Report and want to run a query to investigate beyond the Recommendation. What is the right disposition?",
+      "choices": [
+        {
+          "label": "Write the query. The portal exposes the query interface to your account.",
+          "rationale": "Visibility is not authorisation."
+        },
+        "Do not write the query. Custom query authoring is above the helpdesk ceiling.",
+        {
+          "label": "Write the query but only for personal learning, not to act on.",
+          "rationale": "Query authorship itself is the line, not whether the result is acted on."
+        },
+        {
+          "label": "Ask the customer's IT manager to run the equivalent query.",
+          "rationale": "The customer is not the body that runs SIEM-side investigation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Ask the SOC a factual clarifying question or surface to senior. Ad-hoc query authoring is senior-or-above territory. Clarifying questions to the SOC and senior escalation are the right surfaces for doubt."
+    },
+    {
+      "id": "ck-ceiling-retention",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "The customer's IT manager asks: \"Can you bump our SIEM log retention from 90 days to 365 days? We have a compliance audit.\" What is the right disposition?",
+      "choices": [
+        {
+          "label": "Run the retention change. The portal exposes the setting.",
+          "rationale": "Visibility is not authorisation. Retention is a durable architecture decision."
+        },
+        "Surface to senior.",
+        {
+          "label": "Tell the customer to wait until after the audit.",
+          "rationale": "The audit timing is when senior involvement is most useful, not a reason to delay."
+        },
+        {
+          "label": "Set it to 180 days as a compromise.",
+          "rationale": "Unauthorised partial change. The change itself is out of scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Retention changes affect compliance and storage costs. Retention changes affect compliance posture and storage costs. They are senior territory at the MSP level."
+    },
+    {
+      "id": "ck-ceiling-asymmetric-risk",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "hard",
+      "prompt": "The lesson names three reasons the SIEM ceiling matters more than feel. Which describes the asymmetric-risk argument?",
+      "choices": [
+        "A detection-tuning change that reduces noise may also blind the SOC to a real attack pattern.",
+        {
+          "label": "Because tuning changes are visible in the audit log.",
+          "rationale": "Surveillance is not the asymmetric-risk argument."
+        },
+        {
+          "label": "Because the customer pays per detection.",
+          "rationale": "Invented commercial detail."
+        },
+        {
+          "label": "Because the tech is junior and the analyst is senior.",
+          "rationale": "The reason is asymmetric risk and architecture durability, not seniority ranking."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Visible noise is the cost. Silent missed detections are the danger. Reducing noise is visible. Missed detections are silent. The risks are not symmetric, which is why tuning decisions belong above the helpdesk ceiling."
+    },
+    {
+      "id": "ck-ceiling-exclusion-flow",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "hard",
+      "prompt": "You have 12 benign SIEM incidents over three weeks, same pattern, SOC-classified benign each time. The IT manager wants them to stop. You can see the rule threshold in the portal. What do you do?",
+      "choices": [
+        {
+          "label": "Adjust the detection threshold yourself. The SOC's repeated benign classification justifies the change.",
+          "rationale": "Direct tuning is above the ceiling regardless of how justified it looks."
+        },
+        "File an exclusion request via the documented path: name the incidents.",
+        {
+          "label": "Close future recurrences as dismiss to bypass the noise.",
+          "rationale": "Informal dismissal bypasses the review process."
+        },
+        {
+          "label": "Tell the customer you cannot make them stop.",
+          "rationale": "The exclusion path exists for this case. Refusing without naming it is unhelpful."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The pattern, the SOC's benign classifications, and the customer's confirmation. The exclusion-request flow is the right path. The case meets the bar: recurring incidents, SOC-classified benign, customer-confirmed legitimate, narrow scope."
+    },
+    {
+      "id": "ck-ceiling-senior-directed",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "hard",
+      "prompt": "The senior asks you to run a query on SIEM data to confirm exclusion scope. Custom queries are above the ceiling. Do you run it?",
+      "choices": [
+        {
+          "label": "Refuse. Queries are above the ceiling and that does not change.",
+          "rationale": "The ceiling moves temporarily when the senior moves it explicitly."
+        },
+        "Run the query exactly as the senior asked, document the result, return the data.",
+        {
+          "label": "Run the query and also pull related data the senior did not ask for.",
+          "rationale": "The senior named the scope. Expanding it is overstepping."
+        },
+        {
+          "label": "Ask the customer's IT manager to run the query instead.",
+          "rationale": "Wrong delegation. The senior asked you specifically."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Do not expand the scope. Senior-directed delegation moves the ceiling temporarily for the named task. Run exactly what was asked, document, return. The line moves back when the task is done."
+    },
+    {
+      "id": "ck-ceiling-action-classify",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "Classify this action: \"Adjust a detection rule's threshold in the SIEM rule editor.\"",
+      "choices": [
+        {
+          "label": "In scope (alert response).",
+          "rationale": "Alert response is the six-step flow, not rule editing."
+        },
+        "Above the ceiling (detection tuning).",
+        {
+          "label": "In scope if the change is minor.",
+          "rationale": "Size of change does not affect scope classification."
+        },
+        {
+          "label": "In scope if the customer approves.",
+          "rationale": "Customer approval is not the scope test."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Detection tuning is the canonical above-the-ceiling action regardless of magnitude or customer approval."
+    },
+    {
+      "id": "ck-ceiling-source-add-no-auth",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "A customer requests a new SIEM source. You have not seen senior authorisation but your account can click 'Add Source' in the portal. What do you do?",
+      "choices": [
+        {
+          "label": "Add the source. Your account has the permission.",
+          "rationale": "Visibility is not authorisation."
+        },
+        {
+          "label": "Add the source and bill the customer afterwards.",
+          "rationale": "The tech does not make billing decisions."
+        },
+        "Do not add the source.",
+        {
+          "label": "Tell the customer Huntress does not allow that source.",
+          "rationale": "The constraint is your MSP's authorisation process, not a Huntress limitation."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Per-source pricing means any addition is a senior decision. Surface the request. Every source addition has billing implications. Senior authorisation is required even when the portal lets you click the button."
+    },
+    {
+      "id": "ck-ceiling-ingestion-arch",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "You think you could route a new source through an existing forwarder by adapting the config slightly. Is this in scope?",
+      "choices": [
+        "No. Ingestion architecture.",
+        {
+          "label": "Yes. Minor adaptations are fine if they save time.",
+          "rationale": "Architecture changes do not get smaller because they save time."
+        },
+        {
+          "label": "Yes. Runbook silence is implicit approval.",
+          "rationale": "Silence is the trigger to bump, not to improvise."
+        },
+        {
+          "label": "Yes if the customer's IT manager agrees.",
+          "rationale": "Customer agreement is not the scope test."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(where forwarders sit, how sources route, whether to consolidate) is senior territory. Forwarder routing and source consolidation are ingestion-architecture decisions. They persist and create downstream dependencies the senior needs to own."
+    }
+  ]
+}

@@ -13,13 +13,22 @@
       "topic": "priority-inversion",
       "prompt": "A new client onboarding sets up two mail providers as MX records: their primary at priority 30 and their backup at priority 10. Which one will sending servers actually try first?",
       "choices": [
-        "The primary at 30 — higher priority number means higher preference.",
-        "The backup at 10 — but that's the opposite of what they intended, because lower priority number is preferred. The records need to be swapped (primary at 10, backup at 30).",
-        "Both at once — parallel delivery.",
-        "Whichever the receiver's DNS cache returns first."
+        {
+          "label": "The primary at 30; higher number means higher preference.",
+          "rationale": "MX priority is inverted: lower number = higher preference. This is the most common MX misconception."
+        },
+        "The backup at 10, because lower number = preferred.",
+        {
+          "label": "Both at once; MX delivers in parallel to all listed hosts.",
+          "rationale": "MX delivery is sequential by priority, not parallel. Senders try the lowest number first."
+        },
+        {
+          "label": "Whichever the receiver's DNS cache returns first.",
+          "rationale": "Cache order doesn't determine MX preference. The priority field does."
+        }
       ],
       "correct": 1,
-      "explanation": "Lower priority = higher preference (tried first). The 'primary at 30 / backup at 10' setup inverts the intent; sending servers will try the backup first and only fall through to the primary if the backup is unreachable. Swap the numbers."
+      "explanation": "The values need swapping. Lower priority = higher preference (tried first). The 'primary at 30 / backup at 10' setup inverts the intent; senders try the backup first and only fall through to the primary if it's unreachable. Swap the numbers."
     },
     {
       "id": "ck-mx-target-ip",
@@ -28,13 +37,22 @@
       "topic": "mx-target-rules",
       "prompt": "A vendor's setup instructions ask you to publish an MX record pointing at `198.51.100.42` (an IP address). Should you?",
       "choices": [
-        "Yes — modern receivers accept IP-as-MX even though the spec discourages it.",
-        "No. MX targets must be hostnames with A/AAAA records, not IP addresses. Ask the vendor for a hostname; reputable mail providers publish one.",
-        "Yes — wrap the IP in square brackets for the IP-literal form.",
-        "Only if the IP is in the same /24 as the receiver's network."
+        {
+          "label": "Yes; modern receivers accept IP-as-MX even though the spec discourages it.",
+          "rationale": "Many receivers reject IP-as-MX outright. The mail bounces silently."
+        },
+        "No. MX targets must be hostnames, not IPs. Ask the vendor for a hostname.",
+        {
+          "label": "Yes; wrap the IP in square brackets for the IP-literal form.",
+          "rationale": "Square-bracket IP literals work in SMTP EHLO, not in MX record targets."
+        },
+        {
+          "label": "Only if the IP is in the same /24 as the receiver's network.",
+          "rationale": "Network proximity has nothing to do with MX target format rules."
+        }
       ],
       "correct": 1,
-      "explanation": "RFC 5321 requires MX targets to be hostnames. Some DNS hosts let you save the IP form; many receivers reject and the mail bounces. You don't paper over vendor sloppiness with broken DNS."
+      "explanation": "RFC 5321 requires MX targets to be hostnames with A/AAAA records, not bare IPs. Some DNS hosts let you save the IP form, but many receivers reject it and mail bounces. Ask the vendor for a hostname; reputable mail providers publish one."
     },
     {
       "id": "ck-mx-cname-target",

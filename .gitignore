@@ -35,7 +35,9 @@ src/pagefind/
 
 # Belt-and-braces — the public site repo must NEVER carry private artifacts.
 #
-# learn-vault/  is the LLM-maintained Obsidian brain, kept private (one dir up).
+# learn-vault/  The vault lives in the Obsidian MCP only; nothing on disk.
+#               This glob is belt-and-braces against accidental copy-in
+#               (e.g. someone exporting the vault into this tree).
 # raw/ and ingest/  no longer exist locally — vendor KB scraping/embedding is
 #                   handled by the external vendor-rag MCP. Kept here as a
 #                   safety net in case anyone ever copies the RAG's raw output

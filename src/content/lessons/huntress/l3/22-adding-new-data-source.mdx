@@ -1,0 +1,86 @@
+---
+slug: 22-adding-new-data-source
+vendor: huntress
+level: l3
+title: "Adding a new data source from a runbook"
+summary: "Adding a data source is routine work when a runbook covers it and senior authorisation is in place. Without either, it is an architecture decision that belongs above the helpdesk ceiling."
+estimatedMinutes: 7
+order: 22
+topics:
+  - siem
+  - data-source
+  - runbook
+updated: 2026-05-20
+---
+
+Adding a data source is routine when there is a runbook. It is risky when there is not. The runbook handles the architecture decisions (which mechanism, what auth, what scope) that the helpdesk does not make on the fly. This lesson is the in-scope side: running a documented source addition cleanly and verifying it works.
+
+## Pre-flight
+
+Before adding any source, confirm four things:
+
+1. **The runbook covers this source type.** Common covered sources: standard firewall models via HEC, documented SaaS integrations (Okta, M365, Google Workspace), Windows/Linux endpoints already under EDR.
+2. **The addition is authorised.** Managed SIEM is per-source priced. Every addition has billing implications. Authorisation comes from the senior or account manager who coordinated with the customer. "The customer asked us to add it" is not authorisation.
+3. **The mechanism is identified.** Agent-collected, HEC, or API integration. Each has its own setup pattern.
+4. **Customer-side prerequisites are ready.** The customer's admin for an OAuth consent flow. The customer's network team for a HEC source's firewall rule.
+
+If the runbook is silent on the specific source variant, bump. If authorisation is unclear, bump. Improvising an architecture decision creates downstream commitments the senior did not make.
+
+## Procedure by mechanism
+
+**Agent-collected.** If the endpoint already has a Huntress agent and the customer's SIEM module is licensed, enable SIEM ingestion for that endpoint in the portal. The agent picks up the configuration on its next check-in and begins forwarding OS-level logs. Pattern: portal toggle, wait for check-in, verify source appears, verify event volume.
+
+**HEC.** The runbook specifies the customer's source device, the syslog configuration, the HEC token, and the forwarder if one bridges syslog to HEC. Run the configuration per the runbook. The first event from the source arrives shortly after. The portal's data-source view shows the new source with a healthy status and a moving last-event timestamp.
+
+**API integration.** The runbook specifies the SaaS source, the OAuth consent or token issuance flow, the required customer-side admin role (Global Admin on M365, super-admin on Google Workspace, Okta admin), and the scope to grant. Run the consent flow with the customer's admin on the call. Same patterns as earlier SaaS-integration lessons: explain the scopes, stay on the call during consent, verify the integration shows authenticated and healthy.
+
+## Verify: mechanical and volume
+
+For any new source, verify both layers:
+
+**Mechanical.** The source appears in the customer's data-source list with the expected name. Status shows green/healthy. Events begin arriving.
+
+**Volume.** The event volume matches what you would expect for the source type and the customer's environment. A Cisco ASA at a busy office producing 50 events per minute may be normal. The same model at a major site with heavy traffic should produce more. Compare against the runbook's expected range or against similar customers. A source can be technically working but logging a narrow subset of events (syslog level set too high, for example), which the SOC would not notice immediately.
+
+Document the addition in the PSA: source name, mechanism, when added, who authorised, runbook reference, and observed event volume.
+
+## Common mistakes
+
+- **Adding a source without senior authorisation** because "the customer asked." Per-source pricing makes every addition a commercial decision.
+- **Skipping the volume check.** "Configured, must be working." A source that ingests a subset of expected events creates a false sense of coverage.
+- **Customising the runbook on the fly** to fit a different customer environment. Runbooks reflect standard setups. Differences the runbook does not cover are ingestion-architecture questions, above the helpdesk ceiling.
+
+<Callout type="warn" title="Runbook silence is a bump trigger">
+If the runbook does not cover the specific source variant, bump rather than adapt. The architecture decision is not yours to make. The senior may authorise a variant or push back on the timeline.
+</Callout>
+
+## Decision walkthrough
+
+The senior asks you to add a SIEM source for a customer's Cisco ASA firewall. The runbook describes the setup: configure the ASA to send syslog to a customer-side HEC bridge already running at the site. The bridge translates syslog to HEC and pushes to Huntress. Authorisation is in writing.
+
+<DecisionTree client:load
+  title="Adding a Cisco ASA HEC source"
+  description="The runbook covers the source. Senior authorisation is in place. The question is whether to follow the runbook order, skip steps, or improvise."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What is your first step?", choices: [
+      { label: "Configure the ASA syslog forwarding directly to Huntress, bypassing the HEC bridge", next: "skip-bridge" },
+      { label: "Run the runbook: confirm bridge operational, configure ASA to bridge, verify bridge forwarding, verify portal ingestion", next: "runbook" },
+      { label: "Add the source manually in the Huntress portal first, then configure the ASA", next: "wrong-order" },
+    ]},
+    { type: "question", id: "runbook", prompt: "The portal shows the new source green with 50 events/minute. Done?", choices: [
+      { label: "Yes. Green status and moving last-event timestamp are sufficient.", next: "half-done" },
+      { label: "Verify the volume matches expected range for this customer, then document.", next: "complete" },
+    ]},
+    { type: "outcome", id: "complete", label: "Mechanical and volume verification complete", tone: "success",
+      body: "Right read. The source is technically healthy and the volume matches expected patterns. Document the source name, mechanism, authorisation, and observed volume in the PSA." },
+    { type: "outcome", id: "half-done", label: "Missing the volume check", tone: "warn",
+      body: "The mechanical verification is done, but 50 events/minute may be far below expected for a busy site. The volume check catches cases where the ASA's syslog level is set too high and only a subset of events is flowing." },
+    { type: "outcome", id: "skip-bridge", label: "Skipping a runbook step", tone: "bad",
+      body: "The runbook specifies the HEC bridge. The ASA's syslog client may not handle TLS-to-Huntress directly. Bypassing a step the architecture depends on creates an undocumented path." },
+    { type: "outcome", id: "wrong-order", label: "Wrong order", tone: "bad",
+      body: "Portal-side source registration is usually automatic once the bridge sends the first event with the right token. Manual portal addition first creates inconsistency." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-adding-new-data-source" client:visible />

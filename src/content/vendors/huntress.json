@@ -5,6 +5,7 @@
   "summary": "Huntress is an MSP-native managed security suite. The pillars are Managed EDR (endpoint agent and Process Insights), Managed ITDR (identity threat detection for Microsoft 365 and Google Workspace), Managed SIEM (filtered log ingestion with the SOC reviewing the data), Managed Antivirus (a Defender management plane), and Managed Security Awareness Training. A 24x7 Security Operations Centre triages signals across all of those, confirms compromises, and delivers Incident Reports with concrete remediation steps. MSPs deploy it as the second-line detection layer alongside an RMM and a PSA.",
   "accent": "oklch(0.65 0.20 145)",
   "website": "https://www.huntress.com/",
-  "status": "planned",
+  "kind": "vendor",
+  "status": "live",
   "order": 30
 }

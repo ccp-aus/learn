@@ -1,0 +1,634 @@
+{
+  "slug": "huntress-operations-final",
+  "course": "huntress-operations",
+  "kind": "final",
+  "title": "Huntress Operations: final",
+  "drawCount": 10,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "c2-ceiling-thread",
+      "type": "mcq",
+      "topic": "escalation-ceiling",
+      "difficulty": "medium",
+      "prompt": "What's the common thread among the items that escalate to a senior across the customer lifecycle?",
+      "choices": [
+        "Money, contract, or irreversible portal state.",
+        {
+          "label": "Anything that takes longer than 20 minutes to complete in the portal.",
+          "rationale": "Duration isn't the criterion. Some long tasks are tech work; some short clicks are senior decisions."
+        },
+        {
+          "label": "Anything that involves opening a Huntress support ticket.",
+          "rationale": "Support tickets are a route, not the criterion. Most tech work doesn't involve support."
+        },
+        {
+          "label": "Anything that requires the customer's CEO on a call.",
+          "rationale": "The criterion is the category of decision, not who happens to be on the call."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Commercial, scope, and irreversible-state decisions stay with the senior. The escalation ceiling is the same line that opens and closes the customer-lifecycle course."
+    },
+    {
+      "id": "c2-bulk-rollout-worst-failure",
+      "type": "mcq",
+      "topic": "onboarding",
+      "difficulty": "easy",
+      "prompt": "What is the worst single failure mode in bulk agent rollout?",
+      "choices": [
+        "Wrong-org-key enrolment, agents land in the wrong customer's tenant.",
+        {
+          "label": "5% of endpoints failing to install on first push, requiring a second RMM job run to pick up stragglers.",
+          "rationale": "Normal and manageable; not the worst failure mode."
+        },
+        {
+          "label": "Some endpoints taking 30 minutes to phone home.",
+          "rationale": "That's slow, not a failure at all."
+        },
+        {
+          "label": "RMM job logs being slow to load.",
+          "rationale": "Operational annoyance, not a failure mode."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Wrong-tenant enrolment is the worst class of failure. The installer was bundled with the wrong org key, so agents land under a different customer. The global Agents view filtered by enrolment time catches this in the first ten minutes."
+    },
+    {
+      "id": "c2-ad-not-rmm",
+      "type": "mcq",
+      "topic": "coverage-verification",
+      "difficulty": "medium",
+      "prompt": "AD has 247 computer objects, RMM has 198, so 49 endpoints are in AD but not in RMM. What's the right response?",
+      "choices": [
+        {
+          "label": "Push the agent to all 49 to close the coverage gap.",
+          "rationale": "You'd be adding 49 unmanaged endpoints into the rollout without senior sign-off; deployment-strategy decision."
+        },
+        "Bump to a senior, surface the count, let them decide scope.",
+        {
+          "label": "Ignore them; they're not in the RMM, so they're not the MSP's concern and shouldn't be in the rollout.",
+          "rationale": "The MSP may or may not want them in scope; that's exactly the senior's call. Ignoring closes the question without a decision."
+        },
+        {
+          "label": "Open a Huntress support ticket asking what to do.",
+          "rationale": "Not a Huntress question; it's an MSP-internal deployment-strategy question."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Deployment-strategy question. AD has 247, RMM has 198, so 49 are unmanaged. Surface the gap cleanly and let the senior decide scope."
+    },
+    {
+      "id": "c2-offboarding-sequence",
+      "type": "order",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "Order the six offboarding steps.",
+      "items": [
+        "Pause new alert notifications for the customer's organisation.",
+        "Disconnect ITDR integrations (M365 and/or GWS).",
+        "Bulk uninstall agents.",
+        "Disconnect SIEM data sources (if applicable).",
+        "Archive or export incidents per retention policy.",
+        "Raise the billing-closure ticket for the senior."
+      ],
+      "explanation": "Pause first so later steps don't fan alerts out. Identity before endpoint. Commercial wrap-up is the last, irreversible step the senior owns."
+    },
+    {
+      "id": "c2-uninstall-isnt-offboarding",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "\"Uninstalling the agents is offboarding.\" Why is this a misconception?",
+      "choices": [
+        "One of six steps; alone it leaves ITDR, SIEM, notifications, and billing still active.",
+        {
+          "label": "Uninstall is optional; ITDR disconnect alone is enough to fully close out a customer.",
+          "rationale": "Inverts the lesson. Both are required."
+        },
+        {
+          "label": "Uninstall is the last step; everything before it is preparation.",
+          "rationale": "Uninstall is step 3, not last. Billing closure is last."
+        },
+        {
+          "label": "Uninstall triggers automatic ITDR disconnect.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Doing it alone leaves ITDR live, SIEM ingesting where applicable, notifications fanning out, and the org commercially open. Half-done offboardings are the most common state to inherit."
+    },
+    {
+      "id": "c2-tick-with-caveats",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "medium",
+      "prompt": "You sign off the final checklist with the agent line as \"ticked, with 4 of 198 resistant pending follow-up.\" What's the lesson's framing of this?",
+      "choices": [
+        "The half-done state in disguise. Resolve to zero or leave the item un-ticked.",
+        {
+          "label": "Fine, 196/198 is functionally zero for sign-off purposes and the remainder can be mopped up later.",
+          "rationale": "Worst response. The four are still phoning home."
+        },
+        {
+          "label": "Acceptable as long as the four are listed in a separate doc.",
+          "rationale": "Side-docs aren't substitutes for honest ticks on the primary checklist."
+        },
+        {
+          "label": "Required, Huntress reporting expects a tick to be filed even if work is outstanding.",
+          "rationale": "Not a real reporting expectation."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Either resolve to zero (or to a documented exception) or leave the item un-ticked. Don't pre-tick to look complete. The checklist's value is its honesty."
+    },
+    {
+      "id": "c2-offboarding-pause-pressure",
+      "type": "mcq",
+      "topic": "offboarding",
+      "difficulty": "hard",
+      "prompt": "Mid-offboarding. You paused notifications but haven't disconnected ITDR yet. The account manager pings: \"Customer's IT manager just emailed asking why his inbox is suddenly quiet. Can we turn notifications back on so he isn't confused?\"",
+      "choices": [
+        {
+          "label": "Turn notifications back on; the customer's IT manager has asked.",
+          "rationale": "The pause is there exactly because subsequent steps will generate signals; turning it back on now reverses the discipline."
+        },
+        "Keep the pause. The right response is a status update to the customer, not flipping notifications back on.",
+        {
+          "label": "Let the pause stay off and run the disconnect immediately; the inbox alerts from ITDR teardown won't be that bad.",
+          "rationale": "Bypasses the sequence's whole reason for being. Pause first means alerts don't fan out."
+        },
+        {
+          "label": "Tell the account manager to send the IT manager a screenshot of the silent inbox to confirm it's intentional.",
+          "rationale": "Doesn't address the issue. The customer needs a status comms, not evidence of silence."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The pause stays. Notifications were paused so the disconnect and uninstall steps don't fan alerts out. Customer perception is managed through the comms path, not by reversing the discipline."
+    },
+    {
+      "id": "c2-ceiling-across-lifecycle",
+      "type": "mcq",
+      "topic": "escalation-ceiling",
+      "difficulty": "hard",
+      "prompt": "Which set of situations across the onboarding-and-offboarding course all escalate to a senior under the same ceiling?",
+      "choices": [
+        "Skip GWS coverage; AD-not-in-RMM gap; keep OAuth artefact post-offboarding; delete the org.",
+        {
+          "label": "RMM job failing to run; portal showing fewer agents than the RMM after 10 minutes; trickling enrolment rate; resistant agents on the same site.",
+          "rationale": "All four are tech-work investigations, not commercial/scope/irreversible decisions."
+        },
+        {
+          "label": "Setting up the organisation name per runbook; applying the partner branding template; pushing the RMM job during the documented install window; ticking the verify checklist.",
+          "rationale": "All four are documented runbook execution, explicitly in-scope tech work."
+        },
+        {
+          "label": "Reading the analyst's recommendation; following the recommendation; closing an incident per the recommendation; documenting the close.",
+          "rationale": "All four are routine incident triage work; no commercial/scope/irreversible-state component."
+        }
+      ],
+      "correct": 0,
+      "explanation": "All four are commercial, scope, or irreversible-state decisions. Customer asks to skip GWS coverage (scope), AD-not-in-RMM gap (deployment strategy), keep OAuth artefact post-offboarding (irreversible state), delete the org (irreversible). The same boundary that opens onboarding closes offboarding."
+    },
+    {
+      "id": "c3-install-vs-registration",
+      "type": "mcq",
+      "topic": "agent-architecture",
+      "difficulty": "medium",
+      "prompt": "\"Install succeeded\" and \"agent registered\" differ how?",
+      "choices": [
+        "Install puts binaries on disk and starts the service; registration is the first phone-home. They fail separately.",
+        {
+          "label": "They mean the same thing in different words; the portal uses both interchangeably depending on the view.",
+          "rationale": "Inverts the whole framing of agent diagnostics."
+        },
+        {
+          "label": "Install is Huntress-side; registration is the RMM's job.",
+          "rationale": "Reverses the responsibilities."
+        },
+        {
+          "label": "Install is for Windows; registration is for macOS and Linux.",
+          "rationale": "Not a platform split."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Registration is the agent's first phone-home enrolling against the org key. The install-vs-registration split drives most agent-lifecycle diagnostics. They fail separately and need separate troubleshooting paths."
+    },
+    {
+      "id": "c3-av-right-fix",
+      "type": "mcq",
+      "topic": "av-conflict",
+      "difficulty": "medium",
+      "prompt": "What's the right-fix path for an AV-blocked install?",
+      "choices": [
+        "Documented AV exclusions pushed via the AV management console.",
+        {
+          "label": "Temporarily disable AV for the install window, then re-enable once the agent registers.",
+          "rationale": "Removes coverage during install and trains the customer to disable AV when something gets in the way."
+        },
+        {
+          "label": "Switch the customer to a different AV product.",
+          "rationale": "Wildly out of scope; deployment-strategy decision."
+        },
+        {
+          "label": "Re-run the install five times until it gets through.",
+          "rationale": "Named anti-pattern. AV behaviour isn't random."
+        }
+      ],
+      "correct": 0,
+      "explanation": "AV and Huntress are designed to coexist. Documented exclusions pushed through the AV management console are the contract."
+    },
+    {
+      "id": "c3-bypass-anti-pattern",
+      "type": "mcq",
+      "topic": "policy-block",
+      "difficulty": "medium",
+      "prompt": "Why is \"bypass AppLocker via PowerShell as a one-off install\" called out as the worst response to a policy block?",
+      "choices": [
+        "Evading a security control the customer set up; the next upgrade hits the same block.",
+        {
+          "label": "PowerShell bypasses are technically impossible because AppLocker blocks all script hosts by default.",
+          "rationale": "They're sometimes possible; the objection is discipline, not capability."
+        },
+        {
+          "label": "PowerShell triggers AV alerts that block the install.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "Bypasses void Huntress's support contract.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Even if the bypass worked, the next upgrade fails the same way, and you've taught the runbook a bypass instead of the documented allow path. The allow path is the contract."
+    },
+    {
+      "id": "c3-blocked-outbound-signature",
+      "type": "mcq",
+      "topic": "blocked-outbound",
+      "difficulty": "medium",
+      "prompt": "Which signature points cleanly at blocked outbound versus another install-failure class?",
+      "choices": [
+        "Service running, local log shows repeated connection failures; portal shows no agent.",
+        {
+          "label": "Binary quarantined by AV mid-install; service starts then dies within seconds on the endpoint.",
+          "rationale": "That's AV interference, a different failure class."
+        },
+        {
+          "label": "Installer exits with \"unsupported OS\" message.",
+          "rationale": "That's an OS-support failure, a different class."
+        },
+        {
+          "label": "AppLocker event under Microsoft-Windows-AppLocker.",
+          "rationale": "That's a policy block, a different class."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The dormant-installed-not-registered fingerprint. Install worked; the agent's local log shows repeated DNS/TCP/TLS/HTTP failures against documented Huntress hostnames. Registration phone-home is being blocked outbound."
+    },
+    {
+      "id": "c3-four-causes-offline",
+      "type": "mcq",
+      "topic": "offline-diagnosis",
+      "difficulty": "easy",
+      "prompt": "Which set is the four causes of an offline agent?",
+      "choices": [
+        "Powered off; service stopped; network blocked; uninstalled.",
+        {
+          "label": "AV interference; policy block; unsupported OS; missing dependency.",
+          "rationale": "Install-failure causes, not offline causes."
+        },
+        {
+          "label": "Crashed; rebooted; uninstalled; replaced.",
+          "rationale": "Not the named enumeration."
+        },
+        {
+          "label": "Pending; offline; archived; deleted.",
+          "rationale": "Portal states, not causes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The four causes drive the two-question diagnostic: is the endpoint online in the RMM, and is the service running on the endpoint."
+    },
+    {
+      "id": "c3-uninstalled-investigate-why",
+      "type": "mcq",
+      "topic": "offline-diagnosis",
+      "difficulty": "hard",
+      "prompt": "WS-CONTOSO-EXE-04 is online in the RMM and the Huntress service entry doesn't exist on the endpoint. What's the right move BEFORE re-pushing?",
+      "choices": [
+        "Investigate why the agent was removed before re-pushing.",
+        {
+          "label": "Re-push immediately; uninstalled means re-install, and the sooner it's back the less telemetry you lose.",
+          "rationale": "Shotgun fix; re-installs on top of the same removal condition."
+        },
+        {
+          "label": "Reboot the endpoint.",
+          "rationale": "Doesn't help with an uninstalled agent."
+        },
+        {
+          "label": "Open a Huntress support ticket.",
+          "rationale": "Premature; investigate locally first."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Check whether AV update, user action, or deployment-tool cleanup removed it. Re-pushing on top of the same condition hits the same failure within hours."
+    },
+    {
+      "id": "c3-upgrade-as-install-failure",
+      "type": "mcq",
+      "topic": "upgrades",
+      "difficulty": "medium",
+      "prompt": "An agent won't upgrade. Which toolkit does the lesson say to diagnose with?",
+      "choices": [
+        "The install-failure toolkit: AV-conflict, policy-block, and blocked-outbound.",
+        {
+          "label": "Always a Huntress-side regression; open a support ticket immediately and wait for a patch.",
+          "rationale": "Premature."
+        },
+        {
+          "label": "Always a customer-side conscious decision; ignore.",
+          "rationale": "Inverts the lesson."
+        },
+        {
+          "label": "Always rollback territory; bump to senior immediately.",
+          "rationale": "Rollback is for post-upgrade crashes, not won't-upgrade."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Won't-upgrade is the install-failure toolkit applied to a different operation. AV, policy, and outbound blocks all reappear on upgrade attempts."
+    },
+    {
+      "id": "c3-move-vs-reinstall",
+      "type": "mcq",
+      "topic": "moving-agents",
+      "difficulty": "medium",
+      "prompt": "Match the agent-move path to its use-case.",
+      "choices": [
+        "Move-in-place for continuity; uninstall-and-re-install for clean break.",
+        {
+          "label": "Move-in-place for Windows; uninstall-and-re-install for macOS and Linux agents.",
+          "rationale": "Not a platform split."
+        },
+        {
+          "label": "Move-in-place for free orgs; uninstall-and-re-install for paid orgs.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Move-in-place for newer agents; uninstall-and-re-install for older agents.",
+          "rationale": "Not the discriminator."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Move-in-place when telemetry continuity matters (active investigation, baseline period). Uninstall-and-re-install for clean handovers, degraded agent, or wrong-org-key fix. The runbook names which path applies to which scenario."
+    },
+    {
+      "id": "c4-six-step-spine",
+      "type": "mcq",
+      "topic": "edr-workflow",
+      "difficulty": "easy",
+      "prompt": "What is the six-step spine of the standard EDR incident workflow?",
+      "choices": [
+        "Claim, review, approve remediations, verify, close, document.",
+        {
+          "label": "Read, sandbox, decide, act, document, archive.",
+          "rationale": "Includes investigation work (sandbox) which is above the helpdesk ceiling."
+        },
+        {
+          "label": "Approve, isolate, call, verify, close, escalate.",
+          "rationale": "Skips claim and review; isolate isn't part of every workflow."
+        },
+        {
+          "label": "Triage, classify, recommend, action, follow up, close.",
+          "rationale": "Those are the SOC's pre-handoff steps, not the tech's."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Claim, review, approve, verify, close, document. The same six steps on Low and High; tempo and paired actions shift with severity."
+    },
+    {
+      "id": "c4-applied-vs-verified",
+      "type": "mcq",
+      "topic": "edr-workflow",
+      "difficulty": "medium",
+      "prompt": "The portal shows a remediation as \"applied.\" Why isn't that the same as \"verified\"?",
+      "choices": [
+        "Applied is command-ran; verified is end-state matches intent. Different checks.",
+        {
+          "label": "They're the same thing; the portal uses different words for the same state depending on the view.",
+          "rationale": "The lesson is explicit that they're different."
+        },
+        {
+          "label": "Verified means the SOC analyst signed off; applied means the agent processed it.",
+          "rationale": "The SOC doesn't ratify verify. The tech does the endpoint-state check."
+        },
+        {
+          "label": "Verified means the customer confirmed the fix worked; applied means the portal flipped state.",
+          "rationale": "Customer-feel isn't a verify input."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Applied means the remediation command ran. Verified means the end state on the endpoint matches what the Recommendation aimed for. The tech owns the second check."
+    },
+    {
+      "id": "c4-batch-approval-mistake",
+      "type": "mcq",
+      "topic": "remediation",
+      "difficulty": "medium",
+      "prompt": "Batch-approving autoruns remediations across multiple unrelated open incidents is:",
+      "choices": [
+        "A common-mistake pattern. Each remediation is per-incident, per-host.",
+        {
+          "label": "The recommended pattern for fast queue clearance when you have a backlog of similar incidents.",
+          "rationale": "Inverts the rule."
+        },
+        {
+          "label": "Allowed only on Low-severity incidents.",
+          "rationale": "Lows aren't carved out; each incident gets its own attention."
+        },
+        {
+          "label": "Allowed only when all tickets are on the same customer.",
+          "rationale": "Same-customer batching still produces wrong-host errors."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Produces the 'approved twelve at once and one was for a different host than I thought' failure. Each incident's recommendation is for its specific autoruns entry on its specific host."
+    },
+    {
+      "id": "c4-isolation-home-wifi",
+      "type": "tf",
+      "topic": "isolation",
+      "difficulty": "medium",
+      "prompt": "Huntress host isolation only works while the endpoint is on the customer's corporate network.",
+      "correct": false,
+      "explanation": "The agent enforces the policy, not the customer's firewall. As long as the agent can reach Huntress, isolation applies wherever the endpoint is — home WiFi, hotel network, anywhere."
+    },
+    {
+      "id": "c4-plain-language-isolation",
+      "type": "order",
+      "topic": "isolation",
+      "difficulty": "medium",
+      "prompt": "Order the four moves of the plain-language isolation explanation to a customer.",
+      "items": [
+        "Name the trigger: activity that needs immediate containment.",
+        "Name the action: we've put it into a protected isolation state.",
+        "Name the limits: you can still log in locally and use what's on the machine, but it can't reach the network.",
+        "Name the next step: we're working on it; I'll call you when it's ready to come out of isolation."
+      ],
+      "explanation": "Trigger, action, limits, next step. Avoids over- and under-claiming, tells the customer what still works, sets a callback expectation."
+    },
+    {
+      "id": "c4-when-to-isolate",
+      "type": "mcq",
+      "topic": "isolation",
+      "difficulty": "medium",
+      "prompt": "Which sentence states the decision-tree spine for isolation correctly?",
+      "choices": [
+        "Critical = isolate first; High = follow the Recommendation; Low = no isolation.",
+        {
+          "label": "Always isolate first, regardless of severity, since containment beats caution every time.",
+          "rationale": "Over-aggressive — Lows aren't an isolation surface."
+        },
+        {
+          "label": "Always call the user first, regardless of severity.",
+          "rationale": "Under-aggressive on Criticals and isolation-recommended Highs; gives the attacker time."
+        },
+        {
+          "label": "Isolate only when the customer's IT manager has signed off in writing.",
+          "rationale": "Inverts the model. The SOC's Recommendation drives isolation; customer sign-off isn't required for action."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Severity drives the isolation choice through the SOC's Recommendation. Critical contains first; High follows the Recommendation; Low is not an isolation surface."
+    },
+    {
+      "id": "c4-incident-note-tone",
+      "type": "mcq",
+      "topic": "incident-notes",
+      "difficulty": "medium",
+      "prompt": "\"Frustrating customer, took forever to reach them\" in an incident note is which named failure?",
+      "choices": [
+        "Personal commentary. Tone-stripped facts only.",
+        {
+          "label": "Useful colour that helps the next tech understand customer context and communication style.",
+          "rationale": "Inverts the rule. Customer-relationship signals go in follow-ups with a destination, not in the incident note."
+        },
+        {
+          "label": "Standard customer-relationship documentation.",
+          "rationale": "Personal commentary doesn't belong in the note; the right surface is a follow-up with a named recipient."
+        },
+        {
+          "label": "Allowed as long as the senior approves the wording.",
+          "rationale": "Not the framing; the rule is tone-stripped facts in the note regardless."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Tone-stripped facts. The incident note is for the next shift, the auditor, and future-you; commentary doesn't help any of them."
+    },
+    {
+      "id": "c5-four-critical-markers",
+      "type": "mcq",
+      "topic": "critical-markers",
+      "difficulty": "easy",
+      "prompt": "Which combination correctly lists the four Critical markers?",
+      "choices": [
+        "Ransomware canary trip; mass deletion; lateral movement signals; admin-credential abuse.",
+        {
+          "label": "Failed login; password spray; phishing email; reused credential.",
+          "rationale": "Identity-side signals, mostly Low-or-High-shape on their own. Don't match the Critical cluster."
+        },
+        {
+          "label": "Slow agent enrolment; missing endpoint; stalled rollout; AV conflict.",
+          "rationale": "All onboarding-domain, not Critical-incident markers."
+        },
+        {
+          "label": "Unsigned binary; new process tree; first-seen executable; rare hash.",
+          "rationale": "Process-detection signals the SOC weighs into a classification — markers of investigation, not of Critical itself."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Canary trip, mass deletion, lateral movement, admin-credential abuse. The four markers cluster the most common Critical patterns."
+    },
+    {
+      "id": "c5-time-vs-completeness",
+      "type": "tf",
+      "topic": "critical-response",
+      "difficulty": "medium",
+      "prompt": "On a Critical, a slightly imperfect 30-second containment beats an exactly-right 5-minute one.",
+      "correct": true,
+      "explanation": "Time matters more than completeness on Critical. The Low-and-High instinct of thoroughness-first inverts here — every extra second is endpoint-time the attacker keeps."
+    },
+    {
+      "id": "c5-contain-escalate-dont-investigate",
+      "type": "mcq",
+      "topic": "critical-response",
+      "difficulty": "easy",
+      "prompt": "The Critical-response rule, in three steps:",
+      "choices": [
+        "Contain; escalate in parallel; do not investigate.",
+        {
+          "label": "Investigate; classify; contain.",
+          "rationale": "The opposite reflex. Investigation is above the line on Critical."
+        },
+        {
+          "label": "Notify the customer; isolate; document.",
+          "rationale": "Wrong sequencing. Customer comms come after containment and after senior awareness."
+        },
+        {
+          "label": "Wait for senior direction; contain only when instructed.",
+          "rationale": "The freeze failure mode. Containment doesn't wait."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Contain, escalate in parallel, do not investigate. One motion across every Critical pattern."
+    },
+    {
+      "id": "c5-held-the-line",
+      "type": "mcq",
+      "topic": "critical-ceiling",
+      "difficulty": "hard",
+      "prompt": "Senior arrives 5 minutes after the bump and asks: \"Quick, what was on the endpoint?\" You held the line and didn't investigate. What do you say?",
+      "choices": [
+        "\"I didn't look. I was waiting for you.\"",
+        {
+          "label": "\"I read the Evidence section while waiting; here's what I saw.\"",
+          "rationale": "You stepped over the line. Forensic value of the endpoint is now in question."
+        },
+        {
+          "label": "\"I checked the customer's PSA history for related tickets while I waited.\"",
+          "rationale": "Wrong direction. The kind of \"I'll be helpful\" investigation that isn't help."
+        },
+        {
+          "label": "\"I started looking at running processes but didn't finish.\"",
+          "rationale": "Partial overstep is still overstep. Order-of-volatility costs apply to a partial process-tree query too."
+        }
+      ],
+      "correct": 0,
+      "explanation": "\"I held the line\" is the right starting answer. Whether the senior was testing or genuinely wants you to dig under direction, the line was held."
+    },
+    {
+      "id": "c5-pattern-and-rule",
+      "type": "mcq",
+      "topic": "critical-recognition",
+      "difficulty": "hard",
+      "prompt": "Mid-shift you spot a High EDR incident on a customer's helpdesk workstation. Recommendation is approve autoruns remediation. Three minutes into your review, the Evidence shows the customer's domain-admin credential was used to remote-execute on three other endpoints in the last six hours. What sequence of actions is right?",
+      "choices": [
+        "Recognise the Critical markers. Stop the High workflow. Isolate and bump the senior in parallel.",
+        {
+          "label": "Finish the High workflow as recommended since the SOC tagged it High; report the pattern observation at end-of-shift.",
+          "rationale": "Misses the framing — the High tag was what the SOC had when the report opened; the tech's Evidence read is the new contribution and the response model switches the moment the markers are clear."
+        },
+        {
+          "label": "Re-grade the incident to Critical in the portal yourself; then act on Critical-shape response.",
+          "rationale": "Severity is the SOC's call. Bump rather than re-grade."
+        },
+        {
+          "label": "Reply to the SOC asking for re-classification; wait for re-classification before isolating.",
+          "rationale": "Defensible to send in parallel, but containment doesn't wait for the tag. The pattern is the trigger."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Pattern recognition is the tech's contribution. Contain + escalate in parallel + don't investigate; let the SOC's tag follow the action."
+    }
+  ]
+}

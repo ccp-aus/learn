@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-coordinating-soc-siem",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: coordinating with the SOC on SIEM",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-soc-siem-four-properties",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "easy",
+      "prompt": "The lesson names four properties of a clean SOC reply. Which list captures them?",
+      "choices": [
+        "Factually anchored, scoped to a specific question.",
+        {
+          "label": "Long, detailed, exhaustive, and cc'd to the customer's IT manager.",
+          "rationale": "Inverted on every property."
+        },
+        {
+          "label": "Casual, friendly, frequent, and one-question-per-day.",
+          "rationale": "Tone and frequency are not the lesson's properties."
+        },
+        {
+          "label": "Anonymous, terse, demanding, and timestamped.",
+          "rationale": "Inverted on tone and helpfulness."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer-context-bringing rather than analyst-second-guessing, respectful of what the SOC already weighed. Factually anchored, scoped, customer-context-bringing, and respectful of the SOC's prior work. Those four properties make replies productive."
+    },
+    {
+      "id": "ck-soc-siem-when-to-reply",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "Which is a legitimate reason to reply to the SOC on a SIEM Incident Report?",
+      "choices": [
+        "You have learned something during triage the SOC did not have.",
+        {
+          "label": "Your gut feels the SOC got the classification wrong.",
+          "rationale": "Gut-feel without new signal is second-guessing."
+        },
+        {
+          "label": "You want the SOC to tune the detection so it stops firing.",
+          "rationale": "Tuning requests go through the exclusion-request flow, not a per-incident reply."
+        },
+        {
+          "label": "You want to show the SOC you read the Evidence carefully.",
+          "rationale": "The reply is not a status report on your reading."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer-confirmed automation, a recent integration change, an entity's role in a documented workflow. New customer context that the SOC did not have when writing the Recommendation is the primary reply trigger."
+    },
+    {
+      "id": "ck-soc-siem-when-not-to-reply",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "Which reply pattern should you avoid?",
+      "choices": [
+        "'I think the SOC got this wrong' without new signal: re-litigating the classification.",
+        {
+          "label": "'Customer's IT manager confirms this service account is part of nightly automation; should that change the classification?'",
+          "rationale": "That is a good reply: factually anchored, customer-context-bringing."
+        },
+        {
+          "label": "'Block at firewall is in place. EDR check returned clean. Closing as remediation-complete.'",
+          "rationale": "That is a good reply: closes the loop factually."
+        },
+        {
+          "label": "Any factual cross-surface finding.",
+          "rationale": "Cross-surface findings are legitimate reply content."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Re-litigating the classification without new information is the second-guessing failure mode expressed as a reply."
+    },
+    {
+      "id": "ck-soc-siem-tone",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "The lesson describes the SOC analyst as which kind of counterpart?",
+      "choices": [
+        {
+          "label": "A vendor-support queue you raise tickets against.",
+          "rationale": "The SOC is not a support queue."
+        },
+        "A colleague doing the same work on a different surface.",
+        {
+          "label": "A higher authority whose disposition you defer to without question.",
+          "rationale": "You can push back via factual clarifying questions. The line is unilateral override, not disagreement."
+        },
+        {
+          "label": "A junior whose judgement you can correct.",
+          "rationale": "The SOC has analytic context the tech does not."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Tone is colleague-to-colleague: specific, respectful, factually anchored, brief. The SOC analyst is a colleague. You bring customer context they lack; they bring analytic context you lack. The tone is peer-to-peer."
+    },
+    {
+      "id": "ck-soc-siem-multi-question",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "\"Asking multiple questions in one reply\" is a named common mistake. What is the right alternative?",
+      "choices": [
+        "One question per reply.",
+        {
+          "label": "Two to three questions per reply if they are related.",
+          "rationale": "The lesson is one-per-reply regardless of relatedness."
+        },
+        {
+          "label": "Ask all questions up front so the SOC sees the full picture.",
+          "rationale": "Forces the SOC to address each in turn and slows everything."
+        },
+        {
+          "label": "Ask no questions; just state findings.",
+          "rationale": "Overcorrection. Questions are legitimate when scoped."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Multiple questions slow the SOC's response and lose the thread. One question per reply keeps the exchange focused. If you have two questions, the second reply follows the first answer."
+    },
+    {
+      "id": "ck-soc-siem-bad-framing",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "\"Is this a real threat or a false positive?\" is the wrong framing. What is a better framing?",
+      "choices": [
+        {
+          "label": "'Should I close this incident?' Let the SOC decide.",
+          "rationale": "Wrong delegation. The disposition is in the Recommendation."
+        },
+        "'Is this finding part of the same incident.",
+        {
+          "label": "'What is your confidence level on this classification?'",
+          "rationale": "Confidence-probing is litigating from a different angle."
+        },
+        {
+          "label": "'Can you explain your reasoning?'",
+          "rationale": "Open-ended and not scoped. The reasoning is in the annotation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Or a separate event?' Specific and scoped to a fact the SOC can answer. Specific, factual questions the SOC can answer without re-classifying are the right shape. Real-threat-vs-false-positive forces re-classification."
+    },
+    {
+      "id": "ck-soc-siem-cross-surface-close",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "You blocked the firewall destination and EDR returned clean. The Recommendation did not specify what to do if EDR is clean. Which reply is right?",
+      "choices": [
+        {
+          "label": "'The Recommendation does not tell me what to do next. Can you clarify?'",
+          "rationale": "Vague and not factually anchored."
+        },
+        "'Block at firewall is in place (timestamp 14:42).",
+        {
+          "label": "'I disagree that EDR needs to check. Can we close?'",
+          "rationale": "Second-guessing the dual-action structure after completing both actions."
+        }
+      ],
+      "correct": 1,
+      "explanation": "EDR check returned no related incidents. Closing as remediation-complete; let me know if further action is needed on the EDR side.' Factually anchored, names both actions and their results, states the plan (close), and offers the SOC a redirect opportunity."
+    },
+    {
+      "id": "ck-soc-siem-recurring-pattern",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "hard",
+      "prompt": "Two days after a SIEM incident, a similar one on the same customer lands. You want to flag the recurring pattern. Where does the observation go?",
+      "choices": [
+        {
+          "label": "Reply on the new Incident Report: 'Is this a recurring pattern worth investigating?'",
+          "rationale": "Wrong reply target. The new incident's Recommendation is what you act on."
+        },
+        "Run the new incident through the standard flow.",
+        {
+          "label": "Reply on both Incident Reports asking the analyst to tune the detection.",
+          "rationale": "Tuning is not a per-incident reply target. The exclusion-request flow is the right channel."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Surface the pattern observation in your end-of-shift handover to senior. Cross-incident patterns belong at the portfolio level. Surface them to the senior, not as a per-incident SOC reply."
+    },
+    {
+      "id": "ck-soc-siem-stalled-thread",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "medium",
+      "prompt": "You have replied to the SOC three times and the thread is going back and forth without converging. What is the right escalation?",
+      "choices": [
+        {
+          "label": "Reply a fourth time, more emphatically.",
+          "rationale": "Litigation by repetition."
+        },
+        "Surface to senior with the specific exchange.",
+        {
+          "label": "Close the incident without further reply.",
+          "rationale": "Unilateral closure without resolution."
+        },
+        {
+          "label": "Call Huntress support and ask them to intervene.",
+          "rationale": "Internal MSP escalation is the right path, not vendor support."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The senior reviews and either takes over or names the next step. Looped threads are a senior trigger. The senior has the relationship channels and the authority to break the loop."
+    },
+    {
+      "id": "ck-soc-siem-tuning-via-reply",
+      "type": "mcq",
+      "topic": "soc-coordination",
+      "difficulty": "hard",
+      "prompt": "A peer writes: \"This detection has fired benign three times this month. Can you stop it from firing?\" as a reply to the SOC analyst. What is wrong with this reply?",
+      "choices": [
+        {
+          "label": "Nothing. The SOC can directly tune the detection from a reply.",
+          "rationale": "Wrong channel. The exclusion-request flow exists so detection changes go through review."
+        },
+        "It is a tuning request via the wrong channel.",
+        {
+          "label": "The peer should add more detail about the three incidents.",
+          "rationale": "More detail in the wrong channel is still the wrong channel."
+        },
+        {
+          "label": "The peer should cc the customer's IT manager.",
+          "rationale": "Wrong recipient and wrong channel."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The exclusion-request flow is the right path, not a per-incident SOC reply. Stop-the-detection requests belong to the exclusion-request flow, not to per-incident SOC replies. The formal flow weighs scope and the SOC makes the detection change."
+    }
+  ]
+}

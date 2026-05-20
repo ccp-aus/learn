@@ -13,13 +13,22 @@
       "topic": "srv",
       "prompt": "M365's SRV verification fails. `dig SRV _sip._tls.example.com` returns the record but the target field reads `sipdir.online.lync.com.example.com.` instead of `sipdir.online.lync.com.`. What happened?",
       "choices": [
-        "TTL is wrong.",
-        "The DNS host's panel treated the target as a relative name and appended .example.com to it. Re-enter with the trailing dot or via the panel's FQDN toggle.",
-        "M365's verifier is broken.",
-        "The TTL is too low."
+        {
+          "label": "TTL is too short for the verifier to pick up the record reliably. Raise TTL to 3600 and retry verification.",
+          "rationale": "TTL has nothing to do with target-name formatting. The doubled suffix is the visible bug."
+        },
+        "The panel appended .example.com to the target. Re-enter with a trailing dot or use the FQDN toggle.",
+        {
+          "label": "M365's verifier is broken. File a support ticket with Microsoft and wait for resolution before retrying.",
+          "rationale": "The record content is visibly wrong in the dig output. The verifier is reading what you published."
+        },
+        {
+          "label": "SRV records need a priority and weight before the target. The panel saved the fields in the wrong order.",
+          "rationale": "dig shows the target field itself is wrong (doubled suffix), not a field-ordering problem."
+        }
       ],
       "correct": 1,
-      "explanation": "Most DNS hosts have a way to indicate 'this is an absolute name' (the trailing dot, or an FQDN toggle). Missing it means the target gets the zone suffix appended. The most common SRV mistake."
+      "explanation": "DNS hosts append the zone suffix to relative names. The trailing dot or an FQDN toggle marks the target as absolute. This is the most common SRV mistake."
     },
     {
       "id": "qrm-caa-current-issuers",
@@ -28,13 +37,22 @@
       "topic": "caa",
       "prompt": "Before publishing a CAA record on a domain that's been issuing certs for years, what do you do?",
       "choices": [
-        "Add the CA the client just bought from; it's the only one that matters now.",
-        "Check what's currently issuing (browser cert inspection + Certificate Transparency log search at crt.sh). Add all current and intended-future issuers.",
-        "Add only Let's Encrypt; it covers most cases.",
-        "Add the most restrictive CAA possible to be safe."
+        {
+          "label": "Add the CA the client just purchased from. Old certs from other CAs will keep working until they expire, giving you time to consolidate later.",
+          "rationale": "Old certs keep working, but their renewals will fail the moment CAA is checked. The site goes dark on the next renewal cycle."
+        },
+        "Check current issuers via browser cert inspection and CT logs (crt.sh). Add all active and intended-future issuers.",
+        {
+          "label": "Add only Let's Encrypt. It covers most hosting providers' auto-SSL setups, so it's the safe default for any domain with web traffic.",
+          "rationale": "Many hosting providers use different CAs (Sectigo, DigiCert, ZeroSSL). Let's Encrypt alone breaks renewals for any cert issued elsewhere."
+        },
+        {
+          "label": "Publish the most restrictive CAA you can: a single CA with the iodef flag for violation reports. Tightest policy is the safest starting position.",
+          "rationale": "Restrictive is good after you know who's issuing. Restrictive before you know is a renewal time-bomb."
+        }
       ],
       "correct": 1,
-      "explanation": "Adding a CAA that doesn't include a currently-issuing CA silently breaks future renewals — the cert keeps working until it expires, then the site goes dark. CT logs (crt.sh) reveal which CAs have actually been issuing, including ones the client doesn't know about (hosting auto-SSL, etc.)."
+      "explanation": "CT logs reveal which CAs have actually been issuing for the domain, including ones the client doesn't know about (hosting auto-SSL, CDN providers). Adding a CAA that omits a currently-issuing CA silently breaks future renewals."
     },
     {
       "id": "qrm-ns-delegation-vs-cname",
@@ -52,13 +70,22 @@
       "topic": "ptr",
       "prompt": "A client's mail bounces with 'reverse DNS does not match host name.' Where do you go to fix it?",
       "choices": [
-        "Add a PTR record at the client's DNS host panel.",
-        "Open a ticket with whoever owns the IP block (the hosting provider or ISP). PTR lives in the reverse-DNS namespace, controlled by the IP-block owner, not the domain registrant.",
-        "Tell the client to switch mail providers.",
-        "Update the SPF record."
+        {
+          "label": "Add a PTR record at the client's DNS host panel, in the same zone where the A record lives. PTR follows the same delegation path as the forward record.",
+          "rationale": "PTR lives in the reverse-DNS namespace (in-addr.arpa), controlled by the IP-block owner. The client's DNS host has no authority over it."
+        },
+        "Open a ticket with the IP-block owner (hosting provider or ISP). PTR lives in their reverse-DNS namespace.",
+        {
+          "label": "Update the SPF record to include the sending IP. SPF failures and reverse-DNS failures share the same fix since both validate sender identity.",
+          "rationale": "SPF and reverse DNS are independent checks. SPF validates the sending domain's policy; reverse DNS validates the IP's hostname mapping."
+        },
+        {
+          "label": "Tell the client to switch to a mail provider that handles PTR automatically. Most modern providers set up reverse DNS during provisioning.",
+          "rationale": "Some providers do manage PTR, but the fix for a current bounce is contacting the current IP owner, not migrating providers."
+        }
       ],
       "correct": 1,
-      "explanation": "PTR records live in the reverse-DNS namespace (in-addr.arpa for IPv4), controlled by the IP-block owner. The client's DNS host has no authority over it. The fix is always a request to whoever owns the IP."
+      "explanation": "PTR records live in the reverse-DNS namespace (in-addr.arpa for IPv4), controlled by the IP-block owner. The client's DNS host has no authority over them."
     },
     {
       "id": "qrm-dig-authoritative",
@@ -67,13 +94,22 @@
       "topic": "dig",
       "prompt": "You changed a record 30 minutes ago. The client says the change isn't visible. What's your first diagnostic command?",
       "choices": [
-        "dig A example.com (uses your default resolver).",
-        "dig A example.com @<authoritative ns of the zone> — confirm the change is correct at the source.",
-        "ping the new IP.",
-        "Ask the client to clear their browser cache."
+        {
+          "label": "dig A example.com using your default resolver. If the answer is old, the change didn't propagate; if it's new, the client's cache is stale.",
+          "rationale": "Your default resolver is one cache among millions. Its answer tells you about that cache, not about what's published at the source."
+        },
+        "dig A example.com @<authoritative ns> to confirm the change at the source.",
+        {
+          "label": "ping the new IP to confirm the server is reachable. If ping succeeds, DNS isn't the problem and the client's browser is caching.",
+          "rationale": "Ping tests IP reachability, not DNS resolution. The question is whether the change is published, not whether the target is up."
+        },
+        {
+          "label": "Ask the client to clear their browser cache and try again. Browser cache is the most common cause of 'change not visible' reports.",
+          "rationale": "Browser cache is a possibility, but confirming the change at the authoritative server rules out a save failure in seconds."
+        }
       ],
       "correct": 1,
-      "explanation": "Query the authoritative directly to confirm the change is at the source. If the authoritative shows the new value, the staleness is downstream cache; if it shows the old value, the change didn't save. A second dig against 8.8.8.8 reveals one specific public cache's state."
+      "explanation": "Query the authoritative directly to confirm the change is at the source. If it shows the new value, staleness is downstream cache. If it shows the old value, the change didn't save."
     },
     {
       "id": "qrm-cannot-enumerate",
@@ -82,13 +118,22 @@
       "topic": "enumeration",
       "prompt": "A client asks for a complete list of their DNS records but you have no panel access to the current DNS host. What's the calibrated reply?",
       "choices": [
-        "Run dig ANY example.com and report whatever comes back as the complete list.",
-        "Run the standard probe (each record type at the apex, common subdomain names) and check Certificate Transparency. Report as a probe with a caveat that complete enumeration requires panel access or a zone export.",
-        "Tell the client you can't help.",
-        "Promise a complete list within a week."
+        {
+          "label": "Run dig ANY example.com and report the result as the complete list. ANY returns all record types in a single query, which is the fastest external enumeration method.",
+          "rationale": "dig ANY has been neutered across DNS infrastructure since the early 2010s (RFC 8482). Today it returns minimal responses and is not a reliable enumeration tool."
+        },
+        "Probe each record type at the apex plus common subdomains, check CT logs, and report with a caveat: full enumeration needs panel access.",
+        {
+          "label": "Tell the client you can't produce a record list without panel access. Offer to request credentials from their current DNS host instead.",
+          "rationale": "You can produce a useful approximation without panel access. Refusing outright misses the practical middle ground."
+        },
+        {
+          "label": "Promise a complete list within a week using AXFR zone transfers and brute-force subdomain scanning to enumerate the full zone externally.",
+          "rationale": "AXFR is closed at virtually all authoritative servers. Brute-force subdomain scanning is slow, incomplete, and not a professional approach."
+        }
       ],
       "correct": 1,
-      "explanation": "dig ANY no longer returns complete responses (neutered for amplification-attack mitigation), and AXFR is closed at virtually all authoritative servers. The probe + CT logs is the practical approximation; be explicit that complete enumeration needs panel access or a zone export."
+      "explanation": "dig ANY is neutered (RFC 8482) and AXFR is closed at virtually all authoritative servers. The probe plus CT logs is the practical approximation; be explicit about what it can and cannot find."
     },
     {
       "id": "qrm-spf-two-records",
@@ -97,13 +142,22 @@
       "topic": "spf",
       "prompt": "A client's apex has two TXT records, both starting with `v=spf1`. What's the consequence?",
       "choices": [
-        "Both SPF records take effect; the union of authorised senders is allowed.",
-        "SPF evaluates as `permerror` — receivers treat the domain as if SPF protection isn't in place.",
-        "The more recent record wins.",
-        "Both records are ignored and SPF defaults to allowing everyone."
+        {
+          "label": "Both SPF records take effect. Receivers evaluate the union of authorised senders across both records, so all listed includes are allowed.",
+          "rationale": "SPF doesn't union multiple records. The spec requires exactly one; two produce permerror."
+        },
+        "SPF evaluates as permerror. Receivers treat the domain as unprotected.",
+        {
+          "label": "The more recent record wins. DNS resolvers keep the latest TXT and discard the older one during zone transfer.",
+          "rationale": "DNS doesn't have a 'more recent' concept for TXT records at the same name. Both exist simultaneously."
+        },
+        {
+          "label": "Both records are ignored and SPF defaults to allowing everyone, which is equivalent to publishing +all on the domain.",
+          "rationale": "permerror is distinct from +all. permerror means the evaluation failed; receivers apply their own policy for that case, which varies."
+        }
       ],
       "correct": 1,
-      "explanation": "SPF protocol allows only one TXT starting with `v=spf1` per domain. Two SPF records produce permerror. The fix is merging into a single TXT with all needed includes."
+      "explanation": "SPF protocol allows only one TXT starting with v=spf1 per domain. Two SPF records produce permerror. The fix is merging into a single TXT with all needed includes."
     },
     {
       "id": "qrm-dkim-selector",
@@ -112,13 +166,22 @@
       "topic": "dkim",
       "prompt": "M365's wizard provides two DKIM CNAMEs (`selector1._domainkey` and `selector2._domainkey`). Why publish both rather than just the first?",
       "choices": [
-        "Redundancy in case one fails.",
-        "Multi-selector setup for key rotation. The mail server signs with one selector at a time; during rotation, it signs with the other. Both must be valid in DNS or messages signed during rotation will fail DKIM.",
-        "Microsoft requires two for tenant onboarding.",
-        "selector2 is a backup that takes over after a year."
+        {
+          "label": "Redundancy in case Microsoft's primary DKIM signing server goes down. The second selector acts as a hot standby for availability, similar to backup MX records.",
+          "rationale": "DKIM selectors aren't availability redundancy. The mail server signs with one selector at a time; the second exists for key rotation."
+        },
+        "Key rotation. M365 signs with one selector at a time and alternates during rotation. Both must be in DNS.",
+        {
+          "label": "Microsoft requires two for tenant onboarding validation. Once the tenant is verified, you can safely remove the second CNAME to keep the zone tidy.",
+          "rationale": "Both selectors are permanent. Removing selector2 breaks DKIM the next time Microsoft rotates keys to it."
+        },
+        {
+          "label": "selector2 activates after a year when the original key expires. Publishing it early just pre-stages the rotation so it's seamless when the time comes.",
+          "rationale": "Both selectors are active from day one. Microsoft can rotate between them at any time, not on a fixed annual schedule."
+        }
       ],
       "correct": 1,
-      "explanation": "M365 (and many other providers) use a multi-selector pattern for key rotation. Without selector2 in DNS, eventually a key rotation will leave outbound messages signed with a selector that has no public key in DNS, breaking DKIM mid-rotation."
+      "explanation": "M365 uses a multi-selector pattern for key rotation. Without selector2 in DNS, a key rotation will leave outbound messages signed with a selector that has no public key, breaking DKIM mid-rotation."
     },
     {
       "id": "qrm-dmarc-ramp",
@@ -127,13 +190,22 @@
       "topic": "dmarc",
       "prompt": "A client's owner says 'set up DMARC at p=reject so we're fully protected.' The client has no DMARC history. What do you do?",
       "choices": [
-        "Publish p=reject as requested.",
-        "Publish p=none with rua= reporting. Explain that DMARC ramps from none to quarantine to reject over weeks while you monitor reports for legitimate senders that aren't yet authorised.",
-        "Publish p=quarantine as a middle ground.",
-        "Refuse to set up DMARC."
+        {
+          "label": "Publish p=reject as requested. The domain owner knows their mail infrastructure and has decided the risk posture. Respect the instruction.",
+          "rationale": "Clients rarely know every sender using their domain (CRM auto-emails, newsletter platforms, transactional mail). p=reject on day one silently blocks those senders."
+        },
+        "Publish p=none with rua= reporting first. Monitor for legitimate senders before ramping to enforcement.",
+        {
+          "label": "Publish p=quarantine as a middle ground between the owner's request and safe practice. Quarantine flags rather than blocks, so nothing is lost permanently.",
+          "rationale": "Quarantine without monitoring still surprises the client when legitimate mail lands in spam. The monitoring step (p=none + rua=) is what reveals who's sending."
+        },
+        {
+          "label": "Refuse to set up DMARC until the client provides a complete list of every service that sends mail as their domain. DMARC without a full sender inventory is irresponsible.",
+          "rationale": "Refusing blocks progress. p=none with reporting is specifically designed to build that sender inventory."
+        }
       ],
       "correct": 1,
-      "explanation": "Going straight to p=reject without monitoring history risks blocking legitimate mail from senders the client didn't realise were sending (CRMs, newsletters, transactional mail). The right starting point is p=none with reports flowing. Helpdesk-scope is the initial p=none; ramping to enforcement is design and escalates."
+      "explanation": "p=none with reports flowing is the safe start. Reports reveal legitimate senders the client didn't know about. Ramping to enforcement is design territory and escalates."
     },
     {
       "id": "qrm-verify-sequence",

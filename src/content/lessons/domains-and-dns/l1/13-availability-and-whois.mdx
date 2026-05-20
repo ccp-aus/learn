@@ -76,12 +76,11 @@ Since GDPR (2018), most public WHOIS / RDAP responses for `.com`, `.net`, `.org`
 
 ## Decision walkthrough
 
-A client emails: *we want `bestcoffee.com`. Can you check if it's available? Also tell us who owns it if it's taken; we might want to buy it.*
-
 <DecisionTree
   client:load
   startId="root"
   title="Check availability and ownership"
+  description="A client emails: 'we want bestcoffee.com. Can you check if it's available? Also tell us who owns it if it's taken; we might want to buy it.'"
   nodes={[
     {
       type: "question",

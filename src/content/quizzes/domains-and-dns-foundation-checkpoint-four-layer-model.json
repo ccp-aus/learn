@@ -13,13 +13,13 @@
       "topic": "mail-vs-web",
       "prompt": "A client's web hosting is at a shared host (cPanel). Their mail is at Microsoft 365. The client emails: \"we want to move web hosting to a new provider.\" Which records are likely to change?",
       "choices": [
-        "A, AAAA, and MX, moving everything together.",
-        "A and AAAA only, mail records stay because mail is at M365 and isn't being moved.",
-        "MX only, the new web host will need its own mail setup.",
-        "All DNS records, when you move hosts you replace the whole zone."
+        {"label": "A, AAAA, and MX, moving everything together.", "rationale": "Web and mail are separate layers. Moving the web host doesn't touch MX."},
+        "A and AAAA only; mail stays because M365 isn't moving.",
+        {"label": "MX only; the new web host will need its own mail setup.", "rationale": "Web host changes touch A/AAAA records, not MX. Mail and web are independent layers."},
+        {"label": "All DNS records; when you move hosts you replace the whole zone.", "rationale": "Replacing the whole zone is the misconception that breaks unrelated services like mail."}
       ],
       "correct": 1,
-      "explanation": "Web and mail migrate independently. The web host change touches A, AAAA, possibly the www CNAME. MX, SPF, DKIM, DMARC stay put because the mail host (M365) isn't changing. Treating a migration as 'replace the whole zone' is exactly the misconception that breaks unrelated services."
+      "explanation": "Web and mail migrate independently. The web host change touches A, AAAA, possibly the www CNAME. MX, SPF, DKIM, DMARC stay put because M365 isn't changing. Treating a migration as 'replace the whole zone' is the misconception that breaks unrelated services."
     },
     {
       "id": "ck-four-layer-registrar-panel",

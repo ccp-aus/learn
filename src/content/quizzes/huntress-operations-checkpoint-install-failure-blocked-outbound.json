@@ -1,0 +1,219 @@
+{
+  "slug": "huntress-operations-checkpoint-install-failure-blocked-outbound",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: install failure, blocked outbound",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "signature",
+      "type": "mcq",
+      "topic": "signature",
+      "difficulty": "medium",
+      "prompt": "Which symptom set is the canonical blocked-outbound signature?",
+      "choices": [
+        "RMM exit code zero, agent service running.",
+        {
+          "label": "RMM exit non-zero with 'access denied' and the agent binary quarantined.",
+          "rationale": "That's lesson 14 (AV)."
+        },
+        {
+          "label": "Installer exits with 'unsupported OS version' in the log.",
+          "rationale": "That's lesson 16 (unsupported OS)."
+        },
+        {
+          "label": "AppLocker firing under `Microsoft-Windows-AppLocker` against the installer.",
+          "rationale": "That's lesson 15 (policy block)."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Agent's local log showing repeated DNS/TCP/TLS/HTTP failures against documented Huntress hostnames; portal shows no agent. Install completed, registration is failing at the network layer."
+    },
+    {
+      "id": "documented-list",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "medium",
+      "prompt": "What does 'the documented network requirements' mean in this lesson?",
+      "choices": [
+        "Huntress publishes the hostnames, ports.",
+        {
+          "label": "A wide IP range that varies daily and must be downloaded as a feed.",
+          "rationale": "Not how the documented list works."
+        },
+        {
+          "label": "Whatever the customer's network admin decides is reasonable.",
+          "rationale": "The list is publisher-defined, not negotiated per customer."
+        },
+        {
+          "label": "A blanket 'allow all outbound TCP' rule.",
+          "rationale": "Wrong direction. Wider rules expand the customer's outbound surface unnecessarily."
+        }
+      ],
+      "correct": 0,
+      "explanation": "TLS requirements the agent needs outbound. The list is small (a handful of `*.huntress.io` hostnames over HTTPS/443), no static-IP allowlists required. The list is specific and short; ask for exactly that, not more."
+    },
+    {
+      "id": "proxy-approach",
+      "type": "mcq",
+      "topic": "proxy",
+      "difficulty": "medium",
+      "prompt": "The customer's network uses an outbound proxy. What's the right approach?",
+      "choices": [
+        "Configure the agent to use the proxy (registry key, environment variable.",
+        {
+          "label": "Ask the customer to disable the proxy during install.",
+          "rationale": "Hostile to the customer's posture; sister mistake to disabling AV."
+        },
+        {
+          "label": "Route the endpoint through a separate ISP to bypass the proxy.",
+          "rationale": "Works around a customer security control."
+        },
+        {
+          "label": "Open a Huntress support ticket and have them configure the proxy.",
+          "rationale": "Misuses support; this is an endpoint-side configuration task."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Or installer parameter per the runbook). Bypassing the proxy isn't the answer. The runbook has the agent-side proxy configuration mechanism."
+    },
+    {
+      "id": "tcp-refused-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "An endpoint shows RMM install succeeded; after 30 minutes the agent isn't in the portal; install logs show the install completed; service is running; agent's local log shows repeated 'TCP connection refused' against a Huntress endpoint on port 443. What's the right diagnosis?",
+      "choices": [
+        {
+          "label": "AV is killing the connection.",
+          "rationale": "AV would have killed the binary or service, not allowed it to run and then blocked TCP. The log says TCP refused."
+        },
+        "Outbound TCP/443 to Huntress endpoints is being blocked.",
+        {
+          "label": "The agent is broken; re-install.",
+          "rationale": "The agent is trying to reach the documented endpoint. The network is what's broken from its perspective."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Likely by the customer's perimeter firewall or endpoint firewall. Signature: service running, network call refused. Canonical blocked-outbound case."
+    },
+    {
+      "id": "customer-firewall",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "`Test-NetConnection` to the Huntress hostname on port 443 fails from the endpoint AND from the customer's IT manager's workstation on the same network. The customer owns the perimeter firewall (not the MSP). What do you do?",
+      "choices": [
+        {
+          "label": "Try harder from the endpoint with different commands and multiple retries.",
+          "rationale": "You've already established the firewall is blocking from multiple endpoints. More retries change nothing."
+        },
+        "Send the customer's IT a request to allow the documented Huntress outbound destinations through their perimeter firewall, with the canonical list attached.",
+        {
+          "label": "Bypass the firewall by routing the endpoint through a VPN out to the internet.",
+          "rationale": "Working around a customer security control configured for a reason."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The fix sits on their side (their firewall); the request shape is the documented list."
+    },
+    {
+      "id": "wide-allow-wrong",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is 'asking the customer to whitelist a wide range of IPs or domains beyond the documented list' wrong?",
+      "choices": [
+        "Wrong direction.",
+        {
+          "label": "Wider rules slow the firewall down.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "Wider rules cost more to license.",
+          "rationale": "Not a real licensing mechanic."
+        },
+        {
+          "label": "Huntress requires the rule to be exactly worded.",
+          "rationale": "The customer's rule wording isn't an audit surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The documented list is short and specific; Wider rules expand the customer's outbound surface unnecessarily. Specific allow rules are the contract; wider asks weaken the customer's posture."
+    },
+    {
+      "id": "diag-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Order the diagnostic steps for a blocked-outbound install failure.",
+      "items": [
+        "Pull the Huntress install / agent log from the endpoint and identify the error type (DNS, TCP, TLS, HTTP).",
+        "Test the network path manually from the endpoint with `nslookup` and `Test-NetConnection` against port 443.",
+        "Identify which network control is interfering (endpoint firewall, perimeter firewall, web proxy, or VPN segmentation).",
+        "Apply the documented allowance at the right network layer.",
+        "Re-run the agent's registration (service restart often enough; re-install if the agent state looks degraded).",
+        "Verify enrolment in the portal."
+      ],
+      "explanation": "Read the log, test manually, identify the control, apply at the right layer, retry, verify."
+    },
+    {
+      "id": "network-team-no-access",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer's network admin team is one your MSP doesn't have access to or a relationship with. What's the escalation guidance?",
+      "choices": [
+        "Bump for the senior to manage the change request.",
+        {
+          "label": "Email the customer's IT contact and copy in the network team directly.",
+          "rationale": "Cold outreach to the customer's network team is the senior's call to make."
+        },
+        {
+          "label": "Push for the customer to fire their network admin.",
+          "rationale": "Absurdly out of scope."
+        },
+        {
+          "label": "Drop the customer from the rollout.",
+          "rationale": "Senior decision, not a tech-level call."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer-relationship and change-management piece; senior owns it."
+    },
+    {
+      "id": "ticket-close-rmm-only",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Which mistake does this lesson share with the single-endpoint deploy lesson, and why is it especially dangerous here?",
+      "choices": [
+        "Closing the ticket on RMM success without checking the portal.",
+        {
+          "label": "Failing to escalate every install to a senior.",
+          "rationale": "Not a real lesson concern."
+        },
+        {
+          "label": "Forgetting to send the customer a feedback survey.",
+          "rationale": "Out of scope."
+        },
+        {
+          "label": "Rebooting the endpoint after install.",
+          "rationale": "Not a lesson concern."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The install-vs-registration split is the whole reason this failure mode hides; RMM exit code zero is half the answer. Blocked outbound is exactly where the dormant-installed-not-registered state lives."
+    },
+    {
+      "id": "tf-tcp-error-type",
+      "type": "tf",
+      "topic": "error-routing",
+      "difficulty": "medium",
+      "prompt": "A 'TCP connection refused' or timeout in the agent's local log points at firewall interference (endpoint or perimeter), not DNS or proxy.",
+      "correct": true,
+      "explanation": "TCP-level rejection is firewall-shaped; DNS failures point at the resolver path, TLS or HTTP errors point at proxy or interception."
+    }
+  ]
+}

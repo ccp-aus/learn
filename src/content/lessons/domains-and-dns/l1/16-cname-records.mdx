@@ -60,14 +60,11 @@ The fix is choose: CNAME, or the other records. Not both on the same name.
 
 ## Decision walkthrough
 
-A client signs up with a managed CMS provider. The provider sends setup instructions: *Add a CNAME at `www.example.com` pointing to `client12345.cms-vendor.com`. For the apex `example.com`, point it at our IP `203.0.113.50` or use your DNS host's ALIAS/flattening feature.*
-
-The client's DNS host is **Cloudflare DNS**, which supports CNAME flattening at the apex (resolves the target server-side and publishes A/AAAA at the apex).
-
 <DecisionTree
   client:load
   startId="root"
   title="What goes at the apex (DNS host = Cloudflare)?"
+  description="A client signs up with a managed CMS provider. The provider says: 'Add a CNAME at www.example.com pointing to client12345.cms-vendor.com. For the apex example.com, point it at our IP 203.0.113.50 or use your DNS host's ALIAS/flattening feature.' The DNS host is Cloudflare DNS, which supports CNAME flattening at the apex (resolves the target server-side and publishes A/AAAA at the apex)."
   nodes={[
     {
       type: "question",

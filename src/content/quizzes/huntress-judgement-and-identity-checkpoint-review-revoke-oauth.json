@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-review-revoke-oauth",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: review and revoke OAuth grants",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "why-separate-step",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "easy",
+      "prompt": "Why is OAuth-grant review a separate playbook step from session revoke and password reset?",
+      "choices": [
+        "OAuth tokens are persistent and independent of the password and interactive sessions.",
+        {
+          "label": "Because OAuth grants take 24 hours to expire on their own.",
+          "rationale": "They do not expire automatically in a timeframe useful for response."
+        },
+        {
+          "label": "Because Huntress charges per step.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Because OAuth revoke is faster than the earlier steps.",
+          "rationale": "Speed is not the reason; persistence-mechanism distinctness is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Skipping this step leaves an attacker-controlled app authenticated while the user looks secure. OAuth tokens survive session revoke and password reset. The attacker's app keeps authenticating independently until the grant is explicitly revoked."
+    },
+    {
+      "id": "targeted-revoke",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "The targeted-revoke discipline says you revoke:",
+      "choices": [
+        "The grants from the compromise window, not all grants.",
+        {
+          "label": "All grants the user has, to be safe.",
+          "rationale": "Blanket revoke disrupts legitimate integrations."
+        },
+        {
+          "label": "Only the grants the user identifies as unfamiliar.",
+          "rationale": "User recollection is not the discriminator; the compromise window is."
+        },
+        {
+          "label": "All grants with broad scopes regardless of timing.",
+          "rationale": "Broad scopes on legitimate verified-publisher apps are common."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Long-standing legitimate integrations stay intact. Compromise-window targeting beats blanket revoke. Grants from before the window are legitimate-by-context."
+    },
+    {
+      "id": "three-grants-scenario",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "hard",
+      "prompt": "Step 4 on Kira. Recommendation: revoke MailSync-Free (granted 11 minutes after suspicious sign-in). Grants list: (a) MailSync-Free (malicious); (b) Trello (6 months old, verified publisher, Calendars.Read); (c) OneDriveDirector (3 days old, unverified publisher, Files.ReadWrite). What do you do?",
+      "choices": [
+        "Revoke MailSync-Free per the Recommendation.",
+        {
+          "label": "Revoke all three to be thorough.",
+          "rationale": "Trello is verified-publisher and long-standing. Disrupts the user's workflow."
+        },
+        {
+          "label": "Revoke only MailSync-Free and ignore the others.",
+          "rationale": "OneDriveDirector within the compromise window with broad scopes is worth surfacing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Reply to the SOC about OneDriveDirector (3 days old, unverified publisher, broad scope, in compromise window). Leave Trello alone. Targeted revoke per the Recommendation. Ambiguous-in-window finding surfaces to the SOC. Legitimate long-standing grant stays."
+    },
+    {
+      "id": "re-grant-signal",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "hard",
+      "prompt": "Two hours after revoking OneDriveDirector (with SOC sign-off), the Timeline shows a new OAuth grant for the same app, 30 minutes after your revoke. What do you do?",
+      "choices": [
+        {
+          "label": "Re-revoke and close.",
+          "rationale": "A new grant event means someone re-authorised it. Whack-a-mole revocation hides the cause."
+        },
+        "Check whether the user re-granted in confusion or whether the attacker has another path.",
+        {
+          "label": "The revoke did not work; re-revoke.",
+          "rationale": "The first revoke worked. A new grant event is a new authorisation, not a failed revoke."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Bump to senior given the recurring pattern. Re-grant post-revoke is a signal. Either user confusion or incomplete remediation. Investigate the pattern rather than re-revoking in a loop."
+    },
+    {
+      "id": "blanket-revoke-cost",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "\"Revoking all OAuth grants to clean up\" has what consequence?",
+      "choices": [
+        "Disrupts legitimate integrations the user actively relies on.",
+        {
+          "label": "Nothing. Blanket revoke is the safe default.",
+          "rationale": "The lesson is explicit about both costs."
+        },
+        {
+          "label": "It crashes the identity provider.",
+          "rationale": "Wrong on platform behaviour."
+        },
+        {
+          "label": "It triggers an automatic tenant-wide alert.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Trains them to be paranoid about granting any access in the future. Blanket revoke breaks working integrations and erodes user trust in OAuth consent. The targeted discipline preserves legitimate grants."
+    },
+    {
+      "id": "tenant-consented",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "The suspicious grant is admin-consented at the tenant level rather than per-user. What does the lesson say?",
+      "choices": [
+        "Tenant-level grants affect every user. Revoking them is senior territory. Bump.",
+        {
+          "label": "Revoke as normal at the user level.",
+          "rationale": "User-level revoke cannot reach tenant-consented grants."
+        },
+        {
+          "label": "Ignore tenant-level grants because they are outside the user surface.",
+          "rationale": "They are a tenant-wide compromise indicator. Bump, do not ignore."
+        },
+        {
+          "label": "Wait for the SOC to update the Recommendation.",
+          "rationale": "Senior is the escalation surface for tenant-level mechanisms."
+        }
+      ],
+      "correct": 0,
+      "explanation": "User-level revoke does not touch tenant-consented grants. Senior territory."
+    },
+    {
+      "id": "broad-scopes",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "A grant has scopes like Mail.ReadWrite.All or Directory.ReadWrite.All. What does the lesson say?",
+      "choices": [
+        {
+          "label": "Revoke as normal. Broad scopes are common.",
+          "rationale": ".All scopes specifically cross the tenant ceiling."
+        },
+        "Those scopes extend beyond the affected user to the tenant. Bump.",
+        {
+          "label": "Open a Huntress support ticket for guidance.",
+          "rationale": "Senior is the escalation path."
+        },
+        {
+          "label": "Ignore. Scopes are not part of the playbook.",
+          "rationale": "Scopes are part of the grant review."
+        }
+      ],
+      "correct": 1,
+      "explanation": ".All scopes are tenant-wide. A grant with Directory.ReadWrite.All during a compromise window is above the helpdesk ceiling."
+    },
+    {
+      "id": "async-verify",
+      "type": "tf",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "It is safe to skip verification on OAuth revokes because the portal always processes them synchronously.",
+      "correct": false,
+      "explanation": "Some identity providers process OAuth revokes asynchronously. The portal may show the revoke as queued but not yet effective. Check that the grant disappears from the user's app list."
+    },
+    {
+      "id": "many-window-grants",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "medium",
+      "prompt": "The user has many grants from the compromise window (more than two or three). What does the lesson say?",
+      "choices": [
+        "Surface to senior.",
+        {
+          "label": "Revoke all of them and close.",
+          "rationale": "Without senior review the multi-grant pattern is missed."
+        },
+        {
+          "label": "Pick the most suspicious one and revoke that only.",
+          "rationale": "The pattern (many grants in window) is the signal, not one specific grant."
+        },
+        {
+          "label": "Treat it as normal SaaS sprawl.",
+          "rationale": "Many grants concentrated in the compromise window is not normal sprawl."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Could indicate the attacker was granting multiple apps to maximise persistence; The response scope may need to widen. Multi-grant pattern in the compromise window is itself a signal worth escalating. The attacker may be establishing redundant persistence."
+    },
+    {
+      "id": "grant-attributes",
+      "type": "mcq",
+      "topic": "oauth-revoke",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT a named attribute you review on an OAuth grant?",
+      "choices": [
+        {
+          "label": "App display name.",
+          "rationale": "Named in the lesson."
+        },
+        {
+          "label": "Publisher verification status.",
+          "rationale": "Named in the lesson."
+        },
+        "The exact bytes of the OAuth refresh token.",
+        {
+          "label": "Scopes (Mail.Read, Files.ReadWrite, etc.).",
+          "rationale": "Named in the lesson."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The refresh-token bytes are not visible to the tech and are not part of the review. You review app name, publisher, scopes, granted timestamp, and last-used timestamp."
+    }
+  ]
+}

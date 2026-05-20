@@ -1,0 +1,246 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-data-source-model",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: data-source model",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-dsm-three-mechanisms",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "easy",
+      "prompt": "Name the three ingestion mechanisms Managed SIEM uses.",
+      "choices": [
+        "Agent-collected (OS logs via the Huntress agent)",
+        {
+          "label": "Syslog, SNMP traps, and email-based alerts.",
+          "rationale": "Generic monitoring stack; does not match Huntress's mechanism set."
+        },
+        {
+          "label": "Agent-collected, RMM forwarding, and webhook callbacks.",
+          "rationale": "RMM forwarding and webhook callbacks are not part of the SIEM ingestion model."
+        },
+        {
+          "label": "Agent, network tap, and customer-uploaded log files.",
+          "rationale": "Network tap and customer-uploaded files are not supported ingestion paths."
+        }
+      ],
+      "correct": 0,
+      "explanation": "HEC (sources push to a Huntress HTTPS endpoint). API integrations (Huntress pulls from SaaS sources). The three mechanisms are agent-collected (the Huntress agent forwards OS logs), HEC (sources push over HTTPS), and API integrations (Huntress pulls from SaaS APIs)."
+    },
+    {
+      "id": "ck-dsm-push-vs-pull",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "What is the directional difference between HEC and API integration ingestion?",
+      "choices": [
+        {
+          "label": "HEC uses syslog; API integrations use SNMP.",
+          "rationale": "Both are HTTPS-based. The difference is direction and source type."
+        },
+        {
+          "label": "HEC is for SaaS sources; API integrations are for on-prem devices.",
+          "rationale": "Inverted. HEC is typically used by on-prem devices; API integrations are for SaaS."
+        },
+        "HEC is the customer's source pushing events to Huntress over HTTPS.",
+        {
+          "label": "No difference; both are interchangeable names for the same path.",
+          "rationale": "They have different auth models and different failure modes."
+        }
+      ],
+      "correct": 2,
+      "explanation": "API integration is Huntress pulling from a SaaS source via the vendor API. HEC is a push model (customer source sends to Huntress). API integration is a pull model (Huntress fetches from a SaaS API). Different directions, different auth, different failure modes."
+    },
+    {
+      "id": "ck-dsm-agent-vs-source",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "A peer says \"if the Huntress agent is online, all agent-collected SIEM sources from that endpoint are healthy by definition.\" Is that correct?",
+      "choices": [
+        {
+          "label": "Completely true; agent-online means every source is healthy.",
+          "rationale": "The OS-level log service can be sick independently of the agent."
+        },
+        "Mostly true, but a healthy agent can still have a broken local log source.",
+        {
+          "label": "Completely false; agent online tells you nothing about source health.",
+          "rationale": "Overstated. Agent online is a necessary precondition, just not sufficient."
+        },
+        {
+          "label": "Only true on macOS; Windows agents don't report source health.",
+          "rationale": "Invented detail not in the lesson."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Windows Event Log service stopped, journald disk full, and similar. The agent reports source health separately. Agent online is necessary but not sufficient. The OS-level log service (Windows Event Log, journald) can fail independently. The agent reports source health separately from its own health."
+    },
+    {
+      "id": "ck-dsm-api-failure",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "Which is the most common failure mode for an API integration?",
+      "choices": [
+        {
+          "label": "The Huntress agent is offline.",
+          "rationale": "Agent state is irrelevant to API integrations, which run on the Huntress side."
+        },
+        {
+          "label": "The customer's firewall is blocking the HEC endpoint.",
+          "rationale": "That is an HEC failure mode, not API."
+        },
+        "The OAuth token or API token has expired, been revoked.",
+        {
+          "label": "The customer is offline.",
+          "rationale": "API integrations pull from a SaaS service, not from a customer's premises."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Or been disabled. API integrations authenticate via OAuth or API tokens. Expiry or revocation of that token is the most common failure mode."
+    },
+    {
+      "id": "ck-dsm-hec-vs-api-misconception",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "hard",
+      "prompt": "\"HEC and API integrations are kind of the same thing, both network-based.\" Why is this misconception dangerous in practice?",
+      "choices": [
+        {
+          "label": "It isn't dangerous; they really are interchangeable.",
+          "rationale": "Wrong on the facts. They have fundamentally different auth and failure modes."
+        },
+        "They have different auth models, different failure modes.",
+        {
+          "label": "Because HEC is faster and API is slower, mixing them up loses time.",
+          "rationale": "Speed is not the issue. Auth and failure-mode differences are."
+        },
+        {
+          "label": "Because the Huntress portal labels them with the same icon.",
+          "rationale": "Invented. The portal labels mechanisms distinctly."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Different fix paths. Diagnosing one as if it were the other sends you down the wrong runbook. HEC (push, customer-side forwarder, network-path failures) and API (pull, OAuth/token auth, SaaS-side failures) have entirely different diagnostic runbooks. Confusing them wastes a half-hour."
+    },
+    {
+      "id": "ck-dsm-source-naming",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "A source named `Firewall-PaloAlto-HEC-Edge01` uses which ingestion mechanism?",
+      "choices": [
+        {
+          "label": "Agent-collected.",
+          "rationale": "Agent-collected sources have hostname-prefixed naming patterns, not device-type naming."
+        },
+        "HEC ingestion. The name contains HEC and references a network device.",
+        {
+          "label": "API integration.",
+          "rationale": "API integrations reference SaaS app names without hostnames."
+        },
+        {
+          "label": "Manual file upload.",
+          "rationale": "Not a Huntress ingestion mechanism."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The source name contains 'HEC' and references a network device, matching the HEC ingestion pattern where the customer's firewall pushes via HTTPS."
+    },
+    {
+      "id": "ck-dsm-hec-failure-mode",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "Which is a typical failure mode for an HEC source?",
+      "choices": [
+        "The auth token has been revoked or the source's network path to the HEC endpoint is broken.",
+        {
+          "label": "The Huntress agent on the customer's domain controller is offline.",
+          "rationale": "HEC sources do not run through the agent."
+        },
+        {
+          "label": "The customer's super-admin has revoked an OAuth grant.",
+          "rationale": "That is an API integration failure mode, not HEC."
+        },
+        {
+          "label": "The Windows Event Log service has stopped on the source endpoint.",
+          "rationale": "That is an agent-collected failure mode, not HEC."
+        }
+      ],
+      "correct": 0,
+      "explanation": "HEC sources fail when the auth token is revoked or the network path between the customer's source and the Huntress HEC endpoint breaks."
+    },
+    {
+      "id": "ck-dsm-scoping-diagnostic",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "hard",
+      "prompt": "A customer says \"we're not seeing any sign-in events in your SIEM view from yesterday.\" The customer has 60 agent-collected sources, 1 HEC source, and 3 API integrations (Okta, M365, Defender). What do you check first?",
+      "choices": [
+        {
+          "label": "Check all 64 sources sequentially to be thorough.",
+          "rationale": "Blind sequential checks waste time. Scope by the kind of event first."
+        },
+        "Check the Okta and M365 API integrations first.",
+        {
+          "label": "Tell the customer their SSO is broken before checking anything.",
+          "rationale": "Wrong attribution and wrong order. Diagnose first, attribute later."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(the canonical SaaS sign-in sources). Then agent-collected Windows Event Logs second for local sign-ins. Sign-in events live primarily on the SSO integration (Okta) and secondarily on Windows Event Logs for local sign-ins. Mechanism-first scoping avoids checking all 64 sources blindly."
+    },
+    {
+      "id": "ck-dsm-okta-attribution",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "The Okta API integration shows \"Authentication failed.\" You tell the customer's IT manager \"your Okta is broken.\" Why is that the wrong attribution?",
+      "choices": [
+        {
+          "label": "Okta never breaks; the issue must be on the network.",
+          "rationale": "The point is not that Okta cannot break. The signal points at the integration, not at Okta itself."
+        },
+        "The auth failure is on the Huntress-to-Okta API integration.",
+        {
+          "label": "The customer's IT manager doesn't have permission to know about auth failures.",
+          "rationale": "Invented and irrelevant."
+        },
+        {
+          "label": "Only the SOC can communicate auth failures to customers.",
+          "rationale": "The helpdesk handles customer communications."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Not on the customer's Okta operation. Users are still signing in; Huntress just is not pulling the events. The auth failure is between Huntress and Okta's API, not on Okta itself. Users are still signing in via Okta. Telling the customer their Okta is broken misattributes the fault."
+    },
+    {
+      "id": "ck-dsm-agent-collected-logs",
+      "type": "mcq",
+      "topic": "data-sources",
+      "difficulty": "medium",
+      "prompt": "An agent-collected SIEM source on a Windows endpoint reads which kinds of OS logs?",
+      "choices": [
+        {
+          "label": "IIS access logs only.",
+          "rationale": "Too narrow. The agent reads OS-native Event Logs, not just IIS."
+        },
+        "Windows Event Logs (Security, System.",
+        {
+          "label": "The customer's RMM agent's own logs.",
+          "rationale": "The Huntress agent does not ingest RMM-agent logs."
+        },
+        {
+          "label": "Custom application logs the agent crawls from disk.",
+          "rationale": "Custom application logs typically use HEC, not agent collection."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Application) plus PowerShell Operational, Sysmon if installed. Other named logs per the customer's profile. The Huntress agent reads OS-native Windows Event Logs (Security, System, Application, PowerShell Operational, Sysmon if installed) and ships them over its encrypted channel."
+    }
+  ]
+}

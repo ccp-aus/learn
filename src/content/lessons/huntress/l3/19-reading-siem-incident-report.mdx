@@ -1,0 +1,82 @@
+---
+slug: 19-reading-siem-incident-report
+vendor: huntress
+level: l3
+title: "Reading a SIEM Incident Report"
+summary: "The SIEM Incident Report shares the skeleton you already know, with log-shaped Evidence, sometimes-derived affected entities, and Recommendations that may span surfaces."
+estimatedMinutes: 7
+order: 19
+topics:
+  - siem
+  - incident-report
+updated: 2026-05-20
+---
+
+The SIEM Incident Report uses the same skeleton as EDR and ITDR: header, summary, evidence, recommendation, affected entity, analyst. The reading order is the same. Severity bands are the same. The Recommendation is still the action zone and the Evidence is still context. What changes is the *shape* of the Evidence and the *breadth* of the Recommendation.
+
+## What stays the same
+
+The skeleton carries across surfaces unchanged. Header routes the ticket. Recommendation tells you what to do. Verify the affected entity against the right tenant. Summary fills in the SOC's reasoning when the Recommendation is not obvious from the header. Evidence provides context. The action-vs-context discipline from the foundations course applies here without modification.
+
+## What changes
+
+### Evidence is log-shaped
+
+EDR Evidence shows process trees and command-line strings. ITDR Evidence shows sign-in events and mailbox rule definitions. SIEM Evidence shows log lines from one or more sources, with timestamps, fields, and the SOC's annotation explaining which fields matter for this detection.
+
+A SIEM Evidence section might contain five firewall log lines showing outbound connections to a flagged destination between 14:02 and 14:11, three Windows Event Log entries showing an unusual service start at 14:01, and the SOC's annotation connecting them: the service start created the process making the outbound connections.
+
+The SOC's annotation is your guide. Firewall logs, audit logs, and SaaS API logs all use different fields. The annotation tells you which fields matter for this detection and how the cross-source story connects. Reading raw log lines without the annotation takes longer and misses the correlation.
+
+### The affected entity may be derived
+
+EDR's affected entity is a host. ITDR's is an identity. SIEM's may be a log source, a host that appeared across multiple sources, an IP address that maps to a specific internal host, or a cross-source behavioural pattern. When the entity is derived, the Recommendation usually does the mapping for you.
+
+### The Recommendation may span surfaces
+
+SIEM's cross-source visibility means the SOC may direct actions on the firewall, on Okta, on Entra ID, and on EDR, all in one Recommendation. "Block the IP at the firewall AND check for EDR signals on the affected host" is routine. Run both per the applicable runbook for each surface.
+
+## Reading order in practice
+
+1. **Header.** Severity, surface (SIEM), affected entity, customer, source.
+2. **Recommendation.** What action does the SOC want?
+3. **Verify the entity.** Same wrong-tenant discipline as earlier courses.
+4. **Summary if needed.** The SOC's plain-language statement of what happened.
+5. **Evidence with the SOC's annotation.** Read the log lines in the order the annotation directs, not necessarily timestamp order.
+
+Where a Timeline view is present, it lays log events in chronological order across sources, making the cross-source story visible at a glance. Use it the same way as the ITDR timeline: top to bottom, mapping events to response steps.
+
+## The cardinal mistake on a new surface
+
+Following an interesting-looking log line in the Evidence into action that is not in the Recommendation. Same mistake as acting on EDR Evidence or ITDR Evidence instead of the Recommendation. The surface is different; the failure mode is identical.
+
+<Callout type="warn" title="Don't interpret raw logs without the annotation">
+Firewall, audit, and SaaS API log formats vary widely. The SOC's annotation explains which fields matter for this detection. Attempting to interpret unfamiliar log formats from scratch duplicates the SOC's work with worse tools.
+</Callout>
+
+## Decision walkthrough
+
+High SIEM Incident Report. Customer: Globex Marketing. Source: `okta-globex-sso` (API integration). Title: "Anomalous administrative role assignment detected." Recommendation: review the role assignment, confirm whether authorised, revoke if unauthorised. Evidence: an admin role assigned to a regular user account at 03:14, out-of-hours, no matching change-control entry.
+
+<DecisionTree client:load
+  title="First read: what do you do?"
+  description="The Recommendation says review, confirm authorised, revoke if not. The Evidence shows the timing and the lack of change-control documentation. The question is where you start."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What is your first move?", choices: [
+      { label: "Investigate the Okta log fields in depth before doing anything else", next: "investigate" },
+      { label: "Read the Recommendation, verify the user and role, check authorisation with the customer's IT contact", next: "standard" },
+      { label: "Block the user in Okta immediately to be safe", next: "block" },
+    ]},
+    { type: "outcome", id: "standard", label: "Standard reading order applied to SIEM", tone: "success",
+      body: "The authorisation check is the action zone of the Recommendation. Everything else is context. Verify via the customer's IT contact and change-management feed." },
+    { type: "outcome", id: "investigate", label: "Investigation before action", tone: "warn",
+      body: "Field-level investigation is context-gathering and comes after the authorisation check. The Recommendation's action zone is confirming authorisation, not dissecting log fields." },
+    { type: "outcome", id: "block", label: "Acting before the authorisation check", tone: "bad",
+      body: "The Recommendation said revoke if unauthorised, not block first. Acting before the check is the cardinal mistake on a SIEM surface." },
+  ]}
+/>
+
+The customer's IT manager confirms the role assignment was not authorised, with a brief stumble in his answer. The right move: confirm clearly ("to confirm, the admin role assignment at 03:14 was not authorised by your team, correct?"), then revoke per the Recommendation and document the conversation timestamps. The 30-second verification protects against a misheard answer on a role-change action.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-reading-siem-incident-report" client:visible />

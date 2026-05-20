@@ -1,0 +1,283 @@
+{
+  "slug": "huntress-foundations-checkpoint-orientation",
+  "course": "huntress-foundations",
+  "kind": "checkpoint",
+  "title": "Quick check: orientation",
+  "drawCount": 3,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "course-structure",
+      "type": "mcq",
+      "topic": "structure",
+      "difficulty": "easy",
+      "prompt": "How are the lessons in this course organised?",
+      "choices": [
+        "Short lessons grouped into topics, with checkpoints and a final assessment.",
+        {
+          "label": "Weekly cohorts that move through the same lesson at the same time, with live facilitation sessions.",
+          "rationale": "The course is self-paced; there are no cohorts or live sessions."
+        },
+        {
+          "label": "One long course you work through end-to-end without breaks.",
+          "rationale": "The course is deliberately split into topics so you can take it in sittings."
+        },
+        {
+          "label": "Two tracks (EDR and ITDR) where you pick one.",
+          "rationale": "Everyone covers both surfaces; the lesson sequence is shared."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Short lessons grouped into topics, with a checkpoint between each topic and a single final scenario assessment at the end."
+    },
+    {
+      "id": "final-vs-signoff",
+      "type": "mcq",
+      "topic": "sign-off",
+      "difficulty": "medium",
+      "prompt": "A peer says: \"Passing the final assessment IS the sign-off to work live tickets unsupervised.\" Why is that the wrong reading?",
+      "choices": [
+        {
+          "label": "Because the assessment is too easy to count as a sign-off.",
+          "rationale": "The issue isn't difficulty; it's what kind of input the score is."
+        },
+        "The final recommends readiness; your MSP's own shadow-and-review process is the actual sign-off.",
+        {
+          "label": "Because Huntress runs the assessment and your MSP isn't involved in the scoring at all.",
+          "rationale": "The training assessment is the training's, not the vendor's. The split that matters is MSP vs. LMS."
+        },
+        {
+          "label": "Because the score isn't recorded anywhere.",
+          "rationale": "The score is recorded; that's how the LMS gates. What it means is the question."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The LMS says you can make the calls; your MSP's shadow-and-review process says you make them well on real customers."
+    },
+    {
+      "id": "shadow-the-senior",
+      "type": "mcq",
+      "topic": "shadowing",
+      "difficulty": "medium",
+      "prompt": "You're partway through the course. A senior offers to look at an EDR ticket together right now. EDR triage lessons land much later in the course. What's the right move?",
+      "choices": [
+        {
+          "label": "Say yes and drive the ticket while the senior watches.",
+          "rationale": "Skips the gates the course exists to enforce. Without the platform model, the senior watches you click in the wrong places."
+        },
+        {
+          "label": "Decline and finish the current topic first.",
+          "rationale": "Defensible but over-cautious. There's a middle path that respects the cadence and the senior's offer."
+        },
+        "Say yes, shadow rather than drive, and capture questions for after.",
+        {
+          "label": "Ignore the senior and keep reading the lessons in order.",
+          "rationale": "Wrong tone. The offer is real and worth taking; the question is how."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Shadowing means you're not skipping gates; you're watching the work happen on a real ticket. Capture anything you didn't understand."
+    },
+    {
+      "id": "questions-list-fields",
+      "type": "mcq",
+      "topic": "questions-list",
+      "difficulty": "easy",
+      "prompt": "What three things does a useful questions-list entry capture?",
+      "choices": [
+        "Where, what you didn't understand, and what you tried.",
+        {
+          "label": "When you got stuck, who was online, and how long you stalled for.",
+          "rationale": "These aren't actionable for the senior at a check-in."
+        },
+        {
+          "label": "Lesson number, vendor URL, and a screenshot of the confusing passage.",
+          "rationale": "Screenshots without your own words just reproduce the confusion."
+        },
+        {
+          "label": "The exact text that confused you, quoted verbatim with no additional context.",
+          "rationale": "Quoting alone misses your framing and what you tried, the parts that turn a question into a check-in conversation."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Where (lesson, ticket, page), what you didn't understand in your own words, and what you tried. The \"what you tried\" line earns the rest its keep."
+    },
+    {
+      "id": "what-you-tried",
+      "type": "mcq",
+      "topic": "what-you-tried",
+      "difficulty": "medium",
+      "prompt": "Which field of a questions-list entry pulls the most weight, and why?",
+      "choices": [
+        {
+          "label": "\"Where.\" Without the lesson number the senior can't look anything up.",
+          "rationale": "Useful but not load-bearing. The senior can usually find the lesson."
+        },
+        "\"What you tried.\" Blocks trivial questions and gives the senior real context.",
+        {
+          "label": "\"What you didn't understand.\" Without it the entry is meaningless and the senior has nothing to work with.",
+          "rationale": "Necessary, but the lesson is explicit that \"what you tried\" pulls the most weight."
+        },
+        {
+          "label": "The timestamp. Recent questions get answered first.",
+          "rationale": "Timestamps aren't a recommended field."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Three benefits in one line: stops trivial questions, gives the senior context, and builds the habit of trying before asking."
+    },
+    {
+      "id": "late-evening-stuck",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "You're on a lesson late in the evening. It references a diagnostic you haven't seen before. No senior is available. What do you do?",
+      "choices": [
+        {
+          "label": "Message the on-call senior to clarify.",
+          "rationale": "On-call is for live incidents, not training questions. Burns goodwill and you might not get an answer until morning anyway."
+        },
+        "Write a one-line note (where, what, what you tried), and move on to the next lesson.",
+        {
+          "label": "Re-read the lesson three more times until you feel like you've absorbed it.",
+          "rationale": "Poor return on time. By the third re-read you've stopped engaging and started rationalising."
+        },
+        {
+          "label": "Stop entirely and pick up tomorrow.",
+          "rationale": "Stalling for a day is one of the two failure modes the lesson is built to prevent."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Capture-and-keep-moving is the default. The note unblocks you and surfaces at the next check-in if it doesn't resolve itself."
+    },
+    {
+      "id": "wont-remember",
+      "type": "tf",
+      "topic": "memory",
+      "difficulty": "easy",
+      "prompt": "\"I'll remember the question without writing it down.\" The lesson treats this as a reliable habit.",
+      "correct": false,
+      "explanation": "You'll remember the feeling of being confused at a particular spot, not the specific question. By the check-in, the senior asks what wasn't clear and you can't reconstruct it."
+    },
+    {
+      "id": "in-scope-percentage",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "easy",
+      "prompt": "Roughly what percentage of daily Huntress ticket volume does this course target as in scope for the helpdesk tech to handle independently?",
+      "choices": [
+        {
+          "label": "About 50%, with the rest going to a senior or to Huntress support for further analysis.",
+          "rationale": "A competent helpdesk tech handles most of the work independently after this course."
+        },
+        "About 95%; the remaining 5% always escalates.",
+        {
+          "label": "100%; once trained, the tech handles everything.",
+          "rationale": "The remaining 5% escalates regardless of how trained you are."
+        },
+        {
+          "label": "About 25%; the helpdesk only does triage and everything else escalates.",
+          "rationale": "Understates the role and inverts the ceiling intent."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Roughly 95% in scope; the remaining 5% (Critical investigation, detection tuning, commercial decisions, irreversible policy changes) always escalates."
+    },
+    {
+      "id": "in-scope-row",
+      "type": "mcq",
+      "topic": "ceiling",
+      "difficulty": "medium",
+      "prompt": "Which of these is in scope (the \"you do\" column) for the helpdesk tech this course targets?",
+      "choices": [
+        {
+          "label": "Modify org-level isolation policy.",
+          "rationale": "Escalates. Policy-level changes are above the helpdesk ceiling."
+        },
+        "Recognise a Critical, contain it, and escalate in parallel.",
+        {
+          "label": "Investigate a Critical incident and hunt for persistence across the tenant.",
+          "rationale": "Escalates. Forensics and persistence-hunting are above the helpdesk ceiling."
+        },
+        {
+          "label": "Suppress or tune detections at the policy level.",
+          "rationale": "Escalates. Detection tuning is above the ceiling."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Contain-and-escalate-in-parallel is in scope; investigation of a Critical isn't."
+    },
+    {
+      "id": "two-question-test",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "medium",
+      "prompt": "The course previews a \"two-question test\" that holds the escalation ceiling together. What does it ask?",
+      "choices": [
+        "Is this reversible, and do I understand why it's the right action? If either answer is no, escalate.",
+        {
+          "label": "Is this Critical, and has the SOC closed the incident? If yes to both, proceed.",
+          "rationale": "Severity isn't the two-question test; it's the tempo input. Reversibility and understanding are the ceiling test."
+        },
+        {
+          "label": "Will the customer notice, and will my senior approve? If yes to both, proceed.",
+          "rationale": "Misframes the test as social; it's actually a technical reversibility plus understanding check."
+        },
+        {
+          "label": "Did the SOC sign the report, and is my MSP licensed for the action? If yes, proceed.",
+          "rationale": "Not the test."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Reversibility plus understanding. If either answer is no, escalate."
+    },
+    {
+      "id": "stale-low-tag",
+      "type": "mcq",
+      "topic": "stale-severity",
+      "difficulty": "hard",
+      "prompt": "A client calls: their server is locked up, ransomware-shaped. The portal shows only a Low EDR detection with the SOC's recommendation still pending. What do you do first?",
+      "choices": [
+        {
+          "label": "Approve the pending recommendation so the SOC sees it move.",
+          "rationale": "Pending means the SOC analyst hasn't finished triage; approving a recommendation that doesn't exist yet skips them."
+        },
+        "Isolate the host and escalate to a senior in parallel.",
+        {
+          "label": "Tell the client you can't act because the SOC hasn't completed triage.",
+          "rationale": "The client gave you new information the SOC doesn't have yet. Act on containment and feed the new context to both the SOC and the senior."
+        },
+        {
+          "label": "Wait for the SOC to upgrade the severity, then act.",
+          "rationale": "The Low tag is stale relative to the call. Waiting on a re-grade while the customer is locked up is the freeze failure mode."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The client's description overrides the stale Low tag. Contain (isolate), escalate in parallel, feed new context to the SOC via the ticket."
+    },
+    {
+      "id": "senior-asks-above-ceiling",
+      "type": "mcq",
+      "topic": "ceiling-pushback",
+      "difficulty": "hard",
+      "prompt": "Mid-incident, your senior says: \"Disable scheduled-task remediations across this customer's whole org for the next 24 hours.\" Org-level policy changes sit in the escalate column. What do you do?",
+      "choices": [
+        {
+          "label": "Do it. The senior is the authority and they gave a direct instruction.",
+          "rationale": "Org-level policy changes don't come down even when a senior asks. Clarify before acting."
+        },
+        "Pause and ask the senior to run the change themselves or document the exception.",
+        {
+          "label": "Refuse, push back, and lecture the senior about the ceiling table.",
+          "rationale": "Lecturing mid-incident is the wrong tone. The same outcome without friction is the goal."
+        },
+        {
+          "label": "Make the change and document the senior's request in the ticket.",
+          "rationale": "Documenting an above-ceiling action doesn't bring it back into scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Not refusing; flagging that this is above the tech's line and asking the right authority to either own it or sign off in writing."
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "slug": "huntress-operations-checkpoint-clean-uninstall-decommission",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: clean uninstall and decommission",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "uninstall-key-definition",
+      "type": "mcq",
+      "topic": "uninstall-key",
+      "difficulty": "easy",
+      "prompt": "What is the uninstall key?",
+      "choices": [
+        "An organisation-specific credential exposed under the customer's organisation Settings in the Huntress portal;",
+        {
+          "label": "A one-time-use code generated per endpoint.",
+          "rationale": "The key is per-org, not per-endpoint."
+        },
+        {
+          "label": "An installer command-line argument that auto-disables the agent.",
+          "rationale": "Conflates the key with the install path; the key authorises the uninstall."
+        },
+        {
+          "label": "A senior-only credential the helpdesk can't see.",
+          "rationale": "The helpdesk uses it via the runbook in their scope."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Authorises the agent to uninstall cleanly. Per-organisation, not per-endpoint. Per-organisation credential, lives in the portal's organisation Settings."
+    },
+    {
+      "id": "why-gated",
+      "type": "mcq",
+      "topic": "design",
+      "difficulty": "medium",
+      "prompt": "Why is the local uninstall gated by the key?",
+      "choices": [
+        "To prevent attackers from removing the agent silently.",
+        {
+          "label": "To make uninstalls slower for billing purposes.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Because the agent has no uninstall code without the key.",
+          "rationale": "The code is there; the gate authorises it."
+        },
+        {
+          "label": "To make the SOC notice removals.",
+          "rationale": "Not how the SOC operates."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The gate is intentional security design."
+    },
+    {
+      "id": "skip-the-key",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "'Skipping the uninstall key and running the installer's uninstall mode without it' — what's the consequence?",
+      "choices": [
+        "The gated uninstall either fails or removes the binary without cleanly deregistering.",
+        {
+          "label": "Nothing; the uninstall succeeds cleanly without the key.",
+          "rationale": "Inverts the design."
+        },
+        {
+          "label": "The endpoint reboots automatically.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Huntress charges a 'forced uninstall' fee.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The portal then shows a stale online agent that has actually gone away, or a partial-uninstall state that confuses the next tech. Both ends of the uninstall (endpoint and portal) need to land cleanly; the key is what makes both happen."
+    },
+    {
+      "id": "credential-handling",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is 'pasting the uninstall key into chat or a customer email' called out as wrong?",
+      "choices": [
+        "Same family as the install-time org-key mistake.",
+        {
+          "label": "Chat platforms are insecure but email is fine.",
+          "rationale": "Both surfaces are wrong."
+        },
+        {
+          "label": "Customer emails get audited by Huntress.",
+          "rationale": "Not how the platform works."
+        },
+        {
+          "label": "It's a copyright violation.",
+          "rationale": "Wildly out of scope."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The key is a credential; treat it as one. Credential discipline applies; use the runbook's documented surface."
+    },
+    {
+      "id": "uninstall-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Order the steps for a single-endpoint clean uninstall.",
+      "items": [
+        "Confirm the endpoint and the reason from the PSA ticket or request.",
+        "Pull the organisation-specific uninstall key from the portal Settings (or from the runbook's vault if pre-staged).",
+        "Run the uninstall via RMM (or the documented manual command for resistant agents) using the org's uninstall key.",
+        "Wait for the agent to process the uninstall.",
+        "Verify in the Huntress portal that the agent has moved to offline and then disappeared (or moved to the expected post-uninstall state).",
+        "Verify on the endpoint if possible: Huntress service gone, install path empty.",
+        "Document in the PSA: endpoint name, uninstall timestamp, reason, any complication."
+      ],
+      "explanation": "Confirm reason, pull key, run uninstall, wait, verify portal, verify endpoint, document."
+    },
+    {
+      "id": "wiped-laptop-check-first",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A leaving employee's laptop was wiped to factory state yesterday. The customer's IT manager asks you to 'remove Huntress so we can re-deploy from scratch.' What's the right interpretation?",
+      "choices": [
+        {
+          "label": "Run the uninstall via RMM with the organisation's uninstall key.",
+          "rationale": "Whether the agent still exists on the wiped laptop depends on what the wipe touched. The portal will tell you in 30 seconds."
+        },
+        "Check the portal first.",
+        {
+          "label": "Skip the uninstall; the laptop was wiped, the agent is gone.",
+          "rationale": "Wipes vary; some leave services in place, some don't."
+        }
+      ],
+      "correct": 1,
+      "explanation": "If the agent is still registered, run the documented uninstall with the org key. If the agent isn't registered, the wipe already removed it; the laptop will need a fresh install when redeployed. Two minutes of checking saves a redundant uninstall attempt and tells you what the next step actually is."
+    },
+    {
+      "id": "remove-from-portal",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "An agent shows offline since yesterday. The customer's IT manager asks: 'Can you just remove it from the portal so we have a clean list?'",
+      "choices": [
+        {
+          "label": "Click the 'remove from portal' / 'delete agent' option in the Agents view.",
+          "rationale": "Some MSPs treat 'delete from portal' as a senior-only destructive admin action."
+        },
+        "Confirm the runbook's policy on removing decommissioned agents from the portal view.",
+        {
+          "label": "Ignore the request; the agent is offline, the customer is happy.",
+          "rationale": "The customer asked for a clean view; the action is small but whether you can do it is what's worth checking."
+        }
+      ],
+      "correct": 1,
+      "explanation": "If it's in your scope, do it; if not, bump. The runbook decides whether this is helpdesk scope or senior scope."
+    },
+    {
+      "id": "resistant-agent",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The agent resists the uninstall even with the documented manual command. What's the guidance?",
+      "choices": [
+        "Investigate the cause.",
+        {
+          "label": "Force a retry every 10 minutes until it takes.",
+          "rationale": "Brute-force without cause-investigation."
+        },
+        {
+          "label": "Open a Huntress support ticket and stop work.",
+          "rationale": "Premature; investigate locally first via the senior route."
+        },
+        {
+          "label": "Re-install the agent and try again later.",
+          "rationale": "Adds complexity without addressing the resistance."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(tamper-protection, permissions, AV interference) before forcing a retry. Bump if you can't identify the cause. Cause-investigation before brute-force; senior bump if cause isn't findable."
+    },
+    {
+      "id": "abandoned-offline",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "'Leaving the endpoint in the portal as offline forever because nobody clicked through the uninstall' — what's the issue?",
+      "choices": [
+        "The agent is still installed, still trying to phone home.",
+        {
+          "label": "Abandoned offline agents auto-delete after 30 days.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Abandoned offlines are billed at half-rate.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "The SOC closes incidents on offline endpoints automatically.",
+          "rationale": "Not how the SOC operates."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Still occupying a license slot. The decommission isn't real until the agent is off. Offline in the portal isn't decommissioned; the agent is still on the endpoint."
+    },
+    {
+      "id": "customer-keep-for-next",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The endpoint's owner asks to keep Huntress on it after decommission 'for the next user.' What's the guidance?",
+      "choices": [
+        "Deployment-strategy / lifecycle question. Senior owns.",
+        {
+          "label": "Just leave it on; one less re-deploy.",
+          "rationale": "Bypasses the senior's lifecycle conversation with the customer."
+        },
+        {
+          "label": "Uninstall now and re-install when the next user gets the endpoint.",
+          "rationale": "The right action depends on the lifecycle decision; the tech doesn't make it."
+        },
+        {
+          "label": "Ask the customer's IT contact to decide.",
+          "rationale": "The customer-side conversation is the senior's surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Coverage decisions across asset lifecycles aren't tech-level calls."
+    }
+  ]
+}

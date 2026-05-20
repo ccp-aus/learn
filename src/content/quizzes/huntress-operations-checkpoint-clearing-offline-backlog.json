@@ -1,0 +1,232 @@
+{
+  "slug": "huntress-operations-checkpoint-clearing-offline-backlog",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: clearing an offline backlog",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "count-not-problem",
+      "type": "mcq",
+      "topic": "count-vs-problem",
+      "difficulty": "easy",
+      "prompt": "'The number on the dashboard is a count, not a problem.' What does this mean in practice?",
+      "choices": [
+        "Twelve offlines split as nine powered-off.",
+        {
+          "label": "The count is fictional and should be ignored.",
+          "rationale": "The count is real; it just isn't the whole picture."
+        },
+        {
+          "label": "Always aim to drive the count to zero by any means.",
+          "rationale": "The 'make the number drop' anti-pattern."
+        },
+        {
+          "label": "The count is the customer's problem, not the MSP's.",
+          "rationale": "The MSP owns categorisation and remediation."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two network-blocked. One uninstalled is a 25% real-work load. Twelve offlines that are all uninstalled is a five-alarm fire. The count doesn't tell you which. The count is a signal that needs categorisation before it becomes meaningful."
+    },
+    {
+      "id": "batching-rule",
+      "type": "mcq",
+      "topic": "batching",
+      "difficulty": "medium",
+      "prompt": "What's the rule for batching backlog fixes?",
+      "choices": [
+        "Batching is allowed within a category.",
+        {
+          "label": "Never batch fixes; always per-endpoint.",
+          "rationale": "Within-category batching is explicit."
+        },
+        {
+          "label": "Always batch across causes to save time.",
+          "rationale": "The named anti-pattern."
+        },
+        {
+          "label": "Batch only on Mondays.",
+          "rationale": "Not the framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Not across. Re-pushing to ten uninstalled agents in one RMM job is fine; re-pushing to ten offline agents (mixed causes) is the make-the-number-drop failure mode. The categorisation discipline is what makes batching safe."
+    },
+    {
+      "id": "bulk-repush-critique",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "'Re-pushing to every offline agent indiscriminately to make the number drop' — what's the critique?",
+      "choices": [
+        "Wrong fix for three of the four causes.",
+        {
+          "label": "Re-pushing is fine; the lesson exaggerates the risk.",
+          "rationale": "The risk (RMM churn, false 'fixed' state) is the lesson's point."
+        },
+        {
+          "label": "Re-pushing voids the customer's contract.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Re-pushing is what the runbook calls for.",
+          "rationale": "Wrong on the runbook framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Doesn't change anything for two of them (powered off, network blocked). Creates churn in the RMM. The category-then-fix discipline takes longer up-front and finishes faster overall. Indiscriminate bulk re-push is the canonical make-the-number-drop failure."
+    },
+    {
+      "id": "pattern-leverage",
+      "type": "mcq",
+      "topic": "leverage",
+      "difficulty": "medium",
+      "prompt": "What's the leverage point when working a categorised backlog?",
+      "choices": [
+        "Look for patterns within the categorisation.",
+        {
+          "label": "Fix the largest category first regardless of cause.",
+          "rationale": "Volume isn't the leverage; pattern is."
+        },
+        {
+          "label": "Always fix in alphabetical order of hostname.",
+          "rationale": "Arbitrary; not a real workflow."
+        },
+        {
+          "label": "Always escalate the entire backlog to a senior.",
+          "rationale": "Bypasses the tech's diagnostic responsibility."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Five service-stopped on the same OU, three uninstalled on the same site. Shared cause, shared fix. One investigation, one fix, many endpoints unstick."
+    },
+    {
+      "id": "monday-morning",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Monday morning: 14 offline agents on a customer. The account manager wants the count down before Thursday's review. What's your first move?",
+      "choices": [
+        {
+          "label": "Re-push the install to all 14 endpoints.",
+          "rationale": "Reaching for bulk re-push without categorising is the make-the-number-drop failure mode."
+        },
+        "Sort the offline list, run the two-question diagnostic on each.",
+        {
+          "label": "Ask the account manager to push the weekly review back.",
+          "rationale": "The work is doable inside the window if you categorise first."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Capture the categorisation in a worksheet. Then plan the fix sequence by category. Two minutes per endpoint of categorisation prevents the half-day of misapplied fixes."
+    },
+    {
+      "id": "mixed-categorisation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Categorisation: eight powered-off (weekend/leave/decommissioned), three service-stopped (all same OU, Windows update yesterday), two uninstalled (executive laptops, SCCM cleanup task in logs), one network-blocked (remote worker on hotel WiFi captive portal). What's the right action set?",
+      "choices": [
+        "Start the service on the three;",
+        {
+          "label": "Apply the blocked-outbound firewall fix to all 14.",
+          "rationale": "Only one of the 14 is network-blocked, and that one's network isn't your customer's network."
+        },
+        {
+          "label": "Re-push the install to the two uninstalled and ignore the rest.",
+          "rationale": "Half-right; ignoring service-stopped means they recur with the same Windows-update cause."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Document SCCM exclusion fix for the executive laptops then re-push; tell the remote worker the captive portal blocks outbound and coverage resumes on a clean network; document the eight powered-off as no-action. Each category gets the right fix; shared causes are named in the documentation."
+    },
+    {
+      "id": "documentation-matters",
+      "type": "mcq",
+      "topic": "documentation",
+      "difficulty": "medium",
+      "prompt": "Why is 'stopping documentation to save time' called out as a mistake?",
+      "choices": [
+        "Same backlog appears next month with no record of what fixed which last time.",
+        {
+          "label": "Documentation is required by Huntress for billing.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Undocumented fixes trigger SOC alerts.",
+          "rationale": "Not how the SOC operates."
+        },
+        {
+          "label": "Documentation is purely cosmetic.",
+          "rationale": "Documentation is what makes the work durable."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Documentation is what makes the backlog smaller over time. Skipping documentation makes the next pass identical to this one."
+    },
+    {
+      "id": "customer-summary-shape",
+      "type": "mcq",
+      "topic": "customer-summary",
+      "difficulty": "medium",
+      "prompt": "What's the right shape of the customer-facing one-line summary?",
+      "choices": [
+        "'X endpoints powered off; Y service-stopped and restored;",
+        {
+          "label": "'Count dropped from 14 to 0.'",
+          "rationale": "The make-the-number-drop framing the lesson pushes back on."
+        },
+        {
+          "label": "'All 14 resolved.' No detail.",
+          "rationale": "The customer can't act on this; the categories drive whether next month's backlog is preventable."
+        },
+        {
+          "label": "Send the full categorisation worksheet without summary.",
+          "rationale": "Too much detail for the executive summary."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Z network-blocked and now resolved at the firewall; W uninstalled and re-pushed.' Not just a number, the categories matter. Categories give the customer the actual picture, not just a count."
+    },
+    {
+      "id": "ad-not-rmm",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The backlog includes endpoints in the 'In AD, not in RMM' category, endpoints the MSP shouldn't be covering at all that somehow ended up in scope. What's the right move?",
+      "choices": [
+        "Deployment-strategy question; senior owns it.",
+        {
+          "label": "Uninstall the agents quietly and don't mention it.",
+          "rationale": "Hides the underlying scope question that the senior needs to settle with the customer."
+        },
+        {
+          "label": "Add them to the RMM and treat them as standard backlog.",
+          "rationale": "Scope must be settled before they enter the backlog properly."
+        },
+        {
+          "label": "Open a Huntress support ticket asking what to do.",
+          "rationale": "Not a Huntress question; it's an MSP-internal deployment-strategy question."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Scope decisions are explicitly escalation surface."
+    },
+    {
+      "id": "fix-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Order the categories in the 'apply fixes by category' sequence.",
+      "items": [
+        "Powered off: no action; note in PSA, move on.",
+        "Service stopped: start the service via RMM; if same agents drop again within an hour, investigate why; don't loop on restarts.",
+        "Network blocked: lesson 17 diagnostic; one network-level fix can clear multiple endpoints at once.",
+        "Uninstalled: investigate why before re-pushing; if a shared cause, fix the cause first, then re-push the batch."
+      ],
+      "explanation": "Cheapest to most expensive: no-op, restart, network fix, cause-investigate-then-re-push."
+    }
+  ]
+}

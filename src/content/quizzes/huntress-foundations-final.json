@@ -1,0 +1,706 @@
+{
+  "slug": "huntress-foundations-final",
+  "course": "huntress-foundations",
+  "kind": "final",
+  "title": "Huntress foundations: final check",
+  "drawCount": 8,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "final-course-shape",
+      "type": "mcq",
+      "topic": "orientation",
+      "difficulty": "easy",
+      "prompt": "How is this training organised?",
+      "choices": [
+        "Short lessons grouped into topics, with checkpoints and a final assessment.",
+        {
+          "label": "Three courses (l1, l2, l3) with weekly cohorts and scheduled deadlines.",
+          "rationale": "Self-paced, not cohort-based."
+        },
+        {
+          "label": "A single long course you work through linearly without breaks.",
+          "rationale": "Split into topics to support sittings."
+        },
+        {
+          "label": "Two tracks (EDR and ITDR) you pick one of.",
+          "rationale": "Everyone covers both surfaces."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Short lessons grouped into topics, with a checkpoint between topics and a single final scenario assessment at the end."
+    },
+    {
+      "id": "final-sign-off",
+      "type": "mcq",
+      "topic": "sign-off",
+      "difficulty": "medium",
+      "prompt": "\"The final assessment IS the sign-off to work live tickets.\" Why is that wrong?",
+      "choices": [
+        "It's a recommendation of readiness, not a sign-off. The MSP still owns sign-off.",
+        {
+          "label": "Because the assessment is too easy and too short to count as a real sign-off.",
+          "rationale": "The issue is what kind of input the score is, not difficulty."
+        },
+        {
+          "label": "Because Huntress runs the assessment and your MSP isn't involved.",
+          "rationale": "The training assessment is the training's, not the vendor's."
+        },
+        {
+          "label": "Because the score isn't recorded anywhere.",
+          "rationale": "It is recorded; that's how the LMS gates."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The final is a recommendation of readiness. Your MSP has its own shadow-and-review process; the two layers don't substitute for each other."
+    },
+    {
+      "id": "final-what-you-tried",
+      "type": "mcq",
+      "topic": "questions-list",
+      "difficulty": "easy",
+      "prompt": "Which field of a questions-list entry pulls the most weight, and why?",
+      "choices": [
+        "\"What you tried.\" It blocks trivial questions and gives the senior usable context.",
+        {
+          "label": "\"Where.\" Without the lesson number the senior can't look anything up.",
+          "rationale": "Useful but not load-bearing."
+        },
+        {
+          "label": "\"What you didn't understand.\" It forces the learner to articulate the gap clearly.",
+          "rationale": "Necessary, but \"what you tried\" pulls the most weight."
+        },
+        {
+          "label": "The timestamp, so the senior can correlate questions with lesson progress.",
+          "rationale": "Not a recommended field."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three benefits in one field: blocks trivial questions, gives the senior usable context, and builds the habit of trying before asking."
+    },
+    {
+      "id": "final-ceiling-percent",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "easy",
+      "prompt": "Roughly what percentage of daily Huntress ticket volume does the helpdesk tech handle independently after this course?",
+      "choices": [
+        {
+          "label": "About 50%, with the other half escalated to a senior.",
+          "rationale": "Understates the role."
+        },
+        "About 95%. The remaining 5% escalates.",
+        {
+          "label": "100%, once you finish all three course levels.",
+          "rationale": "The 5% escalates regardless of training."
+        },
+        {
+          "label": "About 25%, since most tickets need senior review.",
+          "rationale": "Inverts the ceiling intent."
+        }
+      ],
+      "correct": 1,
+      "explanation": "95% in scope. The remaining 5% (Critical investigation, detection tuning, commercial decisions, irreversible policy changes) stays escalated."
+    },
+    {
+      "id": "final-two-question-test",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "medium",
+      "prompt": "The two-question test that holds the escalation ceiling together asks what?",
+      "choices": [
+        "Is this reversible, and do I understand why it's the right action?",
+        {
+          "label": "Is this Critical, and has the SOC already closed the incident?",
+          "rationale": "Severity isn't the ceiling test."
+        },
+        {
+          "label": "Will the customer notice the change, and will my senior approve it?",
+          "rationale": "Misframes the test as social."
+        },
+        {
+          "label": "Did the SOC sign the report, and is my MSP licensed for the action?",
+          "rationale": "Not the test."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Reversibility plus understanding. If either answer is no, escalate."
+    },
+    {
+      "id": "final-av-distinction",
+      "type": "mcq",
+      "topic": "av-distinction",
+      "difficulty": "easy",
+      "prompt": "How does Huntress primarily differ from a traditional anti-virus product?",
+      "choices": [
+        {
+          "label": "Huntress runs on more operating systems than most AV products do.",
+          "rationale": "OS coverage isn't the primary difference."
+        },
+        "The SOC analyses telemetry and recommends; the tech actions it.",
+        {
+          "label": "Huntress quarantines files faster than signature-based AV can.",
+          "rationale": "Huntress mostly does not autonomously quarantine."
+        },
+        {
+          "label": "Huntress provides a friendlier dashboard for AV alerts.",
+          "rationale": "Reduces Huntress to a UI on AV; it isn't."
+        }
+      ],
+      "correct": 1,
+      "explanation": "AV blocks autonomously based on signatures. Huntress collects telemetry, the SOC analyses and recommends, and the tech actions. Notify-and-recommend vs. block."
+    },
+    {
+      "id": "final-soc-pre-handoff",
+      "type": "mcq",
+      "topic": "soc-pre-handoff",
+      "difficulty": "easy",
+      "prompt": "By the time an Incident Report reaches you, three things have happened. Which?",
+      "choices": [
+        "Triage, classification, and recommendation.",
+        {
+          "label": "Remediation, customer comms, and ticket closure.",
+          "rationale": "Downstream of the tech's work, not pre-handoff."
+        },
+        {
+          "label": "AV scan, quarantine, and isolation.",
+          "rationale": "Wrong model."
+        },
+        {
+          "label": "Patching, scanning, and reporting.",
+          "rationale": "Wrong on the workflow."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The report is the output of analysis, not its input."
+    },
+    {
+      "id": "final-second-guessing",
+      "type": "mcq",
+      "topic": "second-guessing",
+      "difficulty": "medium",
+      "prompt": "A peer closes an EDR Incident Report as benign because the activity \"looks legitimate\" to them, with no new signal. What class of mistake is this?",
+      "choices": [
+        {
+          "label": "Standard triage; the tech is just applying their own judgement.",
+          "rationale": "Overriding the SOC's disposition isn't standard triage."
+        },
+        "Second-guessing the SOC, disagreeing without new signal.",
+        {
+          "label": "Customer comms, informing the customer the SOC was wrong.",
+          "rationale": "Comms isn't the action being described."
+        },
+        {
+          "label": "Following the keystone rule as intended by the training.",
+          "rationale": "Inverted; the keystone says you don't do this."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Unilateral disagreement without new signal is second-guessing the SOC. The cardinal mistake."
+    },
+    {
+      "id": "final-new-signal",
+      "type": "mcq",
+      "topic": "new-signal",
+      "difficulty": "hard",
+      "prompt": "Which of these is \"new signal\" — a legitimate reason to challenge a closed Incident Report?",
+      "choices": [
+        {
+          "label": "Your gut feels wrong.",
+          "rationale": "Explicitly NOT new signal."
+        },
+        "A user calling to say they didn't do the thing the report attributes to them.",
+        {
+          "label": "Re-reading the Evidence and reaching the same conclusion.",
+          "rationale": "Not new signal — same input."
+        },
+        {
+          "label": "Reading a blog post about similar-looking activity.",
+          "rationale": "Not new signal on this specific incident."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Information the analyst didn't have when they wrote the recommendation."
+    },
+    {
+      "id": "final-vocab-action",
+      "type": "tf",
+      "topic": "vocabulary",
+      "difficulty": "easy",
+      "prompt": "A senior who asks \"did you action it?\" instead of \"did you investigate it?\" is using vocabulary that maps to the SOC model.",
+      "correct": true,
+      "explanation": "Acting on the recommendation is the work; investigating from the tech's seat is duplicating the analyst's with worse tooling."
+    },
+    {
+      "id": "final-itdr-scope",
+      "type": "mcq",
+      "topic": "itdr",
+      "difficulty": "easy",
+      "prompt": "Managed ITDR covers which identity systems today?",
+      "choices": [
+        {
+          "label": "Microsoft 365 only.",
+          "rationale": "True pre-rename; ITDR broadened to also cover Google Workspace."
+        },
+        "Microsoft 365 and Google Workspace.",
+        {
+          "label": "Microsoft 365, Google Workspace, and Okta.",
+          "rationale": "Okta isn't named."
+        },
+        {
+          "label": "On-prem AD and Azure AD.",
+          "rationale": "ITDR covers M365 and GWS at the SaaS-identity layer."
+        }
+      ],
+      "correct": 1,
+      "explanation": "ITDR is the rename of MDR for Microsoft 365, broadened to GWS."
+    },
+    {
+      "id": "final-canaries",
+      "type": "mcq",
+      "topic": "canaries",
+      "difficulty": "medium",
+      "prompt": "Ransomware canaries are best described as:",
+      "choices": [
+        "A tripwire under Managed EDR; canary trips are Critical by default.",
+        {
+          "label": "A standalone product sold separately from EDR.",
+          "rationale": "Canaries ride under EDR."
+        },
+        {
+          "label": "An ITDR feature for identity-based ransomware.",
+          "rationale": "Wrong surface."
+        },
+        {
+          "label": "A retired product replaced by SIEM.",
+          "rationale": "Wrong on the facts."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Tripwire mechanism delivered alongside EDR, Critical by default on trip."
+    },
+    {
+      "id": "final-surface-identification",
+      "type": "mcq",
+      "topic": "surface-identification",
+      "difficulty": "hard",
+      "prompt": "Three incidents: (1) Suspicious sign-in, alice@example.com, impossible travel. (2) Process detection, SRV-FILE01, powershell.exe via scheduled task. (3) Canary tripped, WS-FINANCE-04. Which surface produced each?",
+      "choices": [
+        {
+          "label": "All three are EDR because they all involve endpoint activity.",
+          "rationale": "#1 is identity (UPN + sign-in = ITDR)."
+        },
+        "1 is ITDR, 2 is EDR, 3 is a canary trip under EDR.",
+        {
+          "label": "1 is ITDR, 2 is SIEM, 3 is EDR.",
+          "rationale": "Mistakes process detection for a SIEM log event."
+        },
+        {
+          "label": "1 is SIEM, 2 is EDR, 3 is ITDR.",
+          "rationale": "Wrong on first and third."
+        }
+      ],
+      "correct": 1,
+      "explanation": "UPN + sign-in = ITDR; hostname + process = EDR; canary trip rides under EDR, Critical by default."
+    },
+    {
+      "id": "final-shift-start",
+      "type": "mcq",
+      "topic": "shift-start",
+      "difficulty": "easy",
+      "prompt": "Where should you start your shift in the portal?",
+      "choices": [
+        {
+          "label": "Organisations — click through each customer.",
+          "rationale": "Most orgs haven't moved; you'd waste an hour."
+        },
+        "Incidents — filtered to open and Critical-first.",
+        {
+          "label": "Reports — pull last week's summary.",
+          "rationale": "Reports aggregate for monthly client comms."
+        },
+        {
+          "label": "Settings — confirm nothing changed.",
+          "rationale": "Settings isn't where work lives."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Sort by attention required, not alphabetically."
+    },
+    {
+      "id": "final-filter-pair",
+      "type": "mcq",
+      "topic": "filters",
+      "difficulty": "medium",
+      "prompt": "A peer reports the Incidents page is \"full of old closed Criticals.\" What's the likely issue?",
+      "choices": [
+        "Filtered by severity but forgot to filter by status; Critical without status: open pulls in months of closed Criticals.",
+        {
+          "label": "Permissions are wrong.",
+          "rationale": "Permissions wouldn't surface closed-only."
+        },
+        {
+          "label": "The portal is broken.",
+          "rationale": "Likely a filter-config issue."
+        },
+        {
+          "label": "Browser cache is stale.",
+          "rationale": "Filter behaviour is by-design."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Severity AND status together."
+    },
+    {
+      "id": "final-most-expensive",
+      "type": "mcq",
+      "topic": "wrong-tenant",
+      "difficulty": "easy",
+      "prompt": "The most expensive mistake a new tech makes on this platform is:",
+      "choices": [
+        "Doing the right thing on the wrong customer.",
+        {
+          "label": "Forgetting to document the response.",
+          "rationale": "Recoverable; not the most expensive class."
+        },
+        {
+          "label": "Closing a ticket too quickly.",
+          "rationale": "Different concern."
+        },
+        {
+          "label": "Failing to escalate a Low severity.",
+          "rationale": "Different concern."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Correct action, wrong organisation — a working endpoint offline."
+    },
+    {
+      "id": "final-header-strip",
+      "type": "mcq",
+      "topic": "header-strip",
+      "difficulty": "medium",
+      "prompt": "The lesson recommends a habit comparable to \"the driver's glance at the speedometer.\" What is it?",
+      "choices": [
+        "Reading the org name on the header strip before every destructive action.",
+        {
+          "label": "Refreshing the page every few minutes.",
+          "rationale": "Not the recommended habit."
+        },
+        {
+          "label": "Saying the customer's name out loud before each click.",
+          "rationale": "The glance is silent."
+        },
+        {
+          "label": "Re-logging into the portal between customers.",
+          "rationale": "Slow and unnecessary."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Cost of the glance is zero; cost of the wrong tenant is hours."
+    },
+    {
+      "id": "final-two-acmes",
+      "type": "mcq",
+      "topic": "ambiguous-org",
+      "difficulty": "hard",
+      "prompt": "A senior says: \"Isolate the laptop that just popped on Acme — Critical canary trip.\" You have Acme Manufacturing and Acme Holdings. The portal header shows Acme Holdings. You start to click Isolate. What's the right move?",
+      "choices": [
+        "Don't click yet — pause, open the Critical canary incident to read the affected entity, confirm which Acme it's in, then act with the header confirmed.",
+        {
+          "label": "Click Isolate immediately — Critical means contain first.",
+          "rationale": "Contain-first doesn't license action on the wrong customer."
+        },
+        {
+          "label": "Isolate the laptop in both Acmes to be safe.",
+          "rationale": "Worst response."
+        },
+        {
+          "label": "Ask the senior to repeat themselves louder.",
+          "rationale": "The incident itself names the affected entity."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Critical urgency doesn't license a wrong-tenant click. The incident has the affected entity."
+    },
+    {
+      "id": "final-critical-cluster",
+      "type": "mcq",
+      "topic": "critical-cluster",
+      "difficulty": "medium",
+      "prompt": "You filter Incidents to \"open, Critical-first\" and find three Criticals all tagged to the same organisation. What does the pattern tell you?",
+      "choices": [
+        "One customer is having a bad day. Open the first incident and tell the senior in parallel — three Criticals in one org is worth flagging.",
+        {
+          "label": "The Incidents view is misconfigured; refresh the filters.",
+          "rationale": "The cluster is real."
+        },
+        {
+          "label": "Bundle the three into one investigation.",
+          "rationale": "Critical containment is one-at-a-time per the playbook."
+        },
+        {
+          "label": "Wait for the senior to contact you.",
+          "rationale": "Reactive; the lesson teaches proactive escalation."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three Criticals on one tenant is tell-the-senior-in-parallel territory."
+    },
+    {
+      "id": "final-critical-response",
+      "type": "mcq",
+      "topic": "critical-response",
+      "difficulty": "medium",
+      "prompt": "The response shape for a Critical incident differs from Low and High. How?",
+      "choices": [
+        "Contain first (isolate or run the compromise playbook), escalate in parallel, do not investigate.",
+        {
+          "label": "Same shape as High but with a 1-hour SLA.",
+          "rationale": "The shape itself differs."
+        },
+        {
+          "label": "Investigate first, then contain.",
+          "rationale": "Opposite of the lesson."
+        },
+        {
+          "label": "Wait for a senior to take over completely.",
+          "rationale": "The tech contains in parallel."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Forensics is above the helpdesk ceiling."
+    },
+    {
+      "id": "final-re-grading",
+      "type": "mcq",
+      "topic": "re-grading",
+      "difficulty": "medium",
+      "prompt": "Who sets the severity band on an Incident Report?",
+      "choices": [
+        "The SOC analyst. The tech doesn't re-grade unilaterally; they can ask the analyst to revisit.",
+        {
+          "label": "The customer's IT contact based on impact.",
+          "rationale": "Wrong."
+        },
+        {
+          "label": "The on-call senior.",
+          "rationale": "Wrong."
+        },
+        {
+          "label": "An automated rule the tech can configure.",
+          "rationale": "Wrong."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Severity is the SOC's call."
+    },
+    {
+      "id": "final-tag-text-mismatch",
+      "type": "mcq",
+      "topic": "tag-text-mismatch",
+      "difficulty": "medium",
+      "prompt": "You read an incident: Low severity, but the Recommendation says \"isolate the host immediately.\" What's the right move?",
+      "choices": [
+        {
+          "label": "Ignore the recommendation; if it's Low, you don't isolate.",
+          "rationale": "Ignoring the Recommendation is the cardinal mistake."
+        },
+        "Send a clarifying reply to the analyst — the tag and text don't match, and it's worth confirming.",
+        {
+          "label": "Isolate immediately and ignore the mismatch.",
+          "rationale": "A 30-second reply costs nothing before something irreversible."
+        },
+        {
+          "label": "Re-grade to Critical to match the Recommendation.",
+          "rationale": "Re-grading is the SOC's call."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Mismatch is information; the right surface is a clarifying reply."
+    },
+    {
+      "id": "final-reading-order",
+      "type": "order",
+      "topic": "reading-order",
+      "difficulty": "medium",
+      "prompt": "Order the steps of reading an Incident Report.",
+      "items": [
+        "Header — severity, surface, affected entity, customer",
+        "Recommendation — what does the SOC want done?",
+        "Verify the affected entity",
+        "Summary if the Recommendation surprised you",
+        "Evidence and Timeline as you need them — client comms, replies, documentation"
+      ],
+      "explanation": "Top-down ends in the cardinal mistake. Recommendation-first installs the right reflex."
+    },
+    {
+      "id": "final-act-on-section",
+      "type": "mcq",
+      "topic": "sections",
+      "difficulty": "easy",
+      "prompt": "Which Incident Report section is the one you ACT ON?",
+      "choices": [
+        {
+          "label": "Evidence.",
+          "rationale": "Context, not action."
+        },
+        "Recommendation.",
+        {
+          "label": "Summary.",
+          "rationale": "Context. Read on a need-to basis."
+        },
+        {
+          "label": "Header.",
+          "rationale": "Metadata."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The Recommendation is the action zone — the section you act on, full stop."
+    },
+    {
+      "id": "final-timeline-misuse",
+      "type": "mcq",
+      "topic": "timeline-misuse",
+      "difficulty": "medium",
+      "prompt": "The Timeline view is appropriate for which of the following uses?",
+      "choices": [
+        "Walking a client through the sequence of events, and verifying containment caught the activity in time.",
+        {
+          "label": "Building a case to override the Recommendation.",
+          "rationale": "Second-guessing in slow motion."
+        },
+        {
+          "label": "Replacing the Recommendation when you have time pressure.",
+          "rationale": "Timeline is context, not action."
+        },
+        {
+          "label": "Generating an automated summary for the PSA.",
+          "rationale": "Not a feed."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Client comms and containment verification, not as a counter-argument to the Recommendation."
+    },
+    {
+      "id": "final-cardinal-mistake",
+      "type": "mcq",
+      "topic": "cardinal-mistake",
+      "difficulty": "medium",
+      "prompt": "The cardinal mistake in reading an Incident Report is:",
+      "choices": [
+        "Acting on the context zone (Summary, Evidence, Timeline) instead of (or in addition to) the action zone (Recommendation).",
+        {
+          "label": "Replying to the analyst with a clarifying question.",
+          "rationale": "Not a mistake; correct surface."
+        },
+        {
+          "label": "Reading the Recommendation first.",
+          "rationale": "Inverted — that's the correct reading order."
+        },
+        {
+          "label": "Verifying the affected host before acting.",
+          "rationale": "That's the wrong-host check, also correct."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Evidence treated as a to-do list is the named cardinal mistake."
+    },
+    {
+      "id": "final-the-test",
+      "type": "mcq",
+      "topic": "test",
+      "difficulty": "medium",
+      "prompt": "What yes/no test does the lesson teach you to run before any action?",
+      "choices": [
+        "Did the analyst say to do this, in the Recommendation? If yes, proceed. If no, stop.",
+        {
+          "label": "Is severity Critical? If yes, contain. If no, investigate.",
+          "rationale": "Severity drives tempo, not the action-vs-context test."
+        },
+        {
+          "label": "Is the customer aware?",
+          "rationale": "Not the test."
+        },
+        {
+          "label": "Has Huntress support approved?",
+          "rationale": "Misuses support."
+        }
+      ],
+      "correct": 0,
+      "explanation": "\"No, but the Evidence supports it\" is the cardinal-mistake signature."
+    },
+    {
+      "id": "final-customer-context-newsignal",
+      "type": "mcq",
+      "topic": "synthesis-new-signal",
+      "difficulty": "hard",
+      "prompt": "A High EDR incident lands. Recommendation: approve the autoruns remediation. The customer's IT contact phones in saying he set up the autoruns entry yesterday for a legitimate purpose. What do you do?",
+      "choices": [
+        {
+          "label": "Reduce the severity to Low yourself and close the incident.",
+          "rationale": "Two mistakes — re-grading and unilateral closure."
+        },
+        "Reply to the analyst with the customer context (new signal) and wait for disposition; don't approve and don't close.",
+        {
+          "label": "Approve the remediation anyway; the SOC's call stands.",
+          "rationale": "Acts before the layer-that-decides has weighed the new context."
+        },
+        {
+          "label": "Escalate to a senior because the customer disagrees with the SOC.",
+          "rationale": "The analyst is the right body, not the senior."
+        }
+      ],
+      "correct": 1,
+      "explanation": "New-signal channel + don't re-grade. Two lessons combined."
+    },
+    {
+      "id": "final-oauth-grant-synth",
+      "type": "mcq",
+      "topic": "synthesis-rec-vs-evidence",
+      "difficulty": "hard",
+      "prompt": "A Low EDR incident lands. Recommendation: no action required, closing as benign. Evidence shows the process did several things that look unusual to you. What do you do?",
+      "choices": [
+        {
+          "label": "Reopen the incident to take another look — the Evidence supports it.",
+          "rationale": "Reopen without new signal is second-guessing in slow motion; acting on Evidence to override \"no action\" is the cardinal mistake."
+        },
+        "Accept the disposition, document, move on. If something specific in the Evidence concerns you, ask the analyst a factual question — but unease alone isn't new signal.",
+        {
+          "label": "Run the remediation anyway, just to be safe.",
+          "rationale": "Running remediation on a closed-as-benign incident is the cardinal mistake at its most expensive."
+        },
+        {
+          "label": "Re-grade to High because the Evidence seemed serious.",
+          "rationale": "Re-grading is the SOC's call."
+        }
+      ],
+      "correct": 1,
+      "explanation": "New-signal rule + action-vs-context test combined."
+    },
+    {
+      "id": "final-surface-routing",
+      "type": "mcq",
+      "topic": "surface-routing",
+      "difficulty": "hard",
+      "prompt": "You're triaging a queue and need to route incidents to the right playbook. The course gives a one-step heuristic before you read the body. What is it?",
+      "choices": [
+        "Identify the surface from the Header (EDR, ITDR, SIEM, canary). The surface tells you which playbook applies before you read a word of the body.",
+        {
+          "label": "Identify the severity first. The band tells you which playbook applies.",
+          "rationale": "Severity drives tempo, not playbook."
+        },
+        {
+          "label": "Read the Summary first. The Summary tells you the playbook.",
+          "rationale": "Wrong reading order."
+        },
+        {
+          "label": "Read every section in order to be thorough.",
+          "rationale": "Wrong reading order, and \"thorough\" on this platform isn't reading everything."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Surface drives playbook; severity drives tempo."
+    }
+  ]
+}

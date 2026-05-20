@@ -1,0 +1,92 @@
+---
+slug: 25-approving-remediations-scheduled-tasks-services-files
+vendor: huntress
+level: l2
+title: "Approving remediations: scheduled tasks, services, files"
+summary: Three more remediation types, each with a different blast radius. Scheduled tasks are bounded; services stop a running process; file removals depend on the file's role. Diligence on review and verify scales with what gets touched.
+estimatedMinutes: 8
+order: 25
+topics:
+  - edr
+  - remediation
+  - scheduled-tasks
+  - services
+  - files
+updated: 2026-05-20
+---
+
+Autoruns is one persistence surface; scheduled tasks, services, and direct file removals are the others. Each one has a slightly different blast radius — what gets touched, what gets killed, what stays running. Clicking the same approve button across three different remediation types and being surprised when one of them takes longer, breaks something, or fails is the pattern this lesson exists to break.
+
+## Scheduled-task remediations
+
+A scheduled task runs code on a schedule or trigger: every day at 3am, every five minutes, at login, when a specific event fires. Attackers use scheduled tasks the same way they use autoruns — as a persistence anchor that survives reboot.
+
+**What the remediation does.** Removes the task entry. If an iteration is currently running, it finishes; the task doesn't re-fire. Removes the backing file when the SOC has classified it as malicious and included it.
+
+**Blast radius.** Bounded to the task itself. The smallest of the three.
+
+**What can go wrong.** A documented business-purpose task someone forgot to flag. If the customer's IT manager says "wait, that was the nightly backup script," the file is usually still recoverable, and the task can be re-created. This is the new-signal-during-triage case from Foundations.
+
+## Service remediations
+
+A service is a long-running Windows process (or daemon on Linux / launchd job on macOS) that runs in the background, often with elevated privileges. Attackers install services as a persistence mechanism that's harder to remove than a scheduled task: the service runs continuously, has permission settings that make it sticky, and may auto-restart on failure.
+
+**What the remediation does.** Stops the service if running, disables it, removes the service entry from the OS, and removes the backing file when classified malicious.
+
+**Blast radius.** Larger than scheduled tasks. Stopping a service halts whatever the service was doing. For a malicious service, that is the point; for a misclassified service, that is a service outage on whatever the service supported.
+
+**What can go wrong.** Legitimate services that look unusual to the SOC — custom in-house tools, niche line-of-business applications. The new-signal case applies more often here than with scheduled tasks because services tend to be deliberately set up by IT; someone in the customer's organisation knew about it.
+
+## File remediations
+
+Direct file removal: the agent quarantines or deletes a specific file on the endpoint. Used when the SOC has identified a single malicious binary that doesn't have a separate persistence mechanism. The file is the threat, on its own.
+
+**What the remediation does.** Quarantines or deletes the file. Recovery is possible from quarantine if the SOC reverses the classification (rare).
+
+**Blast radius.** Variable. A standalone payload is contained; a misclassified DLL that's part of a larger application breaks that application.
+
+**What can go wrong.** The file is part of a legitimate application's distribution. Less common than for services; the SOC's classification on files tends to be careful.
+
+## The spectrum
+
+| Type | Blast radius | Diligence on review |
+|---|---|---|
+| Scheduled task | Bounded | Standard; usually fastest to approve confidently |
+| Service | Larger; stops a live process | Higher; more often needs user verification |
+| File | Variable; depends on the file | Sanity-check the path against the customer's known environment |
+
+The workflow shape is the same across all three (claim, review, approve, verify, close, document). What scales is diligence on review and verify, with blast radius.
+
+<Callout type="warn" title="Services on servers deserve a five-second check">
+A service remediation on a server has the largest blast radius of the three remediation types. Stopping a service on a customer's database server could affect production. Even when the SOC has triaged the service as malicious, the five-second check against the customer's known environment is worth doing. If the customer is unreachable and the path or name is unfamiliar, pause-and-confirm or bump rather than approve blind.
+</Callout>
+
+## Verify
+
+- The remediation shows **completed** in the portal.
+- The affected object (task, service, file) is no longer present on the endpoint.
+- No related re-detection within the next hour. A re-detection within an hour of a clean service or file remediation is a containment-and-escalate signal, same as autoruns.
+- Incident note records the remediation type, the affected object name, the verify check, and any client comms.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="Service remediation on a server, customer unreachable"
+  description="Low EDR Incident Report. Host: SRV-EXAMPLE-DB-01. Recommendation: approve the service remediation. Evidence shows a service named HelperUpdater running with elevated privileges, binary at C:\\ProgramData\\HU\\hu.exe. Customer's IT manager is on another call; you can't reach them. Pick the next move."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Service on a server + unfamiliar name + customer unreachable. What now?", choices: [
+      { label: "Approve, document, close — the SOC has triaged", next: "blind" },
+      { label: "Hold the incident open with a note, reach the IT manager via the documented backup contact, then approve once confirmed unknown / not legitimate", next: "confirm" },
+      { label: "Escalate to senior immediately", next: "bump" },
+    ]},
+    { type: "outcome", id: "blind", label: "Approve-blind on a server is the wrong trade", tone: "bad",
+      body: "Service remediation on a server has the largest blast radius of the three. Stopping a service on SRV-EXAMPLE-DB-01 could affect production. Even though the SOC has triaged, the five-second customer-confirmation step is what avoids the \"that was our reporting service\" call." },
+    { type: "outcome", id: "confirm", label: "Pause-and-confirm", tone: "success",
+      body: "Right answer. Service on a server + unfamiliar service name + customer unreachable = pause-and-confirm via the documented backup contact. The Low severity tag doesn't mean low blast radius on a server." },
+    { type: "outcome", id: "bump", label: "Bumping too early", tone: "warn",
+      body: "Defensible but premature. The Recommendation is in the standard helpdesk workflow; you just need user confirmation before clicking. Bumping every time the customer is unreachable for ten minutes wastes senior time. Try the backup contact first; bump if that path also fails." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-approving-remediations-scheduled-tasks-services-files" client:visible />

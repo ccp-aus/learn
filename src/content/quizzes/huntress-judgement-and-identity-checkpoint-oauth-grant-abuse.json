@@ -1,0 +1,246 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-oauth-grant-abuse",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: OAuth grant abuse",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "oauth-persistence-reason",
+      "type": "mcq",
+      "topic": "persistence",
+      "difficulty": "easy",
+      "prompt": "Why are OAuth grants a particularly persistent attacker foothold?",
+      "choices": [
+        "They survive password resets and session revocations.",
+        {
+          "label": "They include the user's password in plaintext.",
+          "rationale": "Tokens do not carry passwords."
+        },
+        {
+          "label": "They cannot be revoked once granted.",
+          "rationale": "They can and must be revoked. That is lesson 12's playbook step."
+        },
+        {
+          "label": "They bypass MFA entirely on every sign-in.",
+          "rationale": "Wrong framing. Once granted, the token authenticates the app without MFA by OAuth design, not bypass."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The OAuth token keeps the attacker's app authenticated even after those steps. Without explicit grant revocation, the attacker's app keeps reading mail, sending as the user, and downloading files."
+    },
+    {
+      "id": "two-abuse-shapes",
+      "type": "mcq",
+      "topic": "abuse-shapes",
+      "difficulty": "medium",
+      "prompt": "What are the two main attacker abuse shapes for OAuth grants?",
+      "choices": [
+        {
+          "label": "Steal an OAuth token from a legitimate app and reuse it.",
+          "rationale": "Token theft is a different mechanism. Not the lesson's named pair."
+        },
+        "Trick the user into granting via a phishing consent page.",
+        {
+          "label": "Brute-force the OAuth consent screen.",
+          "rationale": "Not how OAuth consent works."
+        },
+        {
+          "label": "Create a tenant-wide policy that grants all apps.",
+          "rationale": "Tenant-wide policies are admin territory, not the abuse shapes in this lesson."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Or grant a malicious app from inside an already-compromised account. Both shapes appear. The second (grant from inside a compromised account) is the most common one the SOC catches."
+    },
+    {
+      "id": "compromise-marker-strongest",
+      "type": "mcq",
+      "topic": "compromise-markers",
+      "difficulty": "medium",
+      "prompt": "Which is the strongest compromise marker on an OAuth grant?",
+      "choices": [
+        {
+          "label": "A grant to a verified Microsoft Graph API app.",
+          "rationale": "Legitimate platform infrastructure, not a compromise marker."
+        },
+        {
+          "label": "A grant authorised more than six months ago.",
+          "rationale": "Long-standing grants are typically legitimate."
+        },
+        "A new grant authorised within minutes of a suspicious sign-in.",
+        {
+          "label": "A grant with read-only Calendar scope.",
+          "rationale": "Narrow scope used by many legitimate integrations."
+        }
+      ],
+      "correct": 2,
+      "explanation": "To an app with a generic display name and broad scopes from an unverified publisher. Compromise-window timing, deceptive name, broad scopes, and unverified publisher together form the compromise marker set."
+    },
+    {
+      "id": "reset-enough-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"Password reset and session revoke is enough.\" Why is this often wrong when OAuth is involved?",
+      "choices": [
+        {
+          "label": "OAuth grants are stored on the user's endpoint, not the identity provider.",
+          "rationale": "Wrong on OAuth architecture."
+        },
+        {
+          "label": "Password reset does not invalidate the old password until next sign-in.",
+          "rationale": "Reset invalidates immediately."
+        },
+        {
+          "label": "Session revoke takes 24 hours to propagate.",
+          "rationale": "Revoke is near-immediate."
+        },
+        "OAuth grants survive both password reset and session revoke."
+      ],
+      "correct": 3,
+      "explanation": "The grant has to be revoked explicitly. The grant needs its own revoke step. Without it, the attacker keeps access days after you thought the compromise was fixed."
+    },
+    {
+      "id": "blanket-revoke-wrong",
+      "type": "mcq",
+      "topic": "response-discipline",
+      "difficulty": "medium",
+      "prompt": "\"Revoking all OAuth grants is the safe response.\" Why is this wrong?",
+      "choices": [
+        "Disrupts legitimate integrations the user relies on.",
+        {
+          "label": "Blanket revoke is forbidden by the identity provider.",
+          "rationale": "Not a platform constraint."
+        },
+        {
+          "label": "It triggers an automatic tenant-wide alert.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Blanket revoke is impossible to perform.",
+          "rationale": "It is possible, just disruptive and wrong as a default."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The discipline is targeted revoke of the attacker-pattern grants, not blanket revoke. Targeted revoke: the grants added during the compromise window, not all grants."
+    },
+    {
+      "id": "playbook-order",
+      "type": "mcq",
+      "topic": "playbook-order",
+      "difficulty": "medium",
+      "prompt": "What is the documented playbook order for a compromise involving an OAuth grant?",
+      "choices": [
+        {
+          "label": "Revoke OAuth grant first because it is the most persistent foothold.",
+          "rationale": "Defensible logic, wrong order. Playbook order is deliberate."
+        },
+        "Session revoke, password and MFA reset, inbox-rule remove, OAuth-grant revoke.",
+        {
+          "label": "Revoke the OAuth grant and skip the rest.",
+          "rationale": "Every other compromise artefact stays in place."
+        },
+        {
+          "label": "OAuth-grant revoke, then password reset only.",
+          "rationale": "Skips session revoke, MFA reset, and inbox-rule removal."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The playbook order minimises the time the attacker can act during the response itself."
+    },
+    {
+      "id": "second-grant-outside-window",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "While revoking grants, you find a second grant from two weeks ago to a verified-publisher app with narrow scope. The Recommendation did not mention it. What do you do?",
+      "choices": [
+        "Leave it alone; revoke only the grant named in the Recommendation.",
+        {
+          "label": "Revoke it as well to be thorough.",
+          "rationale": "Acting on context outside the Recommendation. The grant is outside the compromise window from a verified publisher."
+        },
+        {
+          "label": "Message the user asking if they use the app.",
+          "rationale": "Wrong reflex during active incident. Ad-hoc user contact about a non-compromise-related grant is not right now."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Outside-window grant from a verified publisher is legitimate-by-context. Targeted-revoke discipline applies."
+    },
+    {
+      "id": "legitimate-grant-markers",
+      "type": "mcq",
+      "topic": "legitimate-grants",
+      "difficulty": "medium",
+      "prompt": "Which set of markers indicates a legitimate OAuth grant?",
+      "choices": [
+        {
+          "label": "Broad scopes like Mail.ReadWrite.All.",
+          "rationale": "Compromise marker or admin-broad-scope."
+        },
+        {
+          "label": "Generic display name like Office365Helper.",
+          "rationale": "Compromise marker."
+        },
+        {
+          "label": "Granted in the same minute as a suspicious sign-in.",
+          "rationale": "Compromise marker."
+        },
+        "Verified publisher, recognisable product name."
+      ],
+      "correct": 3,
+      "explanation": "Scope appropriate to the app's function, user can articulate why they granted. Verified publisher, recognisable name, appropriate scope, and user awareness together form the legitimate-grant marker set."
+    },
+    {
+      "id": "user-would-notice-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"OAuth grants are visible to the user, so they would notice.\" Why is this wrong?",
+      "choices": [
+        {
+          "label": "OAuth grants are hidden from users entirely.",
+          "rationale": "They are visible. Users just do not look."
+        },
+        "Most users never look at their OAuth grants.",
+        {
+          "label": "Users receive an email every time the grant is used.",
+          "rationale": "Not the default platform behaviour."
+        },
+        {
+          "label": "Users have to log in to a separate portal to see grants.",
+          "rationale": "Grants are visible in the user's account-settings page."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Attackers exploit this. The grant sits there persistently while the attacker uses it. User-visibility does not mean user-noticing. The attacker counts on the user never checking."
+    },
+    {
+      "id": "compromise-window-definition",
+      "type": "mcq",
+      "topic": "compromise-window",
+      "difficulty": "medium",
+      "prompt": "What is the 'compromise window' in the context of OAuth-grant revocation?",
+      "choices": [
+        {
+          "label": "The user's working hours during the day of the compromise.",
+          "rationale": "Wrong framing."
+        },
+        {
+          "label": "The 24-hour period after any ITDR incident lands.",
+          "rationale": "The window is the attacker-active window from the Timeline, not a fixed clock."
+        },
+        "The timeframe from the suspicious sign-in to the completion of session revoke.",
+        {
+          "label": "Any time before the password reset.",
+          "rationale": "Over-broad. The window has a start (suspicious sign-in) and an end (containment)."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Grants inside that window are suspect. Grants outside the window from verified publishers are legitimate-by-context. Grants inside the window are suspect."
+    }
+  ]
+}

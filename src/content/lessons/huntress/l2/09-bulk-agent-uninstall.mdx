@@ -1,0 +1,80 @@
+---
+slug: 09-bulk-agent-uninstall
+vendor: huntress
+level: l2
+title: Bulk agent uninstall
+summary: The mirror image of bulk rollout, with a sharper failure surface. RMM success is not portal disappearance. Distinguish slow from resistant; resistant agents get per-endpoint follow-up, not bulk re-push.
+estimatedMinutes: 8
+order: 9
+topics:
+  - offboarding
+  - agent
+updated: 2026-05-20
+---
+
+Bulk uninstall is the mirror image of bulk rollout, with a sharper failure surface. The agents resisting uninstall are usually the ones that matter most: production servers nobody wants to reboot, the IT manager's laptop, the workstation the customer's accountant uses for ledger work. Doing the uninstall well means knowing the difference between *not yet processed* and *resisting*. Doing it badly means signing off the offboarding while 12 agents are still phoning home, which becomes the *wait, why are we still seeing this customer's telemetry?* call two weeks later.
+
+## Pre-flight
+
+<StepThrough client:load>
+  <Step title="Confirm step 1 of the offboarding sequence is done">
+    Notifications for the customer's org are paused (lesson 8). The agent-offline alerts the uninstall will generate shouldn't go to the customer.
+  </Step>
+  <Step title="Confirm step 2 is done">
+    ITDR integrations are disconnected (lesson 10). Sequence-order matters; running uninstall before ITDR disconnect leaves identity telemetry ingesting for an offboarded customer.
+  </Step>
+  <Step title="Have the uninstall key or uninstall-script reference from the portal">
+    The runbook should have it bundled into the RMM job already. If not, pull it from the customer's organisation Settings area.
+  </Step>
+  <Step title="Confirm the right RMM job and the right customer scope">
+    Wrong-customer uninstall is the symmetric mistake to wrong-customer rollout, and worse. You would be taking agents *off* a customer who is still active. Header-strip discipline applies; double-check the RMM target.
+  </Step>
+</StepThrough>
+
+## Running the uninstall
+
+The pattern mirrors bulk rollout but in reverse:
+
+1. **Run the RMM uninstall job** against the customer's endpoint list. Some MSPs run a phased push (a canary batch first, then the rest); some run a single batch. Follow the runbook.
+2. **Watch the customer's Agents view in the portal.** Agents go offline as they receive and process the uninstall. Within about 30 minutes you should see the count drop steadily.
+3. **Compare RMM uninstall success count to portal agent count.** A gap is the early sign that some agents installed via the RMM but aren't accepting the uninstall command, usually a permissions, network, or service-state problem.
+
+## Slow vs. resistant
+
+The same distinction as bulk rollout's slow-vs-stalled, with offboarding specifics:
+
+- **Slow.** Agents continuing to fall off, just not all at once. Some endpoints are offline overnight and won't process the uninstall until morning. Some are slow to phone home. Wait the 24-hour window before treating anything as resistant.
+- **Resistant.** An agent that has phoned home since the uninstall job ran but is still online in the portal. The uninstall command didn't take. Could be the service running with a permissions condition that blocks self-removal, the agent on an endpoint where the uninstall job's permissions are insufficient, or tamper-protection from the customer's existing security stack interfering.
+
+<Callout type="warn" title="Don't bulk re-push on resistant agents">
+Resistant agents need per-endpoint follow-up using the portal uninstall key directly on the endpoint (covered later in this course). Bulk uninstall jobs aren't meant to retry against the same endpoint repeatedly; you get install-state corruption rather than removal.
+</Callout>
+
+## Verify
+
+- The customer's Agents view shows a steady decrease as the uninstall job processes endpoints.
+- After 24 hours (full coverage of off-then-on endpoints), the remaining agent count is either zero or a small known set of resistant endpoints.
+- No spurious EDR incidents have spiked during the uninstall process (rare, but the portal sometimes flags unusual process activity from the uninstall itself; the SOC handles these as part of the platform behaviour).
+- Notification pause from step 1 of the sequence is still in place: spot-check the org's notification settings.
+
+## A worked ticket: 8 of 198 the morning after
+
+You are offboarding a customer. You have paused notifications and disconnected ITDR. You push the bulk-uninstall RMM job at 6pm. By the next morning, the portal shows 8 agents still online out of an original 198. The RMM job claims 195 successful uninstalls (3 endpoints were offline at the job time and didn't process). You have 5 of 195 *not-uninstalled-yet* (the RMM says succeeded but the agent is still online), plus 3 offline endpoints not yet processed.
+
+Re-pushing the bulk-uninstall job to all 8 is wrong on most of them. The 3 offline will likely process the next time they come online, they are slow, not resistant. The 5 the RMM says it uninstalled but that are still in the portal are the real problem, and re-pushing isn't the right tool for those. Wait another 24 hours for the offline 3; in parallel, start the per-endpoint diagnosis on the 5 that the RMM says succeeded but that are still online. Treat the two categories differently. The wait is cheap; the per-endpoint diagnosis is where the real work is. *190 of 198 is 96%, mark it done* is the worst response, eight phoning-home agents on a customer who is meant to be offboarded is not done.
+
+Two days later, the count is at 4 resistant agents (the 3 offline endpoints processed normally, one of the original 5 self-resolved). The 4 remaining are all on the customer's primary file server, plus three workstations on the same site. Four agents on the same site is the kind of cluster that means a shared configuration cause, site-specific AV, a GPO, tamper-protection from the customer's IT team. Run the single-endpoint decommission procedure on each of the four is a reasonable fallback, but premature. Investigate the pattern first; doing the diagnosis once usually solves all four.
+
+## Common mistakes
+
+- **Declaring the offboarding done as soon as the RMM job completes.** RMM success is *the command ran*; portal disappearance is *the agent is gone*. Watch the portal.
+- **Running the bulk uninstall before disconnecting ITDR.** Not catastrophic but messy. The ITDR keeps ingesting during the uninstall window, creating identity events on a customer who is meant to be offboarded.
+- **Forcing a bulk re-push on resistant agents to *try again*.** You get install-state corruption rather than removal.
+
+## When to escalate
+
+- **Non-trivial agent count remaining after 24 hours, with a pattern** (one site, one OU, one OS). Likely a customer-side configuration issue that needs a senior call or a coordinated approach, not a re-push.
+- **The uninstall job triggers a flood of EDR detections or canary trips.** Stop. The uninstall isn't supposed to look like attacker behaviour. Bump; don't escalate the canary trip yourself (canaries are an EDR feature with their own workflow later).
+- **The customer asks to "stop the uninstall halfway"** because they have changed their mind. Commercial / contract question with technical implications. Bump fast; the senior owns whether to reverse course.
+
+<Checkpoint slug="huntress-operations-checkpoint-bulk-agent-uninstall" client:visible />

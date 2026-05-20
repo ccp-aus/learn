@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-mfa-tampering",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: MFA tampering",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "not-one-of-three-patterns",
+      "type": "mcq",
+      "topic": "tampering-patterns",
+      "difficulty": "easy",
+      "prompt": "Which of these is NOT one of the three named attacker MFA-tampering patterns?",
+      "choices": [
+        "Encrypting the user's existing MFA tokens with ransomware.",
+        {
+          "label": "Adding the attacker's own MFA method (phone number, authenticator app).",
+          "rationale": "Named in the lesson as pattern 1."
+        },
+        {
+          "label": "Removing the user's existing MFA methods.",
+          "rationale": "Named in the lesson as pattern 2."
+        },
+        {
+          "label": "Changing the recovery phone number or alternate email.",
+          "rationale": "Named in the lesson as pattern 3."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The three named patterns are add, remove, and change recovery details. MFA-token encryption is not one of them."
+    },
+    {
+      "id": "near-certain-signal-why",
+      "type": "mcq",
+      "topic": "signal-strength",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson call MFA tampering 'a near-certain compromise signal'?",
+      "choices": [
+        {
+          "label": "Huntress only flags MFA changes that are 100% confirmed compromises.",
+          "rationale": "Classification still considers false positives."
+        },
+        "Legitimate MFA changes follow a specific shape.",
+        {
+          "label": "Legitimate MFA changes are impossible without IT involvement.",
+          "rationale": "Users register their own MFA methods on first sign-in."
+        },
+        {
+          "label": "The SOC re-checks every MFA event manually before flagging.",
+          "rationale": "Classification combines signals. The near-certain framing is about pattern shape."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(user-initiated, during documented onboarding events); Attacker-driven changes do not match that shape. The pattern of legitimate vs. attacker MFA changes is distinct. That distinction makes the signal strong."
+    },
+    {
+      "id": "targeted-vs-all-removal",
+      "type": "mcq",
+      "topic": "response-discipline",
+      "difficulty": "medium",
+      "prompt": "Why does the playbook remove attacker-added MFA methods specifically, not all methods?",
+      "choices": [
+        {
+          "label": "All-method removal is forbidden by Huntress policy.",
+          "rationale": "Not a real policy."
+        },
+        {
+          "label": "Removing all methods would crash the identity provider.",
+          "rationale": "Not a real platform behaviour."
+        },
+        "Removing all forces the legitimate user through full re-enrolment.",
+        {
+          "label": "Targeted removal is faster; that is the only reason.",
+          "rationale": "Speed is not the framing. User friction is."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Which creates friction. The Timeline usually identifies which methods are attacker-added. Targeted removal preserves the user's legitimate methods while eliminating the attacker's persistent foothold."
+    },
+    {
+      "id": "legitimate-mfa-marker",
+      "type": "mcq",
+      "topic": "legitimate-changes",
+      "difficulty": "medium",
+      "prompt": "Which is a legitimate-MFA-change marker per the lesson?",
+      "choices": [
+        {
+          "label": "Uses a phone number from a country the user has no history with.",
+          "rationale": "That is the attacker shape."
+        },
+        {
+          "label": "Happens immediately after a suspicious sign-in from a new country.",
+          "rationale": "That is the attacker shape."
+        },
+        {
+          "label": "Removes the user's existing method without adding a replacement.",
+          "rationale": "That is the attacker shape."
+        },
+        "Happens during user onboarding, during a documented device replacement."
+      ],
+      "correct": 3,
+      "explanation": "Or matches the customer's IT support process timing. Legitimate changes have specific context: onboarding timing, documented device replacement, IT support process, and no co-occurring malicious activity."
+    },
+    {
+      "id": "helena-vacation-interpretation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "ITDR on Helena. Timeline: sign-in from new country, new MFA method, existing method removed, inbox rule created, all in six minutes. IT manager says Helena is overseas and might have updated her phone. What is the right interpretation?",
+      "choices": [
+        {
+          "label": "Trust the IT manager's input and pause the playbook until Helena is reachable.",
+          "rationale": "The Timeline shows the attacker pattern, not a user updating their travel phone. The IT manager has incomplete information."
+        },
+        "Execute the Recommendation per the compromise playbook.",
+        {
+          "label": "Confirm with the IT manager which methods to remove.",
+          "rationale": "The IT manager does not have Timeline visibility. Wrong person to decide."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The IT manager has incomplete information; the Timeline tells the story. Vacation overseas would not generate a new-method, remove-legitimate-method, inbox-rule sequence in six minutes."
+    },
+    {
+      "id": "helena-callback-framing",
+      "type": "mcq",
+      "topic": "customer-comms",
+      "difficulty": "medium",
+      "prompt": "Helena calls back: 'The Thai number is real. I bought a local SIM. Why did you remove my phone access?' What is the right response shape?",
+      "choices": [
+        {
+          "label": "Apologise and offer to re-add her Thai number immediately.",
+          "rationale": "Half-right tone. The apology frames the action as a mistake. It was not."
+        },
+        {
+          "label": "Apologise and say you wish you could have verified before acting.",
+          "rationale": "Waiting would have been worse. Do not frame a correct action as a mistake."
+        },
+        "Explain that the Timeline showed the number added immediately after a suspicious sign-in and before an inbox rule."
+      ],
+      "correct": 2,
+      "explanation": "Help her register fresh under reset credentials. Honest about the pattern, no apology for a correct action, and a clear path forward for Helena."
+    },
+    {
+      "id": "remove-all-safer-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"Removing all MFA methods is safer than identifying which to remove.\" Why is this usually wrong?",
+      "choices": [
+        {
+          "label": "Targeted removal is not possible on M365.",
+          "rationale": "Wrong. Targeted removal is the documented approach."
+        },
+        {
+          "label": "All-method removal damages the identity provider.",
+          "rationale": "Wrong on the platform behaviour."
+        },
+        "Removing all forces the legitimate user through full re-enrolment with its own friction.",
+        {
+          "label": "All-method removal triggers a tenant-wide alert.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Targeted removal preserves their legitimate methods. Lesson 13's discipline: target specifically when the Timeline identifies the attacker's methods."
+    },
+    {
+      "id": "reset-vs-method-review",
+      "type": "mcq",
+      "topic": "playbook-steps",
+      "difficulty": "medium",
+      "prompt": "What is the distinction between the password/MFA reset (step 2) and the MFA-method review (step 5)?",
+      "choices": [
+        {
+          "label": "The reset is for password only; the method review is for password and MFA.",
+          "rationale": "Inverted. The reset covers both. The method review is the additional MFA-list cleanup."
+        },
+        {
+          "label": "They are the same step under different names.",
+          "rationale": "Two distinct steps in the playbook."
+        },
+        {
+          "label": "The reset is automated; the method review is manual. Otherwise identical.",
+          "rationale": "They address different artefacts."
+        },
+        "The reset re-establishes the password and prompts re-enrolment;"
+      ],
+      "correct": 3,
+      "explanation": "The method review removes the attacker's persistent method-list entries that the reset may not have cleared. Related but distinct steps. The reset re-establishes credentials. The method review removes the attacker's persistent MFA foothold."
+    },
+    {
+      "id": "recovery-detail-change-severity",
+      "type": "mcq",
+      "topic": "attacker-patterns",
+      "difficulty": "medium",
+      "prompt": "Why is changing the recovery phone number or alternate email a serious attacker move?",
+      "choices": [
+        {
+          "label": "It only affects audit logs, not account access.",
+          "rationale": "It changes who controls recovery flows."
+        },
+        "Modifying recovery channels moves the 'I forgot my password' flow to an inbox or number the attacker controls.",
+        {
+          "label": "Recovery details are not used for anything material.",
+          "rationale": "Wrong. They control password-reset flows."
+        },
+        {
+          "label": "Only admins can change recovery details.",
+          "rationale": "Wrong on the platform behaviour."
+        }
+      ],
+      "correct": 1,
+      "explanation": "They can reset the password without the user's involvement. The attacker hijacks the recovery flow. The user can no longer recover their own account."
+    },
+    {
+      "id": "password-must-be-compromised",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "hard",
+      "prompt": "\"If the attacker added MFA, the password must also be compromised.\" What does the lesson say?",
+      "choices": [
+        {
+          "label": "Never; MFA tampering and password compromise are independent.",
+          "rationale": "Overcorrects. They usually co-occur."
+        },
+        {
+          "label": "Always; the password is the only way to register MFA.",
+          "rationale": "Overstates. Attackers may bypass via session-token theft or OAuth grants."
+        },
+        "Usually yes, and the compromise playbook covers both.",
+        {
+          "label": "Only on M365, not Google Workspace.",
+          "rationale": "Not a platform-specific distinction."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The MFA tampering is its own signal worth recognising even before the broader playbook runs. Usually true, but MFA tampering itself is the signal that drives the response regardless of password status."
+    }
+  ]
+}

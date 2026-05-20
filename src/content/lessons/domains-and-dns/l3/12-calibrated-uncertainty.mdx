@@ -57,12 +57,11 @@ Escalation usually costs less than the alternative. Seniors prefer *interrupted 
 
 ## Decision walkthrough
 
-You're given two scenarios. The same tech response shape (proceed, ask, document) applies differently to each.
-
 <DecisionTree
   client:load
   startId="root"
   title="Same action shape, different calibration"
+  description="Two scenarios below. The same tech response shape (proceed, ask, document) applies differently to each. First: the senior asks for a TTL drop on a client's A record."
   nodes={[
     {
       type: "question",
@@ -98,12 +97,11 @@ You're given two scenarios. The same tech response shape (proceed, ask, document
   ]}
 />
 
-Now flip: the senior asks you to *disable DNSSEC and move nameservers* in one operation.
-
 <DecisionTree
   client:load
   startId="root2"
   title="Same shape, different blast radius"
+  description="Now flip the scenario: the senior asks you to disable DNSSEC and move nameservers in one operation."
   nodes={[
     {
       type: "question",

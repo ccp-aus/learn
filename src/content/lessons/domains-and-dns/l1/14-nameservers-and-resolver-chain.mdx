@@ -68,12 +68,11 @@ The two together tell you whether the change is right at source and how far cach
 
 ## Decision walkthrough
 
-You change a client's A record from `203.0.113.10` to `198.51.100.42` at Cloudflare DNS. Thirty minutes later the client emails: *the website still shows the old server.* Where is the old IP coming from?
-
 <DecisionTree
   client:load
   startId="root"
   title="Where in the chain is the stale answer?"
+  description="You change a client's A record from 203.0.113.10 to 198.51.100.42 at Cloudflare DNS. Thirty minutes later the client emails: 'the website still shows the old server.' Where is the old IP coming from?"
   nodes={[
     {
       type: "question",

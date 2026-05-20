@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-connecting-m365-for-itdr",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: connecting M365 for ITDR",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "two-paths",
+      "type": "mcq",
+      "topic": "integration-paths",
+      "difficulty": "easy",
+      "prompt": "Huntress supports two ITDR integration paths for Microsoft 365. What are they?",
+      "choices": [
+        "Direct tenant mapping.",
+        {
+          "label": "Read-only mapping and read-write mapping.",
+          "rationale": "Wrong axis. Both paths grant the same documented scope set; the difference is WHO authenticates."
+        },
+        {
+          "label": "Self-hosted and SaaS.",
+          "rationale": "Huntress is SaaS-only; no self-hosted path exists."
+        },
+        {
+          "label": "Cloud and on-prem.",
+          "rationale": "Identity-side integration is cloud-only. On-prem isn't an option here."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(per-tenant Global Admin consent) and GDAP/CSP-based mapping (MSP service account via Partner Center). The two paths land in the same place, telemetry flowing; the difference is who needs to be present at the connection step."
+    },
+    {
+      "id": "gdap-signals",
+      "type": "mcq",
+      "topic": "runbook-detection",
+      "difficulty": "medium",
+      "prompt": "Which of these is a signal that your MSP uses the GDAP/CSP path rather than the direct path?",
+      "choices": [
+        "Your MSP uses Microsoft Partner Center to manage customer tenants.",
+        {
+          "label": "The runbook says to schedule with the customer's Global Admin.",
+          "rationale": "That's the direct path, a customer-side admin consent is required."
+        },
+        {
+          "label": "The customer has fewer than 50 endpoints.",
+          "rationale": "Size doesn't determine path; MSP delivery model does."
+        },
+        {
+          "label": "The integration is being run on a weekday.",
+          "rationale": "Not a determinant."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The runbook references a \"Huntress service account.\" Service account plus Partner Center is the GDAP signature; the customer's consent happened earlier when they accepted the GDAP relationship."
+    },
+    {
+      "id": "wrong-path",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Onboarding ticket says \"Standard onboarding, ITDR M365 included.\" You start scheduling a call with the customer's IT manager. Your senior pings: \"Why are you booking a call?\" What's the right interpretation?",
+      "choices": [
+        "Re-check the runbook.",
+        {
+          "label": "The senior is being controlling, push back; the call is part of the runbook.",
+          "rationale": "The senior asking that question usually means your MSP uses GDAP, or the senior owns the connection step."
+        },
+        {
+          "label": "Tell the senior the call is needed and book it anyway.",
+          "rationale": "Worst response, overcommits customer time for something the senior might be about to tell you they own."
+        }
+      ],
+      "correct": 0,
+      "explanation": "If it's the GDAP path, the connection doesn't need a customer Global Admin and the call is unnecessary. Two minutes of reading saves an awkward customer call. Read first, push back later if it's still warranted."
+    },
+    {
+      "id": "green-not-enough",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "The Identity → Microsoft 365 page reads \"Connected\" with green status. Is the integration done?",
+      "choices": [
+        {
+          "label": "Yes, connected is the success state.",
+          "rationale": "Incomplete. The status itself can show green while the integration is half-installed."
+        },
+        "Not yet, also verify the last-sync timestamp is moving.",
+        {
+          "label": "No, wait for the customer's first identity incident before declaring success.",
+          "rationale": "Too long. Events flow within 24-48 hours; incident landing is downstream."
+        },
+        {
+          "label": "No, Huntress support has to confirm telemetry receipt.",
+          "rationale": "Verification is portal-side, not support-side."
+        }
+      ],
+      "correct": 1,
+      "explanation": "That ingested identity events appear within 24-48 hours. A 'Connected' status without event flow is a half-installed state. Connected is necessary; events flowing is sufficient. A stale last-sync is the early sign of a half-installed pipeline."
+    },
+    {
+      "id": "senior-owns-connection",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The senior confirms your MSP uses GDAP-based integration and that the connection step itself is senior-only. They ask you to do everything else. What do you do?",
+      "choices": [
+        {
+          "label": "Push back; the runbook implies the tech runs the whole thing.",
+          "rationale": "Arguing for broader scope is asking for permissions you haven't been given."
+        },
+        "Create the org per lesson 2, confirm the blank state and the GDAP-relationship prerequisite.",
+        {
+          "label": "Skip everything; the senior owns the integration.",
+          "rationale": "Wrong in the opposite direction. Verification, org-create, and customer comms are still yours."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Schedule the 48-hour verification check. Hand the connection itself to the senior. Clean scope split. You do the parts you own and give the senior a clean starting state."
+    },
+    {
+      "id": "half-installed",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Stopping at 'Connected' without verifying telemetry flow.\" Why does this matter?",
+      "choices": [
+        "It leaves a quietly half-integrated tenant that doesn't produce identity incidents.",
+        {
+          "label": "Huntress support audits Connected-but-quiet tenants and flags the MSP.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "The Connected status will roll back to disconnected if no events flow.",
+          "rationale": "The status stays green, which is exactly why the verify step matters."
+        },
+        {
+          "label": "There's no real risk, the system will catch up eventually.",
+          "rationale": "Inverts the lesson's warning."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The later identity-incident work has no signal to feed it. Connected without events is the worst of both worlds: looks fine on the dashboard, produces no identity protection."
+    },
+    {
+      "id": "customer-pushback-scope",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer asks to reduce the scope of consent or the GDAP roles Huntress requires. What's the right move?",
+      "choices": [
+        "Bump to a senior, product-configuration question.",
+        {
+          "label": "Negotiate a custom scope with the customer on the call to keep them moving.",
+          "rationale": "Scope changes commit the customer and the product team to a non-standard configuration the tech doesn't own."
+        },
+        {
+          "label": "Refuse outright; the scopes are non-negotiable.",
+          "rationale": "Lecture-mode response. The senior may have framing or alternatives a tech doesn't see."
+        },
+        {
+          "label": "Reduce the scopes in Partner Center yourself and continue.",
+          "rationale": "Way above the helpdesk floor."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The auto-response actions are part of ITDR's value; the role set is calibrated for the integration. Scope decisions are product configuration, senior-owned. Bump cleanly with the specific request."
+    },
+    {
+      "id": "approval-required",
+      "type": "mcq",
+      "topic": "path-a-error",
+      "difficulty": "easy",
+      "prompt": "On the direct path: the Global Admin tries to consent but the screen says \"approval required.\" What is most likely happening, and what do you do?",
+      "choices": [
+        "The customer's M365 has restricted third-party admin consents.",
+        {
+          "label": "The Global Admin isn't actually a Global Admin, ask them to escalate their role.",
+          "rationale": "'Approval required' is a policy gate, not a role-mismatch error."
+        },
+        {
+          "label": "The Huntress enterprise app isn't published, open a Huntress support ticket.",
+          "rationale": "The app is published; the gate is on the customer's side."
+        },
+        {
+          "label": "Retry until the screen accepts the consent, it usually clears.",
+          "rationale": "The gate doesn't clear on retry; it clears when the customer's tenant policy permits it."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Don't talk them into changing the tenant policy on the spot, bump. Tenant admin-consent policy is deliberate; renegotiating it on a connection call is above the helpdesk floor."
+    },
+    {
+      "id": "senior-only-step",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "medium",
+      "prompt": "\"Your MSP's runbook puts the connection step above the helpdesk floor.\" How should you read this lesson?",
+      "choices": [
+        "Read-to-understand, not read-to-execute.",
+        {
+          "label": "Skip the lesson; you'll never need this.",
+          "rationale": "You still work identity incidents from the resulting telemetry."
+        },
+        {
+          "label": "Read it carefully so you can run the connection if a senior isn't available.",
+          "rationale": "The ceiling doesn't lift when a senior isn't available."
+        },
+        {
+          "label": "Read it and immediately ask the senior to delegate the step to you.",
+          "rationale": "The scoping is deliberate (credentials, GDAP-role management)."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Knowing how the integration works still matters for customer comms, identity-incident work, and recognising half-connected states, but you don't run the connection itself. The scoping is deliberate. Read-to-understand still matters; the work you own around the connection is real."
+    },
+    {
+      "id": "same-telemetry",
+      "type": "tf",
+      "topic": "integration-paths",
+      "difficulty": "easy",
+      "prompt": "The direct path and the GDAP path grant the same documented set of scopes; the difference is who authenticates at the connection step.",
+      "correct": true,
+      "explanation": "Both paths land in the same place, the same telemetry flows. The difference is the customer's Global Admin (direct) versus an MSP service account via Partner Center (GDAP)."
+    }
+  ]
+}

@@ -10,83 +10,122 @@
  *
  * Click any rendered diagram to enlarge it in a modal lightbox; click the
  * overlay or press Esc to dismiss.
+ *
+ * Lifecycle: hooks into `astro:page-load` so diagrams render on both initial
+ * page load and view-transition navigations (Astro's ClientRouter swaps DOM
+ * without re-running module scripts, so a one-shot IIFE would miss every
+ * client-side navigation after the first).
  */
 ---
 
 <script>
-  (async () => {
-    const blocks = document.querySelectorAll<HTMLPreElement>("pre.mermaid");
-    if (!blocks.length) return;
+  // Module-level state. The script tag is bundled by Astro and lives on
+  // every page that includes <MermaidLoader />, but the module body itself
+  // only executes once per real page load. Astro fires `astro:page-load`
+  // after the initial load AND after every view-transition navigation, so
+  // we hang per-page setup off that event.
+  //
+  // The lightbox overlay and its document-level listeners are bound exactly
+  // once for the lifetime of the document — they survive ClientRouter
+  // navigations because the overlay sits at the end of <body> (untouched by
+  // the swap) and the click/keydown listeners are on `document`.
+  type Pre = HTMLPreElement;
 
-    const { default: mermaid } = await import("mermaid");
+  let mermaidModulePromise: Promise<typeof import("mermaid")["default"]> | null =
+    null;
+  let currentSources: Map<Pre, string> = new Map();
+  let themeObserver: MutationObserver | null = null;
+  let overlay: HTMLDivElement | null = null;
+  let stage: HTMLDivElement | null = null;
+  let globalListenersBound = false;
+
+  async function getMermaid() {
+    if (!mermaidModulePromise) {
+      mermaidModulePromise = import("mermaid").then((m) => m.default);
+    }
+    return mermaidModulePromise;
+  }
+
+  function buildTheme() {
+    const isDark = document.documentElement.classList.contains("dark");
+    // Resolve a couple of brand colours from CSS so the diagrams use the
+    // same accent the rest of the page does.
+    const primary = isDark ? "#22d3ee" : "#0ea5e9";
+
+    // Per-mode palette. Mermaid's "base" theme honours these variables;
+    // we set both the generic ones and the diagram-specific ones so
+    // flowcharts, sequence diagrams, and clusters all look right.
+    const fg = isDark ? "#e5e7eb" : "#1f2937";
+    const fgMuted = isDark ? "#94a3b8" : "#52525b";
+    const line = isDark ? "#475569" : "#9ca3af";
+    const nodeFill = isDark ? "#1e293b" : "#ffffff";
+    const clusterBg = isDark ? "#0f172a" : "#f5f4f0";
+    const labelBg = isDark ? "#1e293b" : "#fcfbf7";
+
+    return {
+      // ----- generic / flowchart -----
+      primaryColor: nodeFill,
+      primaryTextColor: fg,
+      primaryBorderColor: line,
+      secondaryColor: clusterBg,
+      tertiaryColor: clusterBg,
+      background: "transparent",
+      lineColor: line,
+      textColor: fg,
+      mainBkg: nodeFill,
+      nodeBorder: line,
+      nodeTextColor: fg,
+      clusterBkg: clusterBg,
+      clusterBorder: line,
+      edgeLabelBackground: labelBg,
+      // Used by some diamond / decision shapes
+      defaultLinkColor: line,
+      titleColor: fg,
+      // ----- sequence diagram -----
+      actorBkg: nodeFill,
+      actorBorder: line,
+      actorTextColor: fg,
+      actorLineColor: line,
+      signalColor: line,
+      signalTextColor: fg,
+      labelBoxBkgColor: labelBg,
+      labelBoxBorderColor: line,
+      labelTextColor: fg,
+      loopTextColor: fgMuted,
+      noteBkgColor: clusterBg,
+      noteBorderColor: line,
+      noteTextColor: fg,
+      activationBkgColor: clusterBg,
+      activationBorderColor: line,
+      sequenceNumberColor: primary,
+      // ----- accent fallback -----
+      // Some diagram types pick from the cScale set; map them to the
+      // page palette so they don't fall back to mermaid defaults.
+      cScale0: nodeFill,
+      cScale1: clusterBg,
+      cScale2: nodeFill,
+    };
+  }
+
+  async function setupPage() {
+    const blocks = document.querySelectorAll<Pre>("pre.mermaid");
+    if (!blocks.length) {
+      // No diagrams on this page — drop the previous page's observer so a
+      // theme toggle doesn't try to re-render stale element references.
+      themeObserver?.disconnect();
+      themeObserver = null;
+      currentSources = new Map();
+      return;
+    }
+
+    const mermaid = await getMermaid();
 
     // Cache each block's source so we can re-run mermaid on theme toggle
     // (mermaid mutates the <pre> contents to an <svg> on first run).
-    const sources = new Map<HTMLPreElement, string>();
-    blocks.forEach((pre) => sources.set(pre, pre.textContent ?? ""));
+    currentSources = new Map();
+    blocks.forEach((pre) => currentSources.set(pre, pre.textContent ?? ""));
 
-    function buildTheme() {
-      const isDark = document.documentElement.classList.contains("dark");
-      // Resolve a couple of brand colours from CSS so the diagrams use the
-      // same accent the rest of the page does.
-      const primary = isDark ? "#22d3ee" : "#0ea5e9";
-
-      // Per-mode palette. Mermaid's "base" theme honours these variables;
-      // we set both the generic ones and the diagram-specific ones so
-      // flowcharts, sequence diagrams, and clusters all look right.
-      const fg = isDark ? "#e5e7eb" : "#1f2937";
-      const fgMuted = isDark ? "#94a3b8" : "#52525b";
-      const line = isDark ? "#475569" : "#9ca3af";
-      const nodeFill = isDark ? "#1e293b" : "#ffffff";
-      const clusterBg = isDark ? "#0f172a" : "#f5f4f0";
-      const labelBg = isDark ? "#1e293b" : "#fcfbf7";
-
-      return {
-        // ----- generic / flowchart -----
-        primaryColor: nodeFill,
-        primaryTextColor: fg,
-        primaryBorderColor: line,
-        secondaryColor: clusterBg,
-        tertiaryColor: clusterBg,
-        background: "transparent",
-        lineColor: line,
-        textColor: fg,
-        mainBkg: nodeFill,
-        nodeBorder: line,
-        nodeTextColor: fg,
-        clusterBkg: clusterBg,
-        clusterBorder: line,
-        edgeLabelBackground: labelBg,
-        // Used by some diamond / decision shapes
-        defaultLinkColor: line,
-        titleColor: fg,
-        // ----- sequence diagram -----
-        actorBkg: nodeFill,
-        actorBorder: line,
-        actorTextColor: fg,
-        actorLineColor: line,
-        signalColor: line,
-        signalTextColor: fg,
-        labelBoxBkgColor: labelBg,
-        labelBoxBorderColor: line,
-        labelTextColor: fg,
-        loopTextColor: fgMuted,
-        noteBkgColor: clusterBg,
-        noteBorderColor: line,
-        noteTextColor: fg,
-        activationBkgColor: clusterBg,
-        activationBorderColor: line,
-        sequenceNumberColor: primary,
-        // ----- accent fallback -----
-        // Some diagram types pick from the cScale set; map them to the
-        // page palette so they don't fall back to mermaid defaults.
-        cScale0: nodeFill,
-        cScale1: clusterBg,
-        cScale2: nodeFill,
-      };
-    }
-
-    function initAndRun() {
+    async function initAndRun() {
       mermaid.initialize({
         startOnLoad: false,
         theme: "base",
@@ -102,27 +141,45 @@
       // as literal text, not a BR element. innerHTML interprets the string
       // as HTML, which strips `<br/>` from the source mermaid then sees and
       // breaks decision-node parsing — the "Syntax error in text" failure.
-      sources.forEach((src, pre) => {
+      currentSources.forEach((src, pre) => {
         pre.removeAttribute("data-processed");
+        // Clear the "ready" flag so the hide-until-rendered CSS applies
+        // again briefly during the re-render (e.g. on theme toggle), then
+        // we re-set it below once mermaid.run() resolves.
+        pre.removeAttribute("data-mermaid-ready");
         pre.textContent = src;
       });
-      return mermaid.run({ querySelector: "pre.mermaid" });
+      await mermaid.run({ querySelector: "pre.mermaid" });
+      // Mark every rendered block as ready so the visibility CSS releases.
+      currentSources.forEach((_src, pre) => {
+        pre.setAttribute("data-mermaid-ready", "true");
+      });
     }
 
     await initAndRun();
 
     // Re-render whenever the html element's class list changes (the
-    // ThemeToggle component flips `dark` on/off there).
-    const obs = new MutationObserver(() => {
+    // ThemeToggle component flips `dark` on/off there). Replace any prior
+    // page's observer so we don't pile them up across navigations.
+    themeObserver?.disconnect();
+    themeObserver = new MutationObserver(() => {
       void initAndRun();
     });
-    obs.observe(document.documentElement, {
+    themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
+  }
 
-    // ---------- Lightbox (click any rendered diagram to enlarge) ----------
-    const overlay = document.createElement("div");
+  function ensureLightbox() {
+    // Build the overlay + global listeners exactly once for the document's
+    // lifetime. The overlay is appended to <body>, which Astro's ClientRouter
+    // diffs rather than fully replacing, so a single overlay survives every
+    // view-transition navigation.
+    if (globalListenersBound) return;
+    globalListenersBound = true;
+
+    overlay = document.createElement("div");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-label", "Enlarged diagram");
@@ -144,7 +201,7 @@
       "transition:opacity 160ms ease",
     ].join(";");
 
-    const stage = document.createElement("div");
+    stage = document.createElement("div");
     stage.style.cssText = [
       "width:100vw",
       "height:100vh",
@@ -159,8 +216,9 @@
     document.body.appendChild(overlay);
 
     function open(svgMarkup: string) {
+      if (!overlay || !stage) return;
       stage.innerHTML = svgMarkup;
-      const svg = stage.querySelector("svg");
+      const svg = stage.querySelector("svg") as SVGElement | null;
       if (svg) {
         svg.removeAttribute("width");
         svg.removeAttribute("height");
@@ -178,19 +236,25 @@
     }
 
     function close() {
-      overlay.style.opacity = "0";
+      if (!overlay || !stage) return;
+      const o = overlay;
+      const s = stage;
+      o.style.opacity = "0";
       setTimeout(() => {
-        overlay.style.display = "none";
-        stage.innerHTML = "";
+        o.style.display = "none";
+        s.innerHTML = "";
       }, 160);
     }
 
     overlay.addEventListener("click", close);
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && overlay.style.display === "flex") close();
+      if (e.key === "Escape" && overlay && overlay.style.display === "flex")
+        close();
     });
 
-    // Click handler is delegated so it survives re-renders on theme toggle.
+    // Click handler is delegated so it survives theme-toggle re-renders AND
+    // view-transition navigations (bound to `document`, which ClientRouter
+    // leaves alone across swaps).
     document.addEventListener("click", (e) => {
       const target = (e.target as Element)?.closest?.("pre.mermaid");
       if (!target) return;
@@ -201,10 +265,35 @@
 
     // Cursor + tooltip on diagrams are applied via CSS in globals (see
     // .lesson-prose pre.mermaid styles) so they stick across re-renders.
-  })();
+  }
+
+  // Astro fires `astro:page-load` after every page render — initial load
+  // AND every view-transition navigation. Hooking here is the canonical
+  // pattern for "re-run on each page" in a ClientRouter site. The listener
+  // is bound to `document`, which persists across navigations, so we
+  // register it exactly once when this module first evaluates.
+  document.addEventListener("astro:page-load", () => {
+    ensureLightbox();
+    void setupPage();
+  });
 </script>
 
 <style is:global>
+  /* Hide the raw mermaid source text until the loader script has swapped in
+   * the SVG. Without this, every lesson page flashes the literal mermaid
+   * markdown for a frame or two on cold load — and on view-transition
+   * navigations the flash is long enough to read.
+   *
+   * `data-mermaid="true"` is set by the remarkMermaidPre plugin at build
+   * time, so the rule applies even when JS hasn't booted yet. The loader
+   * stamps `data-mermaid-ready="true"` on each <pre> after mermaid.run()
+   * resolves, which releases visibility. A small min-height reserves space
+   * so layout doesn't reflow when the SVG pops in. */
+  pre.mermaid[data-mermaid="true"]:not([data-mermaid-ready]) {
+    visibility: hidden;
+    min-height: 6rem;
+  }
+
   .lesson-prose pre.mermaid,
   pre.mermaid {
     cursor: zoom-in;

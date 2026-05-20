@@ -1,0 +1,73 @@
+---
+slug: 05-incident-type-mfa-tampering
+vendor: huntress
+level: l3
+title: "Incident type: MFA tampering"
+summary: MFA tampering is a near-certain compromise signal because legitimate MFA changes follow a specific shape that attacker-driven changes do not match.
+estimatedMinutes: 8
+order: 5
+topics:
+  - itdr
+  - mfa
+  - tampering
+updated: 2026-05-20
+---
+
+MFA is supposed to be the second factor that stops attackers even when they have a password. Attackers who get past it usually do so by changing the second factor. **MFA tampering is a near-certain compromise signal** because legitimate MFA changes follow a specific shape (user-initiated, often during a documented onboarding event), and attacker-driven changes do not.
+
+## Three attacker patterns
+
+### 1. Add their own MFA method
+
+After getting in, the attacker registers a new phone number or authenticator app under the user's account. This gives them a way to satisfy MFA challenges on future sign-ins without needing the user's actual device.
+
+### 2. Remove the user's MFA methods
+
+If the attacker registers their own method and removes the legitimate ones, future password-reset flows that depend on the user's contact methods now route to the attacker. They can reset the password without the user's involvement and take full control.
+
+### 3. Change recovery details
+
+Modifying the recovery phone number or alternate email moves account-recovery channels to the attacker. The user's "I forgot my password" link goes to an inbox or number the attacker controls.
+
+All three appear in the Timeline as MFA events with clear before/after states.
+
+## Legitimate MFA changes have a different shape
+
+For contrast, legitimate MFA changes have recognisable markers:
+
+- They happen during user onboarding (new staff member registers their first method).
+- They happen during documented device replacement (user got a new phone; IT helped them re-register).
+- They match the customer's IT support process (business hours, IT ticket on record).
+- They do not immediately follow a suspicious sign-in or other compromise events.
+
+The SOC's classification weighs this context. When the Recommendation says "no action required, user-initiated MFA change confirmed via IT," trust the classification and close cleanly.
+
+## Why the playbook removes attacker methods, not all methods
+
+A compromised account ends up with both legitimate MFA methods (the user's own phone, their own authenticator) and attacker-added methods. The response removes the attacker's methods specifically, not all methods.
+
+Removing all methods forces the user through full MFA re-enrolment, which creates friction. The Timeline usually shows which methods are attacker-added (registered minutes after a suspicious sign-in, from an unfamiliar country code). Targeted removal preserves the user's legitimate methods while eliminating the attacker's persistent foothold.
+
+Lesson 13 in this course covers the targeted method-removal step in detail.
+
+## A worked scenario
+
+High-severity ITDR on `helena.tran@example.com`. Timeline: 08:42 sign-in from a new country; 08:44 new MFA method (phone +66...); 08:45 existing MFA method removed (Helena's normal phone +61...); 08:48 inbox rule created. The customer's IT manager calls during triage: "Helena is overseas on vacation, she might have updated her phone."
+
+<StepThrough client:load>
+  <Step title="Read the Timeline, not the IT manager's guess">
+    The Timeline does not show "Helena registered her travel phone." It shows the attacker pattern: new method added, legitimate method removed, inbox rule created, all in six minutes. Vacation overseas would not generate that sequence. The IT manager has incomplete information. Execute the Recommendation per the compromise playbook.
+  </Step>
+  <Step title="Helena calls back two hours later">
+    "I did update my phone last week, before I left. The Thai number is real. I bought a local SIM. Why did you remove my phone access?" The Timeline showed the Thai number added immediately after a sign-in from a new country and immediately before an inbox rule was created. That pattern matches a known attacker technique, not a user setting up a travel phone. Legitimate phone changes do not fire other malicious activity in the same six minutes.
+  </Step>
+  <Step title="Help Helena re-register">
+    Explain the pattern honestly. Do not apologise for a correct action. Help her register her Thai number fresh under her secure, reset credentials. The distinction between "your travel phone update" and "an attacker who already had your account adding their own method" is the Timeline's before/after states.
+  </Step>
+</StepThrough>
+
+<Callout type="info" title="Reset vs. method review">
+The password/MFA reset (lesson 10) and the MFA-method review (lesson 13) are related but distinct. The reset re-establishes the password and prompts re-enrolment. The method review removes the attacker's specific method-list entries that the reset may not have cleared.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-mfa-tampering" client:visible />

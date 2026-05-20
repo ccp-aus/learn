@@ -60,12 +60,11 @@ Multiple flags can be set at once. A single `redemptionPeriod` changes what acti
 
 ## Decision walkthrough
 
-A client calls Friday afternoon, panicked: *our website is down and emails are bouncing, everything stopped overnight. Please get it back up.* You pull WHOIS. The status shows `redemptionPeriod` and expiry was 38 days ago.
-
 <DecisionTree
   client:load
   startId="root"
   title="Domain in redemption: what now?"
+  description="A client calls Friday afternoon, panicked: 'our website is down and emails are bouncing, everything stopped overnight. Please get it back up.' You pull WHOIS. The status shows `redemptionPeriod` and expiry was 38 days ago."
   nodes={[
     {
       type: "question",

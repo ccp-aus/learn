@@ -1,0 +1,94 @@
+---
+slug: 05-bulk-agent-rollout
+vendor: huntress
+level: l2
+title: Bulk agent rollout, the runbook approach
+summary: Bulk rollout is where one mistake hits the most endpoints fastest. The runbook owns scope and timing; you own the running, the monitoring, and the gap between RMM success and portal enrolment.
+estimatedMinutes: 10
+order: 5
+topics:
+  - onboarding
+  - agent
+  - rmm
+updated: 2026-05-20
+---
+
+Bulk rollout is the step where one mistake hits the most endpoints fastest. Push the wrong installer to the wrong RMM group and you are either failing to install where you should, installing where you shouldn't, or, worst case, enrolling agents into the wrong customer's organisation. Runbook discipline matters more on bulk rollout than on almost anything else in this course; the cost of getting it wrong scales linearly with how many endpoints you touched.
+
+## What the runbook owns, what you own
+
+Your MSP's bulk-rollout runbook owns the *what* and the *where*:
+
+- The **installer package**, the Huntress agent installer bundled with the right organisation key for the customer.
+- The **RMM job or script** that runs the installer (silent install, with logging).
+- The **endpoint scope**, which RMM group, OU, or device list to target.
+- The **install window**, when the push runs, often outside business hours for workstations.
+
+You own the *running*, executing the documented job, watching progress, and recognising stalls. You do not decide which endpoints get the agent (deployment-strategy, senior call per lesson 1) or which org key to use (the runbook should already have the right one configured per customer).
+
+## Pre-flight
+
+A short check before the RMM job runs:
+
+<StepThrough client:load>
+  <Step title="Confirm the right organisation key is bundled">
+    The org key is what enrols the agent into the right customer's portal organisation. The wrong key enrols against the wrong customer, the worst failure mode in this lesson.
+  </Step>
+  <Step title="Confirm the target endpoint list matches the runbook's scope">
+    If the runbook says "workstation OU only," check the RMM job is scoped to the workstation OU and not, say, all endpoints.
+  </Step>
+  <Step title="Confirm the install window">
+    Out-of-hours is the default for a reason. Silent installs aren't truly silent on every endpoint, UAC prompts, AV alerts, and noticeable performance blips still hit users at their desks during business hours.
+  </Step>
+  <Step title="Confirm AV / RMM compatibility steps from the runbook are done">
+    Exclusions in the customer's existing AV, RMM script signed and approved, install logs writing to a known path. Pre-empts the install failures that come later in this course.
+  </Step>
+  <Step title="If anything above isn't right, stop and bump">
+    A runbook gap on pre-flight is a senior question. Don't improvise.
+  </Step>
+</StepThrough>
+
+## Running the push
+
+The RMM job kicks off. Most MSPs run one of two patterns:
+
+- **Single-batch.** The job runs against the whole target list at once. Common for smaller customers (under 100 endpoints).
+- **Phased.** A small canary batch first (5 to 10 endpoints), wait for success confirmation, then the rest. Common for larger customers and where AV / RMM compatibility is uncertain.
+
+The runbook tells you which pattern this customer is on. Don't switch patterns on the fly.
+
+Once the job runs, the work moves to monitoring:
+
+1. **Watch the RMM job's progress.** RMM-side success means the installer completed without an error code. It does not mean the agent is enrolled and reporting.
+2. **Watch the customer's Agents view in the portal.** Agents appear as they enrol, usually within minutes of a successful install. Sort by enrolment time to see new arrivals.
+3. **Compare RMM success count to portal enrolment count.** A gap (RMM says 200 successful installs; portal shows 180 agents) is the early signal of something worth investigating.
+
+<Callout type="danger" title="The single worst failure mode: wrong-customer enrolment">
+The worst mistake in bulk rollout is enrolling agents into the wrong customer's organisation because the installer was bundled with the wrong org key. Open the global Agents view, filter by enrolment time, and confirm new agents all belong to the intended customer in the first ten minutes of the push. If they aren't, stop. Don't try to move them back yourself; agent relocation between orgs is its own procedure later in this course, and a bulk re-org is senior-owned.
+</Callout>
+
+## Slow vs. stalled
+
+A common new-tech worry: the portal shows 180 agents from a 200-endpoint push, and it has been ten minutes. Is something wrong?
+
+**Slow** looks like: agents continuing to trickle in. The trickle rate may be uneven, a batch of 20 in two minutes, then a pause, then another batch, depending on when each endpoint phones home post-install. As long as the count is moving, this is fine. Wait.
+
+**Stalled** looks like: no new agents in 30 or more minutes despite the RMM job claiming success. The gap has stopped closing. Now it is worth looking. Common causes include AV blocking the agent post-install, blocked outbound connectivity on a subset of endpoints, or a wrong organisation key sending agents to the wrong place.
+
+The right reflex on stalled is not to re-push the whole list. Look at the gap: what is *missing* from the portal versus what the RMM says installed. The pattern in the gap (one OU, one site, one OS version) tells you what to investigate.
+
+## A worked ticket: 109 of 147 at the half-hour mark
+
+New customer onboarding. The runbook says: push the agent via RMM to the customer's workstation OU (147 machines) during the 8pm to 10pm window tonight. You kick the push at 8:00pm. By 8:35pm the RMM job shows 142 successful installs (5 failed, known-offline). The Huntress portal shows 109 enrolled agents. The portal's enrolment rate has been a steady trickle.
+
+This is slow, not stalled. Re-pushing to the 33 missing endpoints now creates duplicate-install attempts on machines mid-enrolment. Cancelling the RMM job and starting over loses visibility into which endpoints have already installed and resets the clock. The right move is wait until 9:00pm and re-check. If the gap is still closing, keep waiting.
+
+At 9:00pm, the portal is at 138 and stuck for the last 15 minutes. Four endpoints missing, all in one site office. Re-pushing those four is a reasonable instinct but premature, the cluster (same office) suggests a network or AV factor specific to that site, not a randomly-distributed failure. Investigate the pattern first, AV differences, egress firewall, compatibility the runbook didn't surface. A re-push is the right *next* step in most cases, but only after you know what is making this site different.
+
+## Common mistakes
+
+- **Pushing during business hours when the runbook says out-of-hours.** Even silent installs aren't truly silent on every endpoint.
+- **Re-pushing when enrolment count is below RMM success count.** Trickle is normal in the first 30 minutes. Re-pushing too early creates duplicate-install attempts.
+- **Not sanity-checking the destination organisation.** The global Agents view filtered by enrolment time catches wrong-customer enrolment in the first ten minutes. If you're not watching, you find out later from a confused customer.
+
+<Checkpoint slug="huntress-operations-checkpoint-bulk-agent-rollout" client:visible />

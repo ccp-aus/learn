@@ -1,0 +1,102 @@
+---
+slug: 06-coverage-verification
+vendor: huntress
+level: l2
+title: Coverage verification, three surfaces not one
+summary: Endpoints, identity, and SIEM all need verification, not just the agent count. Green status on an integration is necessary, not sufficient. Run the reconciliation at 24 hours and again at 48.
+estimatedMinutes: 10
+order: 6
+topics:
+  - onboarding
+  - coverage
+updated: 2026-05-20
+---
+
+A customer that the portal *says* is covered, but in reality has thirty endpoints with no agent, has a false sense of security. Same problem if the ITDR connection went green but hasn't produced an event in 48 hours, or if a SIEM data source has been silent since the integration light turned green. Coverage verification catches those gaps before the onboarding is signed off. It is also the step where you find the endpoints nobody told you existed, the workstations in a closet, the unmanaged laptops contractors use, the server that runs the line-of-business app and somehow isn't in the RMM.
+
+## Three surfaces, not one
+
+The onboarding lessons that came before touched three surfaces. Coverage verification covers all three. The most common new-tech shortcut is verifying only the first.
+
+1. **Endpoints (EDR agents).** Reconcile inventories against the portal's Agents view.
+2. **Identity (ITDR, M365 and/or Google Workspace).** *Connected* with green status doesn't mean events are flowing. Verify ingested-event volume.
+3. **SIEM data sources** (if your MSP rolled out Managed SIEM as part of the onboarding). Each source needs to be ingesting, not just configured.
+
+A customer with all three rolled out has all three to verify. Skipping the ITDR check because the green light is on is the most common shortcut, and it hides identity-incident blindness for the longest.
+
+## Endpoint reconciliation as set arithmetic
+
+You will work with two to four endpoint inventories at once:
+
+- **The Huntress portal Agents view** for the customer: what *is* covered.
+- **The MSP's RMM**: what the MSP is managing.
+- **Active Directory or the customer's directory service**: what computer objects exist on the customer's domain (where applicable).
+- **The customer's own documentation**: asset registers, network diagrams, the IT manager's spreadsheet. The least reliable source individually, sometimes the most revealing.
+
+Each gap category routes to a different response:
+
+| Gap | Meaning | Response |
+|---|---|---|
+| In RMM, not in Huntress | Install failed or agent didn't enrol | Close yourself; re-push or diagnose per Course 3 if it doesn't take |
+| In AD, not in RMM | Endpoints the MSP isn't currently managing | Bump, deployment-strategy question |
+| In Huntress, not anywhere else | Usually fine, sanity check | Sometimes a wrong-customer enrolment signal worth confirming |
+| In customer docs, not anywhere else | Retired hardware or real-but-unmanaged | Investigate; could be either |
+
+Most MSPs have a coverage-reconciliation worksheet or script. Use it if you have it; even a spreadsheet pulling exports from each system is enough.
+
+## ITDR: green is necessary, not sufficient
+
+The connection step from lessons 3 and 4 flips a portal indicator to *Connected* within minutes. That tells you the integration registered. It doesn't tell you events are arriving.
+
+For each connected ITDR tenant:
+
+- **Last-sync timestamp.** Should be moving. Recent within the last hour or so during normal operation. A stale last-sync on a *Connected* tenant is the early sign that the integration registered but the telemetry pipeline didn't activate cleanly.
+- **Ingested event volume in the first 24 to 48 hours.** Sign-in events, mailbox-rule scans, OAuth-grant inventories. The portal exposes a feed or counter; your runbook should say where. Zero events after 48 hours on a tenant with active users is a real signal, not a slow baseline; bump.
+- **Tenant identity scope matches expectations.** If the customer has 50 users in M365 and Huntress sees 12 identities, something narrowed the scope at the consent or GDAP-role step.
+
+<Callout type="warn" title="If the connection step was senior-only, the verify step is still yours">
+The 24-hour ITDR verification is often the right next-touch for the tech once the senior has connected. Surface what you find, zero events, missing identities, stale last-sync, to the senior. They're the right body to weigh whether to redo the connection or open Huntress support.
+</Callout>
+
+## SIEM: each data source separately
+
+If Managed SIEM was part of the customer's onboarding, every data source needs its own check. The portal's SIEM data-source view shows each source's status and last-ingestion timestamp.
+
+For each source:
+
+- **Ingestion is Active** (or the runbook's equivalent green state).
+- **Last-event timestamp is recent.** Minutes to a low number of hours, not days. A source flagged Active but with a 2-day-old last-event has stopped silently.
+- **Ingested volume is in the expected ballpark for that source.** A Windows Event Log source on a busy file server should produce many events per hour; one producing five events per hour is probably misconfigured.
+
+SIEM coverage gaps escalate faster than agent gaps. A SIEM source the SOC believes is feeding it data, but which has gone quiet, hides the entire detection class that source was supposed to cover. Don't sit on a stalled SIEM source overnight.
+
+## When to verify
+
+Run the full reconciliation **24 hours after the bulk push completes**, not immediately. Agents that were off, asleep, or on a slow network the night of the push will phone home over the next day. Running verification at 8:01pm on push night gives you a long list of *missing* endpoints that aren't missing; they are booting up the next morning.
+
+ITDR and SIEM follow the same 24-hour-then-48-hour cadence. The 24-hour pass catches connection-side problems; the 48-hour pass catches scope and volume problems. Beyond 48 hours, anything still missing across any surface is worth investigating, not waiting.
+
+## A worked ticket: three signals dressed as one sign-off
+
+24 hours after the push for new customer Able Moose Accounting, you run reconciliation. The RMM has 198 endpoints in scope. The Huntress portal shows 191 agents enrolled. AD has 247 computer objects on Able Moose's domain. ITDR was connected yesterday and the portal shows the M365 tenant as Connected with green status. SIEM was not part of Able Moose's product mix. The customer's IT manager mentions: *"Oh, and the four laptops the directors use; those aren't on the domain, they're personal-ish but they read company email."*
+
+The wrong call is 191 of 198 is 96%, ITDR is green, sign off the onboarding. You have ignored the AD gap (49 endpoints), the director-laptop disclosure, and you haven't verified ITDR is producing events, only that its connection status is green. Three missed checks dressed as one sign-off.
+
+The right shape: seven endpoints in RMM not in Huntress (re-push), 49 in AD not in RMM (deployment-strategy bump), four director laptops disclosed and unaccounted-for, and an ITDR connection that still needs an event-flow check before the verification is complete.
+
+You check the ITDR portal. M365 reads Connected, green, but the events feed for the tenant shows zero ingested events in the last 24 hours and the last-sync timestamp hasn't moved since the initial connection. Waiting another 24 hours is the wrong reflex, baseline applies to identity *incidents*, not ingested events. Ingested events should flow within the first hour and keep flowing. A stale last-sync after 24 hours is a real signal. Disconnecting and reconnecting yourself to *kick it* is doubly wrong if the connection step is above the helpdesk floor at your MSP (lesson 3). Surface to the senior who connected ITDR: *"Connected yesterday, green, but last-sync hasn't moved in 24 hours and zero events ingested. Looks like the integration registered but the pipeline didn't activate."* They either know the next step or open Huntress support.
+
+## The deliverable
+
+Coverage verification is the verify step. The outputs:
+
+- A reconciled endpoint count: AD / RMM / Huntress / customer-docs, with the deltas explained.
+- A short note on closed-this-session endpoint gaps.
+- A short note on still-open endpoint gaps and which category they fall into.
+- An ITDR check per connected tenant: connected status, recent last-sync, event volume, scope check.
+- A SIEM check per data source (if applicable).
+- Anything in the *In AD, not in RMM* bucket flagged to the senior.
+- Anything quietly stalled on ITDR or SIEM flagged to the senior who owns the connection.
+- The customer's IT manager kept in the loop on counts. A one-liner at the end: *"We have agents on 198 of 198 managed endpoints. AD shows 49 additional computer objects we don't currently manage; we've flagged those to your account manager. ITDR is connected for your M365 tenant and is producing identity events normally. SIEM ingestion is healthy on the four sources we set up."*
+
+<Checkpoint slug="huntress-operations-checkpoint-coverage-verification" client:visible />

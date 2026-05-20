@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-impossible-travel",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: impossible travel",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "impossible-travel-signal-definition",
+      "type": "mcq",
+      "topic": "signal-definition",
+      "difficulty": "easy",
+      "prompt": "What does the impossible-travel signal fire on?",
+      "choices": [
+        "The same identity signing in from two locations within a window of time that is physically impossible to cover by travel.",
+        {
+          "label": "A user signing in from outside their employer's home country.",
+          "rationale": "A single foreign sign-in is not impossible-travel. The signal needs two sign-ins with impossible timing."
+        },
+        {
+          "label": "A user with multiple devices signing in simultaneously.",
+          "rationale": "Multi-device simultaneous sign-in is normal for most users."
+        },
+        {
+          "label": "A user travelling to a country flagged as high-risk.",
+          "rationale": "Sanctions lists are not the basis of this signal."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Geography and timing do not add up. The signal requires two sign-ins from locations that cannot be reached in the elapsed time."
+    },
+    {
+      "id": "vpn-false-positive-marker",
+      "type": "mcq",
+      "topic": "false-positive",
+      "difficulty": "medium",
+      "prompt": "Which is the strongest marker of a VPN false positive on impossible travel?",
+      "choices": [
+        {
+          "label": "The user has Outlook on a mobile phone.",
+          "rationale": "Mobile Outlook alone is not the discriminator."
+        },
+        "The anomalous location is a known corporate VPN exit point with months of prior clean sign-ins from the same exit.",
+        {
+          "label": "The user works in IT.",
+          "rationale": "Role is not the discriminator. Pattern and Timeline are."
+        },
+        {
+          "label": "The user has accepted MFA prompts at unusual hours before.",
+          "rationale": "That is an MFA-fatigue indicator, not a VPN false-positive marker."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Long-standing VPN-exit pattern with no follow-on activity is the false-positive shape the SOC weighs."
+    },
+    {
+      "id": "two-failure-modes",
+      "type": "mcq",
+      "topic": "failure-modes",
+      "difficulty": "medium",
+      "prompt": "Which failure-mode pair does the lesson name?",
+      "choices": [
+        {
+          "label": "Re-grading every incident, or never re-grading any.",
+          "rationale": "Re-grading is not the tech's job at all."
+        },
+        {
+          "label": "Always calling the user first and never calling the user.",
+          "rationale": "User verification is a tool, not the named failure-mode pair."
+        },
+        "Treating every impossible-travel signal as Critical.",
+        {
+          "label": "Acting before reading and reading without acting.",
+          "rationale": "Generic. The specific named pair is over-react vs. dismiss."
+        }
+      ],
+      "correct": 2,
+      "explanation": "(burns customer relationships) and dismissing them all as 'probably a VPN' (misses real compromise). The discipline is reading the SOC's classification, not pattern-matching your own reaction."
+    },
+    {
+      "id": "true-compromise-combination",
+      "type": "mcq",
+      "topic": "true-compromise",
+      "difficulty": "medium",
+      "prompt": "Which combination of markers is most consistent with true impossible-travel compromise?",
+      "choices": [
+        {
+          "label": "User has documented international travel, no follow-on activity in the Timeline.",
+          "rationale": "That is the documented-travel false-positive pattern."
+        },
+        {
+          "label": "Sign-in from a long-standing corporate VPN exit, empty Timeline.",
+          "rationale": "That is the VPN false-positive pattern."
+        },
+        {
+          "label": "Single sign-in from the user's home country at their normal time.",
+          "rationale": "No anomaly at all. Would not fire impossible-travel."
+        },
+        "Anomalous location with no prior history."
+      ],
+      "correct": 3,
+      "explanation": "IP on a residential-proxy list, follow-on inbox-rule creation within minutes. Anomalous location plus malicious IP plus immediate follow-on activity is the true-compromise marker set."
+    },
+    {
+      "id": "vpn-always-benign-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"VPN exits are always benign.\" Why is this wrong?",
+      "choices": [
+        "Attackers also use VPNs.",
+        {
+          "label": "VPNs are always malicious.",
+          "rationale": "Overcorrects in the opposite direction."
+        },
+        {
+          "label": "VPN traffic is invisible to the SOC.",
+          "rationale": "Sign-in events are visible regardless of VPN use."
+        },
+        {
+          "label": "Huntress cannot see VPN sign-ins.",
+          "rationale": "Sign-in events appear in the Timeline regardless of network path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC's classification weighs both possibilities. Do not blanket-dismiss based on the word 'VPN.' The SOC weighs both benign VPN and attacker VPN. The Recommendation tells you which case this is."
+    },
+    {
+      "id": "true-compromise-first-move",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High-severity impossible-travel on Alex. Bangkok sign-in followed by inbox rule forwarding payment mail and an OAuth grant. Recommendation: full playbook. What do you do?",
+      "choices": [
+        {
+          "label": "Call Alex first to ask whether he is travelling.",
+          "rationale": "Wrong sequencing. The Recommendation is the action. The inbox rule is exfiltrating now."
+        },
+        {
+          "label": "Try Alex on his personal phone to verify the travel before acting.",
+          "rationale": "Same delay cost. The SOC has classified. Act."
+        },
+        "Execute the Recommendation."
+      ],
+      "correct": 2,
+      "explanation": "Session revoke, password and MFA reset, inbox-rule removal, OAuth-grant revoke. Document. Reach the manager. Timeline confirms the compromise pattern. Execute per the playbook."
+    },
+    {
+      "id": "documented-travel-response",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Impossible travel on Jordan. Only two sign-ins in Timeline, no follow-on. Recommendation: 'Documented travel pattern. Verify with user. No further action if confirmed.' What do you do?",
+      "choices": [
+        "Call Jordan, verify the activity was theirs.",
+        {
+          "label": "Execute the full compromise playbook anyway, to be safe.",
+          "rationale": "Ignores the SOC's Recommendation. Locks Jordan out for no reason. Damages the customer relationship."
+        },
+        {
+          "label": "Wait for the next incident to confirm a pattern.",
+          "rationale": "The Recommendation is to verify now. Waiting passes ownership for no benefit."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Close per the Recommendation if confirmed. The SOC has classified this as the cached-credential / known-travel pattern. Follow the Recommendation."
+    },
+    {
+      "id": "imap-smtp-false-positives",
+      "type": "mcq",
+      "topic": "client-type",
+      "difficulty": "medium",
+      "prompt": "Why do IMAP and SMTP clients sometimes fire impossible-travel artefacts on benign users?",
+      "choices": [
+        {
+          "label": "They run only from anonymising proxies.",
+          "rationale": "Wrong on the facts."
+        },
+        {
+          "label": "They are forbidden by Huntress's terms of service.",
+          "rationale": "Not a real platform constraint."
+        },
+        {
+          "label": "They always indicate compromise.",
+          "rationale": "The lesson names them as a false-positive source."
+        },
+        "They cache credentials and can fire impossible-travel-shaped events even for legitimate users."
+      ],
+      "correct": 3,
+      "explanation": "IMAP and SMTP credential caching is a known false-positive contributor the SOC weighs in the classification."
+    },
+    {
+      "id": "ip-lookup-unreliable",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"I can tell whether impossible-travel is real by looking at the IP.\" Why is this unreliable?",
+      "choices": [
+        {
+          "label": "IP addresses change too quickly to be useful.",
+          "rationale": "Not the lesson's framing."
+        },
+        "The SOC's classification weighs IP reputation.",
+        {
+          "label": "Tech accounts do not have access to IP-reputation tools.",
+          "rationale": "Wrong on tooling access."
+        },
+        {
+          "label": "IPs are not part of the Evidence.",
+          "rationale": "IPs are part of the Evidence. The lesson is about overweighting your own read vs the SOC's full picture."
+        }
+      ],
+      "correct": 1,
+      "explanation": "User pattern, client type. Follow-on activity together. Tech-seat IP lookups alone are less reliable than the SOC's combined call. The SOC has more context than a single IP lookup. Trust the classification."
+    },
+    {
+      "id": "definitive-signal-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "hard",
+      "prompt": "\"If it says impossible travel, the user is definitely compromised.\" Why is this wrong?",
+      "choices": [
+        {
+          "label": "Impossible travel only fires when the SOC has high confidence.",
+          "rationale": "Confidence levels vary. The Recommendation tells you the SOC's read."
+        },
+        {
+          "label": "Impossible travel is always benign.",
+          "rationale": "Overcorrects in the opposite direction."
+        },
+        "False-positive rate is real, especially with IMAP/SMTP cached credentials and corporate VPNs.",
+        {
+          "label": "The user can override the impossible-travel signal.",
+          "rationale": "Users do not override SOC classifications."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The Recommendation does the discrimination. The signal alone is not the disposition. The Recommendation, informed by VPN patterns, travel history, and follow-on activity, is the disposition."
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+---
+slug: 21-clean-uninstall-decommission
+vendor: huntress
+level: l2
+title: Clean uninstall and decommission, single endpoint
+summary: The daily mirror of single-endpoint deploy. The portal's organisation-specific uninstall key authorises the removal cleanly. Verify both ends of the uninstall (portal and endpoint) before closing the ticket.
+estimatedMinutes: 7
+order: 21
+topics:
+  - agent
+  - uninstall
+  - decommission
+  - lifecycle
+updated: 2026-05-20
+---
+
+Single-endpoint uninstall is the daily mirror of single-endpoint deploy. A workstation being recycled, a server being decommissioned, a laptop being returned for a leaving employee. Done well, the agent is off, the portal shows the endpoint as gone, and the PSA has a clean record. Done badly, the agent is still phoning home from a decommissioned device that hasn't existed for two weeks, polluting the portal and confusing whoever inherits the customer.
+
+## When this lesson applies
+
+- A single endpoint that's being retired, replaced, or returned.
+- A *resistant* agent left over from a bulk-uninstall offboarding that needs per-endpoint follow-up.
+- An endpoint being moved between organisations where the runbook calls for fresh-install rather than the migrate-in-place path (lesson 22 covers that decision).
+
+When the lesson doesn't apply: bulk uninstall, and full-organisation offboarding (both covered earlier in this course).
+
+## The uninstall key
+
+The Huntress portal exposes an **organisation-specific uninstall key** under the customer's organisation Settings. The key authorises the agent to uninstall itself cleanly. Without the key, the agent's local uninstall is gated, intentionally, to prevent attackers from removing the agent silently. The key is per-organisation, not per-endpoint; the same key uninstalls any agent in that organisation.
+
+<Callout type="danger" title="Treat the uninstall key like a credential">
+Don't paste it in chat, customer-visible documentation, or email. Same family as the install-time org-key discipline. The runbook should specify where the key lives and who has access.
+</Callout>
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Confirm the endpoint and the reason">
+    Open the PSA ticket. Replacement, recycling, returning to a user, troubleshooting. The reason influences whether to also clear the endpoint from the RMM, the customer's documentation, and other systems.
+  </Step>
+  <Step title="Pull the uninstall key for the customer's organisation">
+    From the portal's organisation Settings, or from the runbook's vault if your MSP pre-stages keys.
+  </Step>
+  <Step title="Run the uninstall via the RMM">
+    Most MSPs have a parameterised RMM job that takes the org key as input. For a resistant agent that didn't accept the bulk uninstall, the documented manual command-line uninstall (silent, with the key) is the next step.
+  </Step>
+  <Step title="Wait for the agent to process the uninstall">
+    Typically minutes; longer if the endpoint is slow or busy.
+  </Step>
+  <Step title="Verify in the portal">
+    The agent moves to offline, then disappears from the Agents view (timing varies by retention policy; some MSPs keep recently-uninstalled agents visible in a separate state for a short window).
+  </Step>
+  <Step title="Verify on the endpoint when possible">
+    The Huntress service should no longer exist; the install path should be empty. Useful sanity check on uninstalls the runbook has flagged as historically sticky.
+  </Step>
+  <Step title="Document in the PSA">
+    Endpoint name, uninstall timestamp, reason, and any complication.
+  </Step>
+</StepThrough>
+
+## Common slips
+
+- **Skipping the uninstall key and running the installer's "uninstall" mode without it.** The gated uninstall either fails or removes the binary without cleanly deregistering. The portal shows a stale online agent that has actually gone away, or a partial-uninstall state that confuses the next tech.
+- **Leaving the endpoint in the portal as "offline" forever** because nobody clicked through the uninstall. The agent is still installed, still trying to phone home, still occupying a license slot. The decommission isn't real until the agent is off.
+- **Pasting the uninstall key into chat or a customer email.** Credential mishandling. Use the runbook's documented surface.
+
+## When to escalate
+
+- The agent resists the uninstall, even with the documented manual command. Investigate the cause (tamper-protection, permissions, AV interference) before forcing a retry. Bump if you can't identify the cause.
+- The endpoint's owner asks to keep Huntress on it after decommission "for the next user." Deployment-strategy / lifecycle question. Senior owns.
+- The uninstall succeeds but the endpoint reappears in the portal hours later. Could be a re-install from an RMM job that was queued, could be a different endpoint reusing the hostname. Investigate before treating as routine.
+
+## A worked ticket: Able Moose Accounting
+
+A user at Able Moose has left the company. Their laptop, `WS-AMOOSE-USER22`, has been wiped and is being prepared for the next employee. Able Moose's IT manager has asked you to *remove Huntress so we can re-deploy from scratch*. The PSA ticket says the laptop was wiped to factory state yesterday.
+
+The wrong reflex is *run the uninstall via RMM with the organisation's uninstall key* without checking anything first. Whether the agent still exists on the wiped laptop depends on what the wipe touched. The portal will tell you in 30 seconds. The right move: check the portal first. If the agent is still registered, run the documented uninstall with the org key. If the agent isn't registered, the wipe already removed it; the laptop will need a fresh install when it's redeployed to the next user.
+
+You check. `WS-AMOOSE-USER22` shows offline since yesterday. Able Moose's IT manager asks: *can you just remove it from the portal so we have a clean list?* Don't click the "remove from portal" or "delete agent" option without confirming the runbook's policy first. Some MSPs treat *delete from portal* as a senior-only destructive admin action; others let helpdesk hide formerly-decommissioned agents. The action is small; whether you can do it is what's worth checking.
+
+<Checkpoint slug="huntress-operations-checkpoint-clean-uninstall-decommission" client:visible />

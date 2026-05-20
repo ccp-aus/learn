@@ -1,0 +1,99 @@
+---
+slug: 26-writing-incident-notifications
+vendor: huntress
+level: l3
+title: "Writing incident notifications: three rewrites compared"
+summary: "The first few sentences a customer reads about an incident shape their entire impression of the response. Compare dramatic, vague, and correct versions of the same notification to calibrate your framing."
+estimatedMinutes: 7
+order: 26
+topics:
+  - comms
+  - notifications
+  - framing
+updated: 2026-05-20
+---
+
+The first few sentences a customer reads about an incident shape their entire impression of the response. Too dramatic, they panic. Too vague, they distrust the message. The third version, specific and calm with named actions, builds trust. Writing all three side by side is the exercise that makes the calibration land.
+
+## The scenario
+
+A High-severity ITDR incident: malicious inbox rule created on `bob@example.com` after an impossible-travel sign-in. You ran the compromise playbook (sessions revoked, password and MFA reset, rule removed, OAuth grants reviewed). Bob is back working. You are writing the notification email to Bob's IT manager.
+
+Three versions follow. Same facts in each. The framing is the only variable.
+
+## Version 1: Dramatic
+
+> Hi Sarah,
+>
+> **URGENT: Active compromise detected on bob@example.com.**
+>
+> Our SOC caught an attacker breaking into Bob's account this morning. They had already set up email forwarding rules to steal sensitive mail and were preparing to phish your contacts. Bob's account has been completely locked down and his credentials reset. Please be on high alert for further attacks across your tenant.
+
+**What it gets wrong.** "Compromise," "breaking in," "completely locked down," "preparing to phish your contacts." Each phrase inflates the threat. The cumulative effect is panic, not information. "Be on high alert" is a non-action. The framing positions the MSP as a heroic rescuer. The customer loses sleep when the response is already complete.
+
+## Version 2: Vague
+
+> Hi Sarah,
+>
+> We had a security event on Bob's account this morning. Our system caught it and we've resolved everything. Bob should be fully back in his account; let me know if there are any issues.
+
+**What it gets wrong.** "Security event" tells Sarah nothing. Was it a compromise? A false positive? She cannot tell. "Our system caught it" hides the work. "Resolved everything" is unfalsifiable. Sarah does not know what was at risk or what was addressed. "Let me know if there are any issues" puts the burden on Sarah without telling her what to watch for.
+
+The vague version is the more common failure mode. Techs who want to avoid sounding dramatic overcorrect into hiding the work.
+
+## Version 3: Correct
+
+> Hi Sarah,
+>
+> Earlier this morning (9:14am), our SOC detected an unauthorised sign-in to Bob's account from an unusual location, followed within minutes by the creation of an email-forwarding rule routing financial-themed mail to an external address.
+>
+> We contained immediately: revoked all of Bob's active sessions, reset his password and MFA, removed the forwarding rule, and reviewed his OAuth grants (no other malicious grants found). Bob is fully back in his account with new credentials, which I sent him via our secure-handoff tool at 9:34am.
+>
+> Total attacker-active window: about 11 minutes; total response time: 9 minutes.
+>
+> For your security awareness review: this looks like credential theft (likely a phishing-page response). Worth reminding Bob on his next security check-in to use the password-manager autofill rather than typing credentials into web forms. That prevents the most common version of this attack.
+
+**What it gets right.** Specific timestamps and facts. Named actions (sessions, password, MFA, inbox rule, OAuth grants). Useful framing ("attacker-active window: 11 minutes" and "response time: 9 minutes"). An actionable insight for the customer's security-awareness work. Calm, complete, brief. Version 3 is about 80 words longer than Version 2. The work justifies the length.
+
+## Three properties of the correct framing
+
+1. **Name the work.** "We and the SOC" did the response, not "the platform did this." Active voice, human subjects.
+2. **Connect the metric to an outcome.** Not "23 Low" but "23 routine reviews of suspicious activity that turned out benign." Not "4 High" but "4 prompt-action items contained."
+3. **Offer the deep-dive without forcing it.** "Happy to walk through more detail if useful." The customer can ask; they are not force-fed.
+
+<Callout type="warn" title="Passive voice hides the response">
+"An incident was detected and resolved" hides the people and the work. "Our SOC detected, we contained" owns the response. Active voice is not a style preference here. It is how the customer learns who did what.
+</Callout>
+
+## Applying the framing to an EDR scenario
+
+A High-severity EDR incident on `WS-CONTOSO-MARKETING-04`: scheduled task with encoded PowerShell reaching a known-bad domain. The SOC recommended remediation. You approved it; the scheduled task and its persistence are removed. No isolation was called for. You are writing the notification to the customer's IT manager.
+
+<DecisionTree client:load
+  title="Which framing fits this EDR incident?"
+  description="The incident was High but not active-compromise. The Recommendation did not call for isolation, suggesting the threat was scoped to the scheduled task. Pick the framing that matches the severity."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Which framing do you reach for?", choices: [
+      { label: "Version 1: \"Active compromise prevented, immediate containment.\"", next: "dramatic" },
+      { label: "Version 3: Specific facts, named actions, calibrated to severity.", next: "correct" },
+      { label: "Version 2: \"Resolved an event on Sarah's machine, all good.\"", next: "vague" },
+    ]},
+    { type: "outcome", id: "dramatic", label: "Over-inflated", tone: "warn",
+      body: "The incident was High but not active-compromise. No isolation was called for. Inflating it to \"active compromise\" misrepresents the SOC's classification and sets the customer up for panic." },
+    { type: "outcome", id: "correct", label: "Calibrated framing", tone: "success",
+      body: "\"At [time] our SOC flagged a scheduled task on WS-CONTOSO-MARKETING-04 running encoded PowerShell that reached out to a known-bad domain. We approved the remediation per the SOC's analysis; the scheduled task and its persistence are removed. No further action recommended.\" Specific, calibrated to the severity, names what was done." },
+    { type: "outcome", id: "vague", label: "Under-specified", tone: "warn",
+      body: "Leaves the IT manager without the specifics that would let them decide whether to brief the user or update their security-awareness program. The vague version overcorrects on caution." },
+  ]}
+/>
+
+When the notification includes technical detail (like "encoded PowerShell"), pair it with the security outcome. "The kind of mechanism attackers use to maintain quiet persistence on a host. We removed the task and its backing." The IT manager learns what the mechanism does as a side-effect of reading the notification.
+
+## When to escalate the notification itself
+
+- The incident's specifics are above the line for tech-direct customer comms (Critical, tenant-wide, customer-relationship-sensitive). Senior writes those.
+- You are new to this customer and do not know their tone. Get the senior or account manager to review the draft.
+- The response was not clean (a re-detection happened, a step was missed). The notification waits until the response is complete.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-writing-incident-notifications" client:visible />

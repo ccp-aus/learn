@@ -1,0 +1,234 @@
+{
+  "slug": "huntress-operations-checkpoint-four-causes-offline-agent",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: four causes of an offline agent",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "four-causes",
+      "type": "mcq",
+      "topic": "four-causes",
+      "difficulty": "easy",
+      "prompt": "Which set names all four causes of an offline agent?",
+      "choices": [
+        "Powered off; service stopped; network blocked; uninstalled.",
+        {
+          "label": "Powered off; AV interference; policy block; unsupported OS.",
+          "rationale": "Mixes offline causes with install-failure causes from lessons 14-16."
+        },
+        {
+          "label": "Crashed; rebooted; uninstalled; replaced.",
+          "rationale": "Not the lesson's enumeration."
+        },
+        {
+          "label": "Online; offline; pending; archived.",
+          "rationale": "Portal states, not offline causes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Four causes hiding behind one portal status."
+    },
+    {
+      "id": "service-stopped-fingerprint",
+      "type": "mcq",
+      "topic": "service-stopped",
+      "difficulty": "medium",
+      "prompt": "The endpoint shows online in the RMM, but Huntress shows offline. The Huntress service is stopped on the endpoint. Which cause is this?",
+      "choices": [
+        {
+          "label": "Powered off.",
+          "rationale": "The endpoint is online in the RMM, so it isn't powered off."
+        },
+        "Service stopped.",
+        {
+          "label": "Network blocked.",
+          "rationale": "Network-blocked has the service running and the network call failing."
+        },
+        {
+          "label": "Uninstalled.",
+          "rationale": "Uninstalled means the service entry doesn't exist at all; here it exists and is stopped."
+        }
+      ],
+      "correct": 1,
+      "explanation": "RMM and Huntress disagreeing about the same endpoint is the canonical service-stopped fingerprint."
+    },
+    {
+      "id": "uninstalled-investigate-why",
+      "type": "mcq",
+      "topic": "uninstalled",
+      "difficulty": "medium",
+      "prompt": "You diagnose an offline agent as 'uninstalled.' What should you do BEFORE re-pushing?",
+      "choices": [
+        "Investigate why it was removed before re-pushing.",
+        {
+          "label": "Re-push the install immediately; uninstalled means re-push.",
+          "rationale": "Shotgun fix. Hits the same failure if the cause is still present."
+        },
+        {
+          "label": "Open a Huntress support ticket asking them to re-add the agent server-side.",
+          "rationale": "Misuses support and isn't a real workflow."
+        },
+        {
+          "label": "Wait 24 hours to see if the agent comes back on its own.",
+          "rationale": "Uninstalled agents don't come back without a re-push."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Cause-investigation before re-push is the named discipline. Deliberate removal, deployment-tool cleanup, AV removing it as a perceived threat, or sysprep wipe are all plausible. If AV removed it, re-installing hits the same condition."
+    },
+    {
+      "id": "three-offlines-start",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Three offlines have been there for more than 24 hours: a reception workstation, a production server, an executive laptop. The customer wants them sorted. Where do you start?",
+      "choices": [
+        {
+          "label": "Re-push the install to all three.",
+          "rationale": "Three different endpoints, three potentially different causes, one indiscriminate fix."
+        },
+        "Run the two-question diagnostic on each.",
+        {
+          "label": "Reboot all three from the RMM.",
+          "rationale": "Reboots fix some service-stopped cases by accident; don't help with the other three causes. Heavyweight on a production server."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(RMM online? Huntress service running?). Categorise before fixing. Two minutes of categorisation saves an hour of misapplied fixes."
+    },
+    {
+      "id": "three-causes-action-set",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Results: receptionist's workstation powered off (away two weeks). Production server online in RMM, Huntress service running, agent log shows phone-home failures. Executive laptop online in RMM, Huntress service entry missing. What's the action set?",
+      "choices": [
+        "No-action on the workstation, network-blocked diagnostic on the server, investigate-then-re-push on the laptop.",
+        {
+          "label": "Re-push to the executive laptop immediately, then circle back to the other two once the install confirms.",
+          "rationale": "You'd want to know why the agent was removed first. AV-removed-it or user-removed-it is plausible on an executive laptop."
+        },
+        {
+          "label": "Escalate to the senior because three offlines across three different cause categories warrants a second opinion.",
+          "rationale": "Three offlines on a 200-endpoint customer is well within normal range, and you've categorised them."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Each cause gets the right diagnostic path; investigate-then-re-push catches AV-removed-it or user-removed-it cases."
+    },
+    {
+      "id": "offline-means-broken",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "Why is 'offline means the agent is broken' called out as a misconception?",
+      "choices": [
+        "Most offlines are just powered off, not broken.",
+        {
+          "label": "Offline is a rare state that rarely happens in production environments.",
+          "rationale": "Inverts the lesson. Offlines happen routinely."
+        },
+        {
+          "label": "Only Huntress support can identify a broken agent.",
+          "rationale": "Misuses support. The diagnostic is local."
+        },
+        {
+          "label": "Offline always means uninstalled.",
+          "rationale": "Conflates two different causes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Single most common cause and the cheapest to recognise. Don't reach for a fix before confirming the endpoint is actually up."
+    },
+    {
+      "id": "shotgun-reinstall",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "'Service-stopped agents can be fixed by re-installing.' Why is this a misconception?",
+      "choices": [
+        "The service stopped for a reason; re-installing without finding it is shotgun debugging.",
+        {
+          "label": "Re-installing is impossible when the service is in a stopped state on the endpoint.",
+          "rationale": "The install would run; the underlying cause might still stop the service."
+        },
+        {
+          "label": "Service-stopped agents resolve themselves within 24 hours.",
+          "rationale": "Not a real behaviour."
+        },
+        {
+          "label": "Re-installing voids the warranty.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same family as the uninstalled-re-push-without-cause anti-pattern. Sometimes it works, but next time the service stops for the same reason, you're back to square one."
+    },
+    {
+      "id": "whole-site-offline",
+      "type": "mcq",
+      "topic": "real-work",
+      "difficulty": "medium",
+      "prompt": "A whole site shows offline at once. What's the likely cause?",
+      "choices": [
+        "Network blocked at the site level.",
+        {
+          "label": "All endpoints uninstalled simultaneously.",
+          "rationale": "Coincidence at scale is extremely unlikely."
+        },
+        {
+          "label": "All endpoints powered off simultaneously.",
+          "rationale": "Possible only if there's a known site-wide outage; otherwise network-level is more likely."
+        },
+        {
+          "label": "All endpoints have crashed services.",
+          "rationale": "Unlikely without a shared cause."
+        }
+      ],
+      "correct": 0,
+      "explanation": "(firewall change, ISP outage) until proven otherwise. Mass simultaneous offline is the canonical network-level fingerprint."
+    },
+    {
+      "id": "routing-to-network-lesson",
+      "type": "mcq",
+      "topic": "keystone-routing",
+      "difficulty": "easy",
+      "prompt": "Once you've categorised an offline as 'network blocked,' which lesson holds the diagnostic?",
+      "choices": [
+        "The blocked-outbound install lesson (17).",
+        {
+          "label": "The AV-conflict lesson (14).",
+          "rationale": "AV interference is a different failure class."
+        },
+        {
+          "label": "The clean-uninstall lesson (21).",
+          "rationale": "Uninstall/decommission isn't a diagnostic for blocked networks."
+        },
+        {
+          "label": "The coverage-verification lesson.",
+          "rationale": "Coverage verification isn't the network-blocked diagnostic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Network-blocked routes to the same diagnostic as a blocked-outbound install failure."
+    },
+    {
+      "id": "diag-order",
+      "type": "order",
+      "topic": "diagnostic-flow",
+      "difficulty": "medium",
+      "prompt": "Order the two-question diagnostic for separating the four causes.",
+      "items": [
+        "Question 1: Is the endpoint online in the RMM?",
+        "If RMM says No, the cause is Powered off. No action needed.",
+        "If RMM says Yes, ask Question 2: Is the Huntress service running on the endpoint?",
+        "If the service is missing entirely, the cause is Uninstalled.",
+        "If the service exists but is stopped, the cause is Service stopped.",
+        "If the service is running, the cause is Network blocked."
+      ],
+      "explanation": "Two questions sort all four causes in under a minute."
+    }
+  ]
+}

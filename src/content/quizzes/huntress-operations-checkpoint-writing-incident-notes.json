@@ -1,0 +1,217 @@
+{
+  "slug": "huntress-operations-checkpoint-writing-incident-notes",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: writing incident notes",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "audience",
+      "type": "mcq",
+      "topic": "audience",
+      "difficulty": "easy",
+      "prompt": "Who is the incident note for?",
+      "choices": [
+        "The next shift, the senior reviewing your work.",
+        {
+          "label": "You — to help you remember while the work is happening.",
+          "rationale": "Inverts the framing. The note isn't for you."
+        },
+        {
+          "label": "The customer's IT manager.",
+          "rationale": "The customer doesn't usually see the internal incident note; customer comms is a separate surface."
+        },
+        {
+          "label": "The Huntress SOC analyst.",
+          "rationale": "The SOC sees the Incident Report; the tech's note is on the MSP side."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The auditor pulling the record six months from now, and the future-you who has to answer \"what did we do on this?\" The note is for the next reader. The cold-read test is the standard."
+    },
+    {
+      "id": "four-sections-order",
+      "type": "order",
+      "topic": "structure",
+      "difficulty": "medium",
+      "prompt": "Put the four mandatory sections of an incident note in the right order.",
+      "items": [
+        "What you did — actions taken, in order, each a discrete sentence.",
+        "What you verified — end states confirmed, each specific and concrete.",
+        "Who you contacted, when, and what was said — names, times, content.",
+        "Open questions or follow-ups — anything unresolved, with a destination."
+      ],
+      "explanation": "Did, verified, contacted, open items. The structure makes the cold-read work."
+    },
+    {
+      "id": "doesnt-belong",
+      "type": "mcq",
+      "topic": "exclusions",
+      "difficulty": "medium",
+      "prompt": "Which of these does NOT belong in an incident note?",
+      "choices": [
+        "Personal commentary like \"frustrating customer.",
+        {
+          "label": "The times of each action and contact.",
+          "rationale": "Times DO belong. Times are part of the contact-trail."
+        },
+        {
+          "label": "An explicit \"no open items\" line when nothing's open.",
+          "rationale": "DOES belong. Tells the next reader explicitly rather than leaving them to guess."
+        },
+        {
+          "label": "The specific remediations approved.",
+          "rationale": "DOES belong. The actions taken are section 1."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Took forever to reach them.\" Tone-stripped facts only. Personal commentary doesn't survive an audit and doesn't help the next tech."
+    },
+    {
+      "id": "length",
+      "type": "mcq",
+      "topic": "length",
+      "difficulty": "easy",
+      "prompt": "What's the typical length range for an incident note?",
+      "choices": [
+        "3–8 lines for a Low, 6–15 for a High.",
+        {
+          "label": "Always at least one full page for accountability.",
+          "rationale": "Brevity and specifics over length."
+        },
+        {
+          "label": "A single sentence per incident.",
+          "rationale": "Too short. The four sections don't fit."
+        },
+        {
+          "label": "Whatever feels right at the time.",
+          "rationale": "Explicit ranges; \"whatever feels right\" produces vague notes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Past 20 lines you're either genuinely complex or padding. Specificity, not length. The cold-read test is the standard."
+    },
+    {
+      "id": "timing",
+      "type": "mcq",
+      "topic": "timing",
+      "difficulty": "medium",
+      "prompt": "When should the note be written?",
+      "choices": [
+        "While the context is fresh.",
+        {
+          "label": "Always at end-of-shift to ensure consistency across the day's tickets.",
+          "rationale": "End-of-shift is the worst case explicitly named. Memory degrades; notes get vague."
+        },
+        {
+          "label": "Only after the customer has confirmed the work is complete.",
+          "rationale": "Customer confirmation isn't the trigger."
+        },
+        {
+          "label": "After the senior reviews the ticket.",
+          "rationale": "The note is part of the work, not a post-review artifact."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Ideally during the work in a scratchpad or running PSA entry; Acceptable immediately after verify; worst at end-of-shift while catching up. By end-of-shift the day's incidents blur. Fresh context produces useful notes."
+    },
+    {
+      "id": "cold-read-test",
+      "type": "mcq",
+      "topic": "test",
+      "difficulty": "medium",
+      "prompt": "What's the cold-read test?",
+      "choices": [
+        "Would the next tech, reading this note for the first time with no context, understand what happened?",
+        {
+          "label": "Does the note fit on a single screen without scrolling?",
+          "rationale": "Length isn't the test; specificity is."
+        },
+        {
+          "label": "Has the senior signed off on the note's wording?",
+          "rationale": "Sign-off isn't the test."
+        },
+        {
+          "label": "Does the note quote the SOC's Recommendation verbatim?",
+          "rationale": "The Recommendation doesn't belong in the tech's note."
+        }
+      ],
+      "correct": 0,
+      "explanation": "If a cold reader can understand what happened, the note is done."
+    },
+    {
+      "id": "legal-note-shape",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "You've finished a High on WS-EXAMPLE-LEGAL-02 — isolated, two remediations verified clean, un-isolated, user confirmed working. IT manager Joel Tran was the verify contact. Brief mid-incident re-detection at minute 15 acknowledged by SOC as residual. Which note works?",
+      "choices": [
+        {
+          "label": "\"Handled an EDR incident on WS-EXAMPLE-LEGAL-02. Bad autoruns, scheduled task, both gone now. User's all good.\"",
+          "rationale": "No times, no specific actions or verifications, no contact record, no follow-up section."
+        },
+        "Four-section note with timestamped actions, specific verifications, named contacts with times, follow-ups explicitly named.",
+        {
+          "label": "\"Isolated and remediated WS-EXAMPLE-LEGAL-02. Two persistence mechanisms removed. Spoke with user and IT. No follow-ups.\"",
+          "rationale": "Half-right. Reads cleanly but lacks the specifics — which remediations, which times, which IT contact — that make it useful six months later."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(mid-incident re-detection acknowledged by SOC as residual; no other open items). Specific facts, named contacts with times, follow-up explicitly named even when it's \"none open.\""
+    },
+    {
+      "id": "off-handed-comment",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Joel mentioned during the call: \"The legal team really doesn't like isolation events because they're often in client calls.\" Where does this go?",
+      "choices": [
+        {
+          "label": "Skip it; it's an off-handed comment, not action-relevant.",
+          "rationale": "The comment is a customer-context observation worth surfacing. Easy to lose if not captured."
+        },
+        "Include it in the follow-up section as a flag to the senior or account manager.",
+        {
+          "label": "Include it in the actions section as \"told Joel we'd avoid isolating legal endpoints during business hours.\"",
+          "rationale": "You haven't promised that, you can't without senior authority, and writing it as promised creates a future relationship problem."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Capture the customer-context signal in the follow-up section; name a destination (account manager); don't try to act on it from a helpdesk seat."
+    },
+    {
+      "id": "no-open-items",
+      "type": "tf",
+      "topic": "open-items",
+      "difficulty": "medium",
+      "prompt": "If nothing is open on the incident, you should still include an explicit \"no open items\" line in the follow-up section.",
+      "correct": true,
+      "explanation": "A single \"no open items\" line tells the next reader explicitly rather than leaving them to guess whether you forgot."
+    },
+    {
+      "id": "padding-with-reasoning",
+      "type": "mcq",
+      "topic": "padding",
+      "difficulty": "medium",
+      "prompt": "A tech's note runs three paragraphs and includes their reasoning for why the activity \"looked suspicious.\" What's the failure?",
+      "choices": [
+        "Padding with reasoning that belongs in the SOC's analysis.",
+        {
+          "label": "No failure — long, thorough notes are best.",
+          "rationale": "Past 20 lines is usually padding."
+        },
+        {
+          "label": "The note should include MORE reasoning to justify the actions.",
+          "rationale": "Reasoning is the SOC's lane; the tech's note records actions."
+        },
+        {
+          "label": "The note should also include the tech's emotional state during the work.",
+          "rationale": "Personal commentary is explicitly excluded."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The tech's note records actions; the Incident Report already has the analyst's reasoning. The tech's note is actions, not analysis. The analyst's reasoning is already in the Incident Report."
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-agent-architecture",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: agent architecture",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "agent-definition",
+      "type": "mcq",
+      "topic": "agent-definition",
+      "difficulty": "easy",
+      "prompt": "Which of these best describes what the Huntress agent does on an endpoint?",
+      "choices": [
+        {
+          "label": "A signature-based scanner that sits between every file open and decides whether to block.",
+          "rationale": "That's traditional AV. The agent isn't a scanner in the AV sense."
+        },
+        "A background service that collects bounded telemetry.",
+        {
+          "label": "A user-facing tray application that shows scan progress and asks permission before each action.",
+          "rationale": "The agent runs in the background with no tray icon or popups."
+        },
+        {
+          "label": "A network appliance that watches traffic from a SPAN port.",
+          "rationale": "Wrong product class. The agent runs as a system process on the endpoint, not on the network."
+        }
+      ],
+      "correct": 1,
+      "explanation": "(process and persistence inventory, behavioural detections, health and version) and sends it to Huntress's back end. The agent is a system service that ships bounded telemetry, not a file-access scanner and not a user-facing app."
+    },
+    {
+      "id": "install-vs-registration",
+      "type": "mcq",
+      "topic": "install-vs-registration",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson insist on separating installation from registration?",
+      "choices": [
+        {
+          "label": "Because they happen in different cloud regions.",
+          "rationale": "Not the framing. The split isn't regional."
+        },
+        "Because they're two distinct steps that fail separately.",
+        {
+          "label": "Because installation is the customer's job and registration is the MSP's job.",
+          "rationale": "Wrong split. Both are MSP-driven via the RMM and runbook."
+        },
+        {
+          "label": "Because installation is free and registration is billed.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 1,
+      "explanation": "An install can succeed cleanly while registration never completes, leaving a dormant agent the RMM reports as done. The dormant-installed-not-registered state is the failure mode the split exists to surface."
+    },
+    {
+      "id": "org-key",
+      "type": "mcq",
+      "topic": "registration",
+      "difficulty": "medium",
+      "prompt": "What does the agent use to register against a customer organisation on its first phone-home?",
+      "choices": [
+        {
+          "label": "The endpoint's hostname.",
+          "rationale": "Hostname is metadata after registration; it doesn't drive enrolment."
+        },
+        "The organisation key bundled with the installer or referenced by the RMM job.",
+        {
+          "label": "The customer's super-admin's email address.",
+          "rationale": "Identity-side concept (closer to ITDR), not the agent enrolment mechanism."
+        },
+        {
+          "label": "An auto-generated random ID created at installation.",
+          "rationale": "A random ID without an organisation reference wouldn't tell the back end which customer; the org key is the bound discriminator."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The org key is what tells the back end which customer the agent belongs to."
+    },
+    {
+      "id": "phones-home-files",
+      "type": "mcq",
+      "topic": "privacy",
+      "difficulty": "easy",
+      "prompt": "A customer's IT contact asks 'does the Huntress agent read my files?' What's the right answer?",
+      "choices": [
+        {
+          "label": "Yes, that's how it detects threats.",
+          "rationale": "Wrong on the data flows. The agent doesn't ship file contents."
+        },
+        "No. It collects process and persistence telemetry.",
+        {
+          "label": "It depends on the customer's tier.",
+          "rationale": "The traffic profile isn't tiered. Same bounded telemetry across the platform."
+        },
+        {
+          "label": "Only when the SOC asks it to.",
+          "rationale": "The agent doesn't pull file contents on SOC request."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Not file contents, keystrokes, or documents. Reference the MSP's privacy / data-handling runbook for the published detail. The traffic profile is bounded: process and persistence, behavioural detections, health and version."
+    },
+    {
+      "id": "platforms",
+      "type": "mcq",
+      "topic": "platforms",
+      "difficulty": "medium",
+      "prompt": "Which platform list matches what the agent supports?",
+      "choices": [
+        "Windows, macOS, Linux on recent supported versions.",
+        {
+          "label": "Windows only.",
+          "rationale": "macOS and Linux are supported too."
+        },
+        {
+          "label": "Windows, macOS, Linux, iOS, Android.",
+          "rationale": "Mobile (iOS, Android) is explicitly out of scope."
+        },
+        {
+          "label": "Any platform with a JVM.",
+          "rationale": "The agent isn't a Java application; this isn't a real deployment model."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three supported platforms with recent-version caveats. Embedded devices, network appliances, mobile are out of scope."
+    },
+    {
+      "id": "missing-from-portal",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A senior asks you to confirm Huntress is on `SRV-DC02` at Contoso. The customer's Agents view doesn't show it. What's the right interpretation of the gap?",
+      "choices": [
+        {
+          "label": "The agent failed to install. The install job was never run or it failed mid-way.",
+          "rationale": "Possible, but only one of several causes. Portal absence means registration is missing; install could have succeeded with no registration following."
+        },
+        "Either the install never ran, or it ran but registration didn't complete.",
+        {
+          "label": "The agent has been uninstalled.",
+          "rationale": "With no prior state showing SRV-DC02 in the portal, 'uninstalled' is a guess. 'Never registered' is at least as likely."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The RMM log tells you which. Portal absence is a registration signal. The RMM log discriminates between 'install didn't run' and 'install ran but didn't register.'"
+    },
+    {
+      "id": "install-ran-no-portal",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Continuing the SRV-DC02 scenario: the RMM log shows the install job ran cleanly three days ago with exit code zero. The portal still shows nothing. What's the next step?",
+      "choices": [
+        {
+          "label": "Re-push the install.",
+          "rationale": "Premature. The install ran. Re-pushing without diagnosing why registration didn't happen risks corrupting installed state."
+        },
+        "Look at the agent's state on the endpoint.",
+        {
+          "label": "Tell the senior the agent is missing and ask them what to do.",
+          "rationale": "Wrong reflex. This is the work the senior expects you to do."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Then check whether the org key bundled with the installer matches the customer's expected key. The install-vs-registration split tells you where to look: local logs for phone-home, org key for wrong-customer enrolment."
+    },
+    {
+      "id": "av-misconception",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "The Huntress agent and traditional AV can run on the same endpoint without conflict, doing different work: AV blocks at file access, the agent watches behaviour and persistence.",
+      "correct": true,
+      "explanation": "Two products at different layers, designed to coexist."
+    },
+    {
+      "id": "rmm-portal-count-gap",
+      "type": "mcq",
+      "topic": "real-work",
+      "difficulty": "medium",
+      "prompt": "The RMM reports 'install successful' on 200 endpoints; the Huntress portal shows 180. What's the right reading?",
+      "choices": [
+        "Installation succeeded on all 200;",
+        {
+          "label": "20 endpoints failed to install; re-push to them.",
+          "rationale": "The RMM said install succeeded on all 200. Re-pushing repeats work that already worked."
+        },
+        {
+          "label": "The portal is broken; open a Huntress support ticket.",
+          "rationale": "The portal is showing the truth; the agents aren't registered yet."
+        },
+        {
+          "label": "200 is the wrong number; the RMM is over-counting.",
+          "rationale": "Both counts are correct; they're measuring different stages."
+        }
+      ],
+      "correct": 0,
+      "explanation": "20 are stuck at registration. That's the gap to work, not 'the install failed.' The install-vs-registration split. Install vs. registration are two stages, two counts."
+    },
+    {
+      "id": "stale-version-routing",
+      "type": "mcq",
+      "topic": "version-routing",
+      "difficulty": "easy",
+      "prompt": "An agent shows as 'online' but with a version from twelve months ago. Which lesson holds the diagnostic?",
+      "choices": [
+        {
+          "label": "This lesson, registration is the only check that matters.",
+          "rationale": "Wrong scope. This lesson establishes the agent model; version compliance is its own surface."
+        },
+        "The agent is running and registered;",
+        {
+          "label": "The agent is offline; version drift is one of the four offline causes.",
+          "rationale": "Version drift isn't one of the four offline causes from lesson 18. The agent is still online."
+        },
+        {
+          "label": "The agent is uninstalled; re-install required.",
+          "rationale": "Online with old version means installed and registered, not uninstalled."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Version compliance is a different surface, covered in the agent-upgrades lesson (20). Online with a stale version is silent drift out of effective coverage; lesson 20 covers the upgrade diagnostic."
+    }
+  ]
+}

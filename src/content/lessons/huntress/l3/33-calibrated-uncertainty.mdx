@@ -1,0 +1,87 @@
+---
+slug: 33-calibrated-uncertainty
+vendor: huntress
+level: l3
+title: "Calibrated uncertainty"
+summary: "The internal signal that says 'wait, am I sure?' is faster than any external check. This lesson teaches you to treat it as an escalation trigger rather than noise to push through."
+estimatedMinutes: 7
+order: 33
+topics:
+  - judgement
+  - two-question-test
+  - uncertainty
+updated: 2026-05-20
+---
+
+Most of the failure modes in this course trace to a single skill gap: not noticing your own uncertainty quickly enough. The tech who names "I'm not sure" as soon as it appears has time to escalate before acting. The tech who pushes through the uncertainty acts first and notices after the action. Same uncertainty, different timing. The timing is the whole skill.
+
+## The two-question test, applied to your own judgement
+
+The two-question test from the course's framing (is this reversible? do I understand why this is the right action?) works as a check against the world. It also works as a check against your own internal state.
+
+- **"Is this reversible?"** also asks: if I am wrong, can I undo this? On reversible actions, you can act with some uncertainty and learn from the result. On irreversible ones, you cannot.
+- **"Do I understand why this is the right action?"** also asks: can I articulate the reasoning to a senior right now if they asked? If you cannot, you do not understand it well enough to be the one clicking.
+
+If either internal answer is no, you are in escalate-first territory regardless of how confident the ticket, the runbook, or the customer sounds.
+
+## The internal signal
+
+The signal is small. A brief moment of "wait, am I sure?" that the tech can either notice or push past.
+
+- A tiny pause before clicking, where you re-check the path or the action.
+- A second-read of the Recommendation because the first read did not quite land.
+- An internal "I think this is right" rather than "I know this is right."
+- Reaching for the runbook a second time on a step you have done before.
+
+These signals are not failures of competence. They are calibration working. The discipline is treating them as escalation triggers rather than as paranoia to push through.
+
+## Why confident-looking tickets fool techs
+
+Two patterns to recognise.
+
+**The well-written Recommendation.** A Recommendation that is clear, well-formatted, with named actions and obvious mappings can feel like it does not require your judgement. Most of the time that is right. The trap is the small percentage where the Recommendation is excellent and your context (customer-specific, environment-specific) does not fit. The Recommendation's confidence is not your confidence.
+
+**The repetitive ticket type.** A pattern of tickets that all look the same can dull per-ticket attention. By the eighth Low of the day, the tech is on autopilot. The trap is the ninth ticket that looks like the previous eight but has one detail that does not fit. Autopilot misses the detail.
+
+In both cases, the internal "wait, am I sure?" is the rescuer.
+
+## What calibrated escalation looks like
+
+A clean pre-action escalation has three components: name the action, name the uncertainty, name what you want from the senior.
+
+- "Working ticket X. The Recommendation says approve the remediation. I'm not confident about the path. Looks like it might be the customer's legitimate business software. Quick second pair of eyes before I click?"
+- "Halfway through the ITDR playbook on Y. Step 4 mentions OAuth revocation. The user has a grant from the compromise window but also two older legitimate-looking ones. Want to make sure I'm scoping the revoke right before clicking."
+- "Got a senior tech asking me to delete an org in passing. Category 4 escalation in my head. Asking before I touch it."
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The eighth Low of the shift"
+  description="Eighth Low-severity EDR Incident Report of your shift. Same shape as the others: PUP autoruns, standard recommendation, looks routine. You are hovering over Approve. You feel a tiny 'wait.' You cannot articulate what is odd about this one, just a small flicker."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Click approve. The pattern matches. The flicker is probably nothing.", next: "push-through" },
+      { label: "Stop. Re-read the Recommendation, host name, path, customer, and Evidence. If the flicker resolves, proceed. If not, ping a senior.", next: "pause" },
+      { label: "Skip this ticket and come back to it later.", next: "skip" },
+    ]},
+    { type: "outcome", id: "push-through", label: "Suppressed calibration signal", tone: "bad",
+      body: "The flicker is the calibration signal. Pushing past it is the click-and-see reflex. The signal is faster than any external check; trusting it is the discipline." },
+    { type: "outcome", id: "pause", label: "Calibrated response", tone: "success",
+      body: "The pause may reveal the small detail you noticed unconsciously (wrong host, similar-named host on a different customer) or it may reveal that the flicker was nothing and you proceed informed. Either outcome is fine." },
+    { type: "outcome", id: "skip", label: "Deferred uncertainty", tone: "bad",
+      body: "Leaving the flicker unaddressed means it shows up next time on a different ticket. The skill is to address it now, on this ticket." },
+  ]}
+/>
+
+The re-read reveals: the affected host name in the header is `WS-EXAMPLE-MARKETING-04`, but the path in the Evidence references `\\WS-EXAMPLE-MARKETING-14\C$\Users\...`. Different hostname. The flicker was real. The SOC's Evidence references a different host than the Recommendation's affected entity. Reply to the SOC with the specific discrepancy and wait for clarification before acting. Specific, factual, scoped.
+
+<Callout type="info" title="Escalation threshold">
+The right threshold is: escalate when you are not sure you are right. Not when you are sure you are wrong. One waits for proof of being wrong; the other acts on absence of confidence in being right. Different test.
+</Callout>
+
+## What to carry forward
+
+When the internal "wait, am I sure?" appears, treat it as a hard stop. Run the two-question test against your own judgement. If either answer is no, name the uncertainty and escalate or clarify before continuing. The internal signal is faster than any external check. It is the one that protects you from the misses the runbook and the Recommendation did not catch.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-calibrated-uncertainty" client:visible />

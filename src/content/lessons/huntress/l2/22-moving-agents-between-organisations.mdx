@@ -1,0 +1,82 @@
+---
+slug: 22-moving-agents-between-organisations
+vendor: huntress
+level: l2
+title: Moving agents between organisations
+summary: Two paths, two outcomes. Move-in-place preserves telemetry continuity; uninstall-and-re-install gives a clean break. The runbook decides; rules of thumb apply when the runbook doesn't cover.
+estimatedMinutes: 8
+order: 22
+topics:
+  - agent
+  - move
+  - re-org
+  - lifecycle
+updated: 2026-05-20
+---
+
+Agent re-organisation is rare per endpoint but common across an MSP's portfolio. A customer splits into two entities. A managed service moves from one tenant to another. An endpoint was deployed under the wrong org key by mistake (lesson 13). The action looks like a small portal toggle, but the consequences span telemetry continuity, incident history, and how the SOC sees the endpoint. Doing it without knowing which path to take leaves an agent half-attached to two organisations, an incident history split across both, and a confused next tech.
+
+## Two paths
+
+**Move in place.** The portal exposes a *move agent* action (or its equivalent; names vary by portal version) that re-attaches an existing agent to a new organisation. The agent stays on the endpoint; its configuration shifts to the new organisation's policies and notifications. Telemetry continuity is preserved on the agent side; historical incidents may stay with the source organisation depending on platform policy.
+
+**Uninstall and re-install.** Run the documented uninstall in the source organisation (lesson 21), then re-install in the target organisation with the new org key (lesson 13). Clean break: the endpoint appears fresh in the target organisation. No telemetry continuity; historical incidents stay with the source organisation cleanly.
+
+The runbook decides which to use. When it doesn't cover, the rules of thumb:
+
+- **Move-in-place** when telemetry continuity matters: an active investigation, a baseline-period customer where re-installing would re-trigger noise-window detections, or a high-touch endpoint where reboot or install churn is unwelcome.
+- **Uninstall-and-re-install** when the move is a clean handover (customer split, organisational rename, fixing a wrong-org-key deployment), when the agent on the endpoint is in a degraded state already, or when the runbook specifies it.
+
+## Pre-flight
+
+1. **Confirm the move is authorised.** Re-orging an endpoint changes billing attribution and incident routing. Some MSPs reserve all agent moves for seniors; some delegate the routine *fix the wrong-org-key install* case to helpdesk. Check the runbook.
+2. **Identify source and target organisations in the portal.** Confirm both exist and the agent is actually in the source. Two organisations with similar names is the classic slip surface here.
+3. **Choose the path.** Move-in-place or uninstall-and-re-install, per the runbook or per the rules of thumb. If unsure, bump.
+4. **Notify any in-progress incident owners.** If the agent has an active incident open in the source organisation, moving it mid-incident is the kind of state change that confuses the SOC and the next tech. Resolve or hand over the incident first.
+
+## Running the move (move-in-place)
+
+<StepThrough client:load>
+  <Step title="Confirm authorisation and resolve any active incident in the source org">
+    Authorisation comes first because the action has billing and routing consequences. Active incidents resolved or handed off so ownership doesn't split.
+  </Step>
+  <Step title="From the source organisation's Agents view, select the agent">
+    The action runs from the source side. Two-tab discipline applies; confirm the source organisation name before selecting.
+  </Step>
+  <Step title="Run the Move to organisation action">
+    The portal's named action for the move-in-place path.
+  </Step>
+  <Step title="Select the target organisation and confirm on screen">
+    Dropdown ambiguity is the wrong-org slip waiting to happen. Spelling-confirm before committing.
+  </Step>
+  <Step title="Verify both ends of the move">
+    Agent appears in the target organisation's Agents view; agent has left the source organisation's view (or is in the expected archived state); notification routing now goes to the target's contacts.
+  </Step>
+  <Step title="Document in the PSA">
+    Timestamp, path used (in-place vs. re-install), and reason. No incidents split between the two organisations in a way that confuses ownership.
+  </Step>
+</StepThrough>
+
+The uninstall-and-re-install path is the lesson-21 uninstall followed by the lesson-13 install with the target org's key, verified at both ends.
+
+## Common slips
+
+- **Choosing the wrong path for the situation.** The runbook reflects deliberate choices about telemetry continuity, billing, and incident history. Read it.
+- **Moving an agent that has an active incident open in the source organisation.** Splits ownership of the incident across two organisations, confuses the SOC, leaves the next tech wondering which org the response is happening in. Resolve or hand off first.
+- **Treating the move as a tech-level action when the MSP scopes it to senior.** Some MSPs reserve agent moves for seniors because of billing-attribution implications. Check before clicking.
+
+## When to escalate
+
+- The runbook doesn't cover the specific scenario (a customer split where both new entities want their own agents and the move strategy is unclear). Senior owns.
+- The endpoint's billing attribution is in question. Senior owns.
+- The agent fails the move (in-place action errors out) or the post-move state is inconsistent (visible in both organisations, or in neither). Bump rather than fight it.
+
+## A worked ticket: NewCust onboarding mistake
+
+You deployed Huntress to `WS-NEWCUST01` last week as part of a new customer onboarding. The senior reviews your work and notices: you used the wrong organisation key. The agent enrolled into `NewCust Australia` instead of `NewCust New Zealand`. Both are new orgs your MSP just created; the customer trades under both names. The senior says: *move it to the right org. Use the move-in-place path; the agent's only a week old, no real history to preserve, but the runbook says move-in-place for these.*
+
+The right first action is to run the move-in-place action from the source organisation's Agents view, targeting `NewCust New Zealand`. The senior has confirmed authorisation, the path, and the rationale. Two-tab discipline applies. The wrong move is *uninstall-and-re-install instead*: that's deviating from the runbook without a reason and creating inconsistency across the portfolio. Bumping back to the senior on an already-authorised action wastes their time.
+
+The portal asks for the target organisation. There are three organisations whose names start with *NewCust* in the dropdown: `NewCust Australia`, `NewCust New Zealand`, and `NewCust Group` (a parent organisation the senior set up for billing consolidation). The right move is *select `NewCust New Zealand` and confirm the spelling*. The senior named one of the three options on purpose; inferring from the parent name (`NewCust Group`) overrules the explicit instruction. Stopping to ask the senior again is defensible but unnecessary; the senior already named the target. Confirm the spelling, click, verify both ends.
+
+<Checkpoint slug="huntress-operations-checkpoint-moving-agents-between-organisations" client:visible />

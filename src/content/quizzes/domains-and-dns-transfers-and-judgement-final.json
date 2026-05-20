@@ -13,13 +13,22 @@
       "topic": "transfer-classification",
       "prompt": "A client emails: 'we're moving our website to a new host this Saturday.' Current setup: GoDaddy (registrar), GoDaddy DNS (DNS host), VPS (web host), M365 (mail host). Which transfer is this?",
       "choices": [
-        "Registrar transfer.",
-        "DNS host transfer.",
-        "Record-level migration — only A (and AAAA, if present) records change to point at the new web host. The registrar, DNS host, and mail host stay put.",
-        "All three transfers; moving the website implies moving everything."
+        {
+          "label": "Registrar transfer. The website is hosted through GoDaddy's infrastructure, so moving the site means moving the domain registration to the new host's registrar.",
+          "rationale": "The registrar holds the domain registration, not the website. Changing the web host doesn't require moving the registrar."
+        },
+        {
+          "label": "DNS host transfer. Moving DNS to the new web host's nameservers is required before the website can point at the new server.",
+          "rationale": "DNS host transfer changes who serves the zone. A web host change only needs new A/AAAA values in the existing zone."
+        },
+        "Record-level migration. Only A (and AAAA) records change to point at the new web host.",
+        {
+          "label": "All three transfers. Moving the website means migrating registrar, DNS, and web host together so nothing is split across providers.",
+          "rationale": "The 'move means everything' assumption is the named misconception. Each layer is independent."
+        }
       ],
       "correct": 2,
-      "explanation": "Web host migration changes A/AAAA values only. Mail at M365 stays untouched, the registrar doesn't change, the DNS host doesn't change. The 'move means everything' assumption is the documented misconception."
+      "explanation": "Web host migration changes A/AAAA values only. Mail at M365, the registrar at GoDaddy, and the DNS host all stay put."
     },
     {
       "id": "qtj-registrar-admin-contact",
@@ -28,13 +37,22 @@
       "topic": "registrar-transfer",
       "prompt": "A registrar transfer stalls. The Cloudflare side reports 'pending, awaiting approval at losing registrar.' The client says they never received the approval email; it's been an hour. What's the diagnostic step?",
       "choices": [
-        "Wait another day; emails sometimes take a while.",
-        "Check the admin contact email in WHOIS. If correct, check spam. If wrong, update and re-initiate with a fresh auth code.",
-        "Email Cloudflare's support to fix it on their side.",
-        "Retry the transfer at Cloudflare; sometimes the first attempt fails silently."
+        {
+          "label": "Wait another day. Transfer approval emails sometimes route through multiple relays on the losing registrar's side and can take 24-48 hours to arrive.",
+          "rationale": "Transfer emails are near-instant from the losing registrar. A missing email after an hour points at the wrong recipient, not slow delivery."
+        },
+        "Check the admin contact email in WHOIS. If correct, check spam. If wrong, update it and re-initiate with a fresh auth code.",
+        {
+          "label": "Email Cloudflare's support team and ask them to check the status of the transfer from their side, since the approval is stuck in their system.",
+          "rationale": "Cloudflare (gaining) already shows 'pending.' The bottleneck is at the losing registrar's approval email."
+        },
+        {
+          "label": "Retry the transfer at Cloudflare with the same auth code. Sometimes the first attempt silently fails to trigger the losing registrar's approval workflow.",
+          "rationale": "The transfer did trigger (Cloudflare shows 'pending'). The issue is the email going to the wrong address, not a failed initiation."
+        }
       ],
       "correct": 1,
-      "explanation": "The approval email goes to the admin contact in WHOIS. If the address is stale (an ex-employee, the previous MSP), the email goes nowhere. Cloudflare's side is fine; the bottleneck is the losing registrar's email delivery. Auth codes regenerate on each request; use a fresh one when re-initiating."
+      "explanation": "The approval email goes to the admin contact in WHOIS. If the address is stale (ex-employee, previous MSP), the email goes nowhere. Auth codes regenerate on each request; use a fresh one when re-initiating."
     },
     {
       "id": "qtj-dns-host-dual-provisioning",
@@ -43,13 +61,22 @@
       "topic": "dns-host-transfer",
       "prompt": "Your client wants to move DNS from GoDaddy to Cloudflare. What's the first move?",
       "choices": [
-        "Change nameservers at GoDaddy to Cloudflare's; Cloudflare will detect and start serving.",
-        "Set up the zone at Cloudflare with every record from GoDaddy. Verify by querying Cloudflare's nameservers directly. Then change nameservers at GoDaddy.",
-        "Delete the zone at GoDaddy and recreate it at Cloudflare.",
-        "Email Cloudflare's support to coordinate."
+        {
+          "label": "Change nameservers at GoDaddy to Cloudflare's. Cloudflare scans the existing zone automatically during onboarding, so the records will be there by the time caches expire.",
+          "rationale": "Cloudflare's zone scan is a convenience, not a guarantee. It misses records, gets values wrong, and has no verification step. Switching NS before verifying is the cardinal sin."
+        },
+        "Build the zone at Cloudflare with every record from GoDaddy. Verify by querying Cloudflare's nameservers directly. Then change nameservers.",
+        {
+          "label": "Delete the zone at GoDaddy first so there's no ambiguity about which host is authoritative during the transition window.",
+          "rationale": "Deleting the old zone before the new one is verified means the domain goes dark immediately. Dual-provisioning keeps both live until the switch."
+        },
+        {
+          "label": "Email Cloudflare's support to coordinate the migration. DNS host transfers need both sides to agree on the cutover timing.",
+          "rationale": "DNS host transfers don't need provider coordination. You build the new zone, verify it, and change NS at the registrar."
+        }
       ],
       "correct": 1,
-      "explanation": "Dual-provisioning. Build the new zone first; verify both hosts return the same answers; then change nameservers. Changing nameservers before the new zone is built is the cardinal sin — the zone goes dark as caches expire to the empty new host."
+      "explanation": "Dual-provisioning: build the new zone first, verify both hosts return the same answers, then change nameservers. Switching NS before the new zone is verified is the cardinal sin."
     },
     {
       "id": "qtj-ttl-preflight-timing",
@@ -58,13 +85,22 @@
       "topic": "ttl-pre-flight",
       "prompt": "A planned A-record change is scheduled for Friday at 9pm. Current TTL is 86400 (24 hours). It's Tuesday morning. What do you do today?",
       "choices": [
-        "Wait until Friday 9pm; the change is on the registrar's side and will take effect immediately.",
-        "Lower the TTL to 300 today. The 72 hours before Friday is plenty for the lowered TTL to spread.",
-        "Lower the TTL on Friday morning.",
-        "Lower the TTL on Friday at 8:55pm, five minutes before the change."
+        {
+          "label": "Wait until Friday 9pm and make both changes at once. The registrar propagates changes to nameservers in real time, so TTL adjustment isn't necessary.",
+          "rationale": "The registrar isn't involved in record-level changes. Downstream resolver caches hold the old 86400 TTL regardless of when the authoritative updates."
+        },
+        "Lower the TTL to 300 today. 72 hours of lead time lets the lower TTL replace cached entries before the cutover.",
+        {
+          "label": "Lower the TTL on Friday morning, giving it the full business day to spread before the 9pm change window.",
+          "rationale": "Friday morning is ~9 hours of lead. Caches that refreshed Thursday night still hold the old 86400 TTL until Saturday morning."
+        },
+        {
+          "label": "Lower the TTL on Friday at 8:55pm so the new TTL applies to the new value from the start, giving resolvers a fresh short cache entry.",
+          "rationale": "Existing caches still hold the old value with the old 86400 TTL. Five minutes gives no time for the lower TTL to replace those entries."
+        }
       ],
       "correct": 1,
-      "explanation": "Pre-flight TTL drop. The wait between the drop and the value change is what makes the cutover snappy — downstream caches need to expire the old TTL and pick up the new one. Dropping TTL on the same edit as the value change doesn't help."
+      "explanation": "Pre-flight TTL drop. The wait between the drop and the value change is what makes the cutover snappy. Downstream caches need to expire the old TTL and pick up the new one before the value changes."
     },
     {
       "id": "qtj-dnssec-cardinal-sin",
@@ -73,13 +109,22 @@
       "topic": "dnssec",
       "prompt": "A senior asks you to 'disable DNSSEC at the registrar and change nameservers to the new DNS host this afternoon — both in one operation.' Why is this the cardinal sin?",
       "choices": [
-        "DNSSEC can't be disabled without ICANN approval.",
-        "DS records at the parent have a TTL (typically 24 hours). Removing DS and changing nameservers in one operation means validating resolvers still expect signed responses from cached DS. The new host returns different DNSKEYs, validation fails, and the zone goes dark at every validating resolver for hours.",
-        "Cloudflare doesn't support DNSSEC.",
-        "Senior approval isn't enough; client approval is required."
+        {
+          "label": "DNSSEC can't be disabled without ICANN approval. The registrar will reject the DS removal request, and the nameserver change will stall until ICANN processes the DNSSEC withdrawal form.",
+          "rationale": "DS removal is a registrar-side operation. No ICANN approval is needed; the registrar can remove DS records on request."
+        },
+        "Cached DS records at the parent still tell resolvers to expect signed responses. The new host's different DNSKEYs fail validation. The zone goes dark for hours.",
+        {
+          "label": "Cloudflare doesn't support DNSSEC on transferred domains. The NS change will succeed, but Cloudflare won't serve signed responses, breaking validation permanently.",
+          "rationale": "Cloudflare does support DNSSEC. The issue is the transition sequence, not the destination host's capabilities."
+        },
+        {
+          "label": "Senior approval isn't enough for DNSSEC changes; the client's authorised representative must sign off on any change that affects domain validation, as required by the registrar's security policy.",
+          "rationale": "The question is about the technical danger of the sequence, not about the approval chain."
+        }
       ],
       "correct": 1,
-      "explanation": "The mandatory wait between DS removal and any nameserver change is the technical protection. Skip it and the zone goes dark at every validating resolver for hours. The safe sequence is remove DS, wait DS TTL, verify insecure, then change nameservers."
+      "explanation": "The mandatory wait between DS removal and any nameserver change is the protection. Safe sequence: remove DS, wait DS TTL, verify insecure, then change nameservers."
     },
     {
       "id": "qtj-mail-vs-web-scope",
@@ -88,13 +133,22 @@
       "topic": "mail-vs-web",
       "prompt": "A web host migration is planned. The current zone has A and AAAA at apex, MX at M365, SPF including M365, DKIM CNAMEs for M365, and DMARC. Which records do you change?",
       "choices": [
-        "A, AAAA, MX, SPF, DKIM — update everything because the domain is moving.",
+        {
+          "label": "A, AAAA, MX, SPF, DKIM. Update everything because the domain is moving to a new provider and stale records from the old host cause conflicts.",
+          "rationale": "The mail provider isn't changing. Touching MX, SPF, or DKIM for a web-only migration breaks mail for every user on the domain."
+        },
         "A and AAAA only. MX, SPF, DKIM, DMARC stay because the mail provider isn't changing.",
-        "Just the MX record; mail is what people care about.",
-        "Update everything 'to be safe.'"
+        {
+          "label": "Just the MX record, since mail is what people notice first. A/AAAA will auto-update once MX routes to the new server and DNS refreshes.",
+          "rationale": "MX routes mail; A/AAAA routes web traffic. They're independent. Changing MX for a web migration breaks mail delivery."
+        },
+        {
+          "label": "Update everything 'to be safe.' A clean zone where all records point at the same provider is easier to maintain and troubleshoot long-term.",
+          "rationale": "Mail records at M365 are correct as-is. Pointing them at a web host that doesn't run mail breaks inbound delivery for every user."
+        }
       ],
       "correct": 1,
-      "explanation": "Web migration changes web records only. Mail records are independent. Changing MX to a web host that doesn't run mail breaks inbound mail; changing SPF removes M365's authorisation and M365-issued mail starts failing SPF."
+      "explanation": "Web migration changes web records only. Mail records are independent. Changing MX to a web host that doesn't run mail breaks inbound mail; changing SPF removes M365's authorisation."
     },
     {
       "id": "qtj-post-cutover-verification",
@@ -103,13 +157,22 @@
       "topic": "verification",
       "prompt": "You completed an A-record migration (previous TTL 300, you pre-flighted). The client emails 30 minutes later: 'I'm still seeing the old website on my office desktop.' What do you say?",
       "choices": [
-        "'DNS propagation takes 24-48 hours; please wait.'",
-        "'The previous TTL was 5 minutes, so most users should see the new site within minutes. If your office desktop still shows the old, it's likely a local cache (browser, OS, or office router). Try a hard refresh and clear browser cache; if that doesn't fix it, the office network may have a local DNS forwarder caching longer.'",
-        "'I'll re-do the DNS change.'",
-        "'Cloudflare must have failed to propagate; I'll escalate.'"
+        {
+          "label": "'DNS propagation takes 24-48 hours; please wait.' Standard guidance for any DNS change regardless of TTL configuration.",
+          "rationale": "The 24-48 hour stock answer is uncalibrated. With a 300-second TTL, most resolvers re-queried within 5 minutes. 30 minutes is well past the propagation window."
+        },
+        "'TTL was 5 minutes, so most users see the new site within minutes. Your desktop is likely a local cache. Try a hard refresh; if that fails, the office network may have a DNS forwarder caching longer.'",
+        {
+          "label": "'I'll re-do the DNS change. If you're still seeing the old site after 30 minutes, the change probably didn't save correctly at the DNS host.'",
+          "rationale": "You pre-flighted the TTL and presumably verified the change. The 30-minute window on a 300-second TTL points at local cache, not a save failure."
+        },
+        {
+          "label": "'Cloudflare must have failed to propagate. I'll escalate to their support and get back to you within the hour with an update.'",
+          "rationale": "Cloudflare's propagation is near-instant to their edge. The issue is downstream cache, not provider-side propagation."
+        }
       ],
       "correct": 1,
-      "explanation": "Calibrated to the actual TTL. 30 minutes is well past 5 minutes; the issue isn't standard DNS propagation but local cache. The generic '24-48 hours' answer trains clients to ignore your timelines."
+      "explanation": "Calibrated to the actual TTL. 30 minutes past a 5-minute TTL means the propagation window is long past; the issue is local cache (browser, OS, or office router)."
     },
     {
       "id": "qtj-health-check-first-cmd",
@@ -118,13 +181,22 @@
       "topic": "health-check",
       "prompt": "A ticket lands on an unfamiliar domain. What's your first command?",
       "choices": [
-        "dig A example.com",
-        "whois example.com — gives registrar, expiry, status flags, nameservers, DNSSEC indicator before you start querying records",
-        "dig MX example.com",
-        "ping example.com"
+        {
+          "label": "dig A example.com. Start with the web-facing record so you can confirm the site resolves before checking anything else on the domain.",
+          "rationale": "dig A starts in the middle. Without WHOIS first, you don't know the registrar, expiry, whether the domain is locked, or even which nameservers are authoritative."
+        },
+        "whois example.com. Registrar, expiry, status flags, nameservers, and DNSSEC indicator before querying records.",
+        {
+          "label": "dig MX example.com. Mail is the most common complaint type, so checking the mail layer first covers the highest-probability symptom.",
+          "rationale": "MX is one record type. WHOIS gives the full picture (registrar, NS, expiry, lock state) in one query. Start broad."
+        },
+        {
+          "label": "ping example.com. If it responds, the DNS chain is working; if it doesn't, you know the issue is either DNS or the host being down.",
+          "rationale": "ping tests ICMP reachability, not the DNS chain. A domain can resolve correctly to a host that doesn't respond to ping."
+        }
       ],
       "correct": 1,
-      "explanation": "WHOIS gives you the layer-1 and layer-2 picture before querying records. dig A starts in the middle without knowing the registrar, expiry, or whether the domain is locked. The 30-second health check starts with WHOIS."
+      "explanation": "WHOIS gives the layer-1 and layer-2 picture in one query: registrar, expiry, status, nameservers, DNSSEC. The 30-second health check starts here."
     },
     {
       "id": "qtj-cardinal-sin-renewal-toggle",
@@ -142,13 +214,22 @@
       "topic": "escalation-calibration",
       "prompt": "The senior asks you to lower TTL on a record from 86400 to 300 ahead of a planned change. Do you escalate before, after, or not at all?",
       "choices": [
-        "Escalate before — confirm with the senior in writing first.",
-        "Run the change; document the result. The action is in-scope, well-runbooked, and the why is clear.",
-        "Refuse; the senior should make the change themselves.",
-        "Escalate to the client."
+        {
+          "label": "Escalate before. Get the senior's written confirmation before touching TTL, since any DNS change to a client domain requires a documented approval trail.",
+          "rationale": "TTL drop is fully reversible, in-scope, and the senior already gave the instruction. Re-confirming adds friction without benefit."
+        },
+        "Run the change and document the result. In-scope, reversible, and the why is unambiguous.",
+        {
+          "label": "Refuse. The senior should make DNS changes themselves since they carry the relationship risk if something goes wrong with the cutover.",
+          "rationale": "TTL drop is standard tech work. Refusing in-scope work because a senior might do it themselves misreads the escalation model."
+        },
+        {
+          "label": "Escalate to the client for confirmation. The client should know about any DNS changes to their domain before they happen, even pre-flight TTL adjustments.",
+          "rationale": "TTL drop is invisible to the client and temporary. Routing it through the client adds a multi-hour delay for no protective value."
+        }
       ],
       "correct": 1,
-      "explanation": "TTL drop is fully reversible, in-scope, and the why is unambiguous (preparing for the planned change). Re-confirming with the senior is friction without benefit. Documenting the action is the right form of escalate-after."
+      "explanation": "TTL drop is fully reversible, in-scope, and the why is unambiguous. Documenting the action is the right form of escalate-after."
     },
     {
       "id": "qtj-common-mistake-fingerprint",
@@ -157,13 +238,22 @@
       "topic": "common-mistakes",
       "prompt": "A client emails: 'we did a DNS migration over the weekend. Now the website is unreachable for some of our customers but works fine for me.' What's the most likely cause?",
       "choices": [
-        "Missed renewal — check WHOIS.",
-        "DNSSEC mishandled during the migration. 'Works for me but not for some customers' matches validating vs non-validating resolvers.",
-        "NS change without dual-provisioning.",
-        "The client's office network has a local DNS issue."
+        {
+          "label": "Missed renewal. WHOIS will show the expiry has passed. Some registrars redirect rather than kill resolution, so 'some customers' see different things depending on their resolver's cache state.",
+          "rationale": "Missed renewal is 'everyone is down' because the registry-level hold applies uniformly. The 'some customers' split points at DNSSEC, not expiry."
+        },
+        "DNSSEC mishandled during migration. 'Works for some, not for others' matches validating vs non-validating resolvers.",
+        {
+          "label": "NS change without dual-provisioning. The old and new DNS hosts return different records depending on which nameserver a resolver queries, creating intermittent failures across the customer base.",
+          "rationale": "Dual-provisioning failure is more uniform once caches expire. The 'some customers but not me' split over days is the DNSSEC fingerprint."
+        },
+        {
+          "label": "The client's office network has a local DNS issue. Their internal forwarder cached the old records while external resolvers picked up the new records from the migration.",
+          "rationale": "A local DNS issue would affect the client's office, not 'some of our customers.' The pattern described is across external users."
+        }
       ],
       "correct": 1,
-      "explanation": "The validating-vs-non-validating fingerprint. Verify with `dig DS example.com` and `dig +dnssec A example.com @8.8.8.8`. Missed renewal is 'everyone is down'; dual-provisioning failure is also more uniform. The 'some customers' qualifier points at DNSSEC."
+      "explanation": "The validating-vs-non-validating fingerprint. Verify with dig DS and dig +dnssec against a public resolver. The 'some customers' qualifier is the tell."
     },
     {
       "id": "qtj-recover-dnssec-broken",
@@ -172,13 +262,22 @@
       "topic": "dnssec-recovery",
       "prompt": "A previous tech moved a zone to a new DNS host with DNSSEC still enabled and DS records still at the registrar. The zone has been dark at validating resolvers for 6 hours. What's the fastest recovery?",
       "choices": [
-        "Re-enable DNSSEC at the new host with new keys, then update DS records at the registrar.",
-        "Revert the nameserver change at the registrar back to the old DNS host.",
-        "Remove the DS records at the registrar immediately. Within the DS TTL, validating resolvers stop expecting signed responses and the zone resolves normally.",
-        "Restart all validating resolvers."
+        {
+          "label": "Re-enable DNSSEC at the new host with new keys, then update the DS records at the registrar to match. This fixes the key mismatch that's causing validation failures.",
+          "rationale": "Correct eventually, but setting up new keys and publishing matching DS is a multi-step process that takes hours. The zone stays dark during the setup. Remove DS first for fast recovery."
+        },
+        {
+          "label": "Revert the nameserver change at the registrar back to the old DNS host. The old host still has the matching keys, so DNSSEC validation will pass again once NS caches expire.",
+          "rationale": "Reverting NS is slow (NS TTL may be hours) and may not be possible if the old zone was deleted. DS removal is faster."
+        },
+        "Remove DS records at the registrar. Within the DS TTL, validating resolvers stop expecting signed responses and the zone resolves.",
+        {
+          "label": "Restart all validating resolvers. Their cached DS records cause validation failure; a restart flushes the cache and forces fresh lookups.",
+          "rationale": "You don't control the world's validating resolvers. The fix must be at the registry (DS records), not at the resolver layer."
+        }
       ],
       "correct": 2,
-      "explanation": "Removing DS at the registrar is the fastest path: validating resolvers stop expecting signed responses for the zone within the DS TTL. The zone becomes effectively insecure but resolves. DNSSEC can be re-enabled later at the new host as a separate signed-off operation."
+      "explanation": "Removing DS is the fastest recovery: validating resolvers stop expecting signed responses within the DS TTL. The zone becomes insecure but resolves. DNSSEC can be re-enabled later as a separate operation."
     },
     {
       "id": "qtj-bundled-scenario",

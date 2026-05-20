@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-monthly-summary-report",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: monthly summary report",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "report-purpose",
+      "type": "mcq",
+      "topic": "report-purpose",
+      "difficulty": "easy",
+      "prompt": "What is the monthly summary report's primary role for the customer?",
+      "choices": [
+        "The customer's most concrete evidence that their security investment is working.",
+        {
+          "label": "An audit log the customer is required to retain for compliance.",
+          "rationale": "The lesson warns against treating the report as an audit log. It is a customer-comms artefact."
+        },
+        {
+          "label": "An automated bill for the month's security work.",
+          "rationale": "The report covers coverage and incidents, not billing."
+        },
+        {
+          "label": "A platform diagnostic for Huntress engineering.",
+          "rationale": "The report is customer-facing, not internal Huntress tooling."
+        }
+      ],
+      "correct": 0,
+      "explanation": "For many customers, the monthly summary is the only regular touchpoint with their security posture."
+    },
+    {
+      "id": "portal-navigation",
+      "type": "mcq",
+      "topic": "portal-navigation",
+      "difficulty": "easy",
+      "prompt": "Where in the portal do you pull a customer's monthly summary report?",
+      "choices": [
+        {
+          "label": "The global Incidents view, filtered by month.",
+          "rationale": "The Incidents view is per-incident triage. The monthly report is its own artefact under Reports."
+        },
+        "The Reports view inside the customer's organisation.",
+        {
+          "label": "An external Huntress billing portal.",
+          "rationale": "Not a real workflow surface. Reports live in the portal."
+        },
+        {
+          "label": "By emailing Huntress support to request it.",
+          "rationale": "The portal exposes the report directly. No support request needed."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Navigate to the customer's organisation, open Reports, pick the month and report type."
+    },
+    {
+      "id": "translation",
+      "type": "mcq",
+      "topic": "plain-language",
+      "difficulty": "medium",
+      "prompt": "A customer sees \"Incidents: 23 Low, 4 High, 0 Critical\" in the report. Which translation matches the lesson's framing?",
+      "choices": [
+        {
+          "label": "\"23 Lows, 4 Highs, zero Criticals\" -- read the numbers as they are.",
+          "rationale": "Reciting the numbers without translation is a named common mistake. Customers need security outcomes, not raw bands."
+        },
+        {
+          "label": "\"The platform did its job -- 27 incidents handled automatically.\"",
+          "rationale": "\"The platform did this\" hides the SOC and the tech work. Name the work, don't hide it."
+        },
+        "\"23 routine reviews of suspicious activity that turned out benign;",
+        {
+          "label": "\"Nothing serious happened -- you can ignore the detail.\"",
+          "rationale": "Dismisses the customer's interest. The deep-dive offer is the right move."
+        }
+      ],
+      "correct": 2,
+      "explanation": "4 prompt-action items contained and resolved; no critical events, which is the goal.\" The metric-to-security-outcome translation is the tech's value-add on the report walk-through."
+    },
+    {
+      "id": "audit-log-trap",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"The monthly report is essentially an audit log of everything the platform did.\" Why is this framing a mistake?",
+      "choices": [
+        {
+          "label": "Because Huntress doesn't keep audit logs.",
+          "rationale": "The platform retains incident data. The report is a separate artefact."
+        },
+        {
+          "label": "Because audit logs are forbidden in MSP contracts.",
+          "rationale": "Fabricated constraint."
+        },
+        "Because the report is a story about the customer's security posture told from the security team's perspective, not a raw data dump.",
+        {
+          "label": "Because the report only covers Highs and Criticals.",
+          "rationale": "The report covers all severities by surface."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Treating it as an audit log leads to PDF-without-narration delivery, which leaves the customer without the framing that makes the numbers mean anything."
+    },
+    {
+      "id": "zero-criticals",
+      "type": "mcq",
+      "topic": "healthy-operations",
+      "difficulty": "easy",
+      "prompt": "A 200-endpoint customer's monthly report shows zero Critical incidents. How should the tech frame this?",
+      "choices": [
+        {
+          "label": "Apologise -- zero Criticals means Huntress isn't catching anything.",
+          "rationale": "Inverts the lesson. Zero Criticals on a healthy customer is expected."
+        },
+        {
+          "label": "Recommend the customer downgrade their subscription since nothing is happening.",
+          "rationale": "Above the helpdesk ceiling (commercial decision) and inverts the security framing."
+        },
+        {
+          "label": "Imply something is wrong with the platform's detection logic.",
+          "rationale": "Undermines the customer's trust for no reason."
+        },
+        "Frame it as expected and a sign of healthy operations."
+      ],
+      "correct": 3,
+      "explanation": "Not as a sign Huntress isn't doing anything. Zero Criticals on a healthy 200-endpoint customer is expected. Frame it that way for the customer."
+    },
+    {
+      "id": "trend-escalation",
+      "type": "mcq",
+      "topic": "trends",
+      "difficulty": "medium",
+      "prompt": "A customer's report shows 40 Low-severity incidents this month versus 22 last month, each resolved cleanly. What should you do?",
+      "choices": [
+        {
+          "label": "Nothing -- each Low was resolved cleanly.",
+          "rationale": "Misses the trend. Per-incident cleanliness does not address the volume pattern."
+        },
+        "Flag the trend to the senior.",
+        {
+          "label": "Tell the customer to expect more Lows next month.",
+          "rationale": "Speculative and skips the senior bump."
+        },
+        {
+          "label": "File exclusions to reduce the Low volume.",
+          "rationale": "Wrong channel and wrong reflex. The tech does not make the trend-investigation call alone."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Even though individual incidents were clean. The volume change may warrant a closer look. Sustained-trend signals are escalation surfaces even when each individual item was handled cleanly."
+    },
+    {
+      "id": "raw-data-export",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "A customer asks for raw incident-data exports beyond what the monthly report includes. What is the right move?",
+      "choices": [
+        "Bump to a senior.",
+        {
+          "label": "Generate the export yourself from the Incidents view.",
+          "rationale": "Bypasses the contract and compliance gate. The scope of customer-facing data exports is not a tech-level decision."
+        },
+        {
+          "label": "Tell the customer the export is not available.",
+          "rationale": "Fabricates a platform constraint. Not the tech's call to deny."
+        },
+        {
+          "label": "Forward the request to Huntress support.",
+          "rationale": "Internal escalation first. Senior decides whether to route further."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Raw-data requests may have compliance or contract implications. Raw-data requests go to senior. The format and scope of customer-facing data exports are not a tech-level decision."
+    },
+    {
+      "id": "walk-through-prep",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "The account manager says the customer wants someone to walk them through the monthly report because \"we don't understand what we're paying for.\" How do you prep?",
+      "choices": [
+        {
+          "label": "Show up and walk them through the report sections in order.",
+          "rationale": "Defensible but flat. The customer's question was not \"tell me what each section is\" but \"help me understand what we're paying for.\""
+        },
+        {
+          "label": "Ask the account manager what to say.",
+          "rationale": "The tech owns the technical side of the walk-through. Asking the account manager to script the technical part hands off work that is yours."
+        },
+        "Pre-read the report."
+      ],
+      "correct": 2,
+      "explanation": "Identify the incidents and metrics that tell the strongest story for this customer. Plan to lead with the security outcomes, with specific incidents ready to deep-dive on. Customer-focused prep. Lead with the story; have detail ready if asked."
+    },
+    {
+      "id": "severity-explanation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Mid-call, the customer asks: \"The report says four High incidents. What makes something High versus Low?\" Which response fits?",
+      "choices": [
+        {
+          "label": "Quote the formal severity definitions verbatim from the earlier severity-bands lesson.",
+          "rationale": "Too technical for a non-security-specialist customer."
+        },
+        "Plain-language ladder: Low means routine review, mostly benign.",
+        {
+          "label": "Hand off to the account manager to explain severity classification.",
+          "rationale": "The technical-classification question is the tech's to answer. Handing off makes you look less competent."
+        }
+      ],
+      "correct": 1,
+      "explanation": "High means prompt action, contained in a tight window. Critical means containment-first, we'd be calling you directly. Ground it with the specific incidents from the report. Plain language, laddering from Low to Critical, grounded with specific incidents from the report."
+    },
+    {
+      "id": "report-sections-match",
+      "type": "mcq",
+      "topic": "report-sections",
+      "difficulty": "medium",
+      "prompt": "The report says \"Coverage: 198 endpoints, M365 connected, no SIEM.\" What is the correct plain-language translation?",
+      "choices": [
+        "\"Monitoring on every workstation and server you manage with us.",
+        {
+          "label": "\"The platform handled everything automatically; no further action needed.\"",
+          "rationale": "Hides the SOC and tech work. The lesson warns against this framing."
+        },
+        {
+          "label": "\"198 risks remain open and SIEM is offline.\"",
+          "rationale": "Wrong on the facts. Coverage counts are protected endpoints, not open risks."
+        },
+        {
+          "label": "\"You only have 198 endpoints, which is below our recommended threshold.\"",
+          "rationale": "Fabricated threshold. The coverage line describes what is protected, not whether it is enough."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Plus identity monitoring on your Microsoft 365 tenant. No log-source monitoring at this stage.\" Name what is protected and what is not, in customer terms. Coverage is the 'what's monitored' view."
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-revoke-sessions",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: revoke sessions",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "why-step-1",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "easy",
+      "prompt": "Why is session revoke step 1 of the compromise playbook?",
+      "choices": [
+        "It stops the active attacker immediately.",
+        {
+          "label": "Because session revoke is the easiest action to undo if mistaken.",
+          "rationale": "Reversibility is partly true but not the primary reason. Speed of containment is."
+        },
+        {
+          "label": "Because passwords cannot be reset until sessions are revoked.",
+          "rationale": "Wrong on platform behaviour. Resets can happen without revoke; they just leave the active session alive."
+        },
+        {
+          "label": "Because the Huntress portal forces this order.",
+          "rationale": "The order is documented playbook discipline, not portal enforcement."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Does not depend on the password being changed. Is reversible without lasting impact on the legitimate user. Three reasons: immediate containment, independence from the password change, and reversibility. Speed of stopping the active attacker is the primary driver."
+    },
+    {
+      "id": "session-definition",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "What is a \"session\" in the ITDR compromise-playbook sense?",
+      "choices": [
+        {
+          "label": "A 30-minute window during which the user is actively typing.",
+          "rationale": "Sessions persist far beyond active interaction."
+        },
+        {
+          "label": "A single TCP connection to the identity provider.",
+          "rationale": "Wrong abstraction layer. Sessions are identity-provider tokens, not TCP connections."
+        },
+        "A token issued by the identity provider after sign-in that authenticates subsequent requests for days or weeks until it expires or is explicitly revoked.",
+        {
+          "label": "The user's current Windows logon session.",
+          "rationale": "ITDR sessions are identity-provider tokens, not endpoint logon sessions."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Browser, mobile-app, desktop-app, and OAuth-app sessions all use tokens. Closing the browser does not end the session."
+    },
+    {
+      "id": "wrong-order",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "Why is \"reset the password first, then revoke sessions\" the wrong order?",
+      "choices": [
+        {
+          "label": "The password reset takes longer than session revoke, so doing it first wastes time.",
+          "rationale": "Speed is not the lesson's reason. Continued attacker action is."
+        },
+        "The reset invalidates future authentications using the password.",
+        {
+          "label": "Resetting the password before revoke crashes the identity provider.",
+          "rationale": "Wrong on platform behaviour."
+        },
+        {
+          "label": "Password reset and session revoke cannot both happen on the same user.",
+          "rationale": "Wrong on the playbook. Both happen in sequence."
+        }
+      ],
+      "correct": 1,
+      "explanation": "It does not end the current session. The attacker keeps acting through the live session until the session is revoked. The reset closes the front door. The revoke kicks out the attacker who is already inside. Order matters because the attacker's current session survives a password change."
+    },
+    {
+      "id": "post-revoke-activity",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "hard",
+      "prompt": "You click revoke sessions at 14:44. Portal confirms within 30 seconds. At 14:47, the Timeline shows: \"Mail sent from the affected identity to internal contacts.\" What do you conclude?",
+      "choices": [
+        {
+          "label": "The revoke worked; the new mail must be the user signing back in legitimately.",
+          "rationale": "A user signed out unexpectedly would not sign back in within minutes and start sending mail. The pattern suggests an alternate attacker path."
+        },
+        {
+          "label": "Re-revoke sessions.",
+          "rationale": "Sessions are already revoked. Re-revoking does not touch the OAuth path the attacker is still using."
+        },
+        "Continue the playbook urgently.",
+        {
+          "label": "Open a Huntress support ticket immediately.",
+          "rationale": "OAuth-token persistence explains the pattern before support is needed."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The OAuth-grant revoke is later in the sequence and probably explains the continued activity. OAuth tokens are separate from interactive sessions. The session revoke killed interactive sessions; an attacker-controlled OAuth app keeps authenticating. The playbook's later steps address what session revoke did not catch."
+    },
+    {
+      "id": "verify-check",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "Which is the right verification check after session revoke?",
+      "choices": [
+        {
+          "label": "The portal shows revoke complete. That is enough.",
+          "rationale": "Portal click without state check misses silent failures."
+        },
+        {
+          "label": "Wait 24 hours and check then.",
+          "rationale": "Wrong delay. Verification is immediate."
+        },
+        "The session-revoke action shows complete in the portal AND the identity's active-session list is empty AND no new activity from previously-active sessions appears in the Timeline.",
+        {
+          "label": "Ask the customer to confirm they were signed out.",
+          "rationale": "Customer confirmation is downstream; the portal exposes the state directly."
+        }
+      ],
+      "correct": 2,
+      "explanation": "All three checks together: portal confirmation, empty active-session list, no continued activity in the Timeline. Trust-but-verify catches silent failures."
+    },
+    {
+      "id": "admin-account",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "The affected identity is an admin or service account that other systems authenticate as. What does the lesson say?",
+      "choices": [
+        "Bump to senior. Session revoke on an admin or service account has broader downstream impact;",
+        {
+          "label": "Revoke as normal; the playbook is the same.",
+          "rationale": "Downstream impact on dependent systems differs from a regular user account."
+        },
+        {
+          "label": "Skip the revoke for admin accounts.",
+          "rationale": "The revoke is still needed; the senior coordinates rather than skips."
+        },
+        {
+          "label": "Open a Huntress support ticket to ask which admin accounts to revoke.",
+          "rationale": "The senior is the right escalation path, not Huntress support."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The senior may want to coordinate the revoke with the customer's IT. Admin and service-account revocations have broader downstream impact. The senior coordinates the timing with the customer's IT to manage dependent-system disruption."
+    },
+    {
+      "id": "skip-verify-mistake",
+      "type": "tf",
+      "topic": "session-revoke",
+      "difficulty": "easy",
+      "prompt": "Skipping verification of the session revoke is safe because the portal always applies it cleanly.",
+      "correct": false,
+      "explanation": "In edge cases (integration degraded, identity-provider issues) the revoke can fail silently. Verify the active-session list is empty."
+    },
+    {
+      "id": "user-framing",
+      "type": "mcq",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "What is the right way to frame the session revoke to the user?",
+      "choices": [
+        {
+          "label": "\"Sorry, you have been signed out everywhere. We cannot tell you why for security reasons.\"",
+          "rationale": "Stonewalling does not build trust and is not required."
+        },
+        {
+          "label": "\"You will need to factory reset your machine.\"",
+          "rationale": "This is identity-side, not endpoint-side. Factory reset is overkill and inaccurate."
+        },
+        "\"We revoked your active sign-ins to contain a security event on your account.",
+        {
+          "label": "Tell the user nothing and let them figure it out.",
+          "rationale": "The call is part of the playbook. Silence is not an option."
+        }
+      ],
+      "correct": 2,
+      "explanation": "You will see sign-out prompts on your devices. We will have you signed back in with new credentials shortly. Local files and your machine are fine.\" Plain-language framing names what happened, why, and what to expect. It distinguishes identity-side from endpoint-side so the user does not panic about their local machine."
+    },
+    {
+      "id": "procedure-order",
+      "type": "order",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "Put the session-revoke procedure steps in the correct order.",
+      "items": [
+        "Locate the affected identity in the Huntress portal's Identity surface or via the Incident Report.",
+        "Trigger the session revoke action.",
+        "Wait for the portal to push the revoke to the identity provider (seconds to a couple of minutes).",
+        "Verify: portal shows complete, active-session list empty, no continued activity in the Timeline."
+      ],
+      "explanation": "Locate, trigger, wait for propagation, verify. The verify step catches silent failures in the integration."
+    },
+    {
+      "id": "oauth-separate",
+      "type": "tf",
+      "topic": "session-revoke",
+      "difficulty": "medium",
+      "prompt": "Session revoke also kills all OAuth-granted app access for the affected identity.",
+      "correct": false,
+      "explanation": "OAuth tokens are separate from interactive session tokens. The session revoke kills interactive sessions. OAuth grants need their own revoke step later in the playbook."
+    }
+  ]
+}

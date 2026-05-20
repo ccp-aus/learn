@@ -1,0 +1,101 @@
+---
+slug: 30-communicating-with-soc
+vendor: huntress
+level: l3
+title: "Communicating with the SOC: when and how to reply on a ticket"
+summary: "The reply-to-analyst surface exists for clarifying questions and customer-context the analyst could not see. Three patterns warrant a reply; three patterns to avoid. The skill is calibrating the moment, the framing, and the tone."
+estimatedMinutes: 6
+order: 30
+topics:
+  - comms
+  - soc
+  - reply-thread
+updated: 2026-05-20
+---
+
+The reply-to-analyst surface on an Incident Report exists for clarifying questions and customer-context the analyst could not see when writing the Recommendation. Used well, it sharpens the response and feeds useful signal back to the SOC. Used badly, it becomes argument or litigation. The skill is calibrating the moment to reply, the framing, and the tone.
+
+## When to reply: three patterns
+
+### 1. New customer-context
+
+You have learned something during triage that the analyst did not have. The customer's IT confirms an automated process is responsible. The user provides a timeline detail that explains an event. A piece of Evidence connects to a customer-specific workflow you can verify. Reply with the new context, factually framed.
+
+### 2. Action-zone clarification
+
+The Recommendation is not clear about which exact action to take in your environment. The recommended remediation refers to a binary path that maps to a different location on this customer's image. The recommended OAuth grant revocation refers to one of several similarly-named apps. Reply with the specific clarification needed.
+
+### 3. Cross-surface findings
+
+You have discovered something during the response that is relevant but outside the Recommendation's scope. A mailbox-level forwarder you spotted while removing the recommended inbox rule. An additional OAuth grant flagged by your check. An EDR signal found while cross-referencing per a SIEM Recommendation. Reply with the finding for the analyst to weigh.
+
+## When not to reply: three patterns to avoid
+
+### 1. Relitigating the classification
+
+"I think the SOC got this wrong." Without new signal, that is second-guessing expressed as a reply. The analyst's classification stands until new information arrives. If you have new information, frame it as new context. If you do not, do not litigate.
+
+### 2. Multi-question replies
+
+Two or three questions in one reply slows the SOC, who has to address each, and loses the thread. One question per reply. If you have three questions, decide which one is the priority and ask that one.
+
+### 3. Tuning or exclusion requests via reply
+
+"Can you stop this detection from firing for this customer?" Wrong channel. The exclusion-request flow is the right path. The reply surface is per-incident. The exclusion request is per-pattern at a customer.
+
+## How to frame a reply
+
+Four properties of a good reply:
+
+| Property | What it means |
+| --- | --- |
+| Factually anchored | Reference a specific timestamp, log line, evidence element, or customer-context detail. |
+| Scoped to one question | One specific question or one finding. Not a list. |
+| Customer-context-bringing | "Customer's IT confirms this service account is part of nightly automation; how should that affect the response?" Not "I think this is a false positive." |
+| Colleague-to-colleague tone | Respectful, brief, not deferential or aggressive. |
+
+## What to expect back
+
+The analyst usually responds within an hour during business hours, longer at less staffed times. The response is one of:
+
+- **Confirmation** that the Recommendation stands with the new context noted.
+- **Updated Recommendation** in light of the new context.
+- **Question back** asking for more specifics from the customer side.
+- **Different disposition** if the new context materially changes the picture.
+
+The next move after their response is theirs to direct. Continue the Recommendation as written, update per their new direction, or wait for further analysis.
+
+## A worked scenario
+
+High-severity ITDR Incident Report on `lisa.chen@example.com`. Recommendation: revoke sessions, reset password and MFA, remove inbox rule. During triage, Lisa's IT manager mentions: "Lisa has been on documented two-week business travel to Vietnam. She might be signing in from there." The Recommendation predates that information.
+
+<DecisionTree client:load
+  title="Do you reply to the SOC?"
+  description="New customer-context has arrived during triage. The analyst wrote the Recommendation before knowing about the documented travel. The inbox rule is suspicious regardless of location."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Do you reply to the analyst?", choices: [
+      { label: "No. Execute the Recommendation as written.", next: "no-reply" },
+      { label: "Yes. Share the travel context and ask whether the Recommendation stands.", next: "reply" },
+      { label: "Hold all response steps until the analyst replies.", next: "hold" },
+    ]},
+    { type: "outcome", id: "no-reply", label: "Missed opportunity", tone: "warn",
+      body: "The documented-travel detail is new signal the analyst may want to weigh. The reply surface is for exactly this kind of customer-context." },
+    { type: "outcome", id: "reply", label: "Right move", tone: "success",
+      body: "Factually-anchored note: \"Customer's IT manager confirms user is on documented two-week business travel to Vietnam; sign-in from there matches travel pattern. Inbox rule creation may still be suspicious independently; please advise on whether the Recommendation stands.\" One question, scoped, factual. Execute immediate actions (the inbox rule is suspicious regardless) while the question is in flight." },
+    { type: "outcome", id: "hold", label: "Wrong delay", tone: "warn",
+      body: "The inbox rule itself is suspicious independent of location. Execute the immediate actions while the question is in flight. Do not hold the response waiting for the reply." },
+  ]}
+/>
+
+Five minutes later the analyst replies: "Travel noted. Impossible-travel aside, the inbox rule itself is malicious. Forwarding her financial mail externally, consistent with attacker tradecraft. Proceed with the Recommendation as written; we'll classify the sign-in as customer-confirmed travel."
+
+The right move: proceed per the Recommendation. Close the reply thread cleanly: "Got it, proceeding. Thanks for the quick turn." The brief acknowledgement keeps the working relationship clean.
+
+## When to escalate beyond the reply surface
+
+- The analyst's response does not resolve your next step and a re-reply would risk relitigating. Bump to senior with the specific exchange.
+- The analyst is unresponsive on a High or Critical for longer than the runbook's documented timeframe. Bump to senior. They may have a Huntress-side escalation path.
+- The reply thread is at three or more exchanges with no convergence. Senior reviews the thread and either takes over or names the next step.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-communicating-with-soc" client:visible />

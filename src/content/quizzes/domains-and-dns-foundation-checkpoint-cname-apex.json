@@ -13,13 +13,22 @@
       "topic": "apex-cname",
       "prompt": "A managed-app vendor's docs say `point your domain at app.vendor-host.com`. The client's DNS is hosted at the registrar's default panel (no ALIAS, no flattening, no ANAME). The vendor offers a static fallback IP. What's the path?",
       "choices": [
-        "Force the panel to accept an apex CNAME by editing the zone file directly.",
-        "Use the vendor's fallback IP as an A record at the apex; document that the client will need to manually update the A if the vendor's IP changes.",
-        "Tell the client to migrate DNS hosts before the integration can ship.",
-        "Skip the apex and rely only on www."
+        {
+          "label": "Force the panel to accept an apex CNAME by editing the zone file directly.",
+          "rationale": "The apex-CNAME prohibition is from RFCs 1034/2181. You can't bypass it at the zone level."
+        },
+        "Use the vendor's fallback IP as an A record at the apex.",
+        {
+          "label": "Tell the client to migrate DNS hosts before the integration can ship.",
+          "rationale": "Migrating DNS hosts is a bigger conversation than a single integration warrants."
+        },
+        {
+          "label": "Skip the apex and rely only on www.",
+          "rationale": "Skipping the apex breaks every user who types the domain without www."
+        }
       ],
       "correct": 1,
-      "explanation": "The apex-CNAME rule is from RFCs 1034 / 2181; you can't bypass it by editing the zone file. ALIAS / ANAME / flattening exist at hosts like Cloudflare, Route 53, DNSimple, DNS Made Easy — not all hosts. When the host doesn't support flattening, the standard fallback is a static A record at the apex, with the maintenance cost of manual updates when the vendor changes IPs. Skipping the apex breaks every user who types example.com without www. Migrating DNS hosts is a bigger conversation than a single integration warrants."
+      "explanation": "Document the manual-update cost. ALIAS/ANAME/flattening exist at hosts like Cloudflare and Route 53, but not all hosts. When the host doesn't support flattening, the standard fallback is a static A record at the apex, with the maintenance cost of manual updates when the vendor changes IPs."
     },
     {
       "id": "ck-cname-coexistence",
@@ -28,13 +37,22 @@
       "topic": "cname-coexistence",
       "prompt": "A subdomain `mail.example.com` is a CNAME pointing at the mail provider. A client asks you to add an MX record at the same name. What happens?",
       "choices": [
-        "It works — DNS allows CNAME and MX on the same name.",
-        "The DNS host will refuse the combination. CNAME on a name is mutually exclusive with other record types on that name.",
-        "It works as long as the targets resolve to the same IP.",
-        "Only MX and TXT can coexist with CNAME; A and AAAA cannot."
+        {
+          "label": "It works; DNS allows CNAME and MX on the same name.",
+          "rationale": "CNAME is mutually exclusive with all other record types on the same name."
+        },
+        "The DNS host refuses it. CNAME on a name is exclusive;",
+        {
+          "label": "It works as long as the targets resolve to the same IP address.",
+          "rationale": "Target resolution doesn't matter. The exclusion rule is absolute regardless of what the records point to."
+        },
+        {
+          "label": "Only MX and TXT can coexist with CNAME; A and AAAA cannot.",
+          "rationale": "No record type can coexist with CNAME. The rule applies to all types equally."
+        }
       ],
       "correct": 1,
-      "explanation": "A CNAME cannot coexist with other record types on the same name, regardless of what types you're combining. The rule applies absolutely; choose CNAME or the other records, not both. The DNS host's panel will refuse the combination."
+      "explanation": "No other types allowed. A CNAME cannot coexist with other record types on the same name, regardless of the types involved. The rule is absolute. Choose CNAME or other records, not both."
     },
     {
       "id": "ck-cname-migration",
@@ -44,12 +62,12 @@
       "prompt": "A site is migrating. `www.example.com` was a CNAME to a CDN. The new web host wants a direct A record on www. You add the A and the DNS host rejects it with 'conflicting record type.' What's the fix?",
       "choices": [
         "Contact the CDN's support; they're blocking the change.",
-        "Delete the existing CNAME on www first, then add the A. CNAME and A can't share a name.",
+        "Delete the existing CNAME on www first, then add the A.",
         "DNS hosts always reject the first record type added on a name; retry.",
         "Restart the DNS host's nameservers."
       ],
       "correct": 1,
-      "explanation": "The CNAME-vs-other-records rule blocks the combination. Remove the CNAME, then save the A. The CDN doesn't control your DNS host's panel; the rejection is local. DNS nameservers aren't something the tech restarts."
+      "explanation": "CNAME and A can't share a name. The CNAME-vs-other-records rule blocks the combination. Remove the CNAME, then save the A. The CDN doesn't control your DNS host's panel; the rejection is local. DNS nameservers aren't something the tech restarts."
     }
   ]
 }
