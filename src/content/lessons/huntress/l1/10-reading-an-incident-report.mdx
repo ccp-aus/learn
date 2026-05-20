@@ -3,149 +3,159 @@ slug: 10-reading-an-incident-report
 vendor: huntress
 level: l1
 title: Reading an Incident Report
-summary: The Incident Report skeleton is reliable across surfaces. Reading order is Header, Recommendation, verify the entity, Summary as needed, Evidence as context. Reading top-down ends in the cardinal mistake.
+summary: The header chips name severity and the affected entity; the body lives in tabs (Report, Remaining Footholds, Remediations, AV Detections, Process Detections). Recommendation lives on the Report tab and is what you act on; Remediations is where you approve individual SOC-prescribed actions.
 estimatedMinutes: 10
 order: 10
 topics:
   - incident-report
   - reading-order
-  - timeline
+  - tabs
 updated: 2026-05-20
 ---
 
 The Incident Report is the document you work from. Read it in the wrong order and you'll spend twenty minutes reconstructing what the analyst documented in two paragraphs. Worse, you'll act on the Evidence section instead of the Recommendation section, a misread the next lesson addresses head-on. The shape of the report is reliable across surfaces; learning it once pays off on every incident.
 
-## The sections
+## The shape on screen
 
-Every Incident Report carries roughly the same skeleton. Vocabulary shifts a little between EDR, ITDR, and SIEM, but the bones are the same.
+An Incident Report has two regions: a fixed **header strip** at the top of the page (severity, status, host, organisation, plus the actions you can take on the whole incident), and a **tabbed body** below it. The Recommendation lives on the *Report* tab; individual SOC-prescribed remediation actions live on the *Remediations* tab; supporting context lives on the other tabs.
 
 <AnnotatedScreenshot
-  src="/_dev/kitchen-sink-screenshot.svg"
-  alt="Illustrative Incident Report layout showing Header, Summary, Evidence, Recommendation, and analyst signature"
-  caption="Illustrative layout — not the live Huntress UI. The skeleton is reliable across surfaces; only the vocabulary inside each section shifts."
+  src="/img/huntress/incident-report-template.png"
+  alt="Huntress Incident Report layout showing Severity and Status chips, Host and Organization fields, the Resolve and Remediations Completed action buttons, the tab nav (Report, Remaining Footholds, Remediations, Antivirus Detections, Process Detections), and an Assisted Remediations table on the Remediations tab."
+  caption="A High-severity Incident Report on the Remediations tab. The actual Recommendation prose lives on the Report tab (not shown). Hotspot coordinates are best-guess from the static screenshot."
 >
   <Hotspot
     client:load
-    x={50}
-    y={10}
+    x={14}
+    y={11}
     label="1"
-    title="Header"
-    purpose="Severity, surface, affected entity, customer, analyst."
+    title="Severity + Status chips"
+    purpose="The header strip's two most-load-bearing fields."
     tone="primary"
   >
-    Tells you which playbook applies before you read a word of the body. Five seconds of work.
+    Severity (Low / High / Critical) tells you which playbook applies. Status (Open / Resolved / Pending) tells you whether anyone else has already moved on it. Read both before clicking anywhere else.
   </Hotspot>
   <Hotspot
     client:load
-    x={30}
-    y={28}
+    x={18}
+    y={19}
     label="2"
-    title="Summary"
-    purpose="The analyst's plain-language statement of the problem."
-    tone="primary"
-  >
-    Two or three sentences. What happened, on what entity, why it landed. Read this only if the Recommendation surprised you.
-  </Hotspot>
-  <Hotspot
-    client:load
-    x={30}
-    y={50}
-    label="3"
-    title="Evidence"
-    purpose="Context, not the action zone."
+    title="Host + Organization"
+    purpose="The affected entity and the customer it belongs to. Wrong-tenant check happens here."
     tone="warning"
   >
-    Process trees, command lines, sign-in events, IP addresses, OAuth grants, log lines. What the analyst looked at when deciding. Not what you act on.
+    Confirm both before any destructive action. Two customers can have a host called *SRV01*; the Organization line is the disambiguator. The wrong-host problem is the sibling of the wrong-tenant problem from lesson 08.
   </Hotspot>
   <Hotspot
     client:load
-    x={30}
-    y={72}
-    label="4"
-    title="Recommendation"
-    purpose="The action zone. This is what you act on, full stop."
+    x={9}
+    y={28}
+    label="3"
+    title="Report tab"
+    purpose="The action zone. Recommendation lives here."
     tone="success"
   >
-    Approve the remediation, run the playbook, isolate the host, close as benign. The section the SOC wants executed.
+    The Summary, Evidence, and Recommendation prose all live on this tab. Open this first to find what the SOC wants you to do. Lesson 11 covers Recommendation vs. context in depth.
   </Hotspot>
   <Hotspot
     client:load
-    x={70}
-    y={88}
+    x={38}
+    y={28}
+    label="4"
+    title="Remediations tab"
+    purpose="Individual SOC-prescribed actions to approve, one at a time."
+    tone="warning"
+  >
+    The table on this tab is the list of *Assisted Remediations* — specific actions (delete service, delete registry key, delete file) the SOC has lined up for you to approve. The Recommendation on the Report tab tells you to *approve the remediations*; this tab is where the clicking happens.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={96}
+    y={11}
     label="5"
-    title="Analyst signature"
-    purpose="Name and timestamp for the reply conversation."
+    title="Resolve"
+    purpose="Close the incident once you've actioned everything."
     tone="primary"
   >
-    Useful when you reply with a question about Evidence or scope. Not used for deciding whether to execute the Recommendation.
+    Visible top-right. Click only after the remediations are approved and the incident is genuinely worked. Course 8 covers the close-out comms that go with this click.
   </Hotspot>
 </AnnotatedScreenshot>
 
-**Header.** Severity band, surface (EDR, ITDR, or SIEM — a canary trip lands as an EDR incident with `Canary` in the title or as a tag), affected entity (a hostname for EDR, a user principal name for ITDR, a log source or rule name for SIEM), customer organisation, incident ID, analyst name. The header tells you what playbook applies before you read a word of the body.
+## The header strip
 
-**Summary.** Two or three sentences from the analyst. What happened, on what entity, why it landed. The analyst's plain-language statement of the problem.
+The strip at the top of every Incident Report carries five load-bearing fields and two action buttons:
 
-**Evidence.** The raw signal: process trees, command lines, sign-in events, IP addresses, OAuth grants, log lines, sometimes screenshots. The Evidence is context, what the analyst looked at when deciding. It is not what you act on.
+- **Severity** — Low, High, Critical chip. Lesson 09's playbook routing happens here.
+- **Status** — Open / Pending / Resolved chip. Tells you whether the incident is live, awaiting analyst input, or already closed.
+- **Host** — the affected endpoint (for EDR) or the entity (a UPN for ITDR, a log source for SIEM, an EDR hostname with `Canary` in the title for canary trips).
+- **Organization** — the customer tenant. Always confirm before any destructive action.
+- **Report title** — usually framed *Incident Report: SEVERITY - Incident on HOST*.
+- **Remediations Completed** button — appears when all assisted remediations on the Remediations tab have been approved and run.
+- **Resolve** button — closes the incident once you've actioned everything.
 
-**Recommendation.** The action the SOC wants taken. Approve the autoruns remediation. Run the ITDR compromise playbook. Isolate the host. No action required, closing as benign. This is the section you act on, full stop.
+## The tabs
 
-**Affected host or user.** Sometimes folded into the header, sometimes called out separately. Always confirm this matches the entity you're about to touch. The wrong-tenant problem from the inside-an-org lesson has a sibling here: the wrong-host problem.
+Five tabs across the report body. Each surfaces a slice of the case:
 
-**Analyst signature and timestamp.** Useful for the conversation if you reply with a question.
+- **Report** — Summary, Evidence, and Recommendation prose from the SOC analyst. This is where the action zone lives. Open this first.
+- **Remaining Footholds** — anything persistent the SOC has flagged but not (yet) auto-remediated. Count in the tab badge tells you whether there's work here.
+- **Remediations** — the Assisted Remediations table; per-action approve clicks live here. The Recommendation on the Report tab points you here.
+- **Antivirus Detections** — what the customer's AV product caught alongside, for cross-reference.
+- **Process Detections** — process-tree level evidence the agent collected.
+
+## The right reading order
+
+Top-to-bottom on the tabs is the wrong order. The order below is what gets the Recommendation actioned cleanly without re-reading.
+
+<StepThrough client:load>
+  <Step title="Header strip first">
+    Severity, Status, Host, Organization. Five seconds. This tells you which playbook applies, whether the incident is still live, and which customer you're about to touch.
+  </Step>
+  <Step title="Report tab — read the Recommendation">
+    Skip past Summary and Evidence on the first pass. What does the SOC want done?
+  </Step>
+  <Step title="Verify the affected entity">
+    The Host on the header strip — is it the one you're looking at? Same Organization? The wrong-host check, the sibling of the wrong-tenant check from lesson 08.
+  </Step>
+  <Step title="Summary if the Recommendation surprised you">
+    If the action is what you'd expect for this severity and surface, you can act. If it is not (Low severity but the Recommendation says isolate), read the Summary and Evidence on the Report tab to understand why before acting.
+  </Step>
+  <Step title="Remediations tab — approve the prescribed actions">
+    Once you've internalised the Recommendation, switch to the Remediations tab and approve each row in the Assisted Remediations table. Status flips from hourglass to completed as each runs.
+  </Step>
+  <Step title="Resolve when done">
+    Once Remediations Completed appears in the header strip and the incident is genuinely worked, click Resolve. Course 8 covers the close-out comms.
+  </Step>
+</StepThrough>
+
+The reflex this lesson installs: *Header first, Report tab next, verify entity, then Remediations tab to approve*. New techs read top-down through the tabs in order (Report → Remaining Footholds → Remediations) and end up acting on the wrong section.
 
 ## The Timeline view
 
-ITDR Incident Reports, and a growing subset of EDR reports, include an **Incident Report Timeline**: a chronological reconstruction of the events that triggered the incident. For an identity compromise, the Timeline might show:
+ITDR Incident Reports, and a growing subset of EDR reports, include an **Incident Report Timeline** on the Report tab: a chronological reconstruction of the events that triggered the incident. For an identity compromise, the Timeline might show:
 
 - Successful sign-in from new country, hour 0
 - MFA method added, hour 0 plus 6 minutes
 - Inbox rule created (forward all mail to external address), hour 0 plus 8 minutes
 - Email sent to internal contacts, hour 0 plus 11 minutes
 
-The Timeline is useful when you're explaining the incident to a client (*this is what happened, in order*) and for verifying whether containment caught the activity in time. The Timeline is context, not the recommendation. Reading the Timeline does not replace executing the Recommendation; it informs the conversation around the execution.
+The Timeline is useful when you're explaining the incident to a client (*this is what happened, in order*) and for verifying whether containment caught the activity in time. The Timeline is context, not the Recommendation. Reading the Timeline does not replace executing the Recommendation; it informs the conversation around the execution.
 
 Building a counter-argument from the Timeline is second-guessing in slow motion.
 
-## The right reading order
-
-Top-to-bottom is the wrong order. The order below is what gets the recommendation acted on cleanly without re-reading.
-
-<StepThrough client:load>
-  <Step title="Header first">
-    Severity, surface, affected entity, customer. Five seconds. This tells you which playbook applies before any other section.
-  </Step>
-  <Step title="Recommendation next">
-    Skip past Summary and Evidence on the first pass. What does the SOC want done?
-  </Step>
-  <Step title="Verify the affected entity">
-    The host or user the recommendation applies to. Is it the one you're looking at? Same customer? The wrong-host check, the sibling of the wrong-tenant check.
-  </Step>
-  <Step title="Summary if the Recommendation surprised you">
-    If the action is what you'd expect for this severity and surface, you can act. If it is not (Low severity but the recommendation says isolate), read the Summary and Evidence to understand why before acting.
-  </Step>
-  <Step title="Evidence and Timeline as you need them">
-    Used for client comms, for replying to the analyst, for documenting what you did. Not used for deciding whether the Recommendation is right.
-  </Step>
-</StepThrough>
-
-The reflex this lesson installs: *Recommendation first, then verify the host, then context as needed*. New techs read top-down and end up acting on the Evidence section.
-
 ## What success looks like
 
-- Given an anonymised Incident Report, you can point at the Recommendation section in under five seconds.
-- You can state the affected entity (host or user) and the customer organisation without re-scrolling.
+- Given an anonymised Incident Report, you can point at the Recommendation section on the Report tab in under five seconds.
+- You can state the affected Host and the Organization without re-scrolling — both live in the header strip.
 - For an ITDR incident with a Timeline, you can walk a client through the sequence of events in order, without re-reading the Timeline twice.
+- You know when the Remediations Completed indicator appears (after every row on the Remediations tab is approved and run) and when Resolve becomes the right click.
 
 ## A worked report
 
-An EDR Incident Report lands. Header: High severity, customer Contoso, host SRV-FILE02, analyst Sam P. Summary: scheduled task running encoded PowerShell discovered. Evidence: full command line, decoded payload (downloads and runs a script from a known-bad domain). Recommendation: approve the scheduled-task remediation; isolation not required at this time.
+An EDR Incident Report lands. Header strip: severity *High*, status *Open*, host *SRV-FILE02*, organization *Contoso*. The Report tab's Summary says *scheduled task running encoded PowerShell discovered*. Evidence shows the full command line and the decoded payload (downloads and runs a script from a known-bad domain). Recommendation: *approve the scheduled-task remediation; isolation not required at this time*.
 
-Read the Recommendation first, verify the host (SRV-FILE02 in Contoso), and the Summary only if the Recommendation needs context. Reading the Evidence to re-decide whether the analyst got it right is the cardinal mistake.
+Right move: header strip first (High, Open, SRV-FILE02, Contoso) — confirms you're looking at the right host on the right customer. Report tab next — read the Recommendation. Skip Summary and Evidence on the first pass; the Recommendation is *approve the scheduled-task remediation*. Switch to Remediations tab. Approve each row in the Assisted Remediations table. Once Remediations Completed appears in the header, Resolve.
 
-If the decoded payload in Evidence also shows the script tried (and failed) to copy itself to two other hosts on the network, and the Recommendation doesn't mention those hosts, the right move is: approve the scheduled-task remediation on SRV-FILE02 as recommended; in parallel, reply to Sam P. with *Evidence mentions failed copy to HOST-A and HOST-B, should those be checked or remediated?* Execute the Recommendation cleanly. Raise the Evidence-side question as a factual reply, not as an override.
-
-## When the recommendation is above the helpdesk ceiling
-
-A reason to escalate while reading a report: the Recommendation references an action outside the helpdesk ceiling, like *preserve forensic evidence* or *rotate admin credentials tenant-wide*. Surface to a senior. Don't half-do it. A screenshot to OneDrive is not forensic preservation; full-tenant credential rotation is not a helpdesk action.
+Reading the Evidence on the Report tab to re-decide whether the analyst got it right is the cardinal mistake. The Recommendation is the action; everything else is context.
 
 <Checkpoint slug="huntress-foundations-checkpoint-reading-an-incident-report" client:visible />

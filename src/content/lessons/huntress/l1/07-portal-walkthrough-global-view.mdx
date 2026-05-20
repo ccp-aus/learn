@@ -2,142 +2,123 @@
 slug: 07-portal-walkthrough-global-view
 vendor: huntress
 level: l1
-title: Portal walkthrough — the global view
-summary: The six top-level surfaces (Organisations, Agents, Identity, Incidents, SIEM, Reports) and why every shift starts on Incidents filtered by status and severity, not on Organisations.
+title: Portal walkthrough — the global view (Command Center)
+summary: The Command Center is the dashboard you land on. Active issues for at-a-glance severity, Open Escalations for things needing your eyes, Triage Feed for chronology, and the top nav for drilling into Incidents, Organizations, and the rest.
 estimatedMinutes: 7
 order: 7
 topics:
   - portal
   - navigation
+  - command-center
   - shift-start
 updated: 2026-05-20
 ---
 
-You don't need to memorise the portal. Huntress changes it every few months and lessons would go stale fast. You do need to know where each thing roughly lives, so when a senior says *check the incidents list for that customer*, you don't lose three minutes looking for the right menu item. This is the orientation pass, not the deep dive.
+You don't need to memorise the Command Center. Huntress changes it every few months and lessons would go stale fast. You do need to know which parts of it carry the load on a shift — the strip that tells you what's hot, the panel that says you're behind, and the feed that lets you catch up after time off. This is the orientation pass, not the deep dive.
 
 ## Two contexts in the portal
 
-Two contexts matter: **global** and **organisation-scoped**. Global is what you see when you log in: every organisation you have access to, every incident across them, every agent's health. Organisation-scoped is what you see when you've clicked into a single customer's tenant; same surfaces, narrowed to that one org. This lesson is the global view. The next lesson is inside an organisation.
+Two contexts matter: **global** and **organisation-scoped**. Global is the Command Center, what you see when you log in: every organisation you have access to rolled up, every Critical and High across them, the recent SOC activity in one feed. Organisation-scoped is what you see when you've clicked into a single customer; same surfaces, narrowed to that one tenant. This lesson is the global view. The next lesson is inside an organisation.
 
-## The six top-level items
-
-From the global view, the left-hand navigation usually exposes six items. Names shift occasionally; treat the list as a shape, not a script.
+## What the Command Center actually shows
 
 <AnnotatedScreenshot
-  src="/_dev/kitchen-sink-screenshot.svg"
-  alt="Illustrative left-hand navigation showing the six top-level portal surfaces"
-  caption="Illustrative layout — not the live Huntress UI. The six surfaces in the order this lesson teaches them."
+  src="/img/huntress/portal-global-view.png"
+  alt="The Huntress Command Center dashboard, showing the top navigation, Active issues severity counts, SOC Actions metrics, Open Escalations panel, donut charts for agent and AV health, and the Triage Feed on the right."
+  caption="The Command Center landing view. Hotspot coordinates are best-guess from the static screenshot; the live UI may shift these slightly."
 >
   <Hotspot
     client:load
-    x={20}
-    y={18}
+    x={28}
+    y={17}
     label="1"
-    title="Organisations"
-    purpose="Every customer tenant the partner manages."
-    tone="primary"
-  >
-    Sortable by health, agent count, and recent incident count. Where you switch into a single customer.
-  </Hotspot>
-  <Hotspot
-    client:load
-    x={20}
-    y={32}
-    label="2"
-    title="Agents"
-    purpose="Cross-organisation roll-up of every EDR endpoint."
-    tone="primary"
-  >
-    Filterable by OS, version, online/offline, organisation. Use it for global-shape questions and for finding one host fast.
-  </Hotspot>
-  <Hotspot
-    client:load
-    x={20}
-    y={46}
-    label="3"
-    title="Identity"
-    purpose="The ITDR roll-up across M365 and Google Workspace."
-    tone="primary"
-  >
-    Connection health, recent identity incidents, auto-response activity. Same surface for both providers; only the icons differ.
-  </Hotspot>
-  <Hotspot
-    client:load
-    x={20}
-    y={60}
-    label="4"
-    title="Incidents"
-    purpose="Start your shift here."
+    title="Active issues"
+    purpose="At-a-glance severity counts across every organisation."
     tone="success"
   >
-    Cross-surface list of Incident Reports. Filter by severity, surface, status, and organisation. Set status open and walk severity Critical down.
+    The first thing to read on a shift. Critical, High, Low chips show open counts across your whole book. Use it to pick where to start before drilling into the Incidents page.
   </Hotspot>
   <Hotspot
     client:load
-    x={20}
-    y={74}
-    label="5"
-    title="SIEM"
-    purpose="Visible only if your MSP subscribes to Managed SIEM."
-    tone="warning"
-  >
-    Data-source health across organisations, ingestion volume, and SIEM-originated incidents.
-  </Hotspot>
-  <Hotspot
-    client:load
-    x={20}
-    y={88}
-    label="6"
-    title="Reports"
-    purpose="Monthly client comms surface."
+    x={17}
+    y={31}
+    label="2"
+    title="SOC Actions"
+    purpose="What the SOC has been doing for you under the hood."
     tone="primary"
   >
-    Monthly summaries, audit reports, executive-style overviews. The client-facing artefact.
+    Events monitored, signals investigated, incidents reported. Useful for client-quarterly framing more than day-to-day work; quietly answers *what is Huntress doing for me*.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={62}
+    y={31}
+    label="3"
+    title="Open Escalations"
+    purpose="Things the SOC has actively pushed to you."
+    tone="warning"
+  >
+    Higher signal than the Incidents list because the SOC has named them. Treat the number as a queue you owe a response on; clicking through gets you the per-escalation context.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={87}
+    y={29}
+    label="4"
+    title="Triage Feed"
+    purpose="Chronological recent activity across organisations."
+    tone="primary"
+  >
+    Right rail. Useful when you've been off for a few days and want to scan what happened in order. Not where you decide what to work; that's Active issues plus the Incidents page.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={32}
+    y={4}
+    label="5"
+    title="Top nav"
+    purpose="Drill-in surfaces: Organizations, Agents, Escalations, Incidents, Reports, Users."
+    tone="primary"
+  >
+    The horizontal bar at the top is how you leave the dashboard. *Incidents* is the filtered cross-surface list you actually work from; *Organizations* is the per-customer switch. Identity and SIEM surfaces appear inside an organisation, not at this level.
   </Hotspot>
 </AnnotatedScreenshot>
 
-**Organisations.** Every customer tenant the partner manages. Sortable by health, agent count, recent incident count. This is where you go to switch into a single customer.
+## Reading the dashboard in shift-start order
 
-**Agents.** The cross-organisation roll-up of every endpoint with the EDR agent installed. Filterable by OS, version, online/offline status, organisation. Useful for global-shape questions like *how many Linux endpoints are out of compliance* and for finding a single agent fast when you only know the hostname.
+The Command Center is laid out for a scan, not a deep read. The order to read it is:
 
-**Identity.** The ITDR roll-up. Both M365 and Google Workspace tenants live here; the surface is the same, the icons differ. Connection health, recent identity incidents, auto-response activity.
+1. **Active issues** (top-left strip): the severity shape of the day. One Critical, two High, one Low means you have one thing to drop everything for and two for the morning block.
+2. **Open Escalations** (centre): work the SOC pushed at you specifically. Higher signal than a fresh Incident — someone analysed it and called it out.
+3. **Triage Feed** (right rail): chronology check. After a weekend or a day off, this is where you catch up.
+4. **Top nav → Incidents**: when you've decided what to work, you click into the Incidents page to filter and act.
 
-**Incidents.** The cross-surface list of Incident Reports. Filterable by severity (Low, High, Critical), surface (EDR, ITDR, SIEM), status (open, pending, closed), and organisation. This is the list you skim first thing in a shift.
+The mistake to avoid is clicking straight into Organizations and walking customer by customer. With more than a handful of tenants you spend an hour discovering nothing changed. The Command Center is laid out so the change finds you, not the other way around.
 
-**SIEM.** Visible only if your MSP subscribes to Managed SIEM. Data-source health across organisations, ingestion volume, and SIEM-originated incidents.
+## The two-filter habit on the Incidents page
 
-**Reports.** Monthly summaries, audit reports, executive-style overviews. The client-comms surface.
-
-A couple of partner-admin items (Account, Settings, Help) sit alongside. Those don't change much and don't need attention now.
-
-## Start the shift on Incidents
-
-The reflex matters. The Incidents list is sorted by what needs attention; the Organisations list is sorted alphabetically. Start on Organisations and click through each one and you'll spend an hour discovering nothing changed since yesterday. Start on the list of things that did change and work backwards.
+When you drill into Incidents from the top nav, the page accepts severity and status filters independently. They have to be combined.
 
 <Callout type="tip" title="The two-filter habit">
 On the Incidents page, severity and status together. *Critical* without *status: open* pulls in months of closed Criticals and the page becomes useless. Set *open* first, then walk severity from Critical down. A peer reporting *the page is full of old closed incidents* is the giveaway that one of the two filters is missing.
 </Callout>
 
-## What this gives you in under 30 seconds
+## What the dashboard does NOT do
 
-If the navigation has landed, you can answer these without re-clicking:
-
-- Every Critical incident, today, across every organisation.
-- Every agent on a specific OS across every organisation.
-- The customer tenant any given incident came from, without losing the filters you set when you switch into it.
-
-If any of those takes more than thirty seconds, the muscle memory isn't there yet. Open the portal during the next slow ten minutes and run the three queries.
+- It does not replace the Incidents page for actually working tickets. The Command Center is for orientation; you action from Incidents.
+- It does not show per-customer detail. For that you switch into the organisation (next lesson).
+- It does not surface Identity or SIEM as top-level items at this level. Those live inside an organisation; the global view aggregates incidents from them but does not navigate to them directly.
 
 ## When the answer is "escalate"
 
-This lesson is navigation only, so the escalation surface is narrow. One case warrants flagging: you can't see something you expect to see. An organisation that isn't there. A SIEM section that's missing. An identity tenant that won't load. That is a permissions or licensing question, not a tech question. Surface it to a senior to resolve, don't work around it.
+One case warrants flagging: you can't see something you expect to see. A whole organisation that isn't there. The Open Escalations card showing zero when a senior just told you they pushed two to you. The Triage Feed missing items you know happened. That is a permissions or licensing question, not a tech question. Surface it to a senior to resolve, don't work around it.
 
-The case it does not cover: you navigated to the wrong page. That's a quiet self-correction, not an escalation. Acting on the wrong customer is the escalation case, and the next lesson is built around preventing it.
+The case it does not cover: you clicked the wrong card or filtered the page poorly. That's a quiet self-correction. Acting on the wrong customer is the escalation case, and the next lesson is built around preventing it.
 
 ## A worked catch-up
 
-You log in. You haven't been at work for three days; you covered a weekend off. The right move is Incidents, not Organisations. Filter to open and Critical-first, then walk down by severity. Critical first means you don't miss something that's been waiting; walking by severity means the Highs assigned to you get attention before the rest.
+You log in. You haven't been at work for three days; you covered a weekend off. The right move is **read the dashboard, then click into Incidents**. Active issues tells you the shape of the day: one Critical, three High, several Low. The Triage Feed on the right tells you whether anything dramatic happened over the weekend (a cluster of red entries means yes). Open Escalations tells you what the SOC has put at your feet.
 
-A pattern to learn to spot: three Critical incidents in the list, all tagged with the same organisation. That cluster is itself a signal. Open the first incident and tell the senior about the cluster in parallel; three Criticals on one tenant is *tell the senior* territory before you're hours into the response. You don't pause to escalate, you contain and you flag.
+A pattern to spot: Active issues shows "1 Critical" and the Triage Feed has three entries for the same organisation in the last hour. That cluster is itself a signal — three Criticals on one tenant is *tell the senior* territory before you're hours into the response. You don't pause to escalate, you contain and you flag.
 
 <Checkpoint slug="huntress-foundations-checkpoint-portal-global-view" client:visible />
