@@ -1,0 +1,159 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-responding-to-siem-alert",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: responding to a SIEM alert",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-siem-response-spine",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "easy",
+      "prompt": "The standard SIEM response flow uses which spine?",
+      "choices": [
+        "Claim, review SOC notes, take the recommended action, verify, close, document: the six steps from the operations course applied with SIEM-specific surfaces.",
+        {"label": "Investigate, classify, tune detection, escalate: a SIEM-specific four-step flow.", "rationale": "Tuning is above the ceiling, and the spine is the six-step flow."},
+        {"label": "Triage, write a query, run the query, summarise: the analyst workflow.", "rationale": "That is the SOC analyst's job, not the helpdesk's."},
+        {"label": "Read, ignore, archive: for low-severity SIEM noise.", "rationale": "Not a real workflow on any surface."}
+      ],
+      "correct": 0,
+      "explanation": "SIEM uses the same six-step flow as EDR and ITDR. The steps carry across; the action surfaces vary."
+    },
+    {
+      "id": "ck-siem-response-surfaces",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "A SIEM Recommendation's action may land on which surfaces?",
+      "choices": [
+        {"label": "Only the Huntress portal itself.", "rationale": "SIEM actions usually land outside the Huntress portal: firewalls, SaaS consoles, identity providers."},
+        "Network devices, SaaS sources, identity providers, and EDR, depending on what the SIEM correlation calls for.",
+        {"label": "Only the customer's RMM platform.", "rationale": "RMM is not a SIEM action surface."},
+        {"label": "Only via Huntress support; the tech raises a support case.", "rationale": "The tech runs the documented runbook for the surface."}
+      ],
+      "correct": 1,
+      "explanation": "SIEM's cross-source visibility means Recommendations can direct actions on network devices, SaaS apps, identity providers, and EDR."
+    },
+    {
+      "id": "ck-siem-response-verify",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "How does the verify step on SIEM often differ from EDR?",
+      "choices": [
+        "Verification often uses the same log source that triggered the incident: the firewall logs show the block in place, the Okta logs show the role revocation.",
+        {"label": "Verification is skipped on SIEM because the SOC handles it.", "rationale": "The tech verifies. The SOC has classified, not verified the tech's action."},
+        {"label": "Verification happens via a separate Huntress support case.", "rationale": "Verification is a tech step in the runbook."},
+        {"label": "Verification is delegated to the customer's IT manager.", "rationale": "The customer is not the verification body."}
+      ],
+      "correct": 0,
+      "explanation": "The log source that triggered the incident is often the same source that confirms the fix. Firewall logs show the block; Okta logs show the revocation."
+    },
+    {
+      "id": "ck-siem-response-senior-trigger",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "Which Recommendation pattern triggers senior involvement?",
+      "choices": [
+        {"label": "Block a single outbound IP at the firewall per the documented runbook.", "rationale": "Standard in-scope SIEM action."},
+        "Tune the detection to reduce false positives from a specific source. Detection tuning is above the SIEM ceiling.",
+        {"label": "Check for EDR signals on the affected host.", "rationale": "Routine cross-surface verification, in scope."},
+        {"label": "Close the incident as remediation-complete.", "rationale": "Final step, not a senior trigger."}
+      ],
+      "correct": 1,
+      "explanation": "Detection tuning is above the SIEM ceiling regardless of how reasonable the change looks. The exclusion-request flow is the right path."
+    },
+    {
+      "id": "ck-siem-response-blast-radius",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "Which Recommendation should trigger senior involvement due to blast radius?",
+      "choices": [
+        "Pushing a firewall rule that affects a whole site, or revoking a SaaS role that affects multiple users.",
+        {"label": "Blocking a single outbound IP per the documented runbook.", "rationale": "Single-IP block per the runbook is routine."},
+        {"label": "Revoking a single user's session per the Recommendation.", "rationale": "Single-user action, in scope."},
+        {"label": "Acknowledging an Incident Report in the portal.", "rationale": "Routine claim step, not a blast-radius concern."}
+      ],
+      "correct": 0,
+      "explanation": "Actions affecting more than a single host or user have blast radius. Site-wide firewall rules and multi-user role changes need senior involvement."
+    },
+    {
+      "id": "ck-siem-response-six-steps-order",
+      "type": "order",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "Put the six SIEM response steps in order.",
+      "items": [
+        "Claim the incident in the portal and the PSA.",
+        "Review the SOC notes: header, Recommendation, entity, summary, Evidence.",
+        "Take the recommended action on the directed surface(s).",
+        "Verify the action applied and the end state matches the Recommendation.",
+        "Close in the Huntress portal and the matched PSA ticket.",
+        "Document: four-section note plus SIEM-specific source and cross-surface details."
+      ],
+      "explanation": "The six steps carry across from EDR and ITDR. Claiming early prevents duplicate work on multi-surface tickets. Documentation captures the cross-surface picture."
+    },
+    {
+      "id": "ck-siem-response-standard-flow",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "High SIEM incident on Acme Logistics. Recommendation: block IP at firewall per the runbook; check EDR for the named host. What is the right response?",
+      "choices": [
+        "Claim, review, run the network-blocking runbook, verify the block via the next firewall log, cross-check EDR, document both actions, close.",
+        {"label": "Investigate the destination IP to confirm it is known-bad before blocking.", "rationale": "The SOC classified it. Re-investigating is the second-guessing failure mode."},
+        {"label": "Block the IP and isolate the host via EDR to be safe.", "rationale": "The Recommendation said check for EDR signals, not isolate."}
+      ],
+      "correct": 0,
+      "explanation": "Standard six-step flow applied to two SIEM action surfaces. Run both per the applicable runbooks."
+    },
+    {
+      "id": "ck-siem-response-verify-skip",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "medium",
+      "prompt": "Which is a named common mistake in the SIEM response flow?",
+      "choices": [
+        "Skipping the verify step because the action was on a surface you don't usually verify in (e.g. a firewall block).",
+        {"label": "Reading the Recommendation before the Evidence.", "rationale": "That is the correct reading order."},
+        {"label": "Documenting cross-surface actions in the response note.", "rationale": "That is a SIEM-specific best practice, not a mistake."},
+        {"label": "Claiming the incident in both the portal and the PSA.", "rationale": "That is the correct claim step."}
+      ],
+      "correct": 0,
+      "explanation": "A firewall block is verified by the next log line showing the block in place. Skipping verification on unfamiliar surfaces is a common SIEM trap."
+    },
+    {
+      "id": "ck-siem-response-mixed-rec",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "hard",
+      "prompt": "A Recommendation reads: \"Block IP at the firewall per the runbook AND tune the detection threshold for this source.\" What do you do?",
+      "choices": [
+        {"label": "Run both actions yourself. The SOC asked for both.", "rationale": "Detection tuning is above the ceiling regardless of visibility into the rule editor."},
+        "Run the firewall block (in scope). Bump the tuning portion to senior. Document the split clearly.",
+        {"label": "Bump the whole thing to senior because part of it is above the ceiling.", "rationale": "Over-escalates. The firewall block is in scope and time-sensitive."},
+        {"label": "Decline both actions and ask the SOC for a new Recommendation.", "rationale": "The firewall action is in scope. Declining it punishes the customer."}
+      ],
+      "correct": 1,
+      "explanation": "Split the Recommendation. The firewall block is in scope per the runbook. Detection tuning is above the ceiling. Document which piece went to the senior."
+    },
+    {
+      "id": "ck-siem-response-edr-clean",
+      "type": "mcq",
+      "topic": "response",
+      "difficulty": "hard",
+      "prompt": "You blocked the firewall destination. EDR check on the host shows no related incidents. The Recommendation said \"check for EDR signals\" and did not direct further action. What is the right close?",
+      "choices": [
+        {"label": "Open a new EDR incident manually on the host to be safe.", "rationale": "Creating a manual EDR incident from a clean cross-check is noise."},
+        "Document the EDR check result. Close the SIEM incident with both actions complete. The cross-check is documentation, not an action trigger.",
+        {"label": "Flag to senior because EDR shows clean and that is suspicious.", "rationale": "Absence of EDR signal is not itself an escalation trigger when the firewall block has addressed the SIEM observation."}
+      ],
+      "correct": 1,
+      "explanation": "The Recommendation asked for the cross-check. You did it. The result goes into documentation. Absence of EDR signal does not override the SIEM Recommendation."
+    }
+  ]
+}

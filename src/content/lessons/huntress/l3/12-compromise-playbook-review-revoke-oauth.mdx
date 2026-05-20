@@ -2,8 +2,8 @@
 slug: 12-compromise-playbook-review-revoke-oauth
 vendor: huntress
 level: l3
-title: Compromise Playbook Review Revoke OAUTH
-summary: Skeleton — lesson body to be written.
+title: "Compromise playbook: review and revoke OAuth grants"
+summary: Step 4 handles persistent access that survives session revoke, password reset, and rule cleanup. OAuth tokens authenticate independently.
 estimatedMinutes: 8
 order: 12
 topics:
@@ -11,8 +11,67 @@ topics:
   - playbook
   - oauth
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Step 4 of the playbook handles the persistent-access mechanism that survives the previous three steps. Session revoke, password reset, MFA reset, and inbox-rule cleanup all close active doors and exfiltration paths. **An OAuth token granted during the compromise keeps an attacker's app authenticated to the user's account independently.** Skipping this step leaves the user "looking" secure (no active sessions, new password, MFA reset, clean rules) while an attacker-controlled app keeps reading and sending mail.
+
+## What you are looking at
+
+The user's granted OAuth applications are visible through the identity provider's admin tooling and (often) directly in the Huntress portal's identity view. Each grant has:
+
+- **App name.** The display name of the third-party app.
+- **Publisher.** Verified, unverified, or unknown.
+- **Scopes.** What permissions the app has (Mail.Read, Mail.Send, Files.ReadWrite, Calendars.Read, etc.).
+- **Granted timestamp.** When the user authorised the app.
+- **Last used timestamp.** When the app last made an authenticated request (where the platform exposes this).
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="List the user's OAuth grants">
+    Via the Huntress portal's identity surface or the identity provider's admin tool, per the runbook.
+  </Step>
+  <Step title="Compare against the Recommendation">
+    The SOC's Incident Report names the grants to revoke. Usually the ones added during the compromise window.
+  </Step>
+  <Step title="Revoke the named grants">
+    One-click in the portal where available. Admin-tool path otherwise.
+  </Step>
+  <Step title="Spot-check the remaining grants">
+    Any other recent grants from within the compromise window? Grants with unusual scopes for the user's role? Grants from unverified publishers? Note them.
+  </Step>
+  <Step title="Surface anything unusual to the SOC">
+    Reply to the SOC with anything outside the Recommendation rather than revoking unilaterally.
+  </Step>
+  <Step title="Verify the revoke applied">
+    The grants are gone from the user's app list. No new authenticated requests from those apps appear in the Timeline.
+  </Step>
+</StepThrough>
+
+## The targeted-revoke discipline
+
+Revoke the grants from the compromise window, not all grants. Most users have multiple legitimate OAuth grants accumulated over time: calendar integrations, project tools, document viewers. Blanket revoke disrupts the user's productivity and trains them to be paranoid about granting any access in the future.
+
+The compromise window is the timeframe during which the attacker had access. The Timeline gives you the start (the suspicious sign-in or initial compromise event). The end is when you completed session revoke. Grants authorised inside that window are suspect. Grants from before are legitimate-by-context.
+
+If the user has a recent grant just outside the window that looks unusual, that is a "reply to the SOC" case, not a unilateral-revoke case.
+
+## Common mistakes
+
+**Revoking all OAuth grants to "clean up."** Disrupts legitimate integrations the user actively relies on. The targeted-revoke discipline is the point.
+
+**Closing the step without verifying the revoke applied.** Some identity providers process OAuth revokes asynchronously. The portal may show the revoke as queued but not yet effective. Check that the timestamp moves.
+
+**Forgetting that admin-consented apps require admin-level revoke.** Some OAuth grants are at the tenant level (an admin consented on behalf of all users) rather than at the user level. User-level revoke does not touch those. Surface to senior if the suspect grant is tenant-consented.
+
+<Callout type="warn" title="Re-grants after revoke are a signal">
+If the Timeline shows a new OAuth grant for an app you just revoked, do not re-revoke in a loop. A re-grant post-revoke means someone with credentials re-authorised it. Check whether the user re-granted without understanding (confusion after the disruption) or whether the attacker has another path the playbook missed. Bump to senior in parallel.
+</Callout>
+
+## When to escalate
+
+- The suspicious grant is admin-consented at the tenant level. Tenant-level grants affect every user. Senior territory.
+- The grant has unusually broad scopes (`Mail.ReadWrite.All`, `Directory.ReadWrite.All`) that extend beyond the affected user to the tenant. Bump.
+- The user has many grants from the compromise window (more than two or three). Could indicate the attacker was granting multiple apps for persistence. Surface to senior. The scope of the response may need to widen.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-review-revoke-oauth" client:visible />

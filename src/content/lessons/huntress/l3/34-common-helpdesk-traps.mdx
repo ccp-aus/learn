@@ -2,16 +2,72 @@
 slug: 34-common-helpdesk-traps
 vendor: huntress
 level: l3
-title: Common Helpdesk Traps
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Common helpdesk traps"
+summary: "Four failure patterns show up in new-tech work on Huntress more than any others: suppressing alerts, second-guessing the SOC, isolating without comms, and closing Huntress but not the PSA. This lesson names all four so they are recognisable."
+estimatedMinutes: 7
 order: 34
 topics:
   - judgement
   - traps
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Most of Course 9 covers general judgement principles. This lesson is the specific list: four traps that show up in new-tech work on Huntress more than any others. Each one has been touched in earlier courses. Collecting them here means they are available as a checklist of mistakes to actively guard against.
+
+## The four traps
+
+| # | Trap | Shape | When it appears most |
+|---|---|---|---|
+| 1 | **Suppressing alerts to clear the queue** | Batch-closing incidents as benign without reading each Recommendation, or filing exclusion requests for patterns the SOC is still classifying. | First-week noise window of a new customer; high recurring-detection volumes; end-of-shift with a busy queue. |
+| 2 | **Second-guessing the SOC** | Closing an Incident Report without acting because the tech decided the analyst is wrong, or reopening a closed incident "to take another look" without new signal. | When the tech has customer context the SOC does not appear to have weighed; when the activity looks "obviously" legitimate. |
+| 3 | **Isolating without warning the user** | Following the isolation reflex on a High but not making the follow-up call within minutes. The user's machine goes dark. They call their IT manager in a panic. | When the tech is overwhelmed by other tickets; when the user is unreachable and the tech does not try backup contacts. |
+| 4 | **Closing Huntress but not the PSA** | Resolving the security side cleanly in Huntress and walking away without closing the corresponding PSA ticket. Time entry is not logged. The next tech inherits drift. | End-of-shift; jumping between Huntress and the PSA; auto-created PSA tickets the tech does not realise need manual closure. |
+
+## Why these four
+
+All four share a common shape: each is a small-friction shortcut that saves seconds for the tech and costs hours or relationships downstream.
+
+Traps 1 and 2 are recommendation-side shortcuts (skipping reads, overriding analysis). Traps 3 and 4 are workflow-side shortcuts (skipping comms, skipping admin). Recognising the shortcut-shape makes all four visible as variants of the same underlying pattern.
+
+## How each trap surfaces
+
+Trap 1 surfaces in the senior's closed-incident review. A queue cleared faster than your usual rate could be focus. Could be trap 1.
+
+Trap 2 surfaces when a senior asks "why did you close that without the recommended remediation?" Second-guessing caught in review.
+
+Trap 3 surfaces in next-morning customer friction. A customer calling about a "surprise lockout" yesterday is trap 3 catching up.
+
+Trap 4 surfaces in the end-of-shift self-check. A PSA ticket from last week still open even though the Huntress incident closed.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="End-of-shift close-out"
+  description="17:00. End of shift. Three Lows closed in Huntress today, but two have PSA tickets still open. One of yesterday's Highs has a PSA ticket from the integration that you forgot to update. The Huntress side is closed."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Spend the necessary minutes closing each PSA properly: time entry per actual time, specific category, notes.", next: "proper-close" },
+      { label: "Close all PSAs quickly with generic time entry and category.", next: "generic-close" },
+      { label: "Leave them for tomorrow morning.", next: "defer" },
+    ]},
+    { type: "outcome", id: "proper-close", label: "Trap 4 avoided", tone: "success",
+      body: "The drift gets cleaned now. Tomorrow starts clean. The discipline is close-as-you-go, with end-of-shift catch-up for anything missed." },
+    { type: "outcome", id: "generic-close", label: "Trap 4 in real time", tone: "bad",
+      body: "Generic time and category creates the reporting drift the lesson warns against. The auditor six months from now sees the discrepancy." },
+    { type: "outcome", id: "defer", label: "Drift grows overnight", tone: "bad",
+      body: "The drift grows overnight. Tomorrow starts behind. The discipline is to clean now, not to defer." },
+  ]}
+/>
+
+While closing the PSAs, you realise one of yesterday's Highs was on a customer whose IT manager called this morning about a "surprise lockout." You did not call the user post-isolation yesterday. You isolated, got pulled into a different incident, and the user found out when their machine went dark. Add a note to the PSA ticket reflecting what happened and flag the situation to your senior tomorrow morning. The customer-relationship recovery (possibly a callback) is the next step after the senior has weighed in on tone and account-manager involvement. That is trap 3, named, documented, and the recovery work identified.
+
+## The end-of-shift self-check
+
+Run a self-check at end-of-shift: any traps today?
+
+- **Trap 4** deserves the check every day. It is the easiest to leave behind.
+- **Traps 1 and 2** surface in the senior's review of your closed incidents. If they flag suppression-by-dismissal or second-guessing, take the feedback.
+- **Trap 3** has its own indicator: customer-relationship friction from incidents you thought went well usually traces to missing comms.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-common-helpdesk-traps" client:visible />

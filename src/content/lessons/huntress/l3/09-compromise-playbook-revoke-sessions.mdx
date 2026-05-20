@@ -2,8 +2,8 @@
 slug: 09-compromise-playbook-revoke-sessions
 vendor: huntress
 level: l3
-title: Compromise Playbook Revoke Sessions
-summary: Skeleton — lesson body to be written.
+title: "Compromise playbook: revoke sessions"
+summary: Session revoke is step 1 because it stops the active attacker immediately, before anything else in the playbook matters.
 estimatedMinutes: 8
 order: 9
 topics:
@@ -11,8 +11,65 @@ topics:
   - playbook
   - sessions
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Session revoke is **step 1 of the ITDR compromise playbook** because it is the fastest way to stop an active attacker from continuing to act through tokens they already hold. Password reset happens later and invalidates future authentications. Session revoke kills current ones. Done in the right order, the attacker loses the live session at step 1 and cannot re-establish access at any later step because each subsequent step closes another door.
+
+## What a session is
+
+When a user signs into a Microsoft 365 or Google Workspace account, the platform issues a session token. That token authenticates subsequent requests (opening mail, sending mail, accessing files) without the password every time. Browser sessions, mobile-app sessions, desktop-app sessions, and OAuth-app sessions all use tokens of various flavours.
+
+The token persists. Closing the browser does not end the session. Signing in from another machine does not end the previous session. Sessions live until they expire (often days or weeks) or until they are explicitly revoked. An attacker who has compromised an account has one or more active sessions running. The session revoke kills them.
+
+## Why this is step 1
+
+Three reasons:
+
+1. **It stops the active attacker immediately.** While the attacker is in the mailbox reading mail or creating rules, the revoke ends their session.
+2. **It does not depend on the password being changed.** Even if the attacker holds the current password, the session revoke still ends the active session. Password change is later in the playbook.
+3. **It is reversible without lasting impact on the legitimate user.** The user signs back in with their (soon-to-be-reset) credentials when they return.
+
+Done out of order (password first, revoke second), the attacker keeps acting through their live session while you reset things that do not affect them yet.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Locate the affected identity">
+    From the Huntress portal, on the customer's organisation, find the affected identity in the Identity surface. You can also open the Incident Report and navigate from there.
+  </Step>
+  <Step title="Trigger the session revoke">
+    The button names vary across portals: "Revoke sessions," "Sign user out everywhere," "Revoke refresh tokens." Your runbook should name the specific path. Huntress's portal usually has this as a recommended action button on the Incident Report.
+  </Step>
+  <Step title="Wait for propagation">
+    The portal pushes the revoke to the identity provider (Entra ID for M365, Google for GWS) via the integration. Within seconds to a couple of minutes, the user's active sessions are invalidated.
+  </Step>
+  <Step title="Verify the revoke applied">
+    The session-revoke action shows as completed in the portal. The identity's active-session list is empty (or shows only sessions established after the revoke timestamp). No new activity from previously-active sessions appears in the Timeline post-revoke. The Incident Report has the action and timestamp documented.
+  </Step>
+</StepThrough>
+
+## What happens to the user
+
+The user is signed out of every active session: browser, phone Outlook app, Teams client, desktop Outlook, Office apps. They will see a "sign back in" prompt on each. If they were mid-draft or mid-call, the experience is a sudden disconnection.
+
+The follow-up framing: "We had to revoke your active sign-ins to contain a security event on your account. You will see sign-out prompts on your devices. We will have you signed back in with new credentials shortly. Local files and your machine are fine. This is identity-side, not endpoint-side." If you have already done the user-verification call from the previous lesson, bundle this into that conversation.
+
+## Common mistakes
+
+**Doing the password reset before the session revoke.** The reset invalidates future authentications using the password. It does not end the current session. The attacker keeps acting through the live session until the session is revoked. Order matters.
+
+**Skipping verification.** The portal usually applies cleanly, but in edge cases (integration degraded, identity-provider issues) the revoke can fail silently. Verify the active-session list is empty.
+
+**Forgetting that OAuth-granted apps may still have access.** OAuth tokens are separate from interactive session tokens. The session revoke kills interactive sessions. OAuth grants need their own revoke step (covered in the OAuth lesson). Both are in the playbook.
+
+## When to escalate
+
+- The session revoke action errors out. Retry once. Bump after the second failure.
+- The revoke succeeds but the Timeline shows continued activity from the previously-revoked session. Suggests the revoke did not propagate cleanly, or OAuth tokens are still active. Bump and engage Huntress support.
+- The affected identity is an admin or service account where revoking sessions has broader downstream impact (orchestration systems that authenticate as the account). Bump. The senior may want to coordinate the revoke with the customer's IT.
+
+<Callout type="warn" title="Post-revoke activity usually means OAuth">
+If the Timeline shows new mail or actions from the identity after your session revoke completed, the most common cause is OAuth-token persistence. The session revoke killed interactive sessions; an attacker-controlled OAuth app keeps authenticating independently. Continue the playbook urgently toward the OAuth-grant revoke step rather than re-revoking sessions.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-revoke-sessions" client:visible />

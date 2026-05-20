@@ -1,0 +1,231 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-choosing-comms-channel",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: choosing comms channel",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "critical-default",
+      "type": "mcq",
+      "topic": "default-matrix",
+      "difficulty": "easy",
+      "prompt": "What is the default comms channel for a Critical incident, regardless of time of day?",
+      "choices": [
+        "Phone, immediate, plus email follow-up.",
+        {
+          "label": "Email only. The timeline is in the email.",
+          "rationale": "A Critical communicated by email only feels neglectful. The lesson is explicit."
+        },
+        {
+          "label": "Ticket update only. The customer checks it when ready.",
+          "rationale": "Ticket-only is the Low pattern. Worst possible match for Critical."
+        },
+        {
+          "label": "Phone only. Email creates legal exposure.",
+          "rationale": "The email follow-up is the durable record. Skipping it leaves no written trail."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Critical equals phone plus email regardless of time of day."
+    },
+    {
+      "id": "low-overcalling",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is calling the customer for every Low \"to be safe\" a mistake?",
+      "choices": [
+        "Wastes the customer's time on Lows, trains them to dread MSP calls, and lowers the urgency of genuine Critical calls.",
+        {
+          "label": "Huntress charges per outbound call.",
+          "rationale": "No such commercial mechanic exists."
+        },
+        {
+          "label": "Lows are false positives that should not be communicated at all.",
+          "rationale": "Lows are real incidents. The issue is the channel, not whether to communicate."
+        },
+        {
+          "label": "Calls about Lows breach customer privacy.",
+          "rationale": "No such constraint."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Over-calling devalues the phone channel for the moments it matters."
+    },
+    {
+      "id": "preference-override",
+      "type": "mcq",
+      "topic": "customer-preference",
+      "difficulty": "medium",
+      "prompt": "The customer's documented preference and the default matrix point to different channels. Which wins?",
+      "choices": [
+        {
+          "label": "The default matrix wins. Preferences are advisory.",
+          "rationale": "Inverts the lesson. Customer preferences override the default."
+        },
+        "The customer's documented preference overrides the default matrix.",
+        {
+          "label": "The senior decides every channel choice case-by-case.",
+          "rationale": "The tech makes the routine channel call from the preference. Senior is involved only when the preference does not fit the situation."
+        },
+        {
+          "label": "The most senior person on the call decides.",
+          "rationale": "The preference is documented, not decided per-call."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Read the documented preference before deciding the channel. Preferences override the default matrix."
+    },
+    {
+      "id": "critical-email-only",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "A Critical lands at a customer whose documented preference is \"email only.\" What do you do?",
+      "choices": [
+        {
+          "label": "Send only an email. The preference is explicit.",
+          "rationale": "A Critical-with-email-only-preference is the example of when preference and situation conflict. Surface it."
+        },
+        "Bump to senior. The documented preference does not fit the situation; senior decides whether to deviate.",
+        {
+          "label": "Call the customer anyway and apologise for breaching their preference.",
+          "rationale": "Unilateral deviation without senior sign-off."
+        },
+        {
+          "label": "Wait until business hours and ask the customer their preference again.",
+          "rationale": "Critical comms does not wait."
+        }
+      ],
+      "correct": 1,
+      "explanation": "When the preference seems wrong for the situation, surface to senior. The deviation is not a tech-level call."
+    },
+    {
+      "id": "channel-matters-more",
+      "type": "mcq",
+      "topic": "channel-vs-message",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson argue that the channel matters more than the message text?",
+      "choices": [
+        "The same message lands differently by channel. Phone implies urgency and engagement; email is digested at the reader's pace; ticket-update only is noticed on next check. Mismatching channel to expected urgency wastes the response work.",
+        {
+          "label": "Customers do not read the message body, only the subject line.",
+          "rationale": "Inverts the work that goes into well-framed notifications."
+        },
+        {
+          "label": "Message text is automated by the Huntress portal.",
+          "rationale": "Not factually correct."
+        },
+        {
+          "label": "Phone calls are always recorded; email and tickets are not.",
+          "rationale": "Recording is not the lesson's framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Channel sets the customer's experience of urgency. Mismatching it wastes good response work."
+    },
+    {
+      "id": "all-three-channels",
+      "type": "mcq",
+      "topic": "multi-channel",
+      "difficulty": "medium",
+      "prompt": "When is using all three channels (phone + email + ticket update) the right call?",
+      "choices": [
+        {
+          "label": "Standard for every High.",
+          "rationale": "High is phone-or-email plus ticket-update, not all three."
+        },
+        {
+          "label": "Whenever the tech has time to do all three.",
+          "rationale": "Time-availability is not the criterion."
+        },
+        "Reserved for genuinely customer-relationship-significant Criticals where the volume of update is high and the audience is wide.",
+        {
+          "label": "For every customer in their first week to set expectations.",
+          "rationale": "Not in the lesson."
+        }
+      ],
+      "correct": 2,
+      "explanation": "All-three-channels is rare and reserved for wide-audience Critical situations."
+    },
+    {
+      "id": "phone-plus-email-why",
+      "type": "mcq",
+      "topic": "phone-email",
+      "difficulty": "medium",
+      "prompt": "Why is phone-plus-email the standard for Critical, rather than phone alone or email alone?",
+      "choices": [
+        {
+          "label": "Two channels are required by Huntress for compliance.",
+          "rationale": "No such compliance rule."
+        },
+        "Phone confirms awareness and engagement. Email is the durable record the customer forwards or refers back to. Skipping either leaves a gap.",
+        {
+          "label": "Phone is unreliable, so email is the real notification.",
+          "rationale": "Both have specific roles. Neither is a backup for the other."
+        },
+        {
+          "label": "Email is the urgent channel; phone is the follow-up.",
+          "rationale": "Reverses the roles entirely."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Phone for immediate awareness; email for the durable written trail."
+    },
+    {
+      "id": "high-business-hours-scenario",
+      "type": "mcq",
+      "topic": "scenario",
+      "difficulty": "medium",
+      "prompt": "14:30 Tuesday. High EDR incident contained and resolved. Customer preference: \"Highs: phone or email, account manager will route; ticket update on every incident.\" Which channel for the IT manager?",
+      "choices": [
+        {
+          "label": "Phone, then email, then ticket update. Three channels for a High.",
+          "rationale": "Three channels is reserved for Criticals with wide audiences. Over-communicates for a High."
+        },
+        "Update the ticket with the full incident note, then send a short email summary. Email is appropriate for a contained High mid-business-day, and the ticket update fulfils the \"every incident\" requirement.",
+        {
+          "label": "Ticket update only.",
+          "rationale": "Customer preference includes \"phone or email\" for Highs in addition to ticket. Ticket-only is the Low pattern."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Preference says phone or email for Highs (email fits a contained mid-day High) plus ticket on every incident."
+    },
+    {
+      "id": "severity-channel-match",
+      "type": "order",
+      "topic": "default-matrix",
+      "difficulty": "medium",
+      "prompt": "Put these severity levels in order from most channels required (by default) to fewest.",
+      "items": [
+        "Critical (phone + email follow-up)",
+        "High (phone or email per preference + ticket update)",
+        "Low (ticket update, optional email, no phone)"
+      ],
+      "explanation": "Critical requires the most channels (phone plus email). High is preference-driven with a ticket backup. Low is ticket-only with optional email."
+    },
+    {
+      "id": "follow-up-channel",
+      "type": "mcq",
+      "topic": "follow-up",
+      "difficulty": "medium",
+      "prompt": "The IT manager replies by email asking \"what does isolation mean, and will it happen often?\" What is the best response channel?",
+      "choices": [
+        "Reply by email with a plain-language explanation. An email reply gives the IT manager something to refer back to.",
+        {
+          "label": "Call them to explain in person. Voice is warmer for educational topics.",
+          "rationale": "Defensible but a step heavier than needed. Switching to phone for an educational follow-up question is over-channelling."
+        },
+        {
+          "label": "Reply with a one-liner: \"Isolation just means we contained the host briefly; it's standard.\"",
+          "rationale": "Terse responses to genuine customer questions undercut the trust the response built."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Educational question by email; email reply with the full explanation. The customer can refer back to it."
+    }
+  ]
+}

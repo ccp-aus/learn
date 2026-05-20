@@ -2,8 +2,8 @@
 slug: 13-compromise-playbook-check-mfa-devices
 vendor: huntress
 level: l3
-title: Compromise Playbook Check MFA Devices
-summary: Skeleton — lesson body to be written.
+title: "Compromise playbook: check newly enrolled MFA devices"
+summary: Step 5 audits the MFA-methods list post-reset so only legitimate methods remain. Targeted removal, not blanket cleanup.
 estimatedMinutes: 8
 order: 13
 topics:
@@ -11,8 +11,74 @@ topics:
   - playbook
   - mfa-devices
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Step 5 of the playbook is the **targeted MFA cleanup**. The reset in step 2 gets the password new and prompts the user to re-enrol MFA. If the attacker registered a method that the reset did not clear (some identity providers preserve method history through resets), or if the reset removed methods broadly when it should have been targeted, this step is where you reconcile. The goal: only legitimate MFA methods remain for the user going forward.
+
+## What you are looking at
+
+The user's MFA method list, post-reset. Each method has:
+
+- **Type.** Authenticator app, phone (SMS or voice), hardware token, email.
+- **Enrolment timestamp.** When the method was added.
+- **Phone number or device identifier.** Visible for phone-based methods.
+- **Last used timestamp.** When the method last satisfied an MFA challenge.
+
+## Three attacker patterns
+
+**Added a method, did not touch the user's.** The user's legitimate methods are still in the list. The attacker's method is also there. Remove the attacker's only.
+
+**Added a method, removed the user's.** The user's methods are gone (a removal event in the Timeline). The attacker's is the only one in the list. Remove the attacker's. Brief the user to re-enrol their own.
+
+**Added multiple methods.** The attacker registered several methods (an authenticator app plus a phone number) for redundancy. Remove all attacker-added entries. Verify the list is empty of attacker artefacts.
+
+The Timeline is your guide. "MFA method added" events with phone numbers or device IDs you can map to the attacker (or that match other compromise-window patterns) are the targets. "MFA method removed" events tell you what the user is missing.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="List the user's current MFA methods">
+    Via the identity provider's admin tool or the Huntress portal's identity surface.
+  </Step>
+  <Step title="Map each method to the Timeline">
+    Which were added during the compromise window? Which existed before? Which were removed by the attacker (visible as "MFA method removed" events)?
+  </Step>
+  <Step title="Identify attacker-added methods">
+    Phone numbers from unexpected country codes, authenticator apps registered during the compromise window, methods the legitimate user cannot recognise.
+  </Step>
+  <Step title="Remove attacker-added methods">
+    Targeted removal. Not "remove all methods." The ones the attacker added.
+  </Step>
+  <Step title="Brief the user on re-enrolment">
+    If their legitimate methods were removed by the attacker, they need to set up new methods cleanly on their next sign-in.
+  </Step>
+  <Step title="Verify the list reflects only legitimate methods">
+    Cross-reference the user's confirmation with the Timeline. Trust neither alone.
+  </Step>
+</StepThrough>
+
+## Verifying with the user
+
+The user is often the best source of truth on which methods are theirs. The verification conversation can include: "Do you have an authenticator app on your phone? When did you set it up?" "Is the phone number ending in [last 4 digits] yours?" "Did you change MFA settings in the last 24 hours?"
+
+The user's answers, cross-referenced with the Timeline, give you the audit you need. Document the verification.
+
+## Common mistakes
+
+**Removing all MFA methods to be safe.** Forces a complete re-enrolment the user may not have time for. If they are not at their device, they cannot sign in until they get there. Targeted removal is the discipline.
+
+**Trusting the user's verbal "those are all mine" without cross-referencing the Timeline.** A user under stress, post-compromise, may not remember exactly which methods they registered. The Timeline gives you the truth.
+
+**Skipping this step because "the reset in step 2 handled MFA."** The reset prompts re-enrolment but does not always clean up the existing method list. Some identity providers retain method history through a reset. Audit rather than assume.
+
+<Callout type="info" title="You do not add MFA methods for the user">
+If the attacker removed the user's legitimate MFA method, the user re-enrols their own. You do not re-add methods on their behalf. Brief them on what is missing and walk them through re-enrolment on their next sign-in.
+</Callout>
+
+## When to escalate
+
+- The user has methods they cannot identify, and the Timeline does not conclusively map them to the attacker. Bump for senior review.
+- Tenant-wide MFA-method patterns appear (multiple users with attacker-added methods in the same window). Tenant-wide compromise. Bump.
+- The user's only legitimate MFA method has been removed by the attacker and they have no other way to satisfy MFA. Senior-assisted re-enrolment path. Bump.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-check-mfa-devices" client:visible />

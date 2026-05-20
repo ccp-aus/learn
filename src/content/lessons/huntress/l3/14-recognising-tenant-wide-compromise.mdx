@@ -2,8 +2,8 @@
 slug: 14-recognising-tenant-wide-compromise
 vendor: huntress
 level: l3
-title: Recognising Tenant Wide Compromise
-summary: Skeleton — lesson body to be written.
+title: Recognising tenant-wide compromise
+summary: Three signal families tell you the compromise is bigger than one identity. Recognition is the helpdesk's contribution; the response moves above the ceiling.
 estimatedMinutes: 8
 order: 14
 topics:
@@ -11,8 +11,80 @@ topics:
   - tenant-wide
   - escalation
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The single-identity compromise playbook (the previous five lessons) is in scope. **Tenant-wide compromise is not.** The ceiling matters because running the single-identity playbook on one user while a tenant-wide compromise is in progress means the attacker keeps moving through other users while you focus on one. Worse, some tenant-wide compromises involve admin credentials or app-level grants where single-user remediations do not address the root cause.
+
+Recognising the pattern early and bumping is what stops the response from becoming a series of single-user playbooks chasing the attacker around the tenant.
+
+## Three signal families
+
+### 1. Multi-user patterns
+
+Same incident type firing on multiple users in the same tenant within minutes or hours. Three users with malicious inbox rules forwarding to similar attacker domains in the same morning. Five users with suspicious sign-ins from the same source ASN. The Timeline of any individual user's incident looks like single-user compromise. The pattern across users is the tenant-wide signal.
+
+### 2. Admin involvement
+
+A compromise on an admin account, or activity on a regular account that includes admin actions (creating users, changing roles, modifying licenses, granting tenant-level OAuth consents). Admin actions during a compromise mean the attacker has at least one foot above the user level.
+
+### 3. Suspicious app registrations or tenant-level consents
+
+An OAuth grant at the tenant level (admin-consented for all users) rather than per-user. A new app registration added in the customer's Entra ID directory. Service-principal changes. These are tenant-wide artefacts. User-level revocations do not touch them.
+
+Any one of the three is a strong signal. Two together is near-certain.
+
+## The recognition reflex
+
+Two questions to run on every ITDR incident before continuing past step 2 of the playbook:
+
+1. **Is the same incident type firing on other users in this tenant right now?** Check the customer's recent ITDR incident list.
+2. **Does the incident or its Evidence involve admin actions, tenant-level grants, or app registrations?**
+
+If either answer is yes, the action shifts from "execute the full playbook on this user" to "contain the immediate user surface and escalate."
+
+## What the helpdesk still does
+
+The recognition is not "freeze." Containment of the user in front of you stays in scope:
+
+- Revoke sessions on the user you have the incident on (step 1). Still applies.
+- Reset password and MFA on that user (step 2). Still applies, with the caveat that a tenant-wide response may include a wider reset the senior coordinates.
+- Document the recognition and the bump.
+
+What stops: continuing through inbox-rule, OAuth, MFA-device cleanup unilaterally (the senior may want those done in a specific order across multiple users), and calling additional users to verify activity (customer-comms coordination is senior territory at this scope).
+
+## A worked scenario
+
+A High-severity ITDR Incident Report lands on `liu.chen@example.com` at 10:14. Malicious inbox rule, suspicious sign-in. You begin the playbook. While running step 1, you glance at the customer's recent-incidents list: two other ITDR incidents opened in the last 25 minutes on different users, both malicious inbox rules with suspicious sign-ins.
+
+<DecisionTree client:load
+  title="Three users, same pattern, 25 minutes"
+  description="Three ITDR incidents on different users in the same tenant within 25 minutes, all malicious-inbox-rule-shaped. The cross-incident pattern is the tenant-wide signal."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Continue Liu's playbook to completion; the other two are separate incidents", next: "solo" },
+      { label: "Complete steps 1 and 2 on Liu, then stop and bump to senior naming the pattern", next: "contain-bump" },
+      { label: "Stop everything and bump immediately, before completing any steps", next: "freeze" },
+    ]},
+    { type: "outcome", id: "contain-bump", label: "Contain and bump", tone: "success",
+      body: "Right answer. Liu's immediate surface is contained. The pattern is named to the senior. The broader response is theirs to coordinate." },
+    { type: "outcome", id: "solo", label: "Chasing the attacker around the tenant", tone: "bad",
+      body: "Three users with similar incidents in 25 minutes is the multi-user signal. Treating them as separate single-user playbooks lets the attacker keep moving." },
+    { type: "outcome", id: "freeze", label: "Liu's session stays active during the bump", tone: "warn",
+      body: "Half-right reflex but misses immediate containment. The attacker keeps acting in Liu's session while you wait for the senior. Contain the immediate user first." },
+  ]}
+/>
+
+## Common misconceptions
+
+**"If the SOC tagged it as a single-user incident, it must be single-user."** The SOC raises an incident per affected entity. Multi-user compromise lands as multiple incidents, often arriving over a window. Recognising the cross-incident pattern is the tech's contribution.
+
+**"Tenant-wide is the senior's problem; I just hand it off."** The user in front of you still needs containment (sessions and credentials). Hand off the rest, not the immediate user.
+
+**"Admin-credential involvement only matters if the admin user is the affected user."** Admin actions performed during a regular user's compromise are the signal that the attacker has elevated, even if the affected-user account is regular.
+
+<Callout type="warn" title="Recognition is the most important judgement skill in this course">
+The SOC and the senior are counting on you to bring recognition to the table. The single-identity playbook is mechanical. Seeing the cross-user or admin-level pattern is what prevents a series of disconnected playbook runs from missing the real scope.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-tenant-wide-compromise" client:visible />

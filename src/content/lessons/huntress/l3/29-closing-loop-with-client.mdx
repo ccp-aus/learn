@@ -2,16 +2,84 @@
 slug: 29-closing-loop-with-client
 vendor: huntress
 level: l3
-title: Closing Loop with Client
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Closing the loop with the client after incident resolution"
+summary: "The closing communication is the customer's last impression of the incident. Four elements every time: what happened, what was done, what the client should do, and what was learned."
+estimatedMinutes: 6
 order: 29
 topics:
   - comms
   - close-out
+  - four-elements
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The closing communication is the customer's last impression of the incident. Done well, it reinforces the trust the response built. Done badly (rote, evasive, or self-congratulatory), it undoes that trust. The four elements are simple to remember. The discipline is including all four every time and getting the tone right.
+
+## The four elements
+
+### 1. What happened
+
+Factual, specific. Timestamps, named events, the attacker-active window. "At 09:14 our SOC flagged an unauthorised sign-in to Bob's account from an unusual location. Within minutes, a mail-forwarding rule was set up. Total attacker-active window: about 11 minutes."
+
+### 2. What was done
+
+Actions taken, in plain language. "We revoked Bob's active sessions, reset his password and MFA, removed the forwarding rule, and reviewed his OAuth grants (no other malicious grants found). Bob is fully back in his account with new credentials."
+
+### 3. What the client should do
+
+This is the element new techs miss. Sometimes there is nothing: "no action required from your side." Sometimes there is a specific thing: "worth reminding Bob to use the password-manager autofill rather than typing credentials into web forms." Sometimes there is a relationship action: "happy to brief your security-awareness lead with more detail if useful."
+
+Naming the next step (even if it is "none") prevents the customer from wondering what they are missing. "We resolved everything" leaves them unsure. "No action required from your side" makes the same point and closes the loop.
+
+### 4. What was learned
+
+A one-line takeaway when there is one. Sometimes the lesson is for the customer (a phishing pattern to watch for, a workflow to harden). Sometimes for your MSP (a runbook to update, a customer-config gap). Sometimes both.
+
+If there is no useful takeaway, skip this element. Manufacturing a "lesson learned" when there is not one comes across as moralising. Skip elements that do not fit.
+
+## The tone
+
+Three properties:
+
+- **Confident without triumphalism.** "We caught this fast and contained it cleanly" is fine. "We saved you from a major attack" is performative.
+- **Specific without overwhelming.** Timestamps and named actions ground the message. Deep technical detail waits for the deep-dive if the customer asks.
+- **Customer-respecting.** Treats the customer as someone who can handle the facts.
+
+## A worked close-out
+
+High-severity EDR incident on `WS-CONTOSO-MARKETING-04`: scheduled task with encoded PowerShell calling a known-bad domain. You ran the standard workflow. The user (Sarah Johnson) confirmed she had not run anything. Remediation applied cleanly. No re-detection. You are writing the close-out to IT manager Tom Reilly.
+
+<StepThrough client:load>
+  <Step title="What happened">
+    "At 11:42 our SOC flagged a scheduled task on WS-CONTOSO-MARKETING-04 running encoded PowerShell. The encoded command was reaching out to a domain we know is malicious. The kind of mechanism attackers use to maintain quiet persistence on a host."
+  </Step>
+  <Step title="What was done">
+    "We approved the SOC's recommended remediation. The scheduled task is gone, no further activity detected. Sarah confirmed during the verification call that she did not run anything matching this, consistent with what we saw."
+  </Step>
+  <Step title="What the client should do">
+    "No action required from your side. Your security-awareness program covers the relevant guidance (avoid clicking links in unexpected emails). Happy to walk through more if useful."
+  </Step>
+  <Step title="What was learned (if applicable)">
+    In this case, the security-awareness tie-in serves as the takeaway. If there were no useful lesson, skip this element entirely rather than manufacturing one.
+  </Step>
+</StepThrough>
+
+The bar for a close-out: it reads cleanly six months later when it surfaces in an audit. If it does, the four elements were specific enough and the tone was right.
+
+## Common mistakes
+
+- **Skipping the "what the client should do" element because there is nothing.** "Nothing" is a valid answer. Saying it explicitly closes the loop.
+- **Manufacturing a "lesson learned" when there is not one.** Comes across as moralising. Skip the element.
+- **Using the close-out as a sales surface.** "This is why our service is essential" framing turns the close-out into marketing. Customers notice and disengage.
+
+<Callout type="tip" title="Trend questions route to the right source">
+When a customer asks "are these kinds of incidents going up across your customer base?", the honest answer is that you do not have portfolio-level data. Route the question to the account manager, who can pull Huntress quarterly trend reports. Speculating from a single-customer seat is the wrong source.
+</Callout>
+
+## When to escalate the close-out
+
+- Critical or customer-relationship-significant incidents. Senior writes or reviews the close-out.
+- The "what was learned" element involves a finding the customer might not want to hear (their own configuration created the gap, their user-training is the underlying issue). Sensitive framing. Senior or account manager handles.
+- The customer relationship is tense (recent service complaint, contract negotiation). Senior owns comms during sensitivity windows.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-closing-loop" client:visible />

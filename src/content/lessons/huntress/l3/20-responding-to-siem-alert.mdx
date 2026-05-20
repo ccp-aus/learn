@@ -2,16 +2,88 @@
 slug: 20-responding-to-siem-alert
 vendor: huntress
 level: l3
-title: Responding to SIEM Alert
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Responding to a SIEM alert: the standard flow"
+summary: "The six-step response flow (claim, review, act, verify, close, document) applies to SIEM with different action surfaces and a wider set of senior triggers."
+estimatedMinutes: 7
 order: 20
 topics:
   - siem
   - response
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The SIEM response flow is the EDR/ITDR response flow with different action surfaces. The six steps from the operations course (claim, review, act, verify, close, document) carry across unchanged. What varies is where the actions land and when to involve a senior.
+
+## The six steps applied to SIEM
+
+### 1. Claim
+
+Take ownership in the portal and the PSA. SIEM tickets often span multiple customer-facing actions across different surfaces. Claiming early prevents two techs from working the same incident with conflicting actions on a firewall and an identity provider simultaneously.
+
+### 2. Review SOC notes
+
+Same skeleton as the previous lesson. The SOC's annotation on the Evidence matters more on SIEM because raw log lines without annotation are hard to interpret across unfamiliar formats.
+
+### 3. Take the recommended action
+
+Where SIEM differs most from EDR. The Recommendation may direct actions on surfaces you don't touch every shift:
+
+- **Network devices**: block an IP at the firewall, disable a port, push a switch config.
+- **SaaS sources**: revoke an Okta role, modify a Salesforce permission set, disable a connector.
+- **Identity providers**: actions through Entra ID or Google Admin when a SIEM correlation calls for it.
+- **EDR**: the SIEM correlation may direct you to check or isolate an endpoint.
+
+The Recommendation references the documented runbook for each surface. Your MSP maintains these per customer or per source type.
+
+### 4. Verify
+
+Confirm the action applied and the end state matches the Recommendation's aim. On SIEM, verification often uses the same log source that triggered the incident. The firewall logs show the block in place. The Okta logs show the role revocation. The log source that raised the alarm is frequently the source that confirms the fix.
+
+### 5. Close
+
+Close in the Huntress portal. Close the matched PSA ticket. Drift discipline from the operations course applies.
+
+### 6. Document
+
+Same four-section note structure. SIEM-specific addition: name the source(s) the incident drew from and any cross-surface actions taken (firewall change, SaaS config, identity action). The next tech who reads the note should see the cross-surface picture without reconstructing it.
+
+## When the Recommendation requires a senior
+
+Three patterns trigger senior involvement:
+
+- **Detection tuning, exclusion, or data-source configuration change.** All above the SIEM ceiling (covered two lessons ahead).
+- **The action surface is one your MSP doesn't normally manage for the customer.** Customer-side relationships and authority are involved.
+- **Blast radius wider than a single host or user.** Pushing a firewall rule that affects a whole site. Revoking a SaaS role that affects multiple users.
+
+When you see one of these, bump rather than execute. The senior either takes the action or directs you with clear scope.
+
+<Callout type="info" title="Mixed Recommendations can be split">
+A Recommendation that reads "block IP at firewall AND tune the detection threshold" contains a tech-doable piece and a senior piece. Run the firewall block (in scope per the runbook). Bump the tuning portion to senior. Document the split clearly so the senior knows exactly what remains.
+</Callout>
+
+## Decision walkthrough
+
+High SIEM incident on Acme Logistics. Source: `acme-firewall-edge`. Recommendation: block destination IP `198.51.100.42` per Acme's documented network-blocking runbook; check for EDR signals on internal host `10.4.2.18` (maps to `WS-ACME-DISPATCH-04`).
+
+<DecisionTree client:load
+  title="Standard SIEM response: what do you do?"
+  description="The Recommendation names two actions on two surfaces. The question is whether you run both, investigate first, or add actions the Recommendation did not ask for."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "How do you respond?", choices: [
+      { label: "Claim, review, run the network-blocking runbook, verify, cross-check EDR, document, close", next: "standard" },
+      { label: "Investigate the destination IP to confirm it is known-bad before blocking", next: "investigate" },
+      { label: "Block the IP and also isolate the host via EDR to be safe", next: "overstep" },
+    ]},
+    { type: "outcome", id: "standard", label: "Standard six-step flow", tone: "success",
+      body: "Right read. Run both actions per the applicable runbooks. Verify the firewall block via the next log line. Document the EDR cross-check result. Close both the Huntress incident and the PSA ticket." },
+    { type: "outcome", id: "investigate", label: "Re-investigating the SOC's classification", tone: "bad",
+      body: "The SOC classified the destination. Re-investigating is the second-guessing failure mode on a new surface." },
+    { type: "outcome", id: "overstep", label: "Acting beyond the Recommendation", tone: "bad",
+      body: "The Recommendation said check for EDR signals, not isolate. Adding an isolation goes beyond what the SOC asked for." },
+  ]}
+/>
+
+You check EDR for `WS-ACME-DISPATCH-04`. No related incidents. The firewall block is in place. The Recommendation said "check for EDR signals" and did not direct further action. Document the EDR check result in the Incident Report note. Close the SIEM incident with both actions complete. The cross-check is documentation, not a trigger to manufacture more incidents.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-responding-to-siem-alert" client:visible />

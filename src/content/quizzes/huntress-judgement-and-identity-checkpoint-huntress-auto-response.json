@@ -1,0 +1,231 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-huntress-auto-response",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: coordinating with Huntress auto-response",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "most-common-action",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "easy",
+      "prompt": "Which action does auto-response take most commonly?",
+      "choices": [
+        "Session revoke.",
+        {
+          "label": "Password reset.",
+          "rationale": "Sometimes, but session revoke is the most common auto-response action."
+        },
+        {
+          "label": "Inbox-rule removal.",
+          "rationale": "Sometimes in certain configurations, but session revoke is the default."
+        },
+        {
+          "label": "OAuth grant revocation.",
+          "rationale": "Not typically auto-response territory."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Session revoke is the most common auto-response action. Some configurations also include password reset and rule removal."
+    },
+    {
+      "id": "three-checks",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "Which three things should you confirm about auto-response when reading the Incident Report?",
+      "choices": [
+        "(1) What auto-response did; (2) when it happened relative to the attacker activity; (3) whether it completed cleanly.",
+        {
+          "label": "(1) Who authorised auto-response; (2) what the cost was; (3) who was on call.",
+          "rationale": "Not the named checks."
+        },
+        {
+          "label": "(1) Whether the customer agreed; (2) whether the SOC re-reviewed; (3) whether the senior signed off.",
+          "rationale": "None of those are the named checks."
+        },
+        {
+          "label": "(1) The user's seniority; (2) the tenant size; (3) the time of day.",
+          "rationale": "None of those are the named checks."
+        }
+      ],
+      "correct": 0,
+      "explanation": "What it did, when relative to attacker activity, and whether it completed cleanly. These three determine how you pick up the playbook."
+    },
+    {
+      "id": "playbook-after-auto",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "Auto-response did session revoke. What is your next move?",
+      "choices": [
+        {
+          "label": "Run the full playbook from step 1, including a re-revoke.",
+          "rationale": "Re-revoking wastes effort and creates duplicate audit entries."
+        },
+        "Skip step 1 (session revoke). Verify it applied cleanly. Proceed to step 2 (password and MFA reset).",
+        {
+          "label": "Wait for the SOC to update the Recommendation.",
+          "rationale": "Wrong delay. The Recommendation usually already accounts for auto-response."
+        },
+        {
+          "label": "Close the incident. Auto-response handled everything.",
+          "rationale": "Auto-response usually did session revoke only. Remaining steps are still pending."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Acknowledge the auto-response action. Verify it applied. Continue from where the platform left off."
+    },
+    {
+      "id": "customer-pushback-scenario",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "hard",
+      "prompt": "You are at the password reset step. Marcus calls angry: \"Why am I locked out? Reverse it.\" What do you do?",
+      "choices": [
+        {
+          "label": "Reverse the auto-response session revoke to restore his access.",
+          "rationale": "Auto-response is the containment. Reversing puts Marcus back in the compromised state."
+        },
+        "Stand your ground: explain the compromise, the platform's auto-action, and the rest of the response. Have the password handoff ready as the next step.",
+        {
+          "label": "Tell Marcus the SOC made the call and you cannot reverse it.",
+          "rationale": "Passes the buck. Own the action and explain the trade-off."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The action stands. Marcus hears the why, the timeline, and a forward-looking path. Owning the action builds trust."
+    },
+    {
+      "id": "redo-cost",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "\"Re-doing actions auto-response already completed\" has what consequence?",
+      "choices": [
+        "Wastes effort, can confuse the audit trail, and in some edge cases creates duplicate-action states the SOC has to untangle.",
+        {
+          "label": "There is no consequence. Re-running is safe.",
+          "rationale": "The lesson names specific costs."
+        },
+        {
+          "label": "It triggers an automatic billing event.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "It causes the auto-response system to disable itself.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three costs: wasted effort, confused audit trail, potential duplicate-action states."
+    },
+    {
+      "id": "skip-verify-auto",
+      "type": "tf",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "Skipping verification is acceptable when auto-response says the action worked.",
+      "correct": false,
+      "explanation": "Same pattern as the EDR verify-step skip. Most of the time auto-response is fine. The times it is not are the ones that bite you later. Trust-but-verify."
+    },
+    {
+      "id": "fight-auto",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "A user calls to complain about the lockout. The tech restores the session without checking the Incident Report. What is the failure?",
+      "choices": [
+        "Fighting auto-response. The auto-action was the containment. Reversing it puts the customer back in the compromise state.",
+        {
+          "label": "Fine. Customer-service reflex.",
+          "rationale": "Customer complaint does not justify reversing a security containment action."
+        },
+        {
+          "label": "The Incident Report does not matter when the customer is on the phone.",
+          "rationale": "Checking the Incident Report is the discipline."
+        },
+        {
+          "label": "Auto-response actions can be undone freely.",
+          "rationale": "They should not be undone without senior involvement."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The auto-response action was the containment. Reversing it without context restores the compromise state."
+    },
+    {
+      "id": "failed-auto",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "Auto-response shows as failed or partial. The Recommendation does not direct manual completion. What do you do?",
+      "choices": [
+        "Bump to senior.",
+        {
+          "label": "Re-trigger auto-response yourself.",
+          "rationale": "The tech does not re-trigger platform auto-response."
+        },
+        {
+          "label": "Wait 24 hours for auto-response to retry.",
+          "rationale": "Wrong delay. Bump is the action."
+        },
+        {
+          "label": "Open a Huntress support ticket.",
+          "rationale": "Senior is the first escalation path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Failed or partial auto-response without manual-completion guidance escalates to senior."
+    },
+    {
+      "id": "conflict-auto-rec",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "hard",
+      "prompt": "Auto-response took an action that the Recommendation now contradicts. What is the right move?",
+      "choices": [
+        "Surface the conflict to the SOC with the specifics. They own the disposition.",
+        {
+          "label": "Reverse auto-response's action to match the Recommendation.",
+          "rationale": "Reversing containment is the failure pattern. Surface to SOC instead."
+        },
+        {
+          "label": "Ignore the Recommendation; auto-response is more authoritative.",
+          "rationale": "The Recommendation is current guidance. The conflict needs surfacing."
+        },
+        {
+          "label": "Apply both actions and let the platform sort it out.",
+          "rationale": "Does not resolve the conflict."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Conflict between auto-action and current Recommendation is rare. Surface the specifics to the SOC and let them disposition."
+    },
+    {
+      "id": "auto-timing",
+      "type": "mcq",
+      "topic": "auto-response",
+      "difficulty": "medium",
+      "prompt": "Auto-response fired 6 minutes after the suspicious sign-in (instead of seconds). Why does the timing matter?",
+      "choices": [
+        "Six minutes means the attacker had time to act before containment: create rules, grant OAuth, tamper with MFA. The remaining manual steps may address more artefacts than in a fast-response scenario.",
+        {
+          "label": "It does not matter. Six seconds or six minutes, the response is the same.",
+          "rationale": "The attacker's window of activity before containment determines what artefacts the playbook addresses."
+        },
+        {
+          "label": "Six minutes means auto-response failed.",
+          "rationale": "It completed, just slowly. Slow is not failed."
+        },
+        {
+          "label": "Six minutes means the SOC was delayed.",
+          "rationale": "Auto-response timing is platform-driven, not SOC-driven."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The gap between attacker activity start and auto-response determines how much the attacker accomplished before containment. More time means more artefacts to clean up."
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-common-helpdesk-traps",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: common helpdesk traps",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "trap-1-batch-close",
+      "type": "mcq",
+      "topic": "trap-1",
+      "difficulty": "medium",
+      "prompt": "A new customer was onboarded three days ago. The detection queue is full of PUP autoruns and noisy signals. A peer suggests batch-closing them all as benign. What is wrong with this approach?",
+      "choices": [
+        "Trap 1. The wave of look-alike detections always includes the one that was not. Batch-closure dismisses the real Low or Critical with the noise. The right path for suppression is the exclusion-request flow.",
+        {
+          "label": "Nothing. New customers always generate noise, so batch-closure is the expected workflow.",
+          "rationale": "Inverts the rule. New-customer noise is the highest-risk window for Trap 1."
+        },
+        {
+          "label": "The peer should file a SIEM tuning request instead.",
+          "rationale": "Wrong surface. SIEM tuning is category 3 mandatory escalation, and EDR suppression goes through the exclusion-request flow."
+        },
+        {
+          "label": "Reach out to the customer and ask which detections they are comfortable closing.",
+          "rationale": "Wrong process. The customer does not authorise dismissals."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The first-week noise window is exactly where Trap 1 lives. Suppression through dismissive closures is the trap; suppression through the exclusion-request flow is the right path."
+    },
+    {
+      "id": "trap-2-compounding",
+      "type": "mcq",
+      "topic": "trap-2",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson describe second-guessing the SOC as a \"trap\" rather than a one-off mistake?",
+      "choices": [
+        "The pattern compounds. The next disposition gets overridden too, and the relationship with the SOC degrades over time. Customer-specific context belongs as a clarifying reply, not a unilateral override.",
+        {
+          "label": "The SOC tracks per-tech override counts and reports them to your MSP.",
+          "rationale": "Not the lesson's framing. The compounding is internal to the tech's habits and the senior's review."
+        },
+        {
+          "label": "Huntress charges per override action.",
+          "rationale": "Wrong on the commercial model."
+        },
+        {
+          "label": "Every override invalidates the original Incident Report.",
+          "rationale": "Wrong on the data model."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The trap is the compounding pattern, not any single override. Customer-specific context goes through the clarifying-reply channel."
+    },
+    {
+      "id": "trap-3-unreachable-user",
+      "type": "mcq",
+      "topic": "trap-3",
+      "difficulty": "hard",
+      "prompt": "You have just isolated a user's laptop on a High EDR incident. The user is unreachable: no answer on phone, no Teams response. You are tempted to move on to the next ticket. What is the right move?",
+      "choices": [
+        "Try the documented backup contact (the customer's IT manager or executive assistant) within the same comms window. Leaving the user dark without a backup-channel attempt is Trap 3.",
+        {
+          "label": "Move on. The user will work it out when their machine does not connect.",
+          "rationale": "Trap 3 in real time. The user's experience of 'my machine just died, no one explained' lingers longer than the incident."
+        },
+        {
+          "label": "Un-isolate the host until you can reach the user.",
+          "rationale": "Worst response. Reversing a correct containment action because comms is hard is the wrong trade-off."
+        },
+        {
+          "label": "Wait an hour, then try the user again.",
+          "rationale": "Too slow. The comms window is minutes, not an hour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The isolation is correct. The comms responsibility is also non-negotiable. Backup contacts live within the same minutes-of-isolation window."
+    },
+    {
+      "id": "trap-4-end-of-shift",
+      "type": "mcq",
+      "topic": "trap-4",
+      "difficulty": "medium",
+      "prompt": "17:00. Three Lows closed in Huntress today, but two have PSA tickets still open. What do you do?",
+      "choices": [
+        {
+          "label": "Close all PSAs quickly with generic time entry and category.",
+          "rationale": "Trap 4 in real time. Generic time and category creates reporting drift."
+        },
+        "Spend the necessary minutes closing each PSA properly: time entry per actual time, specific category, notes.",
+        {
+          "label": "Leave them for tomorrow morning.",
+          "rationale": "Drift grows overnight. Tomorrow starts behind."
+        },
+        {
+          "label": "Delete the PSA tickets since the Huntress side is closed.",
+          "rationale": "The PSA ticket is the canonical record. Deleting it loses the time entry, category, and audit trail entirely."
+        }
+      ],
+      "correct": 1,
+      "explanation": "End-of-shift discipline catches Trap 4 reliably. Both systems, every time, even when end-of-shift makes it tempting to skip."
+    },
+    {
+      "id": "common-shape",
+      "type": "mcq",
+      "topic": "common-shape",
+      "difficulty": "medium",
+      "prompt": "The lesson says all four traps share a common shape. What is it?",
+      "choices": [
+        "Each is a small-friction shortcut that saves seconds for the tech and costs hours or relationships downstream.",
+        {
+          "label": "Each involves overriding the SOC's recommendation.",
+          "rationale": "Only Trap 2 directly involves overriding. Traps 1, 3, and 4 are workflow shortcuts."
+        },
+        {
+          "label": "Each violates a Huntress licensing term.",
+          "rationale": "Licensing is not what the traps share."
+        },
+        {
+          "label": "Each requires senior approval that the tech bypasses.",
+          "rationale": "Most of the traps are tech-level failures the senior catches in review, not bypassed approvals."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Recognising the shortcut-shape makes all four visible as variants of the same underlying pattern."
+    },
+    {
+      "id": "rec-vs-workflow-split",
+      "type": "mcq",
+      "topic": "trap-pairing",
+      "difficulty": "easy",
+      "prompt": "The four traps split into two pairs. Which is the right split?",
+      "choices": [
+        "Recommendation-side: Trap 1 (suppressing alerts) and Trap 2 (second-guessing SOC). Workflow-side: Trap 3 (isolating without comms) and Trap 4 (closing Huntress but not PSA).",
+        {
+          "label": "Recommendation-side: Traps 3 and 4. Workflow-side: Traps 1 and 2.",
+          "rationale": "Inverts the mapping."
+        },
+        {
+          "label": "Recommendation-side: Trap 1 only. Workflow-side: Traps 2, 3, and 4.",
+          "rationale": "Wrong split. Trap 2 is the most clearly recommendation-side trap."
+        },
+        {
+          "label": "All four are workflow-side.",
+          "rationale": "Wrong. The lesson explicitly names the two-pair split."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Traps 1 and 2 are about skipping reads and overriding analysis. Traps 3 and 4 are about skipping comms and admin."
+    },
+    {
+      "id": "trap-detection-signals",
+      "type": "mcq",
+      "topic": "detection",
+      "difficulty": "medium",
+      "prompt": "Match the traps to their characteristic detection surfaces.",
+      "choices": [
+        "Trap 1 surfaces in the senior's closed-incident review. Trap 3 surfaces in next-morning customer friction. Trap 4 surfaces in the end-of-shift self-check.",
+        {
+          "label": "All four traps surface only in the LMS final assessment.",
+          "rationale": "The traps surface in live work signals; the assessment is calibration, not detection."
+        },
+        {
+          "label": "Huntress automatically flags all four traps to the senior.",
+          "rationale": "Huntress does not auto-flag tech-side traps."
+        },
+        {
+          "label": "Trap 4 surfaces in customer escalations; Trap 3 surfaces in PSA reporting.",
+          "rationale": "Inverts the mapping. Trap 4 is PSA drift; Trap 3 is customer friction."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Each trap has its own characteristic detection surface. The end-of-shift self-check catches Trap 4 reliably."
+    },
+    {
+      "id": "not-advanced-mistakes",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "easy",
+      "prompt": "The four traps are advanced mistakes that only senior techs make, not new-tech mistakes.",
+      "correct": false,
+      "explanation": "The opposite. These are the most common new-tech failures specifically because the shortcuts feel reasonable in the moment to someone new."
+    },
+    {
+      "id": "trap-3-recovery",
+      "type": "mcq",
+      "topic": "trap-3-recovery",
+      "difficulty": "hard",
+      "prompt": "You realise you did not call the user post-isolation yesterday. The customer's IT manager called this morning frustrated about a \"surprise lockout.\" What is the right next move?",
+      "choices": [
+        {
+          "label": "Move on. The incident is closed.",
+          "rationale": "The customer-relationship piece is part of close-out discipline. Ignoring it lets Trap 3 stand uncorrected."
+        },
+        "Add a note to the PSA ticket reflecting what happened, flag the situation to your senior tomorrow. The customer-relationship recovery is the next step after the senior weighs in.",
+        {
+          "label": "Apologise to the IT manager by email right now.",
+          "rationale": "Premature. Customer-relationship recovery has tone and possibly account-manager involvement. The senior should weigh in first."
+        },
+        {
+          "label": "Delete the offending PSA note about the lockout so the audit trail looks cleaner.",
+          "rationale": "Worst response. Tampering with the audit trail compounds Trap 3 with a separate integrity issue."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Name the trap, document what happened, get the senior in the loop. Do not reach out to the customer before the senior weighs in on tone."
+    },
+    {
+      "id": "avoiding-traps-speed",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "easy",
+      "prompt": "Avoiding the four traps means working significantly slower on every ticket.",
+      "correct": false,
+      "explanation": "Avoiding the traps takes seconds, not minutes. The shortcut savings are illusory. The downstream cost of each trap is hours or relationships."
+    }
+  ]
+}

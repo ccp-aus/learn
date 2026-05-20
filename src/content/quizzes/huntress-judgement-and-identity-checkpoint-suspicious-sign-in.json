@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-suspicious-sign-in",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: suspicious sign-in",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "family-not-pattern",
+      "type": "mcq",
+      "topic": "signal-family",
+      "difficulty": "easy",
+      "prompt": "\"Suspicious sign-in\" is best described as:",
+      "choices": [
+        "A family of signals (unusual client, unusual location, token theft, MFA-fatigue, credential-stuffing) rather than a single pattern.",
+        {
+          "label": "A lower-severity version of impossible travel.",
+          "rationale": "Different category, different signals, different patterns."
+        },
+        {
+          "label": "An EDR signal, not an ITDR one.",
+          "rationale": "Suspicious sign-in is identity-side."
+        },
+        {
+          "label": "A signal that only fires on admin accounts.",
+          "rationale": "Fires on any account."
+        }
+      ],
+      "correct": 0,
+      "explanation": "A family, not a single pattern. The Recommendation tells you the specific shape of this one."
+    },
+    {
+      "id": "specific-category-wins",
+      "type": "mcq",
+      "topic": "category-routing",
+      "difficulty": "medium",
+      "prompt": "Suspicious sign-in often co-occurs with another category. How does the SOC route it?",
+      "choices": [
+        {
+          "label": "Suspicious sign-in is always the primary category when both apply.",
+          "rationale": "Inverted. The more specific category wins."
+        },
+        "The SOC routes to the most specific category that fits. When the primary is 'suspicious sign-in,' the sign-in itself is the signal.",
+        {
+          "label": "The SOC raises two incidents, one for each category.",
+          "rationale": "Wrong on the platform behaviour."
+        },
+        {
+          "label": "The tech routes the incident manually after triage.",
+          "rationale": "The SOC does the categorisation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The more specific category (inbox rule, OAuth, MFA tampering) takes primary when it applies."
+    },
+    {
+      "id": "no-follow-on-misconception",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"If no follow-on activity, no compromise.\" Why is this wrong?",
+      "choices": [
+        {
+          "label": "Follow-on activity is the only signal the SOC uses.",
+          "rationale": "Sign-in signals alone can drive disposition."
+        },
+        {
+          "label": "All sign-ins always have follow-on activity.",
+          "rationale": "Some sign-ins genuinely have no follow-on yet."
+        },
+        "Attackers establish access and wait. The SOC's classification weighs the sign-in's own signals. A high-confidence-suspicious sign-in with no follow-on is still a compromise to address.",
+        {
+          "label": "Lack of follow-on confirms the compromise rather than ruling it out.",
+          "rationale": "Overstates in the opposite direction."
+        }
+      ],
+      "correct": 2,
+      "explanation": "No-follow-on is not the disposition. The SOC's classification has already considered it."
+    },
+    {
+      "id": "mfa-fatigue-accepted-not-intent",
+      "type": "mcq",
+      "topic": "mfa-fatigue",
+      "difficulty": "medium",
+      "prompt": "\"User accepting the MFA prompt means it was them.\" Why is this wrong on MFA-fatigue attacks?",
+      "choices": [
+        {
+          "label": "MFA-fatigue is rare enough that acceptance counts as confirmation.",
+          "rationale": "Wrong on prevalence and policy."
+        },
+        {
+          "label": "Users never accept MFA prompts.",
+          "rationale": "Wrong on the facts."
+        },
+        {
+          "label": "MFA prompts cannot be accepted by accident.",
+          "rationale": "The whole point of fatigue attacks is accidental acceptance."
+        },
+        "Under MFA fatigue, the user accepts to make spammed prompts stop, not because they intended to sign in. The Timeline's prompt timing reveals the pattern."
+      ],
+      "correct": 3,
+      "explanation": "Accepted-under-duress is not user intent. Seven push prompts in two minutes at 3am is the fatigue pattern."
+    },
+    {
+      "id": "tomas-mfa-fatigue-action",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "High-severity: seven MFA prompts between 03:11-03:13, seventh accepted. Residential-proxy IP, unfamiliar country. No follow-on. Recommendation: revoke sessions, reset password and MFA, contact user. What is the right interpretation?",
+      "choices": [
+        {
+          "label": "Tomas approved the MFA, so the sign-in was probably him. Close as benign.",
+          "rationale": "MFA-fatigue is a known attack pattern. The Recommendation classified this as compromise."
+        },
+        "Execute the playbook (revoke sessions, reset password and MFA), then call Tomas to explain the fatigue pattern and confirm he was not intending to sign in at 03:13.",
+        {
+          "label": "Call Tomas first to ask whether he was signing in at 03:13.",
+          "rationale": "Same blast-radius reasoning. Even with no follow-on, the SOC's classification is compromise."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Execute first. The user education during the post-action call prevents the same mistake next time."
+    },
+    {
+      "id": "post-action-education-framing",
+      "type": "mcq",
+      "topic": "customer-comms",
+      "difficulty": "medium",
+      "prompt": "Tomas confirms: 'I was getting prompts at 3am, I just tapped approve to make them stop.' What is the right framing?",
+      "choices": [
+        {
+          "label": "Apologise for waking him.",
+          "rationale": "The MSP does not apologise for response calls on actual compromise."
+        },
+        {
+          "label": "Tell him tersely: 'Do not approve random MFA prompts.'",
+          "rationale": "Too terse. Tomas needs the why and the protective framing to build the habit."
+        },
+        "Explain that the prompts were an attacker, that tapping approve let them sign in, that containment is complete, and that he should deny unsolicited prompts and call the helpdesk instead."
+      ],
+      "correct": 2,
+      "explanation": "Educate on the pattern (prevents repeat), name what you did, give clear next steps."
+    },
+    {
+      "id": "not-lower-severity-impossible-travel",
+      "type": "mcq",
+      "topic": "misconceptions",
+      "difficulty": "medium",
+      "prompt": "\"Suspicious sign-in is just a lower-severity version of impossible travel.\" What is the cleanest correction?",
+      "choices": [
+        {
+          "label": "Suspicious sign-in is always Critical, impossible-travel is always High.",
+          "rationale": "Wrong on severity bands."
+        },
+        {
+          "label": "Correct; it is a lower-severity version.",
+          "rationale": "They are different categories."
+        },
+        "Different signals, different category. Impossible-travel is about geographic impossibility. Suspicious-sign-in is the broader family of 'something is off about this sign-in.'",
+        {
+          "label": "Impossible-travel is an EDR signal, suspicious sign-in is ITDR.",
+          "rationale": "Both are ITDR."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Categories are distinct, not severity tiers of the same thing."
+    },
+    {
+      "id": "user-verification-more-common",
+      "type": "mcq",
+      "topic": "verification",
+      "difficulty": "medium",
+      "prompt": "Why is user verification more common on suspicious sign-in than on the other ITDR incident types?",
+      "choices": [
+        {
+          "label": "Verification is not more common; the lesson is wrong.",
+          "rationale": "The lesson names this explicitly."
+        },
+        {
+          "label": "Verification is required by Huntress policy on this category specifically.",
+          "rationale": "Not a documented platform requirement."
+        },
+        {
+          "label": "The user always knows more than the SOC on this category.",
+          "rationale": "Overstates. The SOC has cross-customer pattern visibility."
+        },
+        "The SOC sometimes needs the user's input to confirm whether the activity was theirs. Suspicious-sign-in classifications include cases that are benign-but-flagged-for-visibility."
+      ],
+      "correct": 3,
+      "explanation": "The category covers ambiguous-by-design cases where user input helps the SOC's classification."
+    },
+    {
+      "id": "verify-then-playbook-meaning",
+      "type": "mcq",
+      "topic": "recommendation-shapes",
+      "difficulty": "hard",
+      "prompt": "The Recommendation says 'verify with user, then proceed with the playbook if not confirmed.' What does that mean in practice?",
+      "choices": [
+        {
+          "label": "Skip the playbook unless the user actively asks for it.",
+          "rationale": "Default is to proceed if not confirmed."
+        },
+        "The SOC has classified the activity as likely-suspicious but wants a user check before the destructive playbook runs. If the user denies or is unreachable on active-exfiltration patterns, proceed.",
+        {
+          "label": "Wait indefinitely until the user is reachable.",
+          "rationale": "Lesson 8 handles the unreachable case. Cost-of-waiting still applies."
+        },
+        {
+          "label": "Run the playbook in parallel with the verification call.",
+          "rationale": "The Recommendation explicitly puts verification first."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Verification is the gating step the SOC has chosen. If the user denies or is unreachable, the playbook proceeds."
+    },
+    {
+      "id": "credential-stuffing-shape",
+      "type": "mcq",
+      "topic": "signal-shapes",
+      "difficulty": "easy",
+      "prompt": "What does a credential-stuffing pattern look like in the sign-in events?",
+      "choices": [
+        {
+          "label": "A single successful sign-in from the user's normal location.",
+          "rationale": "No anomaly. Would not fire suspicious-sign-in."
+        },
+        {
+          "label": "A sign-in from two countries in five minutes.",
+          "rationale": "That is the impossible-travel shape, not credential-stuffing."
+        },
+        "Multiple failed sign-ins from one source followed by a success, suggesting password-spray or credential-list attacks.",
+        {
+          "label": "A sign-in with no MFA challenge.",
+          "rationale": "Missing MFA challenge alone is not the credential-stuffing pattern."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Failed-then-success from a single source is the credential-stuffing pattern."
+    }
+  ]
+}

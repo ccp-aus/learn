@@ -2,16 +2,81 @@
 slug: 06-incident-type-oauth-grant-abuse
 vendor: huntress
 level: l3
-title: Incident Type OAUTH Grant Abuse
-summary: Skeleton — lesson body to be written.
+title: "Incident type: OAuth grant abuse"
+summary: OAuth grants survive password resets and session revocations. An un-revoked grant lets an attacker keep reading mail and sending as the user days after you thought the compromise was fixed.
 estimatedMinutes: 8
 order: 6
 topics:
   - itdr
   - oauth
+  - persistence
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+OAuth grants are the way third-party apps get persistent access to a user's account without storing the password. Every "sign in with Microsoft" or "sign in with Google" button creates one. **OAuth grants survive password resets and session revocations.** Even if you reset the password, an attacker holding an OAuth token can keep reading the mailbox, sending mail, and downloading files until the grant itself is revoked.
+
+## How attackers abuse OAuth
+
+Two main shapes:
+
+**Trick the user into granting.** Phishing pages or fake consent prompts ask the user to authorise an attacker-controlled app. The app has names that look legitimate: `Mail Sync`, `Office Helper`, `Document Viewer`, `MicrosoftUpdate`. Once granted, the attacker's app has whatever scopes it asked for.
+
+**Grant from inside a compromised account.** Once inside via a stolen password or session, the attacker grants a malicious app from within the user's account. The app then has persistent access independent of the password. This is the pattern this lesson focuses on, and the most common one the SOC catches in ITDR incidents.
+
+## What the SOC flags
+
+OAuth-grant-abuse incidents typically show:
+
+- A new grant authorised during or shortly after a suspicious sign-in.
+- A generic or impersonating display name (`MailSync-Free`, `Office365Helper`).
+- Broad scopes (`Mail.Read`, `Mail.Send`, `Files.ReadWrite`).
+- An unverified or unknown publisher.
+
+The Recommendation includes "review and revoke OAuth grants" as one of the playbook steps. Lesson 12 in this course covers the step in detail.
+
+## Why revoking the grant matters
+
+A compromise playbook that resets the password and revokes sessions but does not revoke the malicious OAuth grant leaves the attacker with persistent access. Days later the customer asks why mail is still being forwarded externally even though the compromise was "fixed." The answer is the un-revoked grant.
+
+The playbook step is short: list the user's OAuth grants, identify the ones added during the compromise window, revoke them. The compromise window runs from the suspicious sign-in (or initial compromise event) to the completion of session revoke. Grants inside that window are suspect. Grants from two weeks ago by a verified publisher are not.
+
+## Legitimate grants vs. compromise grants
+
+Most OAuth grants in any tenant are legitimate. The markers of each:
+
+| | Legitimate | Compromise |
+|---|---|---|
+| Publisher | Verified, recognisable | Unverified, unknown |
+| Display name | Matches a real product | Generic, impersonating |
+| Scope | Appropriate to what the app does | Broad (`Mail.ReadWrite`, `Files.ReadWrite.All`) |
+| Timing | No co-occurring compromise events | During or after suspicious sign-in |
+| User awareness | User can articulate why they granted | User did not consent, or was compromised at the time |
+
+## A worked scenario
+
+High-severity ITDR on `priya.nair@example.com`. Timeline: 14:08 suspicious sign-in; 14:10 OAuth grant to `MailSync-Free` (publisher unverified, scopes include `Mail.ReadWrite`); 14:12 inbox rule created. Recommendation: revoke sessions, reset password and MFA, remove inbox rule, revoke OAuth grant to `MailSync-Free`.
+
+<DecisionTree client:load
+  title="A second grant surfaces during the revoke step"
+  description="While reviewing Priya's OAuth grants, you notice a second grant from two weeks ago to an app called ProjectMate from a verified publisher. Scope: Calendars.Read, Files.Read. The Recommendation did not mention it."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "You have revoked MailSync-Free per the Recommendation. What do you do about ProjectMate?", choices: [
+      { label: "Revoke ProjectMate as well to be thorough", next: "revoke-all" },
+      { label: "Leave ProjectMate alone; revoke only MailSync-Free per the Recommendation", next: "targeted" },
+      { label: "Send Priya a message asking if she uses ProjectMate", next: "ask-user" },
+    ]},
+    { type: "outcome", id: "targeted", label: "Targeted revoke per the Recommendation", tone: "success",
+      body: "The grant outside the compromise window from a verified publisher is the kind of legitimate grant the playbook does not target. If you are uncertain, reply to the SOC. Otherwise, targeted-revoke discipline applies." },
+    { type: "outcome", id: "revoke-all", label: "Acting on context outside the Recommendation", tone: "bad",
+      body: "Same family as acting on context: the SOC did not include it for a reason. The ProjectMate grant is two weeks old with a verified publisher. Likely a legitimate integration Priya uses." },
+    { type: "outcome", id: "ask-user", label: "Wrong reflex during active incident", tone: "warn",
+      body: "Customer comms during the playbook follow the senior or runbook brief. Ad-hoc user contact about a non-compromise-related grant is not the right step during response. If the SOC wanted that question asked, the Recommendation would include it." },
+  ]}
+/>
+
+<Callout type="warn" title="Grants survive password reset">
+A password reset does not invalidate OAuth tokens by default. Session revocations affect interactive sessions but do not necessarily revoke long-lived app tokens. The grant revocation step is why the playbook has a dedicated step for it.
+</Callout>
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-oauth-grant-abuse" client:visible />

@@ -1,0 +1,241 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-final-scenario-assessment",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: the final assessment",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "assessment-shape",
+      "type": "mcq",
+      "topic": "shape",
+      "difficulty": "easy",
+      "prompt": "Which best describes the final assessment's shape?",
+      "choices": [
+        "Fifteen scored scenarios spanning Courses 2 through 8, each multi-decision, designed to test calibration through realistic ticket choices.",
+        {
+          "label": "A timed multiple-choice test on portal menu paths.",
+          "rationale": "The lesson explicitly states menu paths are not tested (they change)."
+        },
+        {
+          "label": "A spoken interview with a senior tech.",
+          "rationale": "Wrong format. The senior conversation is the next stage after passing."
+        },
+        {
+          "label": "A practical exercise on a live Huntress instance.",
+          "rationale": "The assessment is scenario-based in the LMS, not live-platform work."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Fifteen scenarios, multi-decision branching, calibration over memorisation."
+    },
+    {
+      "id": "weighted-categories",
+      "type": "mcq",
+      "topic": "weighting",
+      "difficulty": "medium",
+      "prompt": "Which two scenario categories are weighted for review even when the overall score is above 80%?",
+      "choices": [
+        "Critical scenarios (Course 5) and ITDR scenarios (Course 6).",
+        {
+          "label": "EDR (Course 4) and SIEM (Course 7).",
+          "rationale": "EDR is bread-and-butter scope. SIEM may be skipped entirely if the MSP does not run it."
+        },
+        {
+          "label": "Onboarding (Course 2) and communication (Course 8).",
+          "rationale": "Both are tested but neither is the flagged category."
+        },
+        {
+          "label": "Only the judgement scenarios (Course 9).",
+          "rationale": "Course 9 scenarios appear but are not the named weighted categories."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Critical and ITDR are the highest-blast-radius categories. Getting them wrong suggests the calibration is not yet right for live work in those areas."
+    },
+    {
+      "id": "out-of-scope",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT directly tested by the assessment?",
+      "choices": [
+        {
+          "label": "Memorisation of portal menu paths.",
+          "rationale": "Explicitly out of scope (they change)."
+        },
+        {
+          "label": "Knowledge of specific runbooks.",
+          "rationale": "Explicitly out of scope (these are your MSP's)."
+        },
+        {
+          "label": "Familiarity with specific customers.",
+          "rationale": "Explicitly out of scope (you do not have any yet)."
+        },
+        "All three are out of scope. The assessment tests calibration of judgement instead."
+      ],
+      "correct": 3,
+      "explanation": "The assessment tests calibration via scenarios, not memorisation, runbook recall, or customer knowledge."
+    },
+    {
+      "id": "sign-off-order",
+      "type": "order",
+      "topic": "sign-off",
+      "difficulty": "medium",
+      "prompt": "Order the steps of the standard MSP sign-off process from passing the assessment to unsupervised live work.",
+      "items": [
+        "Pass the assessment.",
+        "Senior reviews your readiness.",
+        "Shadow live tickets.",
+        "Work live tickets under direct senior review.",
+        "Cleared for unsupervised work at the boundary the course describes."
+      ],
+      "explanation": "Pass, review, shadow, supervised, unsupervised. The assessment-pass triggers step 2; the senior's sign-off gates each subsequent step."
+    },
+    {
+      "id": "customer-vs-soc-scenario",
+      "type": "mcq",
+      "topic": "category-6",
+      "difficulty": "hard",
+      "prompt": "Assessment scenario: a customer's IT manager pushes for a host release the SOC has not approved. Options include release per customer request, escalate to senior, approve a modified remediation, and close as a customer-managed event. Which calibration test should you load?",
+      "choices": [
+        "The two-question test: is this reversible? Do I understand why this is the right action? If either is no, the right option is usually escalate. This is also a clean category-6 trip.",
+        {
+          "label": "The 'speed is the goal' test. Pick the fastest option.",
+          "rationale": "Inverted lesson. Speed-is-the-goal is a misconception, not a test."
+        },
+        {
+          "label": "Whatever the customer wants. The assessment is about customer service.",
+          "rationale": "Customer preference does not override the escalation categories."
+        },
+        {
+          "label": "The severity band. If it is High, contain; if Low, close.",
+          "rationale": "Severity drives tempo, not the customer-versus-SOC calibration."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The two-question test loads throughout the assessment. Customer-versus-SOC tension is category 6: the senior owns it."
+    },
+    {
+      "id": "memorisation-misconception",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"If I memorise every lesson, I'll pass.\" What is the right correction?",
+      "choices": [
+        "Memorisation helps; calibration matters more. The scenarios test how the lessons apply to new situations, not whether you remember the lesson text.",
+        {
+          "label": "Memorisation is sufficient; the assessment is mostly recall.",
+          "rationale": "Inverts the lesson's framing."
+        },
+        {
+          "label": "Memorisation is irrelevant; only practice on live tickets matters.",
+          "rationale": "Over-corrects. Memorisation helps; it just is not enough."
+        },
+        {
+          "label": "Memorise the runbooks specifically; the lessons are not tested.",
+          "rationale": "Runbooks are out of scope; lessons are exactly what is tested."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Passing depends on the reflex landing under scenario pressure, not on recall under quiz pressure."
+    },
+    {
+      "id": "passing-scope",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"Passing means I'm ready for everything Huntress can throw at me.\" What is wrong with this?",
+      "choices": [
+        "Passing means the LMS recommends you are ready for the boundary the course describes. Your MSP's sign-off and ongoing experience extend the boundary over time; passing does not grant scope beyond the course.",
+        {
+          "label": "Passing is meaningless. Only the senior's sign-off matters.",
+          "rationale": "Over-corrects. The pass is meaningful; it is not the only gate."
+        },
+        {
+          "label": "Passing means you can take any action on any incident.",
+          "rationale": "The mandatory-escalation categories still apply."
+        },
+        {
+          "label": "Passing means you can override SOC recommendations going forward.",
+          "rationale": "The cardinal mistake still applies regardless of assessment score."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The course teaches a bounded scope. Passing recommends readiness within that scope, not beyond it."
+    },
+    {
+      "id": "prep-lessons",
+      "type": "mcq",
+      "topic": "preparation",
+      "difficulty": "medium",
+      "prompt": "Which set of lessons does 9.5 specifically recommend re-reading before the assessment?",
+      "choices": [
+        "1.2 (managed-SOC keystone), 1.8 (recommendation vs context), 4.5 (when to isolate), 5.1 (Critical markers), 6.1 (identity blast-radius), 9.1 (mandatory escalation), 9.4 (common traps).",
+        {
+          "label": "Every lesson in Courses 0 through 9, in order.",
+          "rationale": "Wrong scope. The lesson specifies pattern lessons, not the whole course."
+        },
+        {
+          "label": "Only the Course 9 lessons (9.1 through 9.5).",
+          "rationale": "Too narrow. The pattern lessons span Courses 1, 4, 5, 6, and 9."
+        },
+        {
+          "label": "The SIEM lessons (Course 7) because they are the most technical.",
+          "rationale": "SIEM may be skipped entirely if your MSP does not run it."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Pattern lessons whose judgement shows up most across scenarios. These are the load-bearing lessons."
+    },
+    {
+      "id": "in-doubt-instinct",
+      "type": "mcq",
+      "topic": "recap",
+      "difficulty": "hard",
+      "prompt": "The lesson closes with: \"The most reliable instinct, when in doubt, is the one this course has been installing.\" What is that instinct?",
+      "choices": [
+        {
+          "label": "Whichever option mentions Huntress support is probably correct.",
+          "rationale": "Misuses support and inverts the course's discipline."
+        },
+        "Trust the SOC's Recommendation, act on the action zone, surface context to the right body, escalate at the categories, and do not click-and-see.",
+        {
+          "label": "The longest option is usually the right one.",
+          "rationale": "Length is not a correctness signal."
+        },
+        {
+          "label": "Always pick 'escalate' regardless of context.",
+          "rationale": "Over-escalates. Routine work proceeds; the categories are the trip points."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The course's reflexes compressed into the in-doubt heuristic. When in doubt, trust the SOC, act on the action zone, surface context, and do not click-and-see."
+    },
+    {
+      "id": "unfamiliar-detection-scenario",
+      "type": "mcq",
+      "topic": "cardinal-mistake",
+      "difficulty": "hard",
+      "prompt": "Assessment scenario: unfamiliar detection with a clean Recommendation, but the Evidence surfaces additional signals the Recommendation does not mention. What is the right move?",
+      "choices": [
+        {
+          "label": "Approve the remediation and also act on the extra signals.",
+          "rationale": "Extending the action set on context the Recommendation does not cover is the cardinal mistake."
+        },
+        "Approve the remediation per the Recommendation. Raise the extra signals as a clarifying reply to the SOC.",
+        {
+          "label": "Close as benign because the extra signals look suspicious but the Recommendation only mentions autoruns.",
+          "rationale": "Closing without acting overrides the SOC's Recommendation. The extra Evidence is a reason to clarify, not close."
+        },
+        {
+          "label": "Escalate the entire incident to the senior and do not act on any of it.",
+          "rationale": "Over-escalates. The Recommendation's action zone is in scope; the extra signals are the clarifying reply."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Execute the Recommendation's action zone. Surface additional Evidence as a factual clarifying reply. The analyst weighs the extra signals."
+    }
+  ]
+}

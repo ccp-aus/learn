@@ -2,16 +2,88 @@
 slug: 32-clicking-approve-and-see
 vendor: huntress
 level: l3
-title: Clicking Approve and See
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Why clicking approve and see gets people fired"
+summary: "The click-and-see reflex is the failure mode that ends helpdesk careers fastest. This lesson names it, explains why the consequences compound, and installs the ten-second pause as the alternative."
+estimatedMinutes: 7
 order: 32
 topics:
   - judgement
   - reversibility
+  - click-and-see
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Every failure mode in this course traces to a moment where the tech acts before understanding. The click-and-see reflex is the purest form of that moment: taking an action you do not fully understand, on the assumption that you will find out as it executes.
+
+## What click-and-see looks like on the platform
+
+The pattern has a consistent shape. Action without understanding, justified by "we'll see."
+
+- Approving a remediation without reading what it removes, "to see if it fixes the detection."
+- Isolating a host when the Recommendation did not call for isolation, "to see if the customer's situation improves."
+- Revoking sessions without confirming the playbook applies, "to see if anything breaks."
+- Removing an inbox rule without checking whether it is the malicious one specifically, because "the customer can recreate it later if it was legitimate."
+- Clicking through a confirmation dialog without reading what it confirms, "to keep the workflow moving."
+
+## Why the consequences compound
+
+Three reasons.
+
+**The platform's actions affect real customers.** An approve-and-see on a remediation that deletes a legitimate scheduled task knocks out a customer's overnight job. An approve-and-see on an OAuth revocation cuts a user out of their email at 3pm. The customer feels it.
+
+**The action is recorded.** The portal logs who clicked what when. Post-incident audit of a customer-relationship complaint includes the click history. "I wanted to see what would happen" does not survive a post-mortem.
+
+**The pattern compounds.** A tech who clicks-and-sees once is more likely to click-and-see again. The senior reviewing the work catches the pattern across multiple tickets. Once flagged, the tech's reliability drops and the runway shortens. A single bad click is recoverable. The pattern of clicks is not.
+
+## Three traps that feed the reflex
+
+**The portal is forgiving in the UI.** Most actions need a confirmation dialog. The tech reads the dialog, clicks confirm, the action runs. UI friction does not match action consequence on a security platform.
+
+**The queue creates pressure.** A backlog of open tickets creates the feeling that clearing one quickly is better than clearing one slowly. Speed is the metric the tech optimises. Correctness is the metric the customer feels.
+
+**The senior is busy.** The tech who does not want to "bother" the senior reaches for the click instead of the question. The senior, if asked, would almost always rather be bothered than recover from a click.
+
+## The alternative: the ten-second pause
+
+When you notice the urge to click-and-see, pause for ten seconds. Ask yourself: do I know what this action does, on this customer, in this situation?
+
+If yes, click. If no, escalate or clarify.
+
+Three surfaces for the clarification:
+
+- **To a senior:** "I'm looking at this Recommendation; I'm not confident I understand whether to also touch X. Can you walk me through?"
+- **To the SOC:** Reply on the Incident Report with the specific factual question.
+- **In the runbook:** Re-read it. The answer might be there.
+
+All three take more time than clicking. All three protect the customer and the tech in ways the click does not.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The unfamiliar business-software path"
+  description="A High-severity EDR Incident Report on WS-EXAMPLE-LEGAL-08. Recommendation: approve the autoruns remediation. Evidence: an autoruns entry pointing to C:\Program Files\LegalSoft\update.exe. You have not heard of LegalSoft. The customer is a law firm with industry-specific software."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Click approve. The SOC said so.", next: "blind-approve" },
+      { label: "Pause. Reply to the SOC with the customer-context concern before approving.", next: "clarify" },
+      { label: "Click approve to see if it breaks the customer's legal software.", next: "click-and-see" },
+    ]},
+    { type: "outcome", id: "blind-approve", label: "Wrong reflex on this case", tone: "bad",
+      body: "The Recommendation does say approve, but the path looks like legitimate business-software. The SOC said so is sometimes right and sometimes the cardinal mistake. The difference is whether you have understood why." },
+    { type: "outcome", id: "clarify", label: "Calibrated response", tone: "success",
+      body: "Twenty seconds to write the question. One minute to wait. The analyst confirms the binary was tampered (most likely) or clarifies and you avoid a customer-impact mistake. The pause turned an unsure click into a confirmed action." },
+    { type: "outcome", id: "click-and-see", label: "The verbatim reflex this lesson exists to prevent", tone: "bad",
+      body: "Cardinal mistake. Click-and-see on an unfamiliar path with customer-specific software. The customer finds out when their legal application breaks." },
+  ]}
+/>
+
+<Callout type="warn" title="Speed versus correctness">
+Queue pressure is real. Slow-and-correct beats fast-and-wrong every time. The marginal cost of the clarifying question is seconds. The recovery cost of a wrong click is hours and relationships.
+</Callout>
+
+## What to carry forward
+
+When you notice the urge to click-and-see, that is the recognition moment. The pause itself is the practice. Building the habit of recognising the reflex matters more than memorising any specific rule.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-clicking-approve-and-see" client:visible />

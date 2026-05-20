@@ -1,0 +1,217 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-closing-loop",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: closing the loop",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "four-elements",
+      "type": "mcq",
+      "topic": "four-elements",
+      "difficulty": "easy",
+      "prompt": "What are the four elements of a complete close-out communication?",
+      "choices": [
+        "What happened, what was done, what the client should do (if anything), what was learned (when there is a real lesson).",
+        {
+          "label": "Apology, summary, recommendation, signature.",
+          "rationale": "Apologising is a named common mistake from the notification-writing lesson."
+        },
+        {
+          "label": "Subject line, greeting, body, sign-off.",
+          "rationale": "Email anatomy, not the lesson's framework. The four elements are about content."
+        },
+        {
+          "label": "Severity, timeline, evidence, recommendation.",
+          "rationale": "Those are Incident Report sections, not close-out elements."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Four elements every time: what happened, what was done, what the client should do, what was learned."
+    },
+    {
+      "id": "nothing-is-valid",
+      "type": "mcq",
+      "topic": "what-client-should-do",
+      "difficulty": "medium",
+      "prompt": "\"What the client should do\" is the element new techs most often miss. Why does it matter even when the answer is \"nothing\"?",
+      "choices": [
+        "Naming the next step (even \"none\") prevents the customer from wondering what they are missing. \"No action required from your side\" closes the loop.",
+        {
+          "label": "Huntress requires a customer-action line in every close-out.",
+          "rationale": "No such requirement."
+        },
+        {
+          "label": "The customer's IT manager has to sign off on the close-out.",
+          "rationale": "Close-outs are notifications, not approvals."
+        },
+        {
+          "label": "Skipping it triggers an automatic follow-up email.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "\"We resolved everything\" leaves the customer unsure. \"No action required from your side\" says the same thing and closes the loop."
+    },
+    {
+      "id": "skip-learned",
+      "type": "mcq",
+      "topic": "what-was-learned",
+      "difficulty": "medium",
+      "prompt": "When should you include the \"what was learned\" element?",
+      "choices": [
+        {
+          "label": "Always, even if you have to invent one.",
+          "rationale": "Manufacturing a lesson learned when there is not one is a named common mistake."
+        },
+        "When there is a real one-line takeaway for the customer or for your MSP. Skip when there is no useful lesson.",
+        {
+          "label": "Only on Critical incidents.",
+          "rationale": "Severity is not the criterion. Whether there is a real takeaway is."
+        },
+        {
+          "label": "Only when the senior writes the close-out.",
+          "rationale": "Senior involvement is separate. The element rule is the same regardless."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Skip elements that do not fit. Forcing one creates \"lessons\" that are not."
+    },
+    {
+      "id": "tone-properties",
+      "type": "mcq",
+      "topic": "tone",
+      "difficulty": "medium",
+      "prompt": "Which set of tone properties does the lesson name for close-out communications?",
+      "choices": [
+        {
+          "label": "Formal, hedged, apologetic.",
+          "rationale": "Apologetic is the notification-writing lesson's common mistake. Hedged is the vague-version failure."
+        },
+        {
+          "label": "Maximally technical for full transparency.",
+          "rationale": "\"Specific without overwhelming\" is the discipline. Deep technical detail waits for the deep-dive."
+        },
+        "Confident without triumphalism; specific without overwhelming; customer-respecting.",
+        {
+          "label": "Performative and self-congratulatory to reinforce value.",
+          "rationale": "\"Using the close-out as a sales surface\" is a named common mistake."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Three tone properties: confident without triumphalism, specific without overwhelming, customer-respecting."
+    },
+    {
+      "id": "sales-surface",
+      "type": "tf",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "Ending a close-out with \"This is why our service is essential to your business\" is a good way to reinforce the MSP's value.",
+      "correct": false,
+      "explanation": "Named common mistake. That framing turns the close-out into marketing. Customers notice and disengage."
+    },
+    {
+      "id": "six-month-bar",
+      "type": "mcq",
+      "topic": "quality-bar",
+      "difficulty": "medium",
+      "prompt": "The lesson describes \"the bar\" for a close-out as which property?",
+      "choices": [
+        "Reads cleanly six months later when it surfaces in an audit.",
+        {
+          "label": "Generated automatically by the portal without tech intervention.",
+          "rationale": "Close-outs are written, not generated."
+        },
+        {
+          "label": "Approved by Huntress support before sending.",
+          "rationale": "Not in the lesson."
+        },
+        {
+          "label": "Sent within 10 minutes of incident resolution.",
+          "rationale": "Timing is not the bar. Quality is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The close-out is the durable record. It has to age well."
+    },
+    {
+      "id": "close-out-scenario",
+      "type": "mcq",
+      "topic": "scenario",
+      "difficulty": "medium",
+      "prompt": "High EDR incident, scheduled task with encoded PowerShell, standard workflow run cleanly, no re-detection. Which close-out works for the IT manager?",
+      "choices": [
+        {
+          "label": "\"We caught and contained an EDR incident on the machine today. All resolved. Let me know if you have questions.\"",
+          "rationale": "Vague. No specifics, no actions named, no \"what next.\" Does not close the loop."
+        },
+        "Brief close-out with timestamps and named actions: SOC flagged at 11:42, encoded PowerShell to a known-bad domain, remediation approved, task removed, user confirmed she did not run anything. No action required. Happy to walk through more.",
+        {
+          "label": "Same as option B but adds \"you're lucky we caught this in time.\"",
+          "rationale": "Triumphalism. Positions the MSP as rescuer rather than as the security team doing its job."
+        }
+      ],
+      "correct": 1,
+      "explanation": "All four elements present, specific, calm tone. No triumphalism."
+    },
+    {
+      "id": "trend-question",
+      "type": "mcq",
+      "topic": "trend-routing",
+      "difficulty": "hard",
+      "prompt": "A day after your close-out, the IT manager asks: \"Are these kinds of incidents going up across your customer base, or is it just us?\" Best response?",
+      "choices": [
+        {
+          "label": "Answer with whatever you know about the broader Huntress customer base.",
+          "rationale": "The SOC has portfolio-level data. You do not. Speculating from a single-customer seat is the wrong source."
+        },
+        "\"Good question. I don't have direct visibility into trends across other Huntress customers. I can flag this to our account manager, who can pull the Huntress quarterly trend reports for you.\"",
+        {
+          "label": "\"Yes, attacks are increasing.\"",
+          "rationale": "Plausible-sounding but unsupported. Answering from gut."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Honest about what you know. Useful next step. Routes to the right source."
+    },
+    {
+      "id": "four-elements-order",
+      "type": "order",
+      "topic": "four-elements",
+      "difficulty": "easy",
+      "prompt": "Put the four close-out elements in the order the lesson presents them.",
+      "items": [
+        "What happened (specific facts and timestamps)",
+        "What was done (named actions in plain language)",
+        "What the client should do (even if \"nothing\")",
+        "What was learned (when there is a real lesson)"
+      ],
+      "explanation": "Happened, done, client action, learned. The four elements in order."
+    },
+    {
+      "id": "escalation-triggers",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "When does a close-out route through a senior rather than the tech?",
+      "choices": [
+        "Critical incidents, incidents with customer-relationship-sensitive findings, or close-outs on customers with tense relationships.",
+        {
+          "label": "Every close-out. Close-outs are always senior work.",
+          "rationale": "The routine High close-out is the tech's job."
+        },
+        {
+          "label": "Only when the customer asks for it in writing.",
+          "rationale": "Not in the lesson."
+        },
+        {
+          "label": "Only when Huntress support is involved.",
+          "rationale": "Huntress support involvement is not the escalation criterion."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three triggers: Critical, sensitive findings, tense customer relationships."
+    }
+  ]
+}

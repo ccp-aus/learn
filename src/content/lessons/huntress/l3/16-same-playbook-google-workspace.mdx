@@ -2,16 +2,95 @@
 slug: 16-same-playbook-google-workspace
 vendor: huntress
 level: l3
-title: Same Playbook Google Workspace
-summary: Skeleton — lesson body to be written.
+title: The same playbook in Google Workspace
+summary: The compromise playbook maps to GWS with different admin-tool paths, more forwarding mechanisms, and a user-admin overlap pattern in smaller tenants.
 estimatedMinutes: 8
 order: 16
 topics:
   - itdr
   - gws
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Identity threat detection and response is conceptually the same across M365 and Google Workspace, but the admin tooling, the field names, and the specific mechanisms differ enough that a tech who learned the playbook on M365 can stall when faced with a GWS compromise. The skill is **mapping the M365 vocabulary to the GWS equivalents** and recognising the few places where the surfaces genuinely diverge. The compromise is the same shape. The playbook steps land in different consoles.
+
+## The mapping at a glance
+
+| Playbook step | M365 | GWS |
+| --- | --- | --- |
+| Session revoke | Entra ID: "Revoke sessions" / "Sign out everywhere" | Google Admin console: User, Security, Sign out user |
+| Password reset | Entra ID or Huntress portal | Google Admin console: User, Reset password |
+| MFA reset | Entra ID: "Authentication methods" | Google Admin console: User, Security, 2-step verification |
+| Inbox rules | Exchange Admin Centre / PowerShell | Gmail Settings (user-level) or Admin SDK |
+| Mailbox forwarder | `ForwardingSmtpAddress`, `ForwardingAddress` | Gmail forwarding, `SendAs`, vacation auto-forward |
+| OAuth grants | Entra ID: "Enterprise Applications" | Security, API controls, App access control |
+| Tenant-level apps | Entra ID: "App registrations" | Security, API controls, Domain-wide delegation |
+
+Huntress's ITDR portal abstracts most of these. The recommended-action buttons usually look the same regardless of the underlying tenant type. The differences show up when you verify directly in the customer's admin console.
+
+## Where the surfaces genuinely diverge
+
+**Inbox-rule taxonomy.** M365 has both user-visible inbox rules and mailbox-level rules (visible only via PowerShell or transport-rule admin tooling). GWS's equivalent is mostly user-level Gmail filters. Tenant-level mail-flow rules in GWS are configured differently and tend to be visible to admins by design.
+
+**Forwarding mechanisms.** M365's `ForwardingSmtpAddress` is one specific field. GWS has multiple mechanisms: `SendAs` aliases, IMAP forwarding via filters, vacation responder auto-forwards. Checking "is the mail being forwarded externally" requires looking in more places in GWS.
+
+**OAuth visibility.** M365's admin centre exposes per-user OAuth grants. GWS's admin console aggregates by app rather than by user. Finding a specific user's grants takes a different path. Admin-consented apps in GWS are configured via "Domain-wide delegation" rather than "admin-consented OAuth grants."
+
+**The user is sometimes the admin.** GWS tenants are often smaller and have less admin/user separation. A user is sometimes also the super-admin. Compromise on a super-admin in GWS is tenant-wide territory the moment it is recognised. Bump per the tenant-wide lesson.
+
+**MFA terminology.** M365 calls it MFA. GWS calls it 2-Step Verification. Same concept, different field names. The attacker's tampering pattern is identical.
+
+## Running the playbook in GWS
+
+Same six conceptual steps, with the GWS-specific admin tool paths:
+
+<StepThrough client:load>
+  <Step title="Session revoke">
+    Google Admin console: select the user, Security, Sign out user. Or trigger via the Huntress portal's recommended-action button.
+  </Step>
+  <Step title="Password reset and 2-step verification reset">
+    Same console, under the user's Security panel. The Huntress portal also exposes these as action buttons.
+  </Step>
+  <Step title="Gmail filter and forwarding review">
+    Per-user Gmail filters via the user's Settings or via the Admin SDK. Remove the malicious filter. Check `SendAs` and forwarding configurations. Check the vacation responder auto-forward.
+  </Step>
+  <Step title="OAuth grant review">
+    Admin console: Security, API controls. Search by user or app. Revoke compromise-window grants. Domain-wide delegation grants are tenant-level; bump if the compromise touches those.
+  </Step>
+  <Step title="2-step verification methods audit">
+    Per the targeted-removal discipline from the MFA-devices lesson. The methods list is on the user's Security panel.
+  </Step>
+  <Step title="Tenant-level check (if signals suggest)">
+    Domain-wide delegation, app access control, admin role assignments. Tenant-wide territory. Bump if the compromise touches these.
+  </Step>
+</StepThrough>
+
+## The additional forwarding-mechanism checks
+
+The inbox-rule lesson covered the two-mechanism discipline for M365 (inbox rules plus `ForwardingSmtpAddress`). GWS has more places to check:
+
+- **Gmail filters.** The user-visible equivalent of inbox rules.
+- **`SendAs` aliases.** The attacker can add a `SendAs` address to impersonate the user from an external mailbox.
+- **Vacation responder auto-forward.** A less obvious forwarding mechanism that attackers use to exfiltrate mail.
+
+If the Recommendation only names "remove the malicious Gmail filter," still check the other two. Surface findings to the SOC per the same discipline.
+
+## Common mistakes
+
+**Using M365 vocabulary in a GWS conversation with the customer's admin.** "Have you checked the Entra ID admin centre?" makes no sense on GWS. Use the customer's vocabulary.
+
+**Assuming the GWS playbook is identical to M365.** Mostly is, but the forwarding-mechanisms and OAuth-visibility differences are real. Check the runbook's GWS-specific notes.
+
+**Skipping the additional forwarding-mechanism checks.** Vacation responder auto-forwards, `SendAs` aliases, IMAP filters. Three places attackers can route mail beyond the obvious filter.
+
+<Callout type="warn" title="Super-admin compromise in GWS is tenant-wide">
+GWS tenants often have less admin/user separation than M365 tenants. A user who also holds the super-admin role makes the compromise tenant-wide the moment you recognise it. Contain (steps 1 and 2) and bump. Do not continue the playbook solo.
+</Callout>
+
+## When to escalate
+
+- Compromise on a super-admin or other admin role. Tenant-wide. Senior.
+- Domain-wide delegation grants or app access control changes during the compromise window. Tenant-level mechanism. Senior.
+- The GWS-specific runbook is silent on a step you need to perform. Bump rather than improvise. GWS has more API paths than the admin console exposes, and the right path matters.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-google-workspace-playbook" client:visible />

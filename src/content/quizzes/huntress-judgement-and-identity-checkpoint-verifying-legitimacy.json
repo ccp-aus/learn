@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-verifying-legitimacy",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: verifying legitimacy with the user",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "inbound-call-two-minutes",
+      "type": "mcq",
+      "topic": "attacker-calling",
+      "difficulty": "easy",
+      "prompt": "A user calls in about a security event two minutes after the incident lands. What is the right response?",
+      "choices": [
+        "Treat the inbound call as untrusted. Initiate your own callback on a documented known-good number before discussing the incident.",
+        {
+          "label": "Accept the call as the verification; it saves time.",
+          "rationale": "Inbound calls can be the attacker. Never accept as the verification step."
+        },
+        {
+          "label": "Ask the caller to email a screenshot of their ID.",
+          "rationale": "Emailed ID can be fabricated. Not the documented verification channel."
+        },
+        {
+          "label": "Use the number the caller provides as the callback number.",
+          "rationale": "The attacker can spoof. Documented number is the safe path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Could be the legitimate user, could be the attacker calling first. Initiate the call yourself on a known-good channel."
+    },
+    {
+      "id": "avoid-mailbox-leaking-identifiers",
+      "type": "mcq",
+      "topic": "verification-shape",
+      "difficulty": "medium",
+      "prompt": "Why should you avoid identifiers like 'the title of the email you just sent me' during identity verification?",
+      "choices": [
+        {
+          "label": "Email titles change between sends and are unreliable.",
+          "rationale": "Not the lesson's framing."
+        },
+        "Identifiers that leak from a compromised mailbox give the attacker exactly what they need to answer correctly.",
+        {
+          "label": "Email content is confidential and should not be discussed.",
+          "rationale": "Wrong reason. The issue is the attacker's access to mailbox content."
+        },
+        {
+          "label": "Email titles cannot be verified on the helpdesk side.",
+          "rationale": "The issue is leakage to the attacker, not verification ability."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Documented out-of-band identifiers (employee ID, security question, video) avoid the attacker's mailbox access."
+    },
+    {
+      "id": "narrow-question-shape",
+      "type": "mcq",
+      "topic": "verification-shape",
+      "difficulty": "medium",
+      "prompt": "Which is the right question shape during a verification call?",
+      "choices": [
+        {
+          "label": "\"Did you do anything suspicious today?\"",
+          "rationale": "Too vague. Cannot be answered with confidence."
+        },
+        {
+          "label": "\"Did you create an inbox rule forwarding mail to a Gmail address?\"",
+          "rationale": "Reveals incident details. Tells an attacker exactly what to claim."
+        },
+        "\"Did you sign in to your Microsoft account at 09:14 this morning from a Bangkok IP address?\"",
+        {
+          "label": "\"Tell me everything you have done on your account in the last 24 hours.\"",
+          "rationale": "Too broad. Does not isolate the activity in question."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Narrow, time-bounded, factually-anchored. The user answers yes or no without you revealing details."
+    },
+    {
+      "id": "uncertainty-is-denial",
+      "type": "mcq",
+      "topic": "verification-shape",
+      "difficulty": "medium",
+      "prompt": "The user says 'I am not sure, maybe I did something at lunch but I do not remember the time.' What do you do?",
+      "choices": [
+        {
+          "label": "Escalate to senior because the user is unsure.",
+          "rationale": "Uncertainty alone is not a senior-escalation surface."
+        },
+        {
+          "label": "Treat uncertainty as confirmation and close the incident.",
+          "rationale": "Inverts the rule."
+        },
+        {
+          "label": "Ask the user to think harder and call back.",
+          "rationale": "Delays without resolving the uncertainty."
+        },
+        "Treat uncertainty as denial and proceed with the playbook. The cost of acting on a maybe-real compromise is lower than waiting on a real one."
+      ],
+      "correct": 3,
+      "explanation": "Uncertainty is not confirmation. The cost asymmetry favours action."
+    },
+    {
+      "id": "attacker-calling-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "ITDR on the CFO. Recommendation: verify, then playbook if denied. Two minutes later, inbound call: 'This is Daniel, can you confirm everything is okay? I have a board meeting in three minutes.' What do you do?",
+      "choices": [
+        {
+          "label": "\"Yes, you are clear, go to your meeting.\"",
+          "rationale": "Skipping verification on a self-identifying call. If the caller is the attacker, you have given them confirmation."
+        },
+        "Confirm the alert is being investigated, ask Daniel to stay on the line while you verify identity via the out-of-band path.",
+        {
+          "label": "\"I cannot talk to you on this call, please call me back on our documented number.\"",
+          "rationale": "Right principle, wrong handling. You initiate the callback, not the caller."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The inbound call is suspicious by timing and tone. The out-of-band check is the test."
+    },
+    {
+      "id": "unreachable-exfiltration",
+      "type": "mcq",
+      "topic": "unreachable-user",
+      "difficulty": "hard",
+      "prompt": "Callback to documented number: voicemail. EA: voicemail. IT manager: voicemail. Timeline shows active inbox-rule exfiltration. What do you do?",
+      "choices": [
+        {
+          "label": "Wait until you can reach someone before acting.",
+          "rationale": "Cost-of-waiting is high. Inbox rule is exfiltrating."
+        },
+        {
+          "label": "Re-escalate to senior to make the call.",
+          "rationale": "Defensible but slow. Verification attempts exhausted, pattern clear, playbook documented for the helpdesk."
+        },
+        "Execute the compromise playbook, document verification attempts in detail, keep trying contacts, brief whoever picks up first."
+      ],
+      "correct": 2,
+      "explanation": "Active exfiltration plus exhausted verification attempts. Proceed and document."
+    },
+    {
+      "id": "it-manager-skip-verification",
+      "type": "mcq",
+      "topic": "customer-pressure",
+      "difficulty": "medium",
+      "prompt": "The IT manager pushes: 'It is definitely Marcus, just reset his password, skip the verification.' What do you do?",
+      "choices": [
+        {
+          "label": "Escalate to senior immediately.",
+          "rationale": "Defensible but premature. First response is to not skip and re-explain."
+        },
+        {
+          "label": "Skip per the customer's request; they are authorising it.",
+          "rationale": "The customer cannot authorise away the verification discipline."
+        },
+        "Do not skip. Verification protects the customer even when the customer asks you to skip it.",
+        {
+          "label": "Tell the IT manager the SOC requires verification.",
+          "rationale": "Half-right. Better to own the call than hide behind the SOC."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The legitimate user, briefed correctly, will accept the verification step. Customer pressure to skip is itself a yellow flag."
+    },
+    {
+      "id": "refusal-red-flag",
+      "type": "mcq",
+      "topic": "attacker-calling",
+      "difficulty": "medium",
+      "prompt": "A user declines to do out-of-band verification: 'Just trust me, can you reset this?' What does the lesson say?",
+      "choices": [
+        {
+          "label": "Escalate to support for the user's account history.",
+          "rationale": "Misuses support and does not address the refusal pattern."
+        },
+        {
+          "label": "Trust the user; they are the account owner.",
+          "rationale": "The caller may not be the account owner."
+        },
+        {
+          "label": "Verification is optional if the user objects.",
+          "rationale": "It is not optional. It protects the customer."
+        },
+        "The legitimate user, briefed correctly by their IT, will accept the verification step. Refusal is a red flag."
+      ],
+      "correct": 3,
+      "explanation": "Behaviour around the verification is itself a signal. Refusal raises the suspicion level."
+    },
+    {
+      "id": "timeline-mismatch-signal",
+      "type": "mcq",
+      "topic": "verification-shape",
+      "difficulty": "hard",
+      "prompt": "The user claims they signed in from Bangkok at 09:14, but the Timeline shows the Bangkok sign-in was at 03:14 with suspicious follow-on. What does the mismatch suggest?",
+      "choices": [
+        {
+          "label": "The Timeline is wrong; trust the user.",
+          "rationale": "Timeline is captured event data. User recollection under stress is less reliable."
+        },
+        "Possible social engineering. The caller is fishing for details that do not match what actually happened. Treat with caution and reconfirm identity.",
+        {
+          "label": "Close the incident; user has confirmed Bangkok activity.",
+          "rationale": "The claim does not match the Timeline. That is a mismatch, not confirmation."
+        },
+        {
+          "label": "Open a Huntress support ticket about the Timeline discrepancy.",
+          "rationale": "The discrepancy is between the user's claim and the Timeline, not a data issue."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Timeline-vs-claim mismatch is a strong yellow flag for social engineering."
+    },
+    {
+      "id": "escalation-bec-extortion",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "Which of these is an escalation trigger from the verification lesson?",
+      "choices": [
+        {
+          "label": "The user's voicemail picks up on the first call attempt.",
+          "rationale": "Single voicemail is not escalation-shape. Try other channels first."
+        },
+        {
+          "label": "The user passes the out-of-band check and confirms the activity was theirs.",
+          "rationale": "That is a clean false-positive close, not an escalation."
+        },
+        "The verification call reveals the user is being socially engineered or extorted by the attacker, especially in BEC scenarios with financial targets.",
+        {
+          "label": "The user denies the activity and is reachable.",
+          "rationale": "That is a clean playbook-proceed case."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Active social engineering or extortion changes the response shape. Senior territory."
+    }
+  ]
+}

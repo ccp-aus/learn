@@ -2,16 +2,94 @@
 slug: 15-coordinating-with-huntress-auto-response
 vendor: huntress
 level: l3
-title: Coordinating with Huntress Auto Response
-summary: Skeleton — lesson body to be written.
+title: Coordinating with Huntress auto-response
+summary: Auto-response can complete containment actions before you see the incident. Recognise what it did, verify it worked, then continue from the next applicable step.
 estimatedMinutes: 8
 order: 15
 topics:
   - itdr
   - auto-response
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Managed ITDR includes auto-response: the platform can take some containment actions on its own when the SOC's classification is confident enough. **Session revoke is the most common auto-response action.** Some configurations also include password reset and rule removal. Auto-response cuts the time-to-containment from "tech sees the incident" to "platform contained it." The skill in this lesson is recognising what auto-response has already done so you do not repeat it, undo it, or skip verifying it.
+
+## What auto-response looks like in the Incident Report
+
+When auto-response fires, the Incident Report shows:
+
+- **Actions taken** by Huntress, with timestamps, before the tech sees the incident.
+- A note in the Summary or Evidence indicating auto-response handled specific steps.
+- The Recommendation may exclude steps already auto-completed, focusing on what remains.
+- The Timeline shows the auto-response actions as events alongside the attacker events.
+
+A common shape: "Sign-in from suspicious location detected at 14:22. Auto-response: session revoked at 14:22. Manual response needed: password and MFA reset, inbox-rule removal."
+
+## Three things to confirm
+
+1. **What auto-response did.** Usually session revoke. Sometimes more. The Incident Report names the actions.
+2. **When it happened relative to the attacker activity.** Auto-response 8 seconds after the suspicious sign-in is fast; the attacker had minimal time to act. Auto-response 6 minutes in means the attacker may have already done several things before containment.
+3. **Whether the auto-response completed cleanly.** A successful auto-response shows as a confirmed action. A degraded auto-response (timeout, partial-success, error) needs the tech to retry or escalate.
+
+## What changes about the playbook
+
+If auto-response has done session revoke, skip that step. Proceed to step 2 (password and MFA reset). The Recommendation may state this explicitly.
+
+If auto-response has done more than session revoke, check each step:
+
+- Did it reset the password? If yes, you do not reset again. Brief the user on the new credential.
+- Did it remove inbox rules? Confirm in the user's rule list, but do not re-run the action.
+- Did it revoke OAuth grants? Same check.
+
+The Recommendation written by the SOC accounts for what auto-response did. Read it.
+
+## What to verify even when auto-response handled it
+
+Trust-but-verify:
+
+- **The action actually applied.** The portal claims session revoke at 14:22. The active-session list should be empty.
+- **The attacker activity stopped.** No new events from the previously-revoked session post-revoke. Continued activity is the OAuth-tokens-still-active pattern, or an integration glitch.
+- **The Recommendation's remaining steps are still valid.** Auto-response sometimes triggers a SOC re-evaluation.
+
+## Common mistakes
+
+**Re-doing actions auto-response already completed.** Wastes effort, can confuse the audit trail, and in some edge cases creates duplicate-action states the SOC has to untangle.
+
+**Skipping verification because "auto-response said it worked."** Same as the EDR verify-step skip. Most of the time it is fine. The times it is not are the ones that bite you later.
+
+**Fighting auto-response by un-doing what it did.** A user calls to complain about the lockout. The tech un-isolates or restores the session without checking the Incident Report. The auto-response was the containment. Reversing it puts the customer back in the compromise state.
+
+## A worked scenario
+
+An Incident Report on `marcus.wong@example.com`. Summary: "Suspicious sign-in detected. Auto-response: session revoked at 09:14:08, MFA challenge required on next sign-in. Manual response needed: password reset, inbox-rule removal." Timeline shows attacker activity from 09:13:55 to 09:14:03. Auto-response fired 5 seconds after the rule creation.
+
+<DecisionTree client:load
+  title="Auto-response already revoked sessions"
+  description="Auto-response handled session revoke before you saw the incident. The Recommendation says manual response needed: password reset and inbox-rule removal."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do?", choices: [
+      { label: "Run the full playbook from step 1 (session revoke) because that is the documented order", next: "redo" },
+      { label: "Start from step 2, verify the auto-response applied, continue through the rest", next: "skip-verify" },
+      { label: "Trust auto-response handled everything; close the incident", next: "close" },
+    ]},
+    { type: "outcome", id: "skip-verify", label: "Start from step 2, verify first", tone: "success",
+      body: "Right answer. Auto-response's action is acknowledged. The playbook continues from where the platform left off. Verification still happens." },
+    { type: "outcome", id: "redo", label: "Re-revoking wastes effort", tone: "warn",
+      body: "Sessions are already revoked. Re-revoking has no effect but wastes effort and creates duplicate audit entries." },
+    { type: "outcome", id: "close", label: "Password and rules still pending", tone: "bad",
+      body: "Auto-response did session revoke only. Password reset, inbox-rule removal, and OAuth review are still pending. Closing now leaves the compromise persistence intact." },
+  ]}
+/>
+
+<Callout type="warn" title="Auto-response actions do not get reversed on customer complaint">
+When a user calls angry about being locked out, the action was right. Explain the compromise pattern, the platform's auto-action, and the rest of the response in progress. Have the password handoff ready as the next step. The action stands. Hiding behind the platform ("they made the call, I executed") weakens trust; owning the action and explaining the trade-off builds it.
+</Callout>
+
+## When to escalate
+
+- Auto-response shows as failed or partial. If the Recommendation does not direct manual completion, bump.
+- Auto-response took an action that the Recommendation now contradicts. Conflict between auto-action and current Recommendation is rare but worth surfacing to the SOC.
+- A customer pushes back on the auto-response action intensely. The action does not get reversed. The conversation may be senior territory if the customer is confrontational.
+
+<Checkpoint slug="huntress-judgement-and-identity-checkpoint-huntress-auto-response" client:visible />

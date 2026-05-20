@@ -1,0 +1,250 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-calibrated-uncertainty",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: calibrated uncertainty",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "two-question-test",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "easy",
+      "prompt": "What is the two-question test, as the lesson restates it for use against your own judgement?",
+      "choices": [
+        "Is this reversible? Do I understand why this is the right action?",
+        {
+          "label": "Is this a Critical? Is the customer aware?",
+          "rationale": "Severity drives tempo, not the calibration check."
+        },
+        {
+          "label": "Has the SOC approved this? Has the senior approved this?",
+          "rationale": "The test is internal (about your own judgement), not about two external authorisations."
+        },
+        {
+          "label": "Is the runbook open? Did I read it twice?",
+          "rationale": "Runbook re-reading is one of the resolutions, not the test itself."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The course's keystone test applied to your own internal state. Both questions need a yes before proceeding."
+    },
+    {
+      "id": "partial-pass",
+      "type": "mcq",
+      "topic": "failure-mode",
+      "difficulty": "medium",
+      "prompt": "A tech says: \"It's reversible, so I'll click. I'm not sure why it's the right action, but if I'm wrong I can undo it.\" What is wrong with this application?",
+      "choices": [
+        "Both questions have to pass. Reversible-but-I-do-not-understand still means you do not understand the action. The customer-side cost between action and undo is real even if the technical action reverses.",
+        {
+          "label": "Nothing. Reversibility alone is enough.",
+          "rationale": "Both questions matter. The lesson is explicit."
+        },
+        {
+          "label": "Reversibility should not be in the test at all; only understanding matters.",
+          "rationale": "Both questions are in the test for a reason."
+        },
+        {
+          "label": "The tech should ask the customer if they want the action reversed before clicking.",
+          "rationale": "Pre-action clarification goes through the senior or the SOC, not the customer."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Passing one question and skipping the other treats 'probably recoverable' as 'go ahead.' Both internal answers must be yes."
+    },
+    {
+      "id": "not-a-signal",
+      "type": "mcq",
+      "topic": "internal-signal",
+      "difficulty": "medium",
+      "prompt": "Which of these is NOT one of the lesson's described forms of the internal calibrated-uncertainty signal?",
+      "choices": [
+        {
+          "label": "A tiny pause before clicking where you re-check the path or action.",
+          "rationale": "Named in the lesson as a signal form."
+        },
+        {
+          "label": "A second-read of the Recommendation because the first read did not quite land.",
+          "rationale": "Named in the lesson as a signal form."
+        },
+        "A pop-up dialog from the Huntress portal warning you to slow down.",
+        {
+          "label": "An internal 'I think this is right' rather than 'I know this is right.'",
+          "rationale": "Named in the lesson as a signal form, and the most subtle one to catch."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The lesson is about the internal signal, not a UI element. The signal is faster than any external check."
+    },
+    {
+      "id": "escalation-threshold",
+      "type": "mcq",
+      "topic": "threshold",
+      "difficulty": "medium",
+      "prompt": "\"I should only escalate when I'm sure I'm wrong.\" What is the right correction?",
+      "choices": [
+        "Wrong threshold. Escalate when you are not sure you are right. One waits for proof of being wrong; the other acts on absence of confidence in being right.",
+        {
+          "label": "You should escalate every action, even routine ones.",
+          "rationale": "Over-corrects. Routine workflow proceeds without escalation."
+        },
+        {
+          "label": "Right. Escalating before you are sure you are wrong wastes the senior's time.",
+          "rationale": "Inverts the lesson. Pre-action time is the cheapest time on the platform."
+        },
+        {
+          "label": "Right. Huntress support's response time is too slow for pre-emptive escalations.",
+          "rationale": "Misuses support and inverts the threshold rule."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Sure-I'm-wrong is too late. Not-sure-I'm-right is the calibration trigger."
+    },
+    {
+      "id": "impostor-vs-calibration",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"The internal 'wait' signal is impostor syndrome; I should push through it.\" What is wrong with this framing?",
+      "choices": [
+        {
+          "label": "The signal is impostor syndrome and you should always ignore it.",
+          "rationale": "Inverts the lesson."
+        },
+        "The signal is not impostor syndrome. It is calibration. Pushing through it is the click-and-see reflex.",
+        {
+          "label": "Mental-health concerns are not relevant to ticket work.",
+          "rationale": "Misses the point. The lesson is about distinguishing calibration from self-doubt and trusting the calibration."
+        },
+        {
+          "label": "You should book time with HR before working any tickets where the signal appears.",
+          "rationale": "The signal is part of the work, not a workplace intervention trigger."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Calibration and impostor syndrome feel similar from the inside. The discipline is to treat the signal as information rather than noise."
+    },
+    {
+      "id": "well-written-rec-trap",
+      "type": "mcq",
+      "topic": "traps",
+      "difficulty": "medium",
+      "prompt": "Why is a clear, well-formatted Recommendation a calibration trap?",
+      "choices": [
+        "It feels like it does not need your judgement. Most of the time that is right. The trap is the small percentage where the Recommendation is excellent and your context does not fit. The Recommendation's confidence is not your confidence.",
+        {
+          "label": "Well-written Recommendations are usually generated by AI and unreliable.",
+          "rationale": "Wrong on the facts and not the lesson's framing."
+        },
+        {
+          "label": "The SOC writes well-formatted reports only on tricky cases.",
+          "rationale": "The lesson does not claim formatting correlates with difficulty."
+        },
+        {
+          "label": "A well-written Recommendation is always wrong on customer-specific cases.",
+          "rationale": "Overstates. The trap is on a small percentage; most are fine."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The Recommendation's confidence can substitute for yours if you are not careful. Customer-specific context is the gap the well-written format masks."
+    },
+    {
+      "id": "escalation-shape",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "What is the shape of a clean pre-action escalation, per the lesson?",
+      "choices": [
+        "Name the action, name the uncertainty, name what you want from the senior (a sanity check, a clarification, or a decision).",
+        {
+          "label": "Walk to the senior's desk and start with 'I'm sorry to bother you.'",
+          "rationale": "Apology framing is not the lesson's shape. The three components are."
+        },
+        {
+          "label": "Send a long Slack message describing the entire ticket history.",
+          "rationale": "Wrong length and shape. The escalation is scoped: action, uncertainty, ask."
+        },
+        {
+          "label": "File a Huntress support ticket.",
+          "rationale": "Misuses support. Internal escalations go through the senior."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three components make the escalation legible and respect the senior's time."
+    },
+    {
+      "id": "eighth-low-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Eighth Low of your shift. Same shape as the others. You feel a tiny \"wait\" but cannot articulate what is odd. What do you do?",
+      "choices": [
+        {
+          "label": "Click approve. The pattern matches; the flicker is probably nothing.",
+          "rationale": "The flicker is the calibration signal. Pushing past it is click-and-see."
+        },
+        "Stop. Re-read the Recommendation, host name, path, customer, and Evidence. If the flicker resolves, proceed. If not, ping a senior.",
+        {
+          "label": "Skip this ticket and come back to it later.",
+          "rationale": "Leaving the flicker unaddressed means it shows up next time on a different ticket."
+        },
+        {
+          "label": "Approve and immediately message the senior 'just flagging in case' afterwards.",
+          "rationale": "Inverts the order. Pre-action escalation is cheap; post-action flagging is recovery."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The pause may reveal the detail you noticed unconsciously, or it may resolve and you proceed informed. Either outcome is fine."
+    },
+    {
+      "id": "error-rate-signal",
+      "type": "mcq",
+      "topic": "manager-signal",
+      "difficulty": "hard",
+      "prompt": "A senior notices a tech's error rate climbing as they get faster over time. What does the lesson say this signal usually means?",
+      "choices": [
+        "The calibrated-uncertainty signal is being suppressed. The tech is pushing through 'wait, am I sure?' moments to keep up speed.",
+        {
+          "label": "The tech is more experienced now and the errors are routine.",
+          "rationale": "Inverts the cause. Experience should reduce errors, not raise them."
+        },
+        {
+          "label": "The tickets are getting harder.",
+          "rationale": "Possible but not the lesson's framing. The named pattern is the suppressed signal."
+        },
+        {
+          "label": "Nothing. Error rate is noisy and should not be tracked.",
+          "rationale": "The lesson treats rising error rate as a meaningful signal worth acting on."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Faster plus more errors is the telltale that the internal signal is being silenced. Worth a check-in with the senior."
+    },
+    {
+      "id": "host-mismatch-scenario",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Your re-read of the eighth Low reveals the header host is WS-EXAMPLE-MARKETING-04 but the Evidence path references WS-EXAMPLE-MARKETING-14. What do you do?",
+      "choices": [
+        {
+          "label": "Click approve and let the remediation figure it out.",
+          "rationale": "The mismatch is exactly the thing the analyst would want to know before the action."
+        },
+        "Reply to the SOC with the specific discrepancy: header host versus Evidence host. Wait for clarification before acting.",
+        {
+          "label": "Approve the remediation on both hosts to cover the discrepancy.",
+          "rationale": "Acting on context the Recommendation does not explicitly cover. Cardinal mistake from the recommendation-vs-context lesson."
+        },
+        {
+          "label": "Close the ticket as 'unclear which host' and move on.",
+          "rationale": "Second-guessing the SOC by closure. The right surface for ambiguity is the clarifying reply."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Specific, factual, scoped. The analyst corrects the report or clarifies scope. The flicker caught a real issue."
+    }
+  ]
+}

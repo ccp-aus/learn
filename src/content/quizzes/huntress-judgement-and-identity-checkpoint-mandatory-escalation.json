@@ -1,0 +1,235 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-mandatory-escalation",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: mandatory escalation categories",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "not-a-category",
+      "type": "mcq",
+      "topic": "categories",
+      "difficulty": "easy",
+      "prompt": "Which of the following is NOT one of the six categories of mandatory escalation?",
+      "choices": [
+        {
+          "label": "Critical incidents.",
+          "rationale": "Category 1. Always escalates with contain-and-escalate-in-parallel."
+        },
+        {
+          "label": "SIEM tuning requests.",
+          "rationale": "Category 3. Detection-rule, query, retention, and ingestion changes are above the line."
+        },
+        "A Low-severity EDR Incident Report with a standard remediation recommendation on a familiar customer.",
+        {
+          "label": "Customer-versus-SOC tension.",
+          "rationale": "Category 6. Any time customer preference and SOC recommendation pull in different directions, the senior owns the conversation."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Routine Lows with clear Recommendations are standard workflow. The lesson explicitly contrasts them with the six escalation categories."
+    },
+    {
+      "id": "senior-corridor-ask",
+      "type": "mcq",
+      "topic": "category-4",
+      "difficulty": "medium",
+      "prompt": "A senior walking past your desk says: \"Delete that old customer org while you're at it.\" Why is the senior's request not sufficient authorisation?",
+      "choices": [
+        "Permanent organisation deletion is category 4, and a verbal passing instruction is not the documented form of delegation that category needs.",
+        {
+          "label": "Only your direct manager can authorise actions, never another senior.",
+          "rationale": "The issue is the form of the authorisation, not the identity of the senior. Even your direct manager's casual verbal is the wrong form."
+        },
+        {
+          "label": "You should always escalate to Huntress support for org deletions.",
+          "rationale": "Org deletion is internal MSP authority via runbook, not a Huntress support request."
+        },
+        {
+          "label": "The senior is testing you.",
+          "rationale": "The senior probably means it. The problem is the form of the instruction, not the intent."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The category gates permanent commercial actions behind documented delegation. Ask for the runbook update or written delegation; do not refuse, but do not proceed on a corridor instruction."
+    },
+    {
+      "id": "customer-vs-soc",
+      "type": "mcq",
+      "topic": "category-6",
+      "difficulty": "medium",
+      "prompt": "The customer's IT manager calls: \"Release the host. He confirmed he was the one signing in.\" The SOC's remediation is not yet verified. How does this map to the escalation categories?",
+      "choices": [
+        {
+          "label": "Routine. The customer has authority over their own user, so release the host.",
+          "rationale": "Customer-versus-SOC is automatic escalation regardless of customer authority over their own people."
+        },
+        {
+          "label": "Category 3, a SIEM tuning request.",
+          "rationale": "Wrong category. Releasing an isolated host is not a detection-rule change."
+        },
+        "Category 6, customer-versus-SOC tension. The senior owns the conversation; the tech does not release unilaterally.",
+        {
+          "label": "Reply to the SOC and ask them to release on the customer's say-so.",
+          "rationale": "Bypasses the senior. The customer-versus-SOC channel runs through the senior, not via the tech relaying customer preferences to the analyst."
+        }
+      ],
+      "correct": 2,
+      "explanation": "Category 6 trips any time the customer's preference and the SOC's recommendation are in tension. The senior owns that call."
+    },
+    {
+      "id": "soc-tuning-in-recommendation",
+      "type": "mcq",
+      "topic": "category-3",
+      "difficulty": "medium",
+      "prompt": "A SOC Recommendation reads: \"Approve the remediation. Consider tuning the threshold for this detection on this source.\" You have portal access to the SIEM tuning surface. What do you do?",
+      "choices": [
+        {
+          "label": "Tune the threshold yourself. The SOC suggested it and the portal exposes the surface.",
+          "rationale": "Visibility into the surface is not authorisation to act on it. SIEM tuning is category 3 every time."
+        },
+        "Approve the remediation (in scope). Bump the tuning portion to the senior (category 3, above the line).",
+        {
+          "label": "Skip both the remediation and the tuning until a senior is free.",
+          "rationale": "Over-escalates. The remediation portion is routine in-scope work."
+        },
+        {
+          "label": "Reply to the SOC saying you cannot tune.",
+          "rationale": "Wrong surface. The tuning request goes to the senior internally, not back to the SOC."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The remediation is in scope; the tuning is category 3. Visibility is not authorisation. Split the Recommendation at the category line."
+    },
+    {
+      "id": "action-on-trip",
+      "type": "mcq",
+      "topic": "hand-off",
+      "difficulty": "easy",
+      "prompt": "When a mandatory-escalation category trips, what is the action?",
+      "choices": [
+        {
+          "label": "Close the ticket and document why you could not proceed.",
+          "rationale": "Closing the ticket is not the escalation; handing it off is."
+        },
+        {
+          "label": "File a Huntress support case asking for guidance.",
+          "rationale": "Escalation is internal to the MSP for all six categories."
+        },
+        "Name the category to the senior, hand off cleanly, support per their direction.",
+        {
+          "label": "Reply to the SOC's Incident Report saying you are declining the recommendation.",
+          "rationale": "Conflates the SOC channel with the internal escalation channel."
+        }
+      ],
+      "correct": 2,
+      "explanation": "The action is the same across all six categories. Naming the category out loud makes the hand-off legible."
+    },
+    {
+      "id": "visibility-not-auth",
+      "type": "tf",
+      "topic": "visibility",
+      "difficulty": "easy",
+      "prompt": "If the portal exposes a control surface (SIEM tuning, org deletion, bulk un-isolation), being able to click is the same as being permitted to click.",
+      "correct": false,
+      "explanation": "Visibility is not authorisation. Categories 3, 4, and 5 trip on the action, not on whether the UI lets the tech reach it."
+    },
+    {
+      "id": "tenant-wide-trip",
+      "type": "mcq",
+      "topic": "category-2",
+      "difficulty": "medium",
+      "prompt": "You are working an ITDR incident on a single user. While reviewing Evidence you notice the same OAuth-grant pattern across three other users in the same tenant within 48 hours. What category trips?",
+      "choices": [
+        "Category 2, tenant-wide identity compromise. The senior coordinates the wider response.",
+        {
+          "label": "No category trips. Work each user's incident through the single-identity playbook in parallel.",
+          "rationale": "Multi-user patterns are exactly what category 2 covers. Running parallel single-identity playbooks misses the tenant-wide response."
+        },
+        {
+          "label": "Category 5, irreversible action you do not understand.",
+          "rationale": "Wrong category. The trip is the multi-user pattern, not an irreversible-action question."
+        },
+        {
+          "label": "Open a SIEM tuning request to detect this pattern faster next time.",
+          "rationale": "Wrong reflex. The immediate need is the senior's wider response, not future detection."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Multi-user patterns with tenant-level grants trigger category 2. Recognising the moment is the contribution; the senior coordinates the wider response."
+    },
+    {
+      "id": "runbook-reading-scope",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "hard",
+      "prompt": "\"If I read the runbook carefully enough, I can navigate the escalation categories on my own.\" What is wrong with this view?",
+      "choices": [
+        {
+          "label": "Runbooks are deliberately incomplete to force escalations.",
+          "rationale": "Runbooks are not booby-trapped; they are scoped."
+        },
+        "Reading more carefully does not change the scope. The categories exist because the MSP has decided the tech-level decision lacks the full picture. They are points of structural authority, not knowledge gaps.",
+        {
+          "label": "Runbooks are out of date and untrustworthy.",
+          "rationale": "Some may be stale, but the structural argument stands regardless."
+        },
+        {
+          "label": "Only seniors are allowed to read the runbook.",
+          "rationale": "The runbook is available. Following it more carefully does not elevate the tech's scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The categories are scope boundaries, not knowledge gaps. More careful reading does not change what the MSP has decided lives above the helpdesk line."
+    },
+    {
+      "id": "bulk-un-isolate",
+      "type": "mcq",
+      "topic": "category-5",
+      "difficulty": "hard",
+      "prompt": "Friday afternoon. A senior asks you to un-isolate twenty-three hosts at once across three customers. They were isolated during a Wednesday containment exercise. You do not know the details of each containment. The portal allows a bulk action. What do you do?",
+      "choices": [
+        {
+          "label": "Run the bulk un-isolation. The senior approved it and the portal allows it.",
+          "rationale": "Two failure modes in one. Bulk un-isolation the tech does not understand is category 5. The senior's passing approval is not the documented form category 5 needs."
+        },
+        {
+          "label": "Un-isolate one host as a test to see if anything trips.",
+          "rationale": "Test un-isolation on hosts you do not understand is the click-and-see pattern applied to a category-5 action."
+        },
+        "Name category 5 to the senior: you are happy to action this, but you lack the detail on each containment. Ask to walk through them or for the senior to run the bulk action themselves.",
+        {
+          "label": "Refuse outright with no path forward.",
+          "rationale": "Half-right but unhelpful. The senior has real workload to move. Naming the category and offering a path is the calibrated response."
+        }
+      ],
+      "correct": 2,
+      "explanation": "You are not refusing. You are putting the irreversible bulk action behind the gate the category puts it behind. Either the senior teaches you the detail or they action it themselves."
+    },
+    {
+      "id": "senior-pushback-fix",
+      "type": "mcq",
+      "topic": "runbook-update",
+      "difficulty": "hard",
+      "prompt": "The senior pushes back on your refusal to delete legacy orgs: \"They've been dead for months. Do it; I'll vouch for you.\" What is the cleanest response?",
+      "choices": [
+        {
+          "label": "Delete them. The senior is explicitly taking responsibility.",
+          "rationale": "\"I'll vouch for you\" is the senior's social safety net, not a documented authorisation."
+        },
+        {
+          "label": "Flatly refuse: that is senior-only work.",
+          "rationale": "Half-right but tone-deaf. The senior has a real point. The right answer is the path that updates the runbook."
+        },
+        {
+          "label": "Delete one as a test to see if anything breaks.",
+          "rationale": "Test deletions on permanent actions combine click-and-see with a category-4 trip."
+        },
+        "Name the underlying gap and propose a fix: if these really are stale, this is paperwork. Suggest updating the offboarding runbook to delegate permanent deletion for aged orgs, and wait until then."
+      ],
+      "correct": 3,
+      "explanation": "Names the gap (runbook does not cover this), proposes a fix (delegation written down), does not compromise the category meanwhile. The senior gets the path forward; the category stays gated."
+    }
+  ]
+}

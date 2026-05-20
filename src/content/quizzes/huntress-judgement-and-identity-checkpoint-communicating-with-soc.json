@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-communicating-with-soc",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: communicating with the SOC",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "legitimate-reply",
+      "type": "mcq",
+      "topic": "when-to-reply",
+      "difficulty": "easy",
+      "prompt": "Which of these is a legitimate reason to reply to a SOC analyst on an Incident Report?",
+      "choices": [
+        "You learned new customer-context during triage that the analyst did not have (e.g., IT confirms an automated process explains the flagged event).",
+        {
+          "label": "You think the SOC got the classification wrong and want them to reclassify.",
+          "rationale": "Without new signal, that is relitigating the classification."
+        },
+        {
+          "label": "You want to bundle three questions into one efficient reply.",
+          "rationale": "Multi-question replies slow the SOC. One question per reply."
+        },
+        {
+          "label": "You want to request an exclusion for this customer's environment.",
+          "rationale": "Wrong channel. Exclusion requests go via the exclusion-request flow, not the reply surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "New customer-context is the first of the three legitimate reply triggers."
+    },
+    {
+      "id": "framing-properties",
+      "type": "mcq",
+      "topic": "framing",
+      "difficulty": "medium",
+      "prompt": "Which set of properties describes a good SOC reply?",
+      "choices": [
+        "Factually anchored; scoped to one question; customer-context-bringing, not analyst-correcting; colleague-to-colleague tone.",
+        {
+          "label": "Long, deferential, comprehensive across multiple incidents.",
+          "rationale": "Scoped to one question is the discipline, and tone is colleague-to-colleague, not deferential."
+        },
+        {
+          "label": "Speculative, opinion-leading, argumentative.",
+          "rationale": "Speculation and argument are the failure modes."
+        },
+        {
+          "label": "Heavy on the tech's reasoning about whether the Recommendation is right.",
+          "rationale": "Customer-context-bringing, not analyst-correcting."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Four properties: factually anchored, scoped to one question, context-bringing not correcting, colleague-to-colleague."
+    },
+    {
+      "id": "multi-question-mistake",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is bundling multiple questions into one reply a named mistake?",
+      "choices": [
+        "Slows the SOC, who has to address each, and loses the thread. One question per reply.",
+        {
+          "label": "The portal cannot display multi-question replies.",
+          "rationale": "No such platform constraint."
+        },
+        {
+          "label": "Multi-question replies are forbidden by the runbook.",
+          "rationale": "Discipline, not prohibition."
+        },
+        {
+          "label": "Customers can read the SOC thread and get confused.",
+          "rationale": "Customer visibility is not the named reason."
+        }
+      ],
+      "correct": 0,
+      "explanation": "One question per reply. If you have three, decide which is priority and ask that one."
+    },
+    {
+      "id": "exclusion-wrong-channel",
+      "type": "mcq",
+      "topic": "exclusion",
+      "difficulty": "medium",
+      "prompt": "You want a recurring detection tuned for one customer's environment. What is the right channel?",
+      "choices": [
+        {
+          "label": "Reply on the Incident Report asking the analyst to stop the detection from firing for this customer.",
+          "rationale": "That is the named exclusion-via-reply mistake."
+        },
+        "The exclusion-request flow. The reply surface is per-incident; exclusion requests are per-pattern at a customer.",
+        {
+          "label": "Email Huntress support and request a global rule change.",
+          "rationale": "Wrong surface and wrong scope. Customer-specific tuning is not a global rule."
+        },
+        {
+          "label": "Disable the detection in the portal yourself.",
+          "rationale": "Above the helpdesk ceiling."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Per-incident replies are for per-incident questions. Per-pattern tuning goes through the exclusion-request flow."
+    },
+    {
+      "id": "relitigation",
+      "type": "mcq",
+      "topic": "relitigation",
+      "difficulty": "medium",
+      "prompt": "\"I think the SOC got this wrong\" sent as a reply without new information is which kind of failure?",
+      "choices": [
+        {
+          "label": "Productive disagreement that the SOC welcomes.",
+          "rationale": "The SOC welcomes clarifying questions and new context, not litigation without signal."
+        },
+        "Second-guessing the SOC expressed via the reply surface. Relitigating the classification without new signal.",
+        {
+          "label": "A standard part of every reply thread.",
+          "rationale": "Inverts the discipline."
+        },
+        {
+          "label": "Acceptable because the reply surface exists for exactly this.",
+          "rationale": "The surface exists for clarifying questions and context, not litigation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Without new information, 'I think you got this wrong' is relitigating. If you have new info, frame it as context."
+    },
+    {
+      "id": "cross-surface-finding",
+      "type": "mcq",
+      "topic": "cross-surface",
+      "difficulty": "medium",
+      "prompt": "You spot a mailbox-level forwarder while removing the recommended inbox rule. The analyst did not mention it. What is the right move?",
+      "choices": [
+        "Reply with the finding for the analyst to weigh. Cross-surface findings are one of the three legitimate reply triggers.",
+        {
+          "label": "Remove the forwarder yourself without telling the analyst.",
+          "rationale": "Acts outside the Recommendation scope without surfacing the finding."
+        },
+        {
+          "label": "Open a new Incident Report for the forwarder.",
+          "rationale": "The tech does not open Incident Reports. Surface the finding to the analyst."
+        },
+        {
+          "label": "Wait for the next monthly summary report to mention it.",
+          "rationale": "Cross-surface findings during a live response surface immediately."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Cross-surface findings are the third legitimate reply trigger. Surface them for the analyst to weigh."
+    },
+    {
+      "id": "three-exchanges",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "A reply thread is at three or more exchanges with no convergence on the next step. What do you do?",
+      "choices": [
+        {
+          "label": "Continue replying until the analyst agrees with you.",
+          "rationale": "Keep re-asking variants of the same question is the named litigation pattern."
+        },
+        "Bump to senior. Senior reviews the thread and either takes over or names the next step.",
+        {
+          "label": "Close the incident and write it up as a SOC failure.",
+          "rationale": "Overrides the analyst and attributes a failure that has not been investigated."
+        },
+        {
+          "label": "Email Huntress support to bypass the analyst.",
+          "rationale": "Misuses support and routes around the right internal escalation."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Three-plus exchanges without convergence is a senior surface."
+    },
+    {
+      "id": "travel-context-scenario",
+      "type": "mcq",
+      "topic": "scenario",
+      "difficulty": "medium",
+      "prompt": "High ITDR on lisa.chen@example.com. Recommendation: revoke sessions, reset password, MFA, remove inbox rule. During triage, Lisa's IT manager says she is on documented business travel to Vietnam. Do you reply to the SOC?",
+      "choices": [
+        {
+          "label": "No. Execute the Recommendation as written.",
+          "rationale": "The documented-travel detail is new signal the analyst may want to weigh."
+        },
+        "Yes. Factually-anchored note: \"Customer's IT confirms documented business travel to Vietnam; sign-in matches travel. Inbox rule may still be suspicious independently; please advise.\"",
+        {
+          "label": "Hold all response steps until the analyst replies.",
+          "rationale": "The inbox rule is suspicious independent of location. Execute immediate actions while the question is in flight."
+        }
+      ],
+      "correct": 1,
+      "explanation": "New customer-context, one question, scoped, factual. Execute immediate actions in parallel."
+    },
+    {
+      "id": "clean-close",
+      "type": "mcq",
+      "topic": "thread-close",
+      "difficulty": "easy",
+      "prompt": "The analyst replies with a clear answer. You agree and will proceed. What is the right move?",
+      "choices": [
+        "Proceed with the Recommendation. Close the reply thread cleanly: \"Got it, proceeding. Thanks for the quick turn.\"",
+        {
+          "label": "Reply again asking if they are sure.",
+          "rationale": "Relitigating after a clear answer. The analyst's response resolved the question."
+        },
+        {
+          "label": "Proceed silently without acknowledging the response.",
+          "rationale": "Half-right. Acting per the Recommendation is fine, but the brief acknowledgement keeps the thread tidy."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Act on the answer. Close the thread with a brief acknowledgement. The analyst does not have to wonder if more is needed."
+    },
+    {
+      "id": "reply-vs-not-match",
+      "type": "tf",
+      "topic": "when-to-reply",
+      "difficulty": "medium",
+      "prompt": "The reply-to-analyst surface is the right channel for requesting that a recurring detection be tuned for a specific customer.",
+      "correct": false,
+      "explanation": "The reply surface is per-incident. Tuning requests (exclusions) are per-pattern at a customer and go through the exclusion-request flow."
+    }
+  ]
+}

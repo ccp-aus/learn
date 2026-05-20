@@ -1,0 +1,151 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-data-source-health",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: data-source health",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-dsh-not-a-cause",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "easy",
+      "prompt": "The lesson names five common causes of a quiet SIEM source. Which is NOT one of them?",
+      "choices": [
+        {"label": "Agent offline (agent-collected sources).", "rationale": "That is one of the five named causes."},
+        {"label": "API credential expired.", "rationale": "That is one of the five named causes."},
+        "Detection rule rewritten by the SOC overnight.",
+        {"label": "Source genuinely silent.", "rationale": "That is one of the five named causes."}
+      ],
+      "correct": 2,
+      "explanation": "The five causes are agent offline, syslog forwarder broken, API credential expired, integration disabled, and source genuinely silent. Detection-rule rewrites are not a quiet-source cause."
+    },
+    {
+      "id": "ck-dsh-first-step",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "A SIEM source is quiet. What is the first step in the diagnostic?",
+      "choices": [
+        "Identify the mechanism (agent-collected, HEC, or API integration).",
+        {"label": "Re-authenticate the source regardless of mechanism.", "rationale": "Re-auth is only meaningful for API integrations with auth failure."},
+        {"label": "Restart the Huntress agent on every endpoint.", "rationale": "Blind agent restarts create churn without diagnosing anything."},
+        {"label": "Open a Huntress support case asking why the source is quiet.", "rationale": "The diagnostic is yours to run first."}
+      ],
+      "correct": 0,
+      "explanation": "Mechanism first. The mechanism determines which checks to run and which runbook to follow."
+    },
+    {
+      "id": "ck-dsh-genuinely-silent",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "A source has been authenticated, enabled, and has a healthy forwarder, but no events for 18 hours. The customer's pattern is weekend, low business activity. What is the right disposition?",
+      "choices": [
+        "Likely genuinely silent. Compare against historical volume for this time of week. If the pattern matches, document and move on.",
+        {"label": "Re-authenticate the integration to be safe.", "rationale": "Re-auth does not fix a source that is healthy by all mechanism checks."},
+        {"label": "Open a Huntress support case immediately.", "rationale": "Premature. Run the diagnostic first."},
+        {"label": "Disable the source to prevent false alerts.", "rationale": "Disabling a quiet-but-healthy source blinds the SOC when activity resumes."}
+      ],
+      "correct": 0,
+      "explanation": "When all mechanism checks pass, compare against historical volume. A quiet source during a known quiet window is genuinely silent, not broken."
+    },
+    {
+      "id": "ck-dsh-wrong-mechanism",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "A common mistake is \"running the wrong mechanism's diagnostic.\" What does that look like?",
+      "choices": [
+        "Treating an API integration's auth failure as if it were an agent-offline issue, or treating an HEC network issue as if it were a SaaS credential problem.",
+        {"label": "Checking the agent's status before checking integration auth.", "rationale": "That is correct order for agent-collected sources."},
+        {"label": "Comparing against historical volume to rule out genuinely-silent.", "rationale": "That is the elimination step; correct."},
+        {"label": "Documenting the cause and fix in the PSA.", "rationale": "That is the close step; correct."}
+      ],
+      "correct": 0,
+      "explanation": "Mechanism mismatch sends you down the wrong runbook. Identify the mechanism first to avoid wasting time on inapplicable checks."
+    },
+    {
+      "id": "ck-dsh-disabled-integration",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "An integration shows \"Disabled\" status. You don't know who disabled it or why. What is the right move?",
+      "choices": [
+        {"label": "Re-enable immediately and document afterwards.", "rationale": "Re-enabling an integration somebody deliberately disabled could undo a real change."},
+        "Surface to senior to confirm intent before re-enabling. Could be customer action, MSP-side action, or malicious change.",
+        {"label": "Leave it disabled and move on.", "rationale": "The coverage gap continues. The senior needs to weigh in."},
+        {"label": "Open a Huntress support case asking them to investigate.", "rationale": "Confirming intent is an internal MSP question, not a vendor question."}
+      ],
+      "correct": 1,
+      "explanation": "Unknown disabling needs intent confirmation before re-enabling. The senior confirms whether the disable was deliberate before any change."
+    },
+    {
+      "id": "ck-dsh-diagnostic-order",
+      "type": "order",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "Order the diagnostic steps for a quiet SIEM source.",
+      "items": [
+        "Identify the mechanism (agent-collected, HEC, or API integration).",
+        "Check the mechanism's primary failure mode for that source.",
+        "If the mechanism is healthy, compare against historical volume to rule out genuinely silent.",
+        "If still unclear, surface to senior with a specific finding."
+      ],
+      "explanation": "Mechanism-first scopes the rest. The primary failure-mode check matches the mechanism. Historical comparison distinguishes broken from quiet. Specific findings make the senior handoff useful."
+    },
+    {
+      "id": "ck-dsh-api-reauth-scope",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "You diagnosed an Okta API integration as auth-failed. Your MSP scopes SaaS-integration auth as senior-only. What do you do?",
+      "choices": [
+        {"label": "Re-authenticate yourself since you did the diagnostic.", "rationale": "Scope of diagnostic and scope of fix are independent. The runbook scoping decides."},
+        "Hand the specific re-auth task to the senior with the named integration and failure timestamp. Diagnostic is yours; the fix is not.",
+        {"label": "Tell the customer their Okta is broken.", "rationale": "Mis-attribution. The auth failure is Huntress-to-Okta, not on Okta itself."},
+        {"label": "Disable the integration and re-add it from scratch.", "rationale": "Over-aggressive. Re-auth is the documented fix; rebuild loses configuration."}
+      ],
+      "correct": 1,
+      "explanation": "The diagnostic is always in scope. The fix may be senior territory per your MSP's runbook. Hand over the specific finding so the senior can act."
+    },
+    {
+      "id": "ck-dsh-no-events-myth",
+      "type": "tf",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "\"No events\" from a SIEM source always means the source is broken.",
+      "correct": false,
+      "explanation": "Sometimes the source is genuinely silent for legitimate reasons: weekend, holiday, low-business-activity window. Mechanism-health checks distinguish broken from quiet."
+    },
+    {
+      "id": "ck-dsh-hec-firewall-scenario",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "medium",
+      "prompt": "Customer's IT manager: \"No firewall logs in SIEM for the last day.\" Source `acme-firewall-hec` shows last event 25 hours ago. Other HEC sources are fine. Where do you start?",
+      "choices": [
+        {"label": "Re-authenticate the HEC source immediately.", "rationale": "HEC does not use OAuth the same way. Re-auth is not the right fix mode."},
+        "Identify the mechanism (HEC). Check the forwarder health and network path per the HEC runbook.",
+        {"label": "Tell the IT manager their firewall is broken.", "rationale": "Wrong attribution. The quiet source could be forwarder, network, or token, not necessarily the firewall."}
+      ],
+      "correct": 1,
+      "explanation": "Mechanism-first: HEC. Check forwarder health and network path. That scopes the diagnostic correctly."
+    },
+    {
+      "id": "ck-dsh-tls-refused",
+      "type": "mcq",
+      "topic": "data-source-health",
+      "difficulty": "hard",
+      "prompt": "The forwarder is running, but its logs show \"TLS connection refused\" against the HEC endpoint. Customer says nothing changed. What is the right next move?",
+      "choices": [
+        {"label": "Bump immediately because TLS refusal is above helpdesk diagnostic scope.", "rationale": "Defensible if scoped that way, but the endpoint URL check and perimeter rule check are in scope."},
+        "Check the HEC endpoint URL for changes, check the perimeter firewall for blocking rules, then bump with a specific finding if still unresolved.",
+        {"label": "Restart the forwarder repeatedly to see if it comes back.", "rationale": "The forwarder is running fine. TLS refusal is not fixed by a restart."}
+      ],
+      "correct": 1,
+      "explanation": "The in-scope diagnostic includes the endpoint URL check and the perimeter rule check. If those do not explain the TLS refusal, bump with the specific finding."
+    }
+  ]
+}

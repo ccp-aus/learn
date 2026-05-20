@@ -1,0 +1,158 @@
+{
+  "slug": "huntress-judgement-and-identity-checkpoint-reading-siem-incident-report",
+  "course": "huntress-judgement-and-identity",
+  "kind": "checkpoint",
+  "title": "Quick check: reading a SIEM Incident Report",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "ck-siem-report-skeleton",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "easy",
+      "prompt": "What about the SIEM Incident Report structure is the same as EDR and ITDR?",
+      "choices": [
+        "The skeleton (header, summary, evidence, recommendation, affected entity, analyst) and the reading order.",
+        {"label": "Nothing. SIEM reports are a completely new format.", "rationale": "The whole point is that the skeleton is shared across surfaces."},
+        {"label": "Only the severity bands; everything else is different.", "rationale": "Severity bands are the same, but so is the skeleton, reading order, and action-vs-context discipline."},
+        {"label": "Only the customer-facing summary.", "rationale": "The summary is one of many shared sections."}
+      ],
+      "correct": 0,
+      "explanation": "The SIEM Incident Report uses the same skeleton, reading order, severity bands, and Recommendation-is-the-action-zone discipline as EDR and ITDR."
+    },
+    {
+      "id": "ck-siem-report-evidence",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "A SIEM Evidence section typically contains:",
+      "choices": [
+        {"label": "Process trees and command-line strings.", "rationale": "That is EDR Evidence, not SIEM."},
+        "Log lines from one or more sources, with timestamps and fields, plus the SOC's annotation explaining which fields matter.",
+        {"label": "Sign-in details and mailbox rule definitions.", "rationale": "That is ITDR Evidence, not SIEM."},
+        {"label": "Customer-supplied screenshots of the affected device.", "rationale": "Customer screenshots are not part of any Incident Report's Evidence section."}
+      ],
+      "correct": 1,
+      "explanation": "SIEM Evidence is log-shaped: log lines with timestamps and fields from one or more sources, annotated by the SOC to explain the cross-source story."
+    },
+    {
+      "id": "ck-siem-report-derived-entity",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "SIEM's affected entity may be derived rather than a single host or identity. Which is an example of a derived entity?",
+      "choices": [
+        "An IP address that the Recommendation maps to a specific internal host.",
+        {"label": "A single Windows hostname.", "rationale": "That is EDR's direct affected entity, not derived."},
+        {"label": "A user's principal name with a sign-in event.", "rationale": "That is ITDR's direct affected entity, not derived."},
+        {"label": "The customer's organisation name in the header.", "rationale": "That is the tenant, not the affected entity."}
+      ],
+      "correct": 0,
+      "explanation": "SIEM may flag an IP address that the Recommendation then maps to a specific internal host. The entity is derived from log data rather than being a direct host or identity reference."
+    },
+    {
+      "id": "ck-siem-report-cardinal-mistake",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "What is the cardinal mistake expressed in SIEM Evidence terms?",
+      "choices": [
+        {"label": "Reading the Recommendation before the Evidence.", "rationale": "That is the correct reading order, not a mistake."},
+        "Following an interesting-looking log line in the Evidence into action that is not in the Recommendation.",
+        {"label": "Asking the SOC a factual clarifying question.", "rationale": "Clarifying questions are the right surface for doubt."},
+        {"label": "Verifying the affected entity matches the customer.", "rationale": "That is a standard check, not the cardinal mistake."}
+      ],
+      "correct": 1,
+      "explanation": "Acting on Evidence instead of the Recommendation is the same cardinal mistake from the foundations course, applied to log-shaped Evidence on a new surface."
+    },
+    {
+      "id": "ck-siem-report-cross-surface",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "A SIEM Recommendation says \"block IP at firewall AND check for EDR signals on the named host.\" How do you handle the two-part instruction?",
+      "choices": [
+        "Run both actions per the applicable runbook for each surface. SIEM Recommendations may legitimately span surfaces.",
+        {"label": "Pick the SIEM-side action only; the EDR side is a different team's responsibility.", "rationale": "Softening the Recommendation. Same family as second-guessing."},
+        {"label": "Escalate because the Recommendation spans two surfaces.", "rationale": "Cross-surface Recommendations are routine and in scope."},
+        {"label": "Run the EDR check first, then decide if the firewall block is still needed.", "rationale": "The firewall block is not conditional on EDR findings. The Recommendation calls for both."}
+      ],
+      "correct": 0,
+      "explanation": "SIEM's cross-source visibility means Recommendations may span EDR, ITDR, and network surfaces. Run each action per its documented runbook."
+    },
+    {
+      "id": "ck-siem-report-reading-order",
+      "type": "order",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "Put the SIEM Incident Report reading steps in order.",
+      "items": [
+        "Header: severity, surface (SIEM), affected entity, customer, source.",
+        "Recommendation: what action does the SOC want?",
+        "Verify the affected entity (same wrong-tenant discipline as earlier courses).",
+        "Summary if needed: the SOC's plain-language statement.",
+        "Evidence with the SOC's annotation: read log lines in the order the annotation directs."
+      ],
+      "explanation": "The reading order mirrors EDR and ITDR: header routes the ticket, Recommendation is the action zone, entity verification catches wrong-tenant errors cheaply, summary fills reasoning, Evidence provides context."
+    },
+    {
+      "id": "ck-siem-report-role-assignment",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "A High SIEM report on Globex Marketing: anomalous admin role assignment at 03:14. Recommendation: review, confirm authorised, revoke if not. What is your first move?",
+      "choices": [
+        {"label": "Investigate the Okta log fields in depth to understand which role was assigned before doing anything.", "rationale": "Field-level investigation is context-gathering and comes after the authorisation check."},
+        {"label": "Block the user in Okta immediately to be safe.", "rationale": "The Recommendation said revoke if unauthorised, not block first."},
+        "Read the Recommendation, verify the user and role from the entity field, then check authorisation via the customer's IT contact."
+      ],
+      "correct": 2,
+      "explanation": "Standard reading order applied to SIEM. The authorisation check is the action zone of the Recommendation."
+    },
+    {
+      "id": "ck-siem-report-stumble",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "hard",
+      "prompt": "The IT manager says \"we did authorise that, wait no, we did NOT authorise that change.\" The Recommendation says \"revoke if unauthorised.\" What do you do?",
+      "choices": [
+        {"label": "Treat the stumble as ambiguous and wait an hour for a clearer answer.", "rationale": "Defensible but slow. A 30-second verification clarifies without waiting."},
+        "Confirm clearly: 'to confirm, the admin role assignment at 03:14 was NOT authorised by your team, correct?' On confirmation, revoke per the Recommendation and document.",
+        {"label": "Revoke without the second confirmation because his answer landed on 'not authorised.'", "rationale": "The stumble was real. The 30-second verification is cheap protection against a misheard answer."}
+      ],
+      "correct": 1,
+      "explanation": "A quick verification protects against a misheard answer on a role-change action. Confirm, then proceed per the Recommendation."
+    },
+    {
+      "id": "ck-siem-report-timeline",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "The Timeline view in a SIEM Incident Report does what?",
+      "choices": [
+        "Lays log events in chronological order across sources, making the cross-source story visible at a glance.",
+        {"label": "Replaces the Recommendation when the SOC is uncertain.", "rationale": "The Timeline is context, not action. It does not replace the Recommendation."},
+        {"label": "Shows the SOC analyst's chat history with the customer.", "rationale": "The Timeline shows log events, not chats."},
+        {"label": "Automatically writes the response note for the tech.", "rationale": "The Timeline is a viewer, not a note generator."}
+      ],
+      "correct": 0,
+      "explanation": "The Timeline view puts log events from multiple sources in chronological order, making cross-source correlation visible. Use it as context, not as an action guide."
+    },
+    {
+      "id": "ck-siem-report-annotation-reflex",
+      "type": "mcq",
+      "topic": "incident-report",
+      "difficulty": "medium",
+      "prompt": "What is the wrong reflex when you see unfamiliar log formats in SIEM Evidence?",
+      "choices": [
+        "Try to interpret the raw log fields from scratch without the annotation.",
+        {"label": "Read the annotation first, then check the log lines it points at.", "rationale": "That is the right reflex."},
+        {"label": "Use the Timeline view if the report has one.", "rationale": "Also a right reflex."},
+        {"label": "Verify the affected entity matches the customer you are working in.", "rationale": "Standard wrong-tenant check, not the wrong reflex."}
+      ],
+      "correct": 0,
+      "explanation": "Firewall, audit, and SaaS log formats vary widely. The SOC's annotation explains which fields matter. Attempting to interpret unfamiliar formats from scratch duplicates the SOC's work."
+    }
+  ]
+}
