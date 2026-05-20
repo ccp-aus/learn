@@ -79,12 +79,11 @@ If you skip steps 1 and 2, the change still propagates, but caches with the old 
 
 ## Decision walkthrough
 
-A client says: *we're moving our website to a new web host on Thursday at 9pm. We want minimal downtime visible to users.* Today is Tuesday. The current A record has TTL 86400 (24 hours).
-
 <DecisionTree
   client:load
   startId="root"
   title="What do you do today?"
+  description="A client says: 'we're moving our website to a new web host on Thursday at 9pm. We want minimal downtime visible to users.' Today is Tuesday. The current A record has TTL 86400 (24 hours)."
   nodes={[
     {
       type: "question",

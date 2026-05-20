@@ -49,12 +49,11 @@ When a migration request arrives:
 
 ## Decision walkthrough
 
-A client emails: *we're moving our website to a new web host next week. The new host gave us their IP and said to point the domain at them. Please make the change.* The current zone has A and AAAA at the apex/www, MX at M365, SPF including `spf.protection.outlook.com`, DKIM CNAMEs for M365, DMARC.
-
 <DecisionTree
   client:load
   startId="root"
   title="Which records do you touch?"
+  description="A client emails: 'we're moving our website to a new web host next week. The new host gave us their IP and said to point the domain at them. Please make the change.' The current zone has A and AAAA at the apex/www, MX at M365, SPF including spf.protection.outlook.com, DKIM CNAMEs for M365, DMARC."
   nodes={[
     {
       type: "question",

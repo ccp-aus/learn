@@ -69,12 +69,11 @@ Verification is the difference between *I changed the record* and *the change wo
 
 ## Decision walkthrough
 
-You just completed an A record migration. The previous TTL was 300 (you did the pre-flight TTL drop). About to close the ticket. The client emails 30 minutes later: *I'm still seeing the old website on my office desktop.*
-
 <DecisionTree
   client:load
   startId="root"
   title="Calibrated reply to 'still seeing old site'"
+  description="You just completed an A record migration. The previous TTL was 300 (you did the pre-flight TTL drop). About to close the ticket. The client emails 30 minutes later: 'I'm still seeing the old website on my office desktop.'"
   nodes={[
     {
       type: "question",

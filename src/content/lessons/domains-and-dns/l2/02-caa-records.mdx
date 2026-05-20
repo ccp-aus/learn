@@ -57,12 +57,11 @@ CT search reveals surprises. A hosting provider's certificate-management subsyst
 
 ## Decision walkthrough
 
-A client's security consultant emails: *your domain `example.com` doesn't have CAA records. Best practice is to add `CAA 0 issue 'digicert.com'` since that's the CA you bought your wildcard from.* You check the website's cert in the browser: DigiCert wildcard, as expected. You search CT logs (`crt.sh/?q=example.com`) and find three issuers in the last two years: DigiCert (the wildcard, intentional), Let's Encrypt (issued ~weekly by the client's hosting platform's auto-SSL — the client didn't know), and Sectigo (one cert from a security scanner that the client trialled and dropped).
-
 <DecisionTree
   client:load
   startId="root"
   title="What CAA do you publish?"
+  description="A client's security consultant emails: 'your domain example.com doesn't have CAA records. Best practice is to add CAA 0 issue digicert.com since that's the CA you bought your wildcard from.' You check the website's cert in the browser: DigiCert wildcard, as expected. CT logs (`crt.sh/?q=example.com`) show three issuers in the last two years: DigiCert (the wildcard, intentional), Let's Encrypt (issued weekly by the client's hosting platform's auto-SSL — the client didn't know), and Sectigo (one cert from a security scanner the client trialled and dropped)."
   nodes={[
     {
       type: "question",

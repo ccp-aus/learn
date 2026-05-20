@@ -55,12 +55,11 @@ You won't write SRV records from scratch. The vendor's wizard tells you exactly 
 
 ## Decision walkthrough
 
-A client onboarded Teams. You published the two SRVs from the M365 wizard. M365's verification check returns *SRV records not found or incorrect*. `dig SRV _sip._tls.example.com` returns the record but the target field looks like `sipdir.online.lync.com.example.com.` instead of `sipdir.online.lync.com.`.
-
 <DecisionTree
   client:load
   startId="root"
   title="The target got mangled. What happened?"
+  description="A client onboarded Teams. You published the two SRVs from the M365 wizard. M365's verification check returns 'SRV records not found or incorrect.' `dig SRV _sip._tls.example.com` returns the record but the target field reads `sipdir.online.lync.com.example.com.` instead of `sipdir.online.lync.com.`"
   nodes={[
     {
       type: "question",

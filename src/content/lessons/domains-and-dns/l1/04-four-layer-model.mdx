@@ -50,12 +50,11 @@ A client report rarely names the layer. *The website is broken*. *Email isn't wo
 
 ## Decision walkthrough
 
-WHOIS shows the domain `example.com` registered at GoDaddy with nameservers `ns1.cloudflare.com` and `ns2.cloudflare.com`. `dig A example.com` returns `198.51.100.42`. You ping the IP and get nothing. The client says the website is down.
-
 <DecisionTree
   client:load
   startId="root"
   title="Which layer is the problem at?"
+  description="WHOIS shows the domain example.com registered at GoDaddy with nameservers ns1.cloudflare.com and ns2.cloudflare.com. `dig A example.com` returns 198.51.100.42. You ping the IP and get nothing. The client says the website is down."
   nodes={[
     {
       type: "question",

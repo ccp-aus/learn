@@ -79,12 +79,11 @@ If the delegated nameserver's hostname is *outside* the delegated zone (`ns1.str
 
 ## Decision walkthrough
 
-A client's marketing manager emails: *the marketing automation vendor wants us to delegate `mkt.example.com` to their nameservers `mkt-ns1.marketingplatform.example` and `mkt-ns2.marketingplatform.example`. Please set this up.*
-
 <DecisionTree
   client:load
   startId="root"
   title="What's your first move?"
+  description="A client's marketing manager emails: 'the marketing automation vendor wants us to delegate mkt.example.com to their nameservers mkt-ns1.marketingplatform.example and mkt-ns2.marketingplatform.example. Please set this up.'"
   nodes={[
     {
       type: "question",

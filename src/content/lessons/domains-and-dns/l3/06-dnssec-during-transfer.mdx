@@ -90,12 +90,11 @@ The scenario:
 
 ## Decision walkthrough
 
-A client wants to move DNS from their current host to Cloudflare. `dig DS example.com` returns DS records; DNSSEC is enabled. DS TTL is 86400.
-
 <DecisionTree
   client:load
   startId="root"
   title="DNSSEC detected. What now?"
+  description="A client wants to move DNS from their current host to Cloudflare. `dig DS example.com` returns DS records; DNSSEC is enabled. DS TTL is 86400."
   nodes={[
     {
       type: "question",

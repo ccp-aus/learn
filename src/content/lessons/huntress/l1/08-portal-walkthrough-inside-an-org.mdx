@@ -45,11 +45,40 @@ The portal shows the current organisation in a header strip at the top of every 
   src="/_dev/kitchen-sink-screenshot.svg"
   alt="Illustrative scoped-view layout with the header strip showing the current organisation name"
   caption="Illustrative layout — not the live Huntress UI. The header strip is the single source of truth for which tenant you're acting on."
-  client:visible
 >
-  <Hotspot x={50} y={8} label="Header strip — read every time" tone="warning" />
-  <Hotspot x={20} y={40} label="Scoped surfaces (Agents, Identity, Incidents...)" tone="primary" />
-  <Hotspot x={60} y={50} label="Destructive controls live here" tone="warning" />
+  <Hotspot
+    client:load
+    x={50}
+    y={8}
+    label="1"
+    title="Header strip"
+    purpose="The current organisation name. Read it every time."
+    tone="warning"
+  >
+    Glance at it the way a driver glances at the speedometer: every time, even when you "know" what it says. The cost of the glance is zero; the cost of the wrong tenant is hours.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={40}
+    label="2"
+    title="Scoped surfaces"
+    purpose="The same surfaces as global, narrowed to one customer."
+    tone="primary"
+  >
+    Agents, Identity, Incidents, SIEM, Settings. Same severity bands and incident types; this is the lens narrowed.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={60}
+    y={50}
+    label="3"
+    title="Destructive controls"
+    purpose="Isolate, remediate, revoke — irreversible by phone-call standards."
+    tone="warning"
+  >
+    Single-task the destructive action. If the phone rings mid-sequence, finish this one first.
+  </Hotspot>
 </AnnotatedScreenshot>
 
 Two habits keep you safe. Read the org name on the header before any destructive action; the cost of the glance is zero, the cost of the wrong tenant is hours. Don't have two organisation tabs open in the same browser window; same domain in both tabs, same UI in both tabs, the brain treats them as one. Different windows, different profiles, or one customer at a time.

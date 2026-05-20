@@ -27,14 +27,73 @@ From the global view, the left-hand navigation usually exposes six items. Names 
   src="/_dev/kitchen-sink-screenshot.svg"
   alt="Illustrative left-hand navigation showing the six top-level portal surfaces"
   caption="Illustrative layout — not the live Huntress UI. The six surfaces in the order this lesson teaches them."
-  client:visible
 >
-  <Hotspot x={20} y={18} label="Organisations" tone="primary" />
-  <Hotspot x={20} y={32} label="Agents (EDR roll-up)" tone="primary" />
-  <Hotspot x={20} y={46} label="Identity (ITDR roll-up)" tone="primary" />
-  <Hotspot x={20} y={60} label="Incidents — start your shift here" tone="success" />
-  <Hotspot x={20} y={74} label="SIEM (visible only if subscribed)" tone="warning" />
-  <Hotspot x={20} y={88} label="Reports (monthly client comms)" tone="primary" />
+  <Hotspot
+    client:load
+    x={20}
+    y={18}
+    label="1"
+    title="Organisations"
+    purpose="Every customer tenant the partner manages."
+    tone="primary"
+  >
+    Sortable by health, agent count, and recent incident count. Where you switch into a single customer.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={32}
+    label="2"
+    title="Agents"
+    purpose="Cross-organisation roll-up of every EDR endpoint."
+    tone="primary"
+  >
+    Filterable by OS, version, online/offline, organisation. Use it for global-shape questions and for finding one host fast.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={46}
+    label="3"
+    title="Identity"
+    purpose="The ITDR roll-up across M365 and Google Workspace."
+    tone="primary"
+  >
+    Connection health, recent identity incidents, auto-response activity. Same surface for both providers; only the icons differ.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={60}
+    label="4"
+    title="Incidents"
+    purpose="Start your shift here."
+    tone="success"
+  >
+    Cross-surface list of Incident Reports. Filter by severity, surface, status, and organisation. Set status open and walk severity Critical down.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={74}
+    label="5"
+    title="SIEM"
+    purpose="Visible only if your MSP subscribes to Managed SIEM."
+    tone="warning"
+  >
+    Data-source health across organisations, ingestion volume, and SIEM-originated incidents.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={20}
+    y={88}
+    label="6"
+    title="Reports"
+    purpose="Monthly client comms surface."
+    tone="primary"
+  >
+    Monthly summaries, audit reports, executive-style overviews. The client-facing artefact.
+  </Hotspot>
 </AnnotatedScreenshot>
 
 **Organisations.** Every customer tenant the partner manages. Sortable by health, agent count, recent incident count. This is where you go to switch into a single customer.

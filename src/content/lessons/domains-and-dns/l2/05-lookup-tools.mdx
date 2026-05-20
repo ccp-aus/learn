@@ -77,12 +77,11 @@ If the authoritative result is correct and the public-resolver result is stale: 
 
 ## Decision walkthrough
 
-You changed a client's A record 30 minutes ago. The client emails: *our office still sees the old server*.
-
 <DecisionTree
   client:load
   startId="root"
   title="Which command tells you where the staleness is?"
+  description="You changed a client's A record 30 minutes ago. The client emails: 'our office still sees the old server.'"
   nodes={[
     {
       type: "question",

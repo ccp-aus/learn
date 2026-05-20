@@ -58,12 +58,11 @@ SPF authorises sources. DKIM proves integrity. DMARC defines policy and aligns t
 
 ## Decision walkthrough
 
-A client emails: *our customers say emails from us are landing in their spam folder. Can you fix this?* You pull the zone and see no SPF, no DKIM CNAMEs, no DMARC record.
-
 <DecisionTree
   client:load
   startId="root"
   title="Where do you start?"
+  description="A client emails: 'our customers say emails from us are landing in their spam folder. Can you fix this?' You pull the zone and see no SPF, no DKIM CNAMEs, no DMARC record."
   nodes={[
     {
       type: "question",

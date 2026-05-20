@@ -60,9 +60,9 @@ The right move when something doesn't fit is **clarify, not override**. A reply 
 
 ## "New signal" vs. "gut feeling"
 
-The one legitimate reason to challenge a closed Incident Report is **new signal**, information the analyst didn't have when they wrote the recommendation. *My gut says this is wrong* is not new signal. The two get confused under pressure. The tree below sorts them.
-
 <DecisionTree client:load
+  title="New signal or gut feeling?"
+  description="The one legitimate reason to challenge a closed Incident Report is new signal — information the analyst didn't have when they wrote the recommendation. 'My gut says this is wrong' is not new signal. The two get confused under pressure; the tree sorts them."
   startId="root"
   nodes={[
     { type: "question", id: "root", prompt: "Something about this closed incident is bothering you. What kind of thing?", choices: [

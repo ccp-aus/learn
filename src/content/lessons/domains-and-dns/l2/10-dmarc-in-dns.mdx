@@ -65,12 +65,11 @@ Tools like EasyDMARC, dmarcian, and Postmark's DMARC monitor process the XML rep
 
 ## Decision walkthrough
 
-A client just onboarded to M365. SPF and DKIM are set up. The owner emails: *set up DMARC, and set it to reject so we're fully protected.*
-
 <DecisionTree
   client:load
   startId="root"
   title="Set up DMARC at p=reject as requested?"
+  description="A client just onboarded to M365. SPF and DKIM are set up. The owner emails: 'set up DMARC, and set it to reject so we're fully protected.'"
   nodes={[
     {
       type: "question",

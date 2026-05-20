@@ -42,12 +42,11 @@ The *right after we did X* pattern is the strongest single signal. A working dom
 
 ## Decision walkthrough
 
-A client emails Monday morning: *we did a DNS migration over the weekend (Saturday afternoon). The new host's tech said everything was set up. Now the website is unreachable for some of our customers but works fine for me. Help.*
-
 <DecisionTree
   client:load
   startId="root"
   title="First hypothesis from the signal"
+  description="A client emails Monday morning: 'we did a DNS migration over the weekend (Saturday afternoon). The new host's tech said everything was set up. Now the website is unreachable for some of our customers but works fine for me. Help.'"
   nodes={[
     {
       type: "question",

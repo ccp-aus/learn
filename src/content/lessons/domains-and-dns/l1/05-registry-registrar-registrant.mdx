@@ -47,12 +47,11 @@ Recognise reseller setups early. When a client's domain is "registered with us" 
 
 ## Decision walkthrough
 
-A client emails: *we need to transfer our domain `example.com` to a new registrar. Please get the auth code.* Your documentation system says the domain is "registered with FastHostsCo, our usual supplier." WHOIS reports the registrar as `Tucows Domains Inc.`.
-
 <DecisionTree
   client:load
   startId="root"
   title="Where do you go to request the auth code?"
+  description="A client emails: 'we need to transfer our domain example.com to a new registrar. Please get the auth code.' Your documentation system says the domain is registered with FastHostsCo, your usual supplier. WHOIS reports the registrar as Tucows Domains Inc."
   nodes={[
     {
       type: "question",

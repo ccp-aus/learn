@@ -71,12 +71,11 @@ If a client expects to transfer a recently-registered or recently-transferred do
 
 ## Decision walkthrough
 
-A transfer stalled at step 7. The client says they never received the approval email; it's been an hour. The Cloudflare side reports *pending; awaiting approval at losing registrar*.
-
 <DecisionTree
   client:load
   startId="root"
   title="Approval email missing"
+  description="A transfer stalled at step 7. The client says they never received the approval email; it's been an hour. The Cloudflare side reports 'pending; awaiting approval at losing registrar.'"
   nodes={[
     {
       type: "question",

@@ -23,13 +23,62 @@ Every Incident Report carries roughly the same skeleton. Vocabulary shifts a lit
   src="/_dev/kitchen-sink-screenshot.svg"
   alt="Illustrative Incident Report layout showing Header, Summary, Evidence, Recommendation, and analyst signature"
   caption="Illustrative layout — not the live Huntress UI. The skeleton is reliable across surfaces; only the vocabulary inside each section shifts."
-  client:visible
 >
-  <Hotspot x={50} y={10} label="Header — severity, surface, affected entity, customer, analyst" tone="primary" />
-  <Hotspot x={30} y={28} label="Summary — analyst's plain-language statement" tone="primary" />
-  <Hotspot x={30} y={50} label="Evidence — process trees, sign-ins, OAuth grants, log lines" tone="warning" />
-  <Hotspot x={30} y={72} label="Recommendation — what to do (the action zone)" tone="success" />
-  <Hotspot x={70} y={88} label="Analyst signature + timestamp" tone="primary" />
+  <Hotspot
+    client:load
+    x={50}
+    y={10}
+    label="1"
+    title="Header"
+    purpose="Severity, surface, affected entity, customer, analyst."
+    tone="primary"
+  >
+    Tells you which playbook applies before you read a word of the body. Five seconds of work.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={30}
+    y={28}
+    label="2"
+    title="Summary"
+    purpose="The analyst's plain-language statement of the problem."
+    tone="primary"
+  >
+    Two or three sentences. What happened, on what entity, why it landed. Read this only if the Recommendation surprised you.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={30}
+    y={50}
+    label="3"
+    title="Evidence"
+    purpose="Context, not the action zone."
+    tone="warning"
+  >
+    Process trees, command lines, sign-in events, IP addresses, OAuth grants, log lines. What the analyst looked at when deciding. Not what you act on.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={30}
+    y={72}
+    label="4"
+    title="Recommendation"
+    purpose="The action zone. This is what you act on, full stop."
+    tone="success"
+  >
+    Approve the remediation, run the playbook, isolate the host, close as benign. The section the SOC wants executed.
+  </Hotspot>
+  <Hotspot
+    client:load
+    x={70}
+    y={88}
+    label="5"
+    title="Analyst signature"
+    purpose="Name and timestamp for the reply conversation."
+    tone="primary"
+  >
+    Useful when you reply with a question about Evidence or scope. Not used for deciding whether to execute the Recommendation.
+  </Hotspot>
 </AnnotatedScreenshot>
 
 **Header.** Severity band, surface (EDR, ITDR, or SIEM — a canary trip lands as an EDR incident with `Canary` in the title or as a tag), affected entity (a hostname for EDR, a user principal name for ITDR, a log source or rule name for SIEM), customer organisation, incident ID, analyst name. The header tells you what playbook applies before you read a word of the body.
