@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-approving-remediations-autoruns",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: approving remediations — autoruns",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "autoruns-definition",
+      "type": "mcq",
+      "topic": "definition",
+      "difficulty": "easy",
+      "prompt": "What counts as an \"autoruns\" entry on Windows?",
+      "choices": [
+        "Any mechanism Windows uses to launch code automatically without the user asking — Run keys, startup folders, WMI subscriptions, services configured to start at boot, browser helper objects, Winlogon, IFEO, AppInit DLLs.",
+        {
+          "label": "Any process currently running on the endpoint.",
+          "rationale": "A running process isn't an autoruns entry; autoruns are persistence mechanisms that launch code automatically."
+        },
+        {
+          "label": "Scheduled tasks only.",
+          "rationale": "Scheduled tasks are a separate remediation type in Huntress, even though Sysinternals' Autoruns tool includes them."
+        },
+        {
+          "label": "Browser tabs that reload at login.",
+          "rationale": "Not the definition."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The term is borrowed from Sysinternals' Autoruns tool: the mechanisms that launch code automatically. Persistence, not live processes."
+    },
+    {
+      "id": "what-remediation-does",
+      "type": "mcq",
+      "topic": "remediation-actions",
+      "difficulty": "medium",
+      "prompt": "When you approve an autoruns remediation, the agent does which set of things?",
+      "choices": [
+        "Removes the autoruns mechanism itself (registry key, startup-folder shortcut, WMI subscription), removes the backing file when classified malicious, and re-scans to confirm.",
+        {
+          "label": "Reboots the endpoint to clear any running instance.",
+          "rationale": "The remediation does not reboot. Explicit in the lesson."
+        },
+        {
+          "label": "Stops the currently-running malicious process.",
+          "rationale": "Stopping a live process is a separate consideration (isolation or process-kill). The remediation removes persistence."
+        },
+        {
+          "label": "Quarantines the file but leaves the registry key in place.",
+          "rationale": "Inverts the priority. The persistence mechanism is what the remediation primarily removes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Remove persistence, optionally remove the backing file, re-scan to confirm. No reboot, no live-process kill."
+    },
+    {
+      "id": "applied-walked-away",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "A tech approves an autoruns remediation, sees the portal flip to \"applied,\" and closes the ticket. What's the failure?",
+      "choices": [
+        "Skipping verify. \"Applied\" means the command ran; the end-state check is the *did it work* question. If the agent was offline or the remediation hit an unexpected condition, the same detection re-fires later with no context.",
+        {
+          "label": "Approving without first calling the SOC for permission.",
+          "rationale": "The Recommendation IS the SOC's permission. Asking again duplicates the analyst's work."
+        },
+        {
+          "label": "Closing the ticket before the customer confirms via email.",
+          "rationale": "Lows often need no customer comms."
+        },
+        {
+          "label": "Approving the remediation rather than running it from the RMM.",
+          "rationale": "The portal approval IS how the remediation runs."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The verify step skipped. Applied and verified are different checks."
+    },
+    {
+      "id": "reboot-myth",
+      "type": "tf",
+      "topic": "reboot",
+      "difficulty": "easy",
+      "prompt": "Approving the autoruns remediation will reboot the endpoint.",
+      "correct": false,
+      "explanation": "The remediation removes persistence; it doesn't reboot. If the Recommendation pairs it with a reboot, that's a separate step the tech runs."
+    },
+    {
+      "id": "batch-approval",
+      "type": "mcq",
+      "topic": "batch",
+      "difficulty": "medium",
+      "prompt": "What's the recommendation on batch-approving autoruns remediations across multiple open incidents?",
+      "choices": [
+        "Don't. Each incident's recommendation is for its specific autoruns entry on its specific host; batch-approving across unrelated tickets is the pattern that produces \"I approved twelve and one was for a different host.\"",
+        {
+          "label": "Batch is encouraged; it's the fastest way to clear the queue.",
+          "rationale": "The wrong-customer trap shows up at scale through this pattern."
+        },
+        {
+          "label": "Batch only when all tickets are on the same customer.",
+          "rationale": "Each incident is its own host; the inattention is what causes the mistake."
+        },
+        {
+          "label": "Batch only Critical-severity remediations.",
+          "rationale": "Inverts everything. Critical work is per-host containment, never batch."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Per-host, per-incident. The wrong-customer trap waits at the end of every batch operation."
+    },
+    {
+      "id": "customer-reinforces",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Low EDR Incident Report. Evidence: an autoruns entry at C:\\Users\\Public\\TempInstaller\\update.exe. Recommendation: approve the autoruns remediation. The customer's IT manager calls: \"We don't use anything in C:\\Users\\Public\\, that looks suspicious to us.\" What do you do?",
+      "choices": [
+        "Approve, document, close. The customer's input reinforces the SOC's conclusion, not contradicts it.",
+        {
+          "label": "Hold off and ask the SOC analyst to reconsider given the customer's input.",
+          "rationale": "The customer said the same thing the SOC concluded. Asking the analyst to reconsider confirming evidence is litigating."
+        },
+        {
+          "label": "Investigate the binary by pulling it off the endpoint and running it through a sandbox.",
+          "rationale": "Investigation work above the helpdesk ceiling. The SOC has done the analysis; the customer just confirmed it."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Customer confirming the path isn't theirs is reinforcing context, not new-signal-against. Approve."
+    },
+    {
+      "id": "re-detection-pattern",
+      "type": "mcq",
+      "topic": "re-detection",
+      "difficulty": "hard",
+      "prompt": "You approved the autoruns remediation; the portal showed applied and you confirmed the registry entry is gone. Two hours later, the portal flags a new incident on the same host: same autoruns entry, same path. What's the right move?",
+      "choices": [
+        {
+          "label": "The remediation didn't work; re-approve it.",
+          "rationale": "The remediation did work (you verified). The persistence reappeared, which means something on the endpoint is re-installing it. Re-approving chases your tail."
+        },
+        "Recognise the pattern (clean removal, re-establishment within hours), isolate the host, escalate to senior in parallel.",
+        {
+          "label": "Reply to the SOC asking what to do.",
+          "rationale": "Defensible but too slow. Containment matters and the time-on-the-endpoint window is shrinking. Isolate first, communicate after."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Clean removal followed by re-establishment within hours is a containment-and-escalate signal. The persistence had a friend that's still active."
+    },
+    {
+      "id": "new-signal",
+      "type": "mcq",
+      "topic": "new-signal",
+      "difficulty": "medium",
+      "prompt": "The Recommendation says \"approve autoruns remediation,\" but the customer's IT contact tells you the autoruns entry is a custom backup tool they set up deliberately. What's the right move?",
+      "choices": [
+        {
+          "label": "Approve anyway; the SOC's call stands.",
+          "rationale": "The IT contact's statement is new signal. Approving against new customer-context information without surfacing it is the unilateral execution failure."
+        },
+        "Reply to the SOC analyst with the user's confirmation before approving; wait for the analyst's response.",
+        {
+          "label": "Close the incident as benign because the customer confirms it's legitimate.",
+          "rationale": "Unilateral override of the SOC — the cardinal mistake."
+        },
+        {
+          "label": "Approve only the autoruns remediation but skip any backing-file removal.",
+          "rationale": "Softening the recommendation. The scope decision belongs to the analyst with the new context."
+        }
+      ],
+      "correct": 1,
+      "explanation": "New signal is information the analyst didn't have. Surface, wait, act on the updated disposition."
+    },
+    {
+      "id": "verify-checks",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "easy",
+      "prompt": "Which set of checks IS the verify step for an autoruns remediation?",
+      "choices": [
+        "Portal shows the remediation completed; the autoruns entry no longer appears in the endpoint's inventory; no re-detection within the next hour; incident note records the remediation, the check, and the closure.",
+        {
+          "label": "Customer confirms via email that the machine feels faster.",
+          "rationale": "Customer-feel isn't a verify input."
+        },
+        {
+          "label": "The SOC analyst replies on the Incident Report thanking you for the action.",
+          "rationale": "SOC reply isn't the verify. End-state-on-endpoint is."
+        },
+        {
+          "label": "The PSA ticket auto-closes when the integration sees Huntress closed.",
+          "rationale": "PSA close is a separate step and doesn't substitute for verify."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The lesson's Verify section, lifted: completed in portal, entry gone, no re-detection in the hour after, note records it."
+    },
+    {
+      "id": "remediation-failed",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The portal shows the remediation failed to apply (error after approval). What's the guidance?",
+      "choices": [
+        "One retry; bump after the second failure. Could be the agent offline at the wrong moment, could be a deeper endpoint problem.",
+        {
+          "label": "Retry as many times as needed until it works.",
+          "rationale": "Repeated failures signal something beyond agent-offline; retries are capped before escalation."
+        },
+        {
+          "label": "Close the incident as \"unable to remediate\" and move on.",
+          "rationale": "Closing without a working remediation leaves the persistence in place."
+        },
+        {
+          "label": "Wait 24 hours and try again.",
+          "rationale": "24 hours is the attacker's gift. Prompt escalation after the second failure, not delayed retry."
+        }
+      ],
+      "correct": 0,
+      "explanation": "One retry, then bump. The lesson's explicit cap."
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "slug": "huntress-operations-checkpoint-host-isolation-what-it-does",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: host isolation — what it does, what it breaks",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "what-isolation-does",
+      "type": "mcq",
+      "topic": "mechanics",
+      "difficulty": "easy",
+      "prompt": "When you isolate a host via Huntress, what does the agent actually do?",
+      "choices": [
+        "Reconfigures the endpoint's network to block almost all traffic, except a documented allow-list (Huntress back end, sometimes RMM, sometimes the customer's DC). The endpoint stays powered on; the user can log in locally.",
+        {
+          "label": "Powers off the endpoint remotely.",
+          "rationale": "The endpoint stays powered on."
+        },
+        {
+          "label": "Locks the user out of their account.",
+          "rationale": "The user can still log in locally. Isolation is network, not account."
+        },
+        {
+          "label": "Encrypts the disk so files can't be exfiltrated.",
+          "rationale": "Not what isolation does. The network is cut; disk and local files are untouched."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Network cut with allow-list; everything else on the endpoint keeps working."
+    },
+    {
+      "id": "works-anywhere",
+      "type": "mcq",
+      "topic": "enforcement",
+      "difficulty": "medium",
+      "prompt": "Does Huntress isolation work outside the customer's corporate network — at home, on hotel WiFi, on cellular?",
+      "choices": [
+        "Yes. The agent enforces the policy. As long as the agent can reach Huntress, isolation applies wherever the endpoint is.",
+        {
+          "label": "No. Isolation only works on the corporate network where the firewall enforces it.",
+          "rationale": "Wrong on the mechanism. The agent enforces, not the customer's firewall. That's the differentiating point."
+        },
+        {
+          "label": "Only on the corporate network and on the customer's VPN.",
+          "rationale": "The agent enforces from anywhere it can reach Huntress."
+        },
+        {
+          "label": "Only on Windows; macOS and Linux endpoints can't be isolated remotely.",
+          "rationale": "Wrong on the facts. Huntress documents isolation for Windows and macOS both."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Agent-enforced containment travels with the endpoint. That's why it's the SOC's tool."
+    },
+    {
+      "id": "user-experience",
+      "type": "mcq",
+      "topic": "user-experience",
+      "difficulty": "medium",
+      "prompt": "A user on an isolated endpoint typically experiences which combination?",
+      "choices": [
+        "Browser shows \"no internet\"; email can't connect; file shares unavailable; Teams/Zoom/Slack disconnect; local files still accessible; the endpoint is otherwise functional.",
+        {
+          "label": "The endpoint shuts down within 30 seconds.",
+          "rationale": "The endpoint stays powered on."
+        },
+        {
+          "label": "All local files become read-only.",
+          "rationale": "Local files are unaffected."
+        },
+        {
+          "label": "The user sees a Huntress logo on their desktop and nothing else.",
+          "rationale": "Not the experience the lesson describes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Network cut, local works. The user thinks their computer is broken; the explanation is what changes that."
+    },
+    {
+      "id": "kills-endpoint-myth",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "easy",
+      "prompt": "Isolating a host shuts down the endpoint and locks the user out of their account.",
+      "correct": false,
+      "explanation": "The endpoint stays powered on, the user can log in locally, and local applications work. The network is severed; the rest is fine."
+    },
+    {
+      "id": "four-moves-order",
+      "type": "order",
+      "topic": "plain-language",
+      "difficulty": "medium",
+      "prompt": "Put the four moves of the plain-language isolation explanation to a customer in the right order.",
+      "items": [
+        "Name the trigger — \"activity that needs immediate containment.\"",
+        "Name the action — \"we've put it into a protected isolation state.\"",
+        "Name the limits — \"you can still log in locally and use what's on the machine, but it can't reach the network.\"",
+        "Name the next step — \"we're working on it; I'll call you when the machine is ready to come out of isolation.\""
+      ],
+      "explanation": "Trigger, action, limits, next step. Patience scales with knowing what comes next."
+    },
+    {
+      "id": "sarah-call",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "You just isolated WS-EXAMPLE-FINANCE-08 per a High Incident Report. The user, Sarah, calls panicking: \"My computer is broken. I have a quarterly report due in two hours.\" What do you tell Sarah?",
+      "choices": [
+        "Use the four-move explanation (trigger, action, limits, next step), then answer her specific concern — if the report is local she can work on it; if it's on a network share she'll need to wait.",
+        {
+          "label": "\"We've blocked your machine because of a security issue. You need to wait.\"",
+          "rationale": "\"Blocked\" frames the action as MSP damage; tells Sarah nothing about scope or timing."
+        },
+        {
+          "label": "\"Your computer was compromised. We had to take it offline. Don't touch anything.\"",
+          "rationale": "Overclaim. \"Compromised\" without qualification scares Sarah; \"don't touch anything\" gives her nothing to do for an hour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Four moves plus the specific answer for her specific concern. Honest about the timeline, honest about what still works."
+    },
+    {
+      "id": "allow-the-share",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Sarah asks: \"But the report is on a network share. Can you let me just connect to that one share? Just for the report?\" What do you tell her?",
+      "choices": [
+        {
+          "label": "\"Yes, I'll allow that one share through the isolation.\"",
+          "rationale": "Isolation policy is binary at the agent level; the allow-list isn't a per-customer-request surface. Opening it defeats the containment."
+        },
+        "\"I can't open the network up while the machine is isolated; that's the whole point. What I can do is get this resolved as fast as possible. While you wait — can you work from another machine, your phone, a tablet? If the file is in SharePoint or OneDrive you can access it anywhere; if it's only on the share I can have a colleague pull a copy to a clean location.\"",
+        {
+          "label": "\"I'm sorry, you'll have to wait until we release it.\"",
+          "rationale": "Defensible but incomplete. Says no without helping Sarah figure out how to meet her deadline. The relationship piece is in offering alternatives."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Honest about the can't, useful about the can, creative about workarounds without weakening isolation."
+    },
+    {
+      "id": "reversible-consequence",
+      "type": "mcq",
+      "topic": "un-isolation",
+      "difficulty": "medium",
+      "prompt": "\"Isolation is reversible without consequence.\" Why does the lesson reject this?",
+      "choices": [
+        "Reversible, yes; without consequence, no. Un-isolating with the threat unresolved puts the same problem back on the network.",
+        {
+          "label": "Un-isolation always succeeds; the consequence is brief downtime, nothing more.",
+          "rationale": "Inverts the warning. The lesson is explicit that premature un-isolation re-exposes the network."
+        },
+        {
+          "label": "Un-isolation requires a senior's approval every time.",
+          "rationale": "The recovery checklist governs the decision; not every un-isolation needs senior approval."
+        },
+        {
+          "label": "Un-isolation invalidates the customer's Huntress licence for 24 hours.",
+          "rationale": "Wrong on the commercial model."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Reversibility doesn't equal safety. The recovery checklist (next lesson) is what makes un-isolation safe."
+    },
+    {
+      "id": "allow-list-shape",
+      "type": "mcq",
+      "topic": "allow-list",
+      "difficulty": "medium",
+      "prompt": "Which is part of the typical isolation allow-list?",
+      "choices": [
+        "Huntress's own back end (so the agent can keep reporting and you can un-isolate later), plus a small set of management exceptions the runbook may specify (RMM, sometimes the customer's DC).",
+        {
+          "label": "Microsoft 365 mail and SharePoint, so the user can keep working.",
+          "rationale": "M365 is on the blocked side. Allowing it would defeat the containment."
+        },
+        {
+          "label": "The user's bookmarked websites.",
+          "rationale": "Not on the allow-list; isolation cuts internet access."
+        },
+        {
+          "label": "Everything except a deny-list of known-bad domains.",
+          "rationale": "Inverts the model. Isolation is default-deny with an allow-list."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Huntress back end + management exceptions per the runbook. Everything else is cut."
+    },
+    {
+      "id": "isolation-symptom",
+      "type": "mcq",
+      "topic": "symptoms",
+      "difficulty": "easy",
+      "prompt": "A user reports \"Outlook is broken on my machine but Teams works on my phone.\" The affected workstation has an active Huntress Incident Report. What's the likely explanation?",
+      "choices": [
+        "Single-machine network failure with the phone unaffected is isolation-shaped. The workstation is probably isolated.",
+        {
+          "label": "Outlook is corrupted on the workstation; reinstall it.",
+          "rationale": "Possible in general, but with an active Incident Report on the host, isolation is the more parsimonious explanation. Check that first."
+        },
+        {
+          "label": "Microsoft 365 is having a regional outage.",
+          "rationale": "A regional outage would affect Teams on the phone too. Phone working rules this out."
+        },
+        {
+          "label": "The user's password expired.",
+          "rationale": "Wouldn't match the single-machine pattern; the phone uses the same account."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Single-machine network failure + active Incident Report = check the portal for isolation before troubleshooting Outlook."
+    }
+  ]
+}

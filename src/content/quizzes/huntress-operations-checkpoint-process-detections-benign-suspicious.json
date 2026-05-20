@@ -1,0 +1,235 @@
+{
+  "slug": "huntress-operations-checkpoint-process-detections-benign-suspicious",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: process detections and benign-but-suspicious activity",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "overlap-toolkit",
+      "type": "mcq",
+      "topic": "overlap",
+      "difficulty": "easy",
+      "prompt": "Why do legitimate IT and attackers use overlapping toolkits (PowerShell, PsExec, scheduled tasks)?",
+      "choices": [
+        "The toolkits are useful for the same reasons, deep OS reach, remote execution, persistence, so both legitimate admins and attackers gravitate to them.",
+        {
+          "label": "Attackers deliberately copy IT toolkits to confuse defenders.",
+          "rationale": "Partial framing; the lesson's point is structural (the tools are inherently useful), not deceptive."
+        },
+        {
+          "label": "Windows only ships with a small set of administrative tools.",
+          "rationale": "Not the lesson's framing. The toolkits exist because they're powerful, not because the OS is constrained."
+        },
+        {
+          "label": "RMMs and attackers both use the same vendors' command-and-control infrastructure.",
+          "rationale": "Fabricated overlap."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The OS doesn't know which is which; that's why the SOC adds context."
+    },
+    {
+      "id": "soc-marks-difference",
+      "type": "mcq",
+      "topic": "soc-context",
+      "difficulty": "medium",
+      "prompt": "How does the SOC mark a benign-but-suspicious detection differently from a malicious one?",
+      "choices": [
+        "Lower severity (Low or High, not Critical); a lighter Recommendation; Evidence that names the tool AND the context (e.g. \"PsExec from RMM-SERVER-01 per the customer's documented RMM pattern\").",
+        {
+          "label": "The SOC doesn't raise benign-but-suspicious detections, only malicious ones.",
+          "rationale": "Wrong. The SOC raises both; the tech reads the Recommendation to know which is which."
+        },
+        {
+          "label": "Benign-but-suspicious detections have no Recommendation field.",
+          "rationale": "Wrong. Every Incident Report has a Recommendation."
+        },
+        {
+          "label": "Benign-but-suspicious detections are sent only to the senior, not the helpdesk tech.",
+          "rationale": "Wrong on the routing model."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The tech reads the Recommendation. If 'no action required, legitimate', no action is required."
+    },
+    {
+      "id": "failure-mode-a",
+      "type": "mcq",
+      "topic": "dismissal-by-pattern",
+      "difficulty": "medium",
+      "prompt": "Failure mode A: \"Oh, that's just our RMM.\" What's the failure?",
+      "choices": [
+        "The tech dismisses an incident as routine RMM activity without reading the Recommendation, but sometimes the SOC raised the incident because the RMM-shaped activity was actually attacker activity disguising itself as the RMM.",
+        {
+          "label": "The tech dismisses an incident even after the Recommendation says to act.",
+          "rationale": "Cruder form. The lesson's specific framing is dismissal-without-reading."
+        },
+        {
+          "label": "The tech assumes the RMM is always legitimate even when there's no incident.",
+          "rationale": "Not the lesson's framing. The failure is specifically inside the incident-triage workflow."
+        },
+        {
+          "label": "The tech investigates the RMM source instead of acting on the Recommendation.",
+          "rationale": "Investigation isn't the named failure here; dismissal is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The dismissal-without-reading is what makes it dangerous. Read the Recommendation first."
+    },
+    {
+      "id": "failure-mode-b",
+      "type": "mcq",
+      "topic": "escalation-by-pattern",
+      "difficulty": "medium",
+      "prompt": "Failure mode B: \"PowerShell encoded command, must be malicious.\" What's the failure?",
+      "choices": [
+        "The tech reaches for the Critical reflex based on the OS-level pattern without reading the Recommendation, but encoded PowerShell can be a legitimate admin script the customer's IT runs nightly, classified by the SOC as legitimate-but-flagged.",
+        {
+          "label": "The tech escalates every encoded PowerShell detection to a senior even after the senior says not to.",
+          "rationale": "That's a coarser failure; the lesson's specific framing is pattern-as-substitute-for-Recommendation."
+        },
+        {
+          "label": "The tech never reads encoded PowerShell commands.",
+          "rationale": "Not the failure. The failure is acting on pattern alone."
+        },
+        {
+          "label": "The tech files an exclusion for all PowerShell encoded commands.",
+          "rationale": "That's a 5.6-style failure (broad exclusion). The 5.5 framing is escalation-by-pattern."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Escalation-by-pattern misses the SOC's actual classification."
+    },
+    {
+      "id": "two-question-test",
+      "type": "mcq",
+      "topic": "two-question-test",
+      "difficulty": "medium",
+      "prompt": "The lesson's two-question test for process detections. What are the two questions?",
+      "choices": [
+        "(1) Did the analyst say to do this in the Recommendation? (2) Is there new signal the analyst didn't have?",
+        {
+          "label": "(1) Is the source the RMM? (2) Is the command encoded?",
+          "rationale": "Pattern-based questions, not Recommendation-based. The whole point is the test isn't pattern-based."
+        },
+        {
+          "label": "(1) Is the severity Low? (2) Is the host a workstation?",
+          "rationale": "Not the lesson's test."
+        },
+        {
+          "label": "(1) Has the customer's IT confirmed it? (2) Is the user available to ask?",
+          "rationale": "Customer confirmation can be new signal but isn't the test itself."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The test is Recommendation plus new signal, not pattern matching."
+    },
+    {
+      "id": "psexec-legitimate",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Low EDR incident, WS-EXAMPLE-IT-02 (customer's IT staff workstation). Title: \"Suspicious PsExec usage detected.\" Evidence: PsExec from WS-EXAMPLE-IT-02 to WS-EXAMPLE-RECEPTION-01. Recommendation: \"No action required. Activity matches the customer's documented internal IT process. Closing as legitimate.\" What's the right action?",
+      "choices": [
+        "Close the incident with no action, per the Recommendation.",
+        {
+          "label": "Investigate PsExec usage to confirm it's really the customer's IT process.",
+          "rationale": "Wrong reflex. The investigation happened; re-investigating from the tech seat is second-guessing the SOC."
+        },
+        {
+          "label": "Approve a remediation 'to be safe' even though none is recommended.",
+          "rationale": "Worst response. No remediation in the Recommendation; acting outside it."
+        },
+        {
+          "label": "File an exclusion for PsExec on WS-EXAMPLE-IT-02 so it doesn't fire again.",
+          "rationale": "Wrong timing and wrong shape. Exclusions need multiple SOC-classified-benign incidents first."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC classified it; the Recommendation is in the action zone; 'no action required' IS the action."
+    },
+    {
+      "id": "encoded-powershell-malicious",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Low EDR incident on WS-EXAMPLE-MARKETING-04. Title: \"PowerShell encoded command.\" Evidence: encoded payload reaches a known-bad domain. Recommendation: \"Approve the autoruns remediation. This is not legitimate admin activity.\" What's the right action?",
+      "choices": [
+        "Run the standard EDR workflow per the Recommendation: claim, review, approve the remediation, verify, close, document.",
+        {
+          "label": "Treat as Critical because 'PowerShell encoded command always means malicious'.",
+          "rationale": "Wrong reflex. Escalation-by-pattern; the SOC tagged it Low with a specific remediation."
+        },
+        {
+          "label": "Dismiss as 'probably an admin script' without reading the Recommendation.",
+          "rationale": "Wrong from the other side. Dismissal-by-pattern would have missed the 'not legitimate' classification."
+        },
+        {
+          "label": "Isolate the host immediately and bump the senior.",
+          "rationale": "Treating a Low as Critical based on pattern alone."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC's classification, not the OS-level pattern, drove the response. Standard Low workflow."
+    },
+    {
+      "id": "rmm-misconception",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "hard",
+      "prompt": "\"If it looks like the RMM, it's the RMM.\" What does the lesson say?",
+      "choices": [
+        "Sometimes. Read the SOC's classification, the SOC has access to information about your RMM's normal patterns that you can confirm at the moment.",
+        {
+          "label": "Always, RMM sources are trusted by default.",
+          "rationale": "The misconception. Trusting source-by-appearance is the dismissal-by-pattern failure."
+        },
+        {
+          "label": "Never, RMM sources should be treated as suspicious by default.",
+          "rationale": "The opposite misconception. Treating all RMM-shaped activity as suspicious is the escalation-by-pattern failure."
+        },
+        {
+          "label": "Only if the customer's IT contact confirms in writing.",
+          "rationale": "Customer confirmation can be new signal, but it's not the test. The Recommendation is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Read the Recommendation, not the pattern."
+    },
+    {
+      "id": "new-signal-clarifying-reply",
+      "type": "mcq",
+      "topic": "new-signal",
+      "difficulty": "medium",
+      "prompt": "You read a benign-classified process detection. You have new signal the SOC didn't have, the user phoned to say they didn't initiate the activity. What do you do?",
+      "choices": [
+        "Reply to the SOC with the new signal, don't act unilaterally. New signal routes through the analyst, not through tech-seat re-classification.",
+        {
+          "label": "Close the incident as benign anyway, the SOC has already classified.",
+          "rationale": "Wrong. The user denial IS new signal the SOC didn't have."
+        },
+        {
+          "label": "Approve a remediation unilaterally on the basis of the user denial.",
+          "rationale": "Wrong. Unilateral remediation against the SOC's 'no action' classification is the second-guessing failure."
+        },
+        {
+          "label": "Escalate to a senior immediately as a Critical.",
+          "rationale": "Premature. The SOC's clarifying reply is the right channel."
+        }
+      ],
+      "correct": 0,
+      "explanation": "New signal goes back to the SOC. Tech-seat re-classification isn't the answer."
+    },
+    {
+      "id": "investigate-to-be-sure",
+      "type": "tf",
+      "topic": "misconception",
+      "difficulty": "easy",
+      "prompt": "When a process detection lands, the tech should investigate the process themselves to be sure of the classification.",
+      "correct": false,
+      "explanation": "Same family of mistake as second-guessing the SOC. The Recommendation is the action zone; tech-seat investigation duplicates the SOC's work with worse tooling."
+    }
+  ]
+}

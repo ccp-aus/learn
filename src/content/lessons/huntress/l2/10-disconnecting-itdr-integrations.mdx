@@ -2,16 +2,91 @@
 slug: 10-disconnecting-itdr-integrations
 vendor: huntress
 level: l2
-title: Disconnecting ITDR Integrations
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Disconnecting ITDR integrations
+summary: The step half-done offboardings most often skip. Each connected tenant gets its own disconnect; if both M365 and Workspace were connected, both need cutting. Verify no events arrive in the 24 hours after.
+estimatedMinutes: 7
 order: 10
 topics:
   - offboarding
   - itdr
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The ITDR disconnect is the step half-done offboardings most often skip. The agents got removed, the billing got closed, the customer is gone, but the OAuth grant on their M365 tenant is still there, and their identity telemetry is still flowing into your Huntress portal generating noise that lands in *somebody's* triage queue weeks later. The disconnect is technically a single action per tenant. The discipline is doing it, verifying it, and documenting it.
+
+## What the disconnect does
+
+On the Huntress side:
+
+- Stops accepting telemetry from the customer's tenant.
+- Closes the integration on the portal. The Identity, M365 or Identity, Google Workspace view shows *Not connected*.
+- Stops generating identity Incident Reports against the disconnected tenant.
+
+On the customer side:
+
+- **M365**: the enterprise application registered in the customer's Entra ID tenant remains but is no longer authorised (or, depending on the runbook, is removed from the customer's tenant entirely).
+- **Workspace**: the OAuth grant in the customer's Google Admin console remains but is no longer active (or removed, again depending on the runbook).
+
+The *remains-but-inactive* vs. *removed-from-the-tenant* difference matters for the customer's record. Some MSPs do the in-portal disconnect only; some go further and ask the customer's admin to remove the app or grant from their tenant. Your runbook will say which. If it doesn't, bump.
+
+## Pre-flight
+
+<StepThrough client:load>
+  <Step title="Confirm step 1 of the offboarding sequence is done">
+    Notifications paused. The disconnect-time *service disconnected* events won't ping the customer.
+  </Step>
+  <Step title="Confirm you are in the right customer organisation">
+    Header-strip discipline. Disconnecting ITDR on the wrong customer is the most expensive single-click mistake in the offboarding sequence; you would be cutting telemetry for an active customer.
+  </Step>
+  <Step title="Know which tenants are connected">
+    Most customers have one (M365 *or* Workspace). A few have both. Disconnect each separately; don't assume one is enough.
+  </Step>
+  <Step title="Have the customer's admin reachable if the runbook requires customer-side removal">
+    Most disconnects don't need them, but if the runbook says the customer should remove the app or grant from their tenant, schedule the brief call.
+  </Step>
+</StepThrough>
+
+## Running the disconnect
+
+For each connected tenant in the customer's organisation:
+
+1. From the customer's organisation in Huntress, go to **Identity, Microsoft 365** (or Google Workspace) and select **Disconnect** or its equivalent named action.
+2. The portal confirms the disconnect intent and processes it.
+3. The connection state flips to *Not connected* with the relevant timestamp.
+4. If the runbook calls for customer-side removal of the enterprise application or OAuth grant, schedule the brief call with the customer's admin, walk through the removal in their admin console (M365: Enterprise Applications, remove the Huntress app; Workspace: Security, API controls, revoke the Huntress grant), and confirm completion.
+
+## Verify
+
+- The Identity, M365 (or Google Workspace) view in the customer's organisation reads *Not connected*.
+- The integration's last-event timestamp is from before the disconnect; no new events have arrived after.
+- No identity-related Incident Reports for this customer arrive in the 24 hours after disconnect. If one does, the disconnect didn't take; bump.
+- If customer-side removal was part of the runbook, the enterprise application or OAuth grant is no longer present in the customer's admin console.
+- A short note in the MSP's PSA records: which tenants were disconnected, when, whether customer-side removal happened, and who confirmed.
+
+<Callout type="warn" title="Don't skip the 24-hour check">
+Disconnects almost always work. When they don't, the failure is silent: the portal shows *Not connected* but events continue to arrive. Rare, but it happens with state-sync glitches. A glance the next day catches this.
+</Callout>
+
+## A worked ticket: both tenants and a late-arriving event
+
+Mid-offboarding for a customer. You have paused notifications. You are on the ITDR disconnect step. The customer has both M365 and Google Workspace connected. The senior's offboarding kickoff note says: *"Disconnect both, customer-side removal of the OAuth artefacts is included in our standard offboarding."*
+
+Disconnecting M365 and leaving Workspace *in case the customer needs it* is wrong, the customer is offboarding, you don't keep telemetry flowing in case they want it later. Disconnecting both and skipping the customer-side removal is also wrong, the senior's note included it. The right shape is disconnect both M365 and Workspace in the portal, schedule a short call with the customer's super-admin to also remove the OAuth grants on the customer side per the senior's note. Ten minutes total. Loop closed cleanly.
+
+The next morning, the portal shows a new ITDR Incident Report against an account at the customer's domain that arrived overnight, after both disconnects were confirmed. Closing it as benign because *the customer is offboarded* is wrong, the new incident is the signal that something didn't take. Re-running the disconnect on both tenants without investigating might solve the right problem; it might also paper over a state-sync issue that re-disconnect won't fix.
+
+The right move is investigate. Either the disconnect didn't take cleanly (state-sync glitch, bump for Huntress support via the senior), the disconnect was reverted somehow (someone re-consented), or the timestamp on the incident is from before the disconnect and it is a late-arriving event. Confirm which, then act. The new incident is information; treat it as a debugging signal, not routine triage.
+
+## Common mistakes
+
+- **Disconnecting one tenant when the customer had both.** The portal continues to receive telemetry from the still-connected tenant. Offboarding looks complete; isn't.
+- **Skipping customer-side removal when the runbook requires it.** The in-portal disconnect closes the Huntress side; the enterprise application or OAuth grant can remain on the customer's tenant as a quiet artefact. The runbook decides; follow it.
+- **Not verifying with a 24-hour check.** State-sync glitches are rare but real. The only way to detect them is the next-day check.
+
+## When to escalate
+
+- **Disconnect appears to complete but events keep arriving.** State sync problem. Bump and open a Huntress support ticket via the senior.
+- **Customer's admin can't remove the enterprise application or OAuth grant on their side.** Tenant restrictions, or the consenting admin has left. Customer-side change management; senior owns the resolution.
+- **Customer says they don't want the app removed from their tenant, "we might need this audit trail."** Customer-handover negotiation, not a technical step. Bump.
+
+<Checkpoint slug="huntress-operations-checkpoint-disconnecting-itdr-integrations" client:visible />

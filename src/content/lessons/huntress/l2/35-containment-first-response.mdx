@@ -2,16 +2,111 @@
 slug: 35-containment-first-response
 vendor: huntress
 level: l2
-title: Containment First Response
-summary: Skeleton — lesson body to be written.
+title: The containment-first response
+summary: Contain, escalate in parallel, do not investigate. One rule across five branching shapes, single-host, multi-host, identity, mixed, and re-detection. The branching is what you contain and who you call, not whether you switch into the reflex.
 estimatedMinutes: 8
 order: 35
 topics:
   - critical
   - containment
+  - escalation
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Lesson 33 named the markers. Lesson 34 drilled the most common Critical pattern. This lesson extends the same reflex across the rest of the Critical surface. The rule is one shape: contain, escalate, hand off. The branching is in *what* you contain (host, identity, set of hosts) and *who* you escalate to. Once the rule is second-nature, the variance across patterns stops feeling like different work, it feels like the same work applied to different surfaces.
+
+## The three steps are one motion
+
+**Contain.** Whatever is in front of you, contain it. Host, isolate. Identity, run the ITDR compromise playbook (Course 6 details, the reflex starts here). Multiple hosts, isolate each in order as fast as possible. The SOC-driven containment via the agent is the load-bearing capability that separates Huntress from a generic AV pop-up; you're not waiting for an alert pipeline to suggest action, the SOC has already classified and isolation is the next click.
+
+**Escalate in parallel.** Not after. While you're containing. The on-call senior gets the bump as the containment is happening; they may take the response over immediately.
+
+**Do not investigate.** The Evidence read is context for the senior, not analysis for the tech. No sandboxing the binary, no checking the user's recent activity, no looking up the source IP. All of that is above the helpdesk ceiling on Critical.
+
+The order is contain-then-escalate only because containing takes 30 seconds and escalation takes longer to acknowledge. The moment you can hand the senior the bump, you hand it.
+
+## Five branching shapes, one rule
+
+| Scenario | What you contain | Who you escalate to |
+|---|---|---|
+| Single-host EDR Critical | Isolate the named host | On-call senior, in parallel |
+| Multi-host EDR Critical (lateral movement signal) | Isolate each host in the order they fire | On-call senior on the first, real-time updates as you isolate more |
+| Identity Critical (admin abuse, tenant-wide indicators) | Run the ITDR compromise playbook on the affected identity | On-call senior immediately; wider blast radius than endpoint |
+| Mixed EDR + Identity Critical | Contain whichever surface fired first | On-call senior weighs whether you take the second surface or they do |
+| Re-detection on a previously-contained host post-release | Re-isolate immediately | On-call senior, original High classification may have been wrong |
+
+The variance is in the *what* and the *who*. The rule itself doesn't change. Single-host is the most common shape; the others share the same three-step motion with different targets.
+
+## What "escalate in parallel" looks like in practice
+
+The bump happens via the runbook's documented Critical-escalation path. For most MSPs that's three channels, used together:
+
+- A specific phone number for the on-call senior. Highest signal.
+- A dedicated chat channel (Slack, Teams) with an @-mention. Backup that the team can see.
+- A PSA priority flag that creates a senior-visible alert. The durable record.
+
+Doing all three on a Critical isn't excessive, it's standard. The senior may take the response over on the phone; the chat channel keeps the team aware; the PSA flag is the durable record. The bump message is short, specific, action-oriented: "Critical canary trip on SRV-EXAMPLE-FILE-01, isolated at 03:14, on the line, who's available?" Not "I have something I'd like to discuss when you have a moment."
+
+## What "do not investigate" looks like in practice
+
+After you've contained and escalated:
+
+- You don't open the Evidence section to read what the canary trip looked like.
+- You don't check the endpoint's recent process tree to see what spawned the activity.
+- You don't query the customer's RMM for related signals.
+- You don't reach out to the user to ask what they were doing.
+
+You do:
+
+- Document the timeline (timestamps, actions taken).
+- Stand by for senior direction.
+- Handle customer comms when the senior gives you the go-ahead, often the senior wants to handle this themselves on Critical, sometimes they delegate the IT-manager call to the tech with a specific message.
+- Isolate further hosts if more Critical incidents land on the same customer.
+
+<Callout type="danger" title="Investigating in the gap is the named failure mode">
+"I've contained the host, the senior is on their way, I might as well investigate while I wait." This is the failure mode the lesson is built to prevent. The senior wants you contained-and-paused, not contained-and-pre-investigating. Tech-seat investigation has order-of-volatility costs on the endpoint, the senior's forensic work can be damaged by well-intentioned pre-investigation. Document timestamps. Stand by. Don't dig.
+</Callout>
+
+## The multi-host pattern, where most new techs slip
+
+Wednesday 11:22. Two Criticals land within 90 seconds for Northwind Logistics. Incident A: `SRV-NORTHWIND-DC-01` (domain controller), "Suspicious LSASS access pattern," Recommendation isolate. Incident B: `WS-NORTHWIND-IT-03`, "Mimikatz-shaped tool execution detected," Recommendation isolate. Two Critical reports, same customer, 90 seconds apart. The pattern is lateral movement, even if the SOC hasn't said the word yet.
+
+<DecisionTree client:load
+  title="Two Criticals, 90 seconds apart, same customer"
+  description="Containment priority is set by blast radius. A domain controller compromise touches everything; a workstation compromise touches one user's machine. The escalation timing is the second decision, and it doesn't wait for the second containment to finish."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Order of actions for the two Criticals?", choices: [
+      { label: "Isolate A (DC, higher blast radius), then call the senior, then isolate B", next: "half" },
+      { label: "Isolate A, bump senior in parallel while A's agent processes, then isolate B", next: "right" },
+      { label: "Call the senior first, ask which to isolate first, then act on their direction", next: "ask" },
+      { label: "Isolate B first because it's the foothold, then A, then escalate", next: "inverted" },
+    ]},
+    { type: "outcome", id: "right", label: "Contain A first, parallel bump, contain B next", tone: "success",
+      body: <>Containment of A first because the DC blast radius is highest. Escalation happens in the seconds-long gap while A's isolation is processing, "two Criticals on Northwind, A is DC LSASS, B is Mimikatz on IT workstation, isolating A now, B next". B follows immediately. The senior is fully aware before either containment finishes.</> },
+    { type: "outcome", id: "half", label: "Half right, escalation too late", tone: "warn",
+      body: <>A-first by blast radius is correct, but stretching the escalation to "after I isolate A" leaves a minute or more before the senior knows. The senior wants situational awareness from the moment of the second Critical, not after you've worked the queue alone for ninety seconds.</> },
+    { type: "outcome", id: "ask", label: "Wrong reflex, you're asking permission", tone: "bad",
+      body: <>Both are Critical with isolate-immediately Recommendations. Both need isolation. Asking the senior for permission delays both containments. The senior wants to know what you're doing, not to be asked which Critical to handle first.</> },
+    { type: "outcome", id: "inverted", label: "Inverts the blast-radius priority", tone: "bad",
+      body: <>The DC compromise is the higher-priority containment because anything authenticated on the domain touches the DC. The workstation matters but it doesn't touch everything in the customer's environment. Order by blast radius, not by attack-chain narrative.</> },
+  ]}
+/>
+
+## When the customer calls mid-response
+
+The customer's IT manager calls three minutes after the second isolation: "My morning team stand-up just got cancelled because two of our machines went dark. What's going on?"
+
+The senior is on the line and has told you to stand by. You can't ignore the call. You can't deliver a full briefing either, customer comms during a senior-led Critical follow the senior's brief, not the tech's framing.
+
+The shape that holds both lines: tell the IT manager you're handling an active security event, two systems are intentionally contained as a protective measure, the senior leading the response will brief them within ten minutes. Then bridge to the senior on the phone: "Northwind's IT manager just called asking what's happening. What do you want me to tell them?" You've held the immediate line (customer knows it's deliberate, knows a senior is involved, expects a callback) without freelancing the deeper message.
+
+"Can't comment" frames the MSP as guarded at a moment the customer needs reassurance. A full tech-led explanation freelances the message. The middle line is what builds trust.
+
+## When to escalate further
+
+- The on-call senior is unreachable. Escalate up the on-call chain per the runbook; don't loop on the same name.
+- The Critical has a customer-relationship dimension you can already see is intense, key customer, major impact, sensitive timing (board meeting, financial close, a public-facing system). Tell the senior immediately; this affects how the response is handled.
+- The Critical is on a customer whose product mix includes Managed SIEM and the SIEM is showing related signals you can see in the portal. Surface this to the senior, the correlation is the kind of signal that drives their next decision.
+
+<Checkpoint slug="huntress-operations-checkpoint-containment-first-response" client:visible />

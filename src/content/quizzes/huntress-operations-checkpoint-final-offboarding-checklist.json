@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-final-offboarding-checklist",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the final offboarding checklist",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "deletion-scope",
+      "type": "mcq",
+      "topic": "deletion",
+      "difficulty": "easy",
+      "prompt": "Permanent deletion of the organisation from the portal at the end of the offboarding. What does the lesson say?",
+      "choices": [
+        "Not on the checklist. The senior owns the call, usually weeks or months later. Most MSPs leave the org archived for record-retention.",
+        {
+          "label": "The tech runs it once the billing-closure ticket is open.",
+          "rationale": "Billing closure being open is exactly the senior-owned wrap-up; deletion isn't a tech step at this stage."
+        },
+        {
+          "label": "Huntress automatically deletes the org 90 days after billing closure.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "It's required to free up the organisation slot for new customers.",
+          "rationale": "No org-slot constraint that requires deletion."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The irreversible mistake the lesson exists to prevent. Most MSPs archive for record-retention, often seven-plus years."
+    },
+    {
+      "id": "subscription-out-of-scope",
+      "type": "mcq",
+      "topic": "subscription",
+      "difficulty": "medium",
+      "prompt": "\"Subscription cancellation with Huntress\" appears in the lesson's not-in-scope list. Why?",
+      "choices": [
+        "It's a Huntress-customer-portal action that the senior or the billing function handles, coordinated with Huntress's account team.",
+        {
+          "label": "Techs don't have an account in the Huntress customer portal.",
+          "rationale": "Might be true at some MSPs, but the reason is scope of authority, not credentials."
+        },
+        {
+          "label": "Subscription cancellation is automatic when agents reach zero.",
+          "rationale": "Subscriptions are commercial, not auto-driven by agent count."
+        },
+        {
+          "label": "Cancellation is the same step as the billing-closure ticket.",
+          "rationale": "Related but separate. The billing-closure ticket flags the senior to start the commercial wrap-up; cancellation is the senior's action."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Anything touching money, contract, or irreversible portal state is out of scope, every time."
+    },
+    {
+      "id": "verbal-delegation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Final state: 1 agent online (documented exception), ITDR disconnected on both, SIEM disconnected, incidents exported. You're raising the billing-closure ticket. A more senior tech walks past: \"While you're at it, delete the org; saves us cluttering up the portal.\" What do you do?",
+      "choices": [
+        {
+          "label": "Delete the org. The senior tech said it's fine.",
+          "rationale": "Permanent org deletion is a senior decision; 'the senior tech said in passing' is not the form senior decisions take."
+        },
+        "Ask the senior tech to either delete it themselves or document the delegation in the offboarding runbook before you click. Meanwhile, raise the billing-closure ticket as planned.",
+        {
+          "label": "Compromise: rename the org \"DELETED-Northwind-2026-05\" so it's clearly closed without actually deleting.",
+          "rationale": "Wrong middle path. Renames at offboarding are noise. The org's status (archived, no agents, no integrations) tells the next tech everything they need."
+        }
+      ],
+      "correct": 1,
+      "explanation": "You're not refusing; you're putting the irreversible action behind the same gate the runbook puts all of them behind."
+    },
+    {
+      "id": "residual-exception",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Billing-closure ticket reply from senior: \"Looks good, but the tamper-protected server should be the customer's responsibility, not ours. Tell the customer we need them to handle the agent removal on their side, then close out fully.\" What do you do?",
+      "choices": [
+        {
+          "label": "Update the checklist to \"agents at zero\" prematurely so the offboarding doesn't look stuck.",
+          "rationale": "The agent is still online; tick-with-fiction is worse than tick-with-exception."
+        },
+        "Pass the senior's message to the customer's IT contact (with the senior's blessing on phrasing), wait for the customer-side removal, then close out the agent line item when the portal shows zero.",
+        {
+          "label": "Close the offboarding now and revisit the residual agent \"later.\"",
+          "rationale": "\"Later\" rarely happens; the residual becomes the artefact a different tech finds in six months and doesn't know what to do with."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The senior has made the ownership call; you do the comms and wait for the state to match the checklist."
+    },
+    {
+      "id": "ticks-with-caveats",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Signing off the checklist with one or more 'mostly done' items.\" Why is this a named common mistake?",
+      "choices": [
+        "Agents at 4-of-198 isn't \"agents at zero.\" If there's a documented exception, name it as an exception, not as a tick. \"Tick with caveats\" is the disguise the half-done state wears.",
+        {
+          "label": "Mostly-done ticks fail the LMS validation in the PSA.",
+          "rationale": "Not a real validation mechanic."
+        },
+        {
+          "label": "The senior gets paged for any tick that isn't 100%.",
+          "rationale": "Not a real workflow."
+        },
+        {
+          "label": "Huntress audits ticks and rolls back over-claimed completions.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The checklist's value is its honesty. Fake ticks hide the half-done state until the next tech finds it."
+    },
+    {
+      "id": "close-billing",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Closing the billing-closure ticket yourself.\" Why is this called out?",
+      "choices": [
+        "The ticket is raised for the senior. The tech who closes it is taking an action they don't own on a step with commercial implications they don't see.",
+        {
+          "label": "Closing the ticket triggers permanent org deletion.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Tech-closed billing tickets bypass the audit log.",
+          "rationale": "The reason is ownership, not audit log mechanics."
+        },
+        {
+          "label": "Huntress charges a re-open fee on tech-closed billing tickets.",
+          "rationale": "Not a real commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same boundary lesson 1 opened with. The tech raises and routes; the senior closes."
+    },
+    {
+      "id": "post-offboarding-request",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer (post-offboarding) emails you asking for a copy of an old incident report. What do you do?",
+      "choices": [
+        "Route the request via the senior or account manager, it's a record-of-service request, not a tech action.",
+        {
+          "label": "Pull the report from the portal and email it to them yourself.",
+          "rationale": "The tech isn't authorised to release records to an ex-customer unilaterally."
+        },
+        {
+          "label": "Tell them the incident has been deleted because they offboarded.",
+          "rationale": "Likely false (most MSPs archive incidents under retention policy) and dismisses the customer without checking."
+        },
+        {
+          "label": "Open a Huntress support ticket asking them to retrieve the report.",
+          "rationale": "The MSP holds the records via its retention policy; Huntress is not the route."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Post-offboarding customer requests are commercial-touch surfaces, not tech work."
+    },
+    {
+      "id": "checklist-discipline",
+      "type": "mcq",
+      "topic": "checklist-discipline",
+      "difficulty": "medium",
+      "prompt": "Why does the lesson say \"even seniors do this\" about running the physical checklist?",
+      "choices": [
+        "The point of a checklist is that it removes the question \"did we do that?\" from the conversation, replacing it with a tick or a blank. Memory isn't a substitute, regardless of seniority.",
+        {
+          "label": "Seniors are required to run two checklists for cross-verification.",
+          "rationale": "Not a real requirement."
+        },
+        {
+          "label": "Senior-run checklists are stored separately for compliance audits.",
+          "rationale": "Not the lesson's framing."
+        },
+        {
+          "label": "Seniors run the checklist as part of training new techs.",
+          "rationale": "The reason is process discipline, not training visibility."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The discipline is process, not seniority. Tick or blank, no memory substitution."
+    },
+    {
+      "id": "blocked-item",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "easy",
+      "prompt": "An item on the checklist can't be completed cleanly, ITDR won't disconnect, or a handful of resistant agents won't decommission. What does the lesson say?",
+      "choices": [
+        "Bump with the specific state; don't sign off and hope.",
+        {
+          "label": "Mark the item as \"done with notes\" and continue.",
+          "rationale": "\"Done with notes\" on a blocked item is exactly the tick-with-caveats common mistake."
+        },
+        {
+          "label": "Open a Huntress support ticket and put the offboarding on hold pending their response.",
+          "rationale": "Support might be the right next step in some cases, but going there before bumping the senior reverses the escalation order."
+        },
+        {
+          "label": "Retry the blocked item every hour until it succeeds.",
+          "rationale": "Retry-loops don't surface the issue to anyone who can fix it."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Hope isn't an offboarding completion strategy. Bump with the specific blocked-item state."
+    },
+    {
+      "id": "billing-closure-by-tech",
+      "type": "tf",
+      "topic": "ownership",
+      "difficulty": "easy",
+      "prompt": "The tech raises the billing-closure ticket and the tech also closes it once the senior reads it.",
+      "correct": false,
+      "explanation": "The tech raises and routes; the senior owns the close. Same lesson 1 boundary, applied at the end of the course."
+    }
+  ]
+}

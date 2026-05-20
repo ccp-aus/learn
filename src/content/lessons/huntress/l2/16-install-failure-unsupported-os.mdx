@@ -2,17 +2,83 @@
 slug: 16-install-failure-unsupported-os
 vendor: huntress
 level: l2
-title: Install Failure Unsupported OS
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Install failure, unsupported OS or missing dependencies
+summary: Sometimes the right answer is "this endpoint can't be covered." The supported-platforms list is the bright line. A missing dependency on a supported OS is a routine fix; an unsupported OS is a senior conversation, not a different install attempt.
+estimatedMinutes: 7
 order: 16
 topics:
   - agent
   - install-failure
-  - os
+  - os-support
+  - dependencies
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+This is the failure mode where the right answer is sometimes *this endpoint can't be covered*. New techs reach for fixes that don't exist: chasing a Windows 7 install with patches and shims, or trying to bend the agent onto a NAS appliance. The agent's supported-platform list is the bright line. Past it, the customer needs a different conversation, not a different attempt at the install.
+
+## The bright line
+
+> **Supported OS + missing dependency = fixable. Unsupported OS = out of scope.**
+
+The install log tells you which side of the line you're on. Read it before reaching for any fix.
+
+## What an unsupported-OS install looks like
+
+- The installer exits with a message naming the OS version as unsupported.
+- The installer runs but the service fails to register a critical OS API. The install log names the missing API.
+- The Linux package manager refuses because the libc version, kernel version, or distribution major-version is too old or too new.
+- macOS rejects the agent because the Endpoint Security entitlement isn't compatible with the macOS version.
+- The endpoint is a network appliance, embedded device, hypervisor without a guest OS layer, or mobile device. The agent isn't built for any of those.
+
+What looks like unsupported but isn't:
+
+- A missing single dependency (Visual C++ runtimes, .NET, an OS update prerequisite) on an otherwise-supported OS. That's fixable.
+- A user-mode security tool blocking access to OS APIs. That's AV-class (lesson 14).
+
+## The procedure
+
+<DecisionTree client:load
+  title="Is this fixable or out of scope?"
+  description="The install log names the failure. Cross-check against Huntress's supported-platforms list before changing anything. The route depends entirely on which side of the bright line the endpoint sits on."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What does the install log say?", choices: [
+      { label: "Names the OS version as unsupported, or names a missing OS API on a clearly old/unusual OS", next: "checkoos" },
+      { label: "Names a specific missing dependency (Visual C++, .NET, an OS update prerequisite) on a current OS", next: "fixdep" },
+      { label: "Names neither, just a generic failure", next: "diagnose" },
+    ]},
+    { type: "question", id: "checkoos", prompt: "Is the OS on the Huntress supported-platforms list?", choices: [
+      { label: "Not on the list (Windows Server 2012 R2, EOL Linux, embedded device, mobile, network appliance)", next: "outofscope" },
+      { label: "On the list, but the install still fails after the named dependencies are addressed", next: "regression" },
+    ]},
+    { type: "outcome", id: "fixdep", label: "Routine fix, push the dependency then retry", tone: "success",
+      body: "Install the named dependency via the RMM, wait for it to apply, then re-run the Huntress install. Document the dependency push in the PSA so the next tech sees the pattern." },
+    { type: "outcome", id: "outofscope", label: "Out of scope, document and escalate", tone: "warn",
+      body: "Stop the install attempts. Update the PSA with the endpoint name, OS version, and 'out of scope per Huntress supported-platforms list.' Bump to the senior so the customer's coverage plan can have the conversation about replace, deprecate, or accept the gap. Older agent versions are NOT a workaround: they're stale, they won't upgrade, and the SOC's detections won't apply cleanly." },
+    { type: "outcome", id: "regression", label: "Compatibility regression, senior plus Huntress support", tone: "info",
+      body: "With AV, policy, and dependencies ruled out on a supported OS, this is a regression worth Huntress support's attention. Bump via the senior; they coordinate the engagement." },
+    { type: "outcome", id: "diagnose", label: "Diagnose other failure classes first", tone: "info",
+      body: "Generic failure with no OS/dependency hint usually points back at AV (lesson 14), policy (lesson 15), or blocked outbound (lesson 17). Read the log again with those classes in mind before treating it as an OS issue." },
+  ]}
+/>
+
+For a confirmed unsupported endpoint, the PSA record names the endpoint, the OS version, and "out of scope per Huntress supported-platforms list." The senior takes the customer conversation forward: replace the endpoint, deprecate it, or accept the gap with the customer's acknowledgement.
+
+## Common mistakes
+
+- **Chasing fixes on a genuinely unsupported OS.** "Maybe a compatibility shim will work." It won't. Even if you bend the install on by hand, the agent will fail to upgrade in three months and you'll be back. Unsupported is unsupported.
+- **Treating a missing dependency as unsupported.** The opposite mistake. The OS is fine; the install needs one runtime the endpoint doesn't have. Install it, re-run.
+- **Asking the customer to upgrade an unsupported OS "to make Huntress work."** Deployment-strategy question (probably also a hardware-refresh question). Senior owns the customer conversation.
+- **Running the install with `/FORCE` to skip dependency checks.** The dependency was named for a reason. Skipping it means the agent installs but doesn't work.
+
+## A worked ticket: Riverbend Legal (NAS box)
+
+Riverbend Legal's IT contact mentions a small NAS box running Windows Storage Server 2012 R2 that they'd "love to get covered." The install fails with an OS-version error in the install log.
+
+The wrong move is *try harder; pull down older agent versions until you find one that worked on Server 2012 R2*. Older agent versions aren't a supported path. They're stale, they won't upgrade, and the SOC's detections won't apply cleanly. Even if it installs, the customer thinks the endpoint is protected when it isn't.
+
+The right move: confirm against the supported-platforms list that Server 2012 R2 is out of scope, document the finding, bump to the senior. The customer's wish doesn't change the line; the senior has the customer-side conversation about what to do with the endpoint. Half-right would be closing the ticket with "agent can't go on it" and saying nothing else. That ducks the customer's underlying need. Document and bump.
+
+Contrast: `WS-AMOOSE-CAD03` (current supported Windows 11) fails install with *missing dependency: Visual C++ 2015–2022 Redistributable*. Same lesson, opposite outcome. Push the runtime via the RMM, wait for it to install, re-run the Huntress install. Document the dependency push so the next tech recognises the pattern.
+
+<Checkpoint slug="huntress-operations-checkpoint-install-failure-unsupported-os" client:visible />

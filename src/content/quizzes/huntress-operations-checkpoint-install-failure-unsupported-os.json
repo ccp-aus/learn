@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-install-failure-unsupported-os",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: install failure, unsupported OS or missing dependencies",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "bright-line",
+      "type": "mcq",
+      "topic": "bright-line",
+      "difficulty": "easy",
+      "prompt": "What's the bright line for unsupported-OS diagnosis?",
+      "choices": [
+        "Supported OS plus missing dependency equals fixable; unsupported OS equals out of scope.",
+        {
+          "label": "If the install log mentions an OS, the endpoint is out of scope.",
+          "rationale": "Too broad. Many fixable install logs mention the OS."
+        },
+        {
+          "label": "Anything older than five years is out of scope.",
+          "rationale": "The supported-platforms list is the authority, not age in years."
+        },
+        {
+          "label": "Anything that isn't Windows is out of scope.",
+          "rationale": "macOS and Linux are supported."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The diagnostic skill is recognising which side of the line the endpoint is on. The install log tells you."
+    },
+    {
+      "id": "missing-vcredist",
+      "type": "mcq",
+      "topic": "fixable-dependency",
+      "difficulty": "medium",
+      "prompt": "An installer fails on a current supported Windows 11 with 'missing dependency: Visual C++ 2015-2022 Redistributable' in the log. What category is this?",
+      "choices": [
+        {
+          "label": "Out of scope; mark the endpoint as unsupported.",
+          "rationale": "The OS is supported; the install needs a runtime. Fixable, not unsupported."
+        },
+        "Fixable dependency gap on a supported OS. Install the dependency via the RMM, then re-run the Huntress install.",
+        {
+          "label": "AV interference.",
+          "rationale": "The log named a missing runtime, not an AV-shaped block."
+        },
+        {
+          "label": "Run the install with `/FORCE` to skip the dependency check.",
+          "rationale": "Skipping a real dependency check means the agent installs but doesn't work."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The dependency is named in the log; the fix is install-then-retry."
+    },
+    {
+      "id": "older-agent-versions",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "A NAS box runs Windows Storage Server 2012 R2 and the install fails with an OS-version error. Why is 'pull down older agent versions until one works on Server 2012 R2' wrong?",
+      "choices": [
+        "Older agent versions aren't a supported path. They're stale, they won't upgrade, and the SOC's detections won't apply cleanly. Worse than no coverage because the customer thinks the endpoint is protected.",
+        {
+          "label": "Older agent versions cost more.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Older agent versions trigger Critical incidents.",
+          "rationale": "Not how the SOC operates."
+        },
+        {
+          "label": "Older agent versions can't be uninstalled.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Bending an old agent onto an out-of-scope OS gives false comfort."
+    },
+    {
+      "id": "opposite-mistake",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "What's the opposite mistake the lesson names?",
+      "choices": [
+        "Treating a missing dependency as unsupported. The OS is fine; the install needs one thing the endpoint doesn't have.",
+        {
+          "label": "Patching an unsupported OS forward.",
+          "rationale": "Not the lesson's framing, and not always a path forward anyway."
+        },
+        {
+          "label": "Asking the customer to switch to Linux.",
+          "rationale": "Out of scope absurdity."
+        },
+        {
+          "label": "Documenting the install failure in the PSA.",
+          "rationale": "Routine step, not a mistake."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Calling fixable cases unsupported leaves coverage gaps for no reason."
+    },
+    {
+      "id": "nas-out-of-scope",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Continuing the NAS box scenario: install fails with an OS-version error on Windows Storage Server 2012 R2. What's the right interpretation?",
+      "choices": [
+        {
+          "label": "Try harder; pull down older agent versions until one works.",
+          "rationale": "Older versions aren't supported. They're stale and the SOC's detections won't apply cleanly."
+        },
+        "Confirm against the supported-platforms list that Server 2012 R2 is out of scope, document the finding, bump to the senior so the customer can discuss what to do with the endpoint.",
+        {
+          "label": "Tell the customer the agent can't go on it and close the ticket.",
+          "rationale": "Half right on the technical answer, but ducks the customer's underlying need."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The bright line is the supported-platforms list; the senior has the customer-side conversation."
+    },
+    {
+      "id": "visual-c-fixable",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A current-Windows 11 workstation fails install with 'missing dependency: Visual C++ 2015-2022 Redistributable.' What do you do?",
+      "choices": [
+        {
+          "label": "Mark the endpoint as out of scope.",
+          "rationale": "The OS is supported; the install needs a runtime. Fixable, not unsupported."
+        },
+        "Push the Visual C++ Redistributable via the RMM, wait for it to install, then re-run the Huntress install. Document the dependency push in the PSA.",
+        {
+          "label": "Run the Huntress install with `/FORCE` or equivalent to skip the dependency check.",
+          "rationale": "Skipping a real dependency check means the agent installs but doesn't work."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Install the dependency named in the log; retry."
+    },
+    {
+      "id": "customer-pushback",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "easy",
+      "prompt": "The customer pushes back on 'out of scope' and wants you to 'just get something on it.' What's the guidance?",
+      "choices": [
+        "Bump. The supported-platforms list isn't a tech-level negotiating surface.",
+        {
+          "label": "Negotiate with the customer to find a middle path.",
+          "rationale": "Not a tech-level negotiation."
+        },
+        {
+          "label": "Install an older agent version as a goodwill gesture.",
+          "rationale": "Older versions on unsupported OS leave false coverage."
+        },
+        {
+          "label": "Tell the customer to stop asking.",
+          "rationale": "Hostile and not the lesson's framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The senior owns the conversation with the customer."
+    },
+    {
+      "id": "out-of-scope-verify",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "For an endpoint confirmed out of scope, what's the verify outcome?",
+      "choices": [
+        "PSA / coverage record names the endpoint, the OS version, and 'out of scope per Huntress supported-platforms list.' Senior is aware and can take the customer-side conversation forward.",
+        {
+          "label": "Huntress agent installs and registers cleanly.",
+          "rationale": "That's the fixable-dependency verify, not the unsupported-OS verify."
+        },
+        {
+          "label": "Customer signs a waiver.",
+          "rationale": "Not the named verify; the senior may negotiate that separately."
+        },
+        {
+          "label": "Huntress support has issued a custom build for the endpoint.",
+          "rationale": "Not a real platform behaviour."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The work is documentation and escalation, not install attempts."
+    },
+    {
+      "id": "supported-but-fails",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "hard",
+      "prompt": "The OS is on the supported list but the install still fails after the named dependencies are addressed. What's the escalation guidance?",
+      "choices": [
+        "Compatibility regression worth Huntress support; bump via the senior.",
+        {
+          "label": "Mark the endpoint out of scope.",
+          "rationale": "Wrong category. The OS is on the list; the failure is a regression."
+        },
+        {
+          "label": "Apply the `/FORCE` flag and proceed.",
+          "rationale": "Skips a real check."
+        },
+        {
+          "label": "Disable all customer security controls one by one until install succeeds.",
+          "rationale": "Hostile to the customer's security posture."
+        }
+      ],
+      "correct": 0,
+      "explanation": "With AV, policy, and dependencies ruled out on a supported OS, the senior coordinates a support engagement."
+    },
+    {
+      "id": "tf-package-manager",
+      "type": "tf",
+      "topic": "symptom-routing",
+      "difficulty": "medium",
+      "prompt": "A Linux package manager refusing to install because libc, kernel, or distribution major-version is too old is a fixable dependency, not an unsupported-OS condition.",
+      "correct": false,
+      "explanation": "Package-manager refusal of that kind pinpoints the platform version as out of scope; it's unsupported, not a routine dependency fix."
+    }
+  ]
+}

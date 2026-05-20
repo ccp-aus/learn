@@ -2,17 +2,92 @@
 slug: 17-install-failure-blocked-outbound
 vendor: huntress
 level: l2
-title: Install Failure Blocked Outbound
-summary: Skeleton — lesson body to be written.
+title: Install failure, blocked outbound connectivity
+summary: Where install-vs-registration matters most. The install completes cleanly; the RMM exits zero; the agent service starts. And the portal shows nothing because the agent can't reach Huntress to register.
 estimatedMinutes: 8
 order: 17
 topics:
   - agent
   - install-failure
   - network
+  - firewall
+  - proxy
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+This is the failure mode where install-vs-registration matters most. The install itself completes fine: the binaries land, the service is created, the RMM exits clean. But the agent can't reach Huntress's back end to register, so the portal shows nothing. New techs declare success on the RMM result and walk away with a dormant install.
+
+## The signature
+
+| Surface | Reads |
+|---|---|
+| RMM | Install exit code zero |
+| Endpoint | Huntress service running |
+| Agent local log | Repeated DNS / TCP / TLS / HTTP failures against Huntress hostnames |
+| Portal | No new agent after 15+ minutes |
+
+If those four line up, the install succeeded and the network is what's broken from the agent's perspective. Re-pushing the install does nothing because the install isn't the problem.
+
+## The documented network requirements
+
+Huntress publishes the hostnames, ports, and TLS requirements the agent needs outbound. The list is small: a handful of `*.huntress.io` hostnames over HTTPS/443. No static-IP allowlists required. The runbook should reference the canonical list. A customer's network team can implement the rule from the documented list without further input.
+
+If the customer's network uses an outbound proxy, the agent needs to be told about it (a registry key, an environment variable, or an installer parameter, per the runbook). **Bypassing the proxy isn't the answer; configuring the agent to use it is.**
+
+## Reading the error type
+
+The agent's local log names the failure type, which routes the rest of the diagnostic:
+
+| Error type | Where it points |
+|---|---|
+| DNS resolution failure | Internal DNS or split-horizon resolver |
+| TCP connection refused / timeout | Firewall (endpoint or perimeter) |
+| TLS handshake failure or HTTP 4xx/5xx from a proxy | Web proxy or TLS interception |
+| Endpoint on captive portal / guest network | VPN segmentation or network-context issue |
+
+A manual test from the endpoint corroborates: `nslookup` for DNS, `Test-NetConnection` or `curl` for port 443 against a documented Huntress hostname. If the manual test fails the same way the agent's log does, the network is confirmed.
+
+## The procedure
+
+<StepThrough client:load>
+  <Step title="Pull the agent's local log from the endpoint">
+    Your runbook has the path. Look for the first phone-home attempts and their error type.
+  </Step>
+  <Step title="Test the network path manually from the endpoint">
+    `nslookup` of a documented Huntress hostname, then `Test-NetConnection` (or `curl`) against port 443. The result tells you which layer is failing.
+  </Step>
+  <Step title="Identify the interfering control">
+    Endpoint firewall, perimeter firewall, web proxy, or VPN segmentation. The error type guides this.
+  </Step>
+  <Step title="Apply the documented allowance at the right management layer">
+    Endpoint firewall via GPO or MDM. Perimeter firewall via the customer's network admin. Proxy via the agent's configuration mechanism per the runbook. Not local-only changes; those evaporate.
+  </Step>
+  <Step title="Re-run the agent's registration">
+    A service restart on the endpoint is often enough once the network path is open. A re-install is cleaner when the agent's state looks degraded.
+  </Step>
+  <Step title="Verify enrolment in the portal">
+    Lesson 13's verify step. RMM exit code zero is half the answer; the portal is the other half.
+  </Step>
+</StepThrough>
+
+<Callout type="warn" title="Wider rules are not the right ask">
+Don't ask the customer to whitelist a broad IP range or a wildcard set of domains beyond the documented list. The published list is short and specific; wider rules expand the customer's outbound surface unnecessarily. The customer's network admin will (rightly) push back, and you'll have to come back with the documented list anyway.
+</Callout>
+
+## When to escalate
+
+- The customer's network admin team is one your MSP doesn't have a relationship with. Bump for the senior to manage the change request.
+- The customer's network policy doesn't allow new outbound rules without a change-control process. Customer-side pacing; senior owns.
+- The agent reaches Huntress but registration still fails. After confirming the org key is right (lesson 13's pre-flight), bump and have the senior open Huntress support.
+
+## A worked ticket: Able Moose Accounting
+
+You pushed Huntress to `WS-AMOOSE-FIN07` from the RMM. The RMM reports success. After 30 minutes, the agent still isn't in the portal. The install log shows the install completed cleanly. The service is running on the endpoint. The agent's local log shows repeated *TCP connection refused* against a Huntress endpoint on port 443.
+
+The wrong reading is "AV is killing the connection." AV would have killed the binary or service, not allowed the binary to run and then blocked TCP outbound. The log says TCP refused, which is firewall-shaped. The right diagnosis: outbound TCP/443 to Huntress endpoints is being blocked, likely by the customer's perimeter firewall or the endpoint firewall.
+
+From `WS-AMOOSE-FIN07` you run `Test-NetConnection` against the Huntress hostname on port 443, and it fails. From Able Moose's IT manager's workstation on the same network it also fails. The customer's perimeter firewall is theirs (not the MSP's). The wrong move is *try harder from the endpoint with different commands*. You've already established the firewall is blocking from multiple endpoints on the network; more retries from the same blocked state change nothing.
+
+The right move: send Able Moose's IT a request to allow the documented Huntress outbound destinations through their perimeter firewall, with the canonical list attached. The fix sits on their side; the request shape is specific, not vague. Bypassing the firewall by routing the endpoint through a separate VPN out to the internet works around a security control the customer set up on purpose. The next endpoint hits the same wall, and you've taught the runbook to lean on a bypass instead of a fix.
+
+<Checkpoint slug="huntress-operations-checkpoint-install-failure-blocked-outbound" client:visible />

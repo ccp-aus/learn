@@ -2,17 +2,109 @@
 slug: 32-walkthrough-high-severity
 vendor: huntress
 level: l2
-title: Walkthrough High Severity
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Walkthrough: a High-severity incident, start to finish"
+summary: A Low plus tighter SLA, paired actions (often isolation), and the customer call. Components are the same; tempo, coordination, and stakes differ. Twenty-eight minutes, six steps, one isolate-then-call cycle.
+estimatedMinutes: 10
 order: 32
 topics:
   - edr
   - walkthrough
-  - high
+  - high-severity
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+A High is a Low plus a tighter SLA, paired actions (often isolation), and the customer call. The components are the same; the tempo, the coordination, and the stakes are different. This walkthrough makes the rhythm explicit: where the call slots in, when isolation comes (and doesn't), how the verify step changes when remediations are paired.
+
+## The scenario
+
+**14:08 Wednesday.** A High EDR Incident Report lands for example.org. Host: `WS-EXAMPLE-FINANCE-07`, the assistant CFO's workstation. Summary: a scheduled task running `powershell.exe -EncodedCommand <base64>` discovered. The encoded payload, when decoded by the SOC, downloads and executes a script from a known-bad domain. Recommendation: **isolate the host**, approve the **scheduled-task remediation**, **verify with user** before closing.
+
+That's a meaningfully different shape from a Low: isolation in the Recommendation, a remediation, and a user-verification expectation. The MSP's policy is a 4-hour SLA on High during business hours.
+
+## Walking it through
+
+<StepThrough client:load>
+  <Step title="14:09 — Claim">
+    Click Claim. The clock starts.
+  </Step>
+  <Step title="14:10 — Review">
+    Header confirms: High severity, EDR surface, host `WS-EXAMPLE-FINANCE-07`, customer example.org. Hostname matches the customer's pattern. Recommendation is in scope (isolation, a remediation, user verification — all helpdesk actions). The encoded PowerShell calling out to a known-bad domain makes the High tag obvious; this isn't borderline.
+  </Step>
+  <Step title="14:11 — Isolate">
+    Don't read the full Evidence yet. Isolate `WS-EXAMPLE-FINANCE-07` via the portal. Within 30 seconds, the agent picks up the policy. The host is contained.
+  </Step>
+  <Step title="14:13 — Call">
+    Call the assistant CFO. Voicemail. Try the IT manager: reaches. Use the four-move plain-language explanation, then piggy-back the SOC's verification question: "Did she run anything unusual yesterday or this morning? Anything involving PowerShell or what looked like an automated update?" IT manager: "She's been in meetings all morning, hasn't touched her machine. I'll grab her between sessions. Five minutes."
+  </Step>
+  <Step title="14:18 — Verification">
+    IT manager calls back. She didn't run anything. She doesn't recognise the scheduled task. Activity is not legitimate.
+  </Step>
+  <Step title="14:19 — Approve remediation">
+    Click approve on the scheduled-task remediation. The agent picks it up.
+  </Step>
+  <Step title="14:21 — Verify">
+    Portal shows the remediation applied. The scheduled task is gone from the endpoint's task list. The associated binary remains at its path (the SOC didn't recommend file remediation), but without the scheduled task firing it, it's inert. Watch for re-detection. Five minutes pass. Nothing fires.
+  </Step>
+  <Step title="14:26 — Recovery checklist">
+    Remediations applied and verified: yes. No re-detection within the last hour: yes. SOC sign-off on release: standard remediation-complete state. IT manager has the user. PSA running entry is current. Five checks green.
+  </Step>
+  <Step title="14:27 — Un-isolate">
+    Click. Within a minute, the host is back online. Watch the portal for another five minutes. No new detections.
+  </Step>
+  <Step title="14:33 — Confirm with user">
+    Call the IT manager: "Her machine is back online. Full network access. Let me know if anything's off." IT manager confirms.
+  </Step>
+  <Step title="14:35 — Close in Huntress">
+    Resolution disposition set. Close.
+  </Step>
+  <Step title="14:37 — Close in PSA">
+    The PSA note is already current from the running entry. Final summary added; time entry of 28 minutes against Security-Incident-EDR-High. Close.
+  </Step>
+</StepThrough>
+
+## What made this High rather than Low
+
+Three things, any one of which alone might land the incident in High:
+
+1. **Active outbound to a known-bad domain.** Not "suspicious-shaped activity"; documented attacker infrastructure.
+2. **PowerShell with encoded commands.** A common attacker technique.
+3. **The host has elevated access to financial systems.** Blast radius if the activity had time to spread.
+
+A Low version of this incident might be PowerShell-flavoured activity on a sandbox-shaped endpoint with no outbound to known-bad. The SOC's classification accounts for the actual risk, not just the surface pattern.
+
+## What changed from the Low walkthrough
+
+- **Isolation in the Recommendation** drove the isolate-first reflex.
+- **User verification** paired the remediation with a confirmation call.
+- **The recovery checklist** before un-isolation has no Low equivalent.
+- **Longer documentation.** More actions, more contacts, more verifications.
+- **28 minutes versus 11.** Roughly three times as long, which is normal for a High with isolation.
+
+The shape is the same: claim, review, action(s), verify, close in both systems, document. The six-step spine carried.
+
+<Callout type="warn" title="The customer pushes back after release — frame it cleanly">
+After un-isolation, the user calls back: "I'm back, but I missed a key part of my board prep. We should talk about whether this isolation thing was really necessary." Don't apologise for the isolation itself; the action was right. Acknowledge the timing hurt, name what the activity actually was (encoded PowerShell calling a known-bad domain), flag the impact to the account manager so they can talk with the customer about coordinating around high-priority days. Honest framing: the action was right; the timing was hard; here's the path to talk about it.
+</Callout>
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The user calls 90 seconds into the High — what do you say?"
+  description={"You just clicked Isolate. The portal confirms isolation active. Your phone rings — it's the assistant CFO, calling from her mobile, frustrated: \"What did you just do to my machine? I'm in the middle of a board prep.\" Pick the response."}
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Mid-isolation, user calls frustrated. What do you say?", choices: [
+      { label: "\"We had to isolate your workstation, please bear with us.\"", next: "vague" },
+      { label: "Four-move explanation (trigger, action, limits, next step) and piggy-back the SOC's verification question on the call", next: "fourmove" },
+      { label: "\"I can't talk right now, I'm in the middle of fixing it.\"", next: "hangup" },
+    ]},
+    { type: "outcome", id: "vague", label: "No information, no timeline", tone: "warn",
+      body: "\"Had to\" sounds like you didn't have a choice; \"please bear with us\" tells her nothing about scope or timing. She'll escalate within minutes for lack of information." },
+    { type: "outcome", id: "fourmove", label: "Calm her, then verify", tone: "success",
+      body: "Right answer. The four-move explanation calms her down; the verification question piggy-backs on the call instead of needing a separate one in 5 minutes; the timeline is honest. Five minutes of explanation now saves twenty minutes of escalated complaints later." },
+    { type: "outcome", id: "hangup", label: "Don't hang up on the affected user", tone: "bad",
+      body: "Hanging up on the affected user mid-incident is the worst response. The customer-relationship cost lasts longer than the incident did." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-walkthrough-high-severity" client:visible />

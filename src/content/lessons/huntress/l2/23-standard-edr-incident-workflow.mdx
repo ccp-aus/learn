@@ -2,16 +2,88 @@
 slug: 23-standard-edr-incident-workflow
 vendor: huntress
 level: l2
-title: Standard EDR Incident Workflow
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: The standard EDR incident workflow
+summary: Six discrete steps from notification to closure for every routine Low or High EDR Incident Report. Claim, review, approve remediations, verify, close, document — the spine the rest of the EDR arc hangs on.
+estimatedMinutes: 7
 order: 23
 topics:
   - edr
   - workflow
+  - triage
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Most tickets touched on this platform are Low- or High-severity EDR Incident Reports. The workflow runs dozens or hundreds of times per shift across an MSP, and learning its shape once means every subsequent EDR lesson drops into a frame already in place. Without the frame, every report feels like a one-off.
+
+## The six steps
+
+Each step has its own habit. None of them are optional.
+
+<StepThrough client:load>
+  <Step title="Claim">
+    Take ownership in the portal (or the PSA, depending on tooling). Claiming stops the duplicate-work pattern where two techs start triaging the same incident. If the queue routes incidents centrally, claim is also the moment to decide whether the ticket belongs in front of you. A Critical misrouted to the routine queue gets escalated, not absorbed.
+  </Step>
+  <Step title="Review">
+    Read the Incident Report in the order the Foundations course teaches: header, Recommendation, affected entity, Summary if you need it, Evidence as context. Confirm the host is in the customer you think it is, the severity matches the work in front of you, and the Recommendation is something you can act on. Anything off, clarify with the SOC before acting.
+  </Step>
+  <Step title="Approve remediations">
+    The Recommendation usually names one or more remediations: autoruns to remove, scheduled tasks to delete, services to disable, files to quarantine. Approve cleanly. Not more (acting on context is the cardinal mistake), not less (skipping part of the Recommendation is the softening failure).
+  </Step>
+  <Step title="Verify">
+    Confirm the end state on the endpoint matches what the Recommendation aimed for. Persistence object gone. No longer producing the same detection. Verification is the step new techs skip first when the queue is busy, and the step that catches a half-applied remediation before it re-fires twenty minutes later on someone else's shift.
+  </Step>
+  <Step title="Close">
+    Close the incident in Huntress AND close the matched PSA ticket. Both. The "closed in Huntress, forgot the PSA" trap is one of the four common helpdesk drift patterns named later in the operations arc.
+  </Step>
+  <Step title="Document">
+    Write the incident note while context is fresh. What you did, what you verified, who you contacted. The note is for the next shift, not for you. Write it the way you'd want to read it cold.
+  </Step>
+</StepThrough>
+
+## How the workflow shifts with severity
+
+The six steps are the same across Low and High. The intensity, the SLA clock, and the pairing with other actions differ:
+
+- **Low.** Standard tempo. Often a single remediation, often no client comms needed.
+- **High.** Faster tempo against a tighter SLA. Sometimes pairs with isolation, sometimes pairs with user verification (a call to confirm the activity is not legitimate).
+
+Critical breaks the shape. That's later in the operations arc.
+
+<Callout type="warn" title="Verify is not re-reading the Recommendation">
+Verification means confirming the end state on the endpoint. Re-reading the words in the report does not tell you whether the remediation worked. The two are different checks. Skipping verify because "the portal said applied" is the most common pattern that creates re-detections on the next shift.
+</Callout>
+
+## A worked Low
+
+A Low EDR Incident Report lands for example.com. Host: `WS-EXAMPLE-ACCOUNTING-03`. Recommendation: approve the autoruns remediation. Evidence shows a single autoruns entry pointing to an obscure backup tool's binary.
+
+The right move is the six-step spine. Claim the incident. Confirm the host is in example.com and the Recommendation is in scope. Approve the autoruns remediation. Wait for the agent to apply it, then verify the registry entry no longer appears on the endpoint. Close in Huntress, close the matched PSA ticket with the note. Four to six minutes of work, done cleanly.
+
+The wrong moves are recognisable. Investigating the binary to confirm the SOC's classification before approving is second-guessing in slow motion. Approving and walking away without the verify step is the pattern that produces "same detection re-fired three hours later" on someone else's queue. Closing Huntress without the PSA is the drift trap.
+
+## The frame the rest of the arc hangs on
+
+Read the next nine lessons of the EDR arc with this spine loaded. Lessons on autoruns and on scheduled tasks / services / files deepen step 3 (approve). Host isolation, when-to-isolate, and return-to-service deepen step 3 plus the isolation pairing for High incidents. Incident notes and closing the PSA loop are steps 5 and 6. The Low and High walkthroughs are the whole machine on a single incident, end to end.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="A standard Low has just landed — what's the first move?"
+  description="Low-severity EDR Incident Report on example.com, host WS-EXAMPLE-ACCOUNTING-03. Recommendation: approve the autoruns remediation. Evidence: one autoruns entry pointing to an obscure backup tool's binary. Pick the next action."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you do first?", choices: [
+      { label: "Investigate the autoruns entry to confirm it's malicious before approving", next: "investigate" },
+      { label: "Claim, review, approve per the Recommendation, verify, close in both systems, document", next: "spine" },
+      { label: "Approve the remediation, close Huntress, move on", next: "skip" },
+    ]},
+    { type: "outcome", id: "investigate", label: "Second-guessing in slow motion", tone: "bad",
+      body: "The SOC has already triaged; the Recommendation is the action zone. Re-doing the analysis adds 30 minutes to a 10-minute ticket and is the second-guessing failure from the Foundations arc." },
+    { type: "outcome", id: "spine", label: "Standard six-step workflow", tone: "success",
+      body: "Right answer. Standard Low, standard rhythm. Four to six minutes of work done cleanly. The Recommendation is the contract; verify is the end-state check; both systems close in sequence." },
+    { type: "outcome", id: "skip", label: "Skipped half the workflow", tone: "bad",
+      body: "Worst response. No verify (did the remediation actually run?), no PSA close (drift trap), no documentation. The autoruns entry is probably gone; the work isn't recorded." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-standard-edr-incident-workflow" client:visible />

@@ -2,17 +2,96 @@
 slug: 30-closing-loop-ticketing-system
 vendor: huntress
 level: l2
-title: Closing Loop Ticketing System
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Closing the loop in the ticketing system
+summary: Two systems hold the work — Huntress and the PSA. Closing one and not the other is the cardinal drift trap. Six small close-out steps, takes two minutes, prevents the most common helpdesk pattern in the EDR arc.
+estimatedMinutes: 6
 order: 30
 topics:
   - edr
   - psa
   - close-out
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Two systems hold the work: Huntress (where the security action happens) and the PSA (where the time, the billing, and the customer-facing record live). Closing one without the other is the most common drift pattern in helpdesk EDR work. It looks like nothing — the agent is fine, the threat is handled — but the PSA-side gap creates invoicing problems, missed time entries, and the eventual realisation that nobody knows what was done to a customer's environment because the only record was in Huntress and the auditor can only see the PSA.
+
+## The two-system reality
+
+Huntress and the PSA are linked in most MSPs but not always tightly. Common configurations:
+
+- **Integration creates a PSA ticket automatically when a Huntress incident opens.** Common. The integration handles the open; the human keeps the two in sync afterwards.
+- **No automatic integration; manual PSA ticket created by the tech.** Less common. The tech opens both, links them with a reference number, and closes both.
+- **PSA ticket exists for a separate customer request that intersects the Huntress incident.** A user called about a slow machine, a PSA ticket opened, then a Huntress incident landed for the same machine. Two tickets, one underlying problem.
+
+Whichever configuration is in place, the discipline is the same: every Huntress incident closure pairs with a PSA close-out (with time entry and category), and any mid-flight drift gets reconciled before close.
+
+## The close-out checklist
+
+<StepThrough client:load>
+  <Step title="Close the Huntress incident">
+    Set the resolution disposition (per the runbook, usually "remediated," "no action required," or similar).
+  </Step>
+  <Step title="Match the PSA ticket">
+    Find the corresponding ticket. If your MSP's integration auto-created one, it should be linked from the Huntress incident. If not, search by host, customer, and time.
+  </Step>
+  <Step title="Add the incident note to the PSA">
+    The note belongs in both systems. PSA closure without the note is a closure that doesn't explain itself; auditors don't always have access to Huntress.
+  </Step>
+  <Step title="Enter time">
+    Per your MSP's policy: a billing-relevant category, the actual time spent, a brief description.
+  </Step>
+  <Step title="Set category and resolution code">
+    Categories matter for reporting; sloppy categories mean sloppy customer reports.
+  </Step>
+  <Step title="Close the PSA ticket">
+    Done. Six small steps, takes two minutes, prevents the most common drift trap in the arc.
+  </Step>
+</StepThrough>
+
+## When the PSA has drifted
+
+Drift looks like:
+
+- Huntress closed; PSA open. Tech closed Huntress, forgot the PSA. Close the PSA now with the note and time.
+- PSA closed; Huntress open. PSA was closed for an unrelated reason. Confirm the Huntress incident is actually ready to close before closing it.
+- Two PSA tickets for the same Huntress incident. Manual-plus-integration collision. Merge or close the duplicate.
+- Huntress and PSA closed with different dispositions. Reconcile so both match.
+
+<Callout type="warn" title="Reconcile drift when you find it">
+A drifted ticket from three weeks ago is harder to reconcile than one from three minutes ago. The longer drift sits, the more reconstruction it takes — and the customer report on the way to month-end pulls from whichever side was wrong.
+</Callout>
+
+## Common close-out failures
+
+- **Closing Huntress and walking away.** The cardinal trap. The Huntress side feels like the "real work"; the PSA close feels like paperwork. Both are required.
+- **Entering generic time and category to "save time."** Five seconds saved at close becomes ten minutes of explanation at month-end when the report makes no sense.
+- **Skipping the note copy to the PSA.** The PSA is usually the canonical record an auditor sees.
+
+## When to escalate
+
+- The PSA ticket for the incident doesn't exist and no integration is in place to auto-create one. Could be a one-off integration failure; could be a customer with different PSA mapping. Bump rather than create-from-scratch on customers you don't know the conventions for.
+- The time-entry category needed isn't in the PSA's available list. Could be the PSA was restructured and the runbook is out of date. Bump.
+- Drift you can't reconcile (two PSAs for one incident with conflicting time entries, or a Huntress incident with no findable PSA match). Senior helps untangle and update the runbook.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="End of shift with three PSA tickets still open"
+  description={"16:55. You have three Huntress incidents in \"closed\" state but the corresponding PSA tickets are still open. Two have notes copied across; one doesn't. You finish at 17:00. Pick the move."}
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Three PSA tickets to close, one missing its note, five minutes to shift end. What do you do?", choices: [
+      { label: "Close the three quickly with generic time and category; leave the missing note for tomorrow", next: "generic" },
+      { label: "Spend the five minutes to close all three correctly — actual time, specific category, note copied for the one missing", next: "correct" },
+      { label: "Leave them all for tomorrow; the shift is ending", next: "tomorrow" },
+    ]},
+    { type: "outcome", id: "generic", label: "Two failures at once", tone: "bad",
+      body: "Generic time and category creates the reporting noise the lesson warns about. Leaving the missing note for tomorrow means it never gets written — memory degrades overnight." },
+    { type: "outcome", id: "correct", label: "End-of-shift discipline", tone: "success",
+      body: "Right answer. Five minutes now versus tomorrow's \"wait, what did I do on that one?\" The end-of-shift discipline is what makes the next morning start clean. Time per actual minutes, category specific, note copied while the work is still in your head." },
+    { type: "outcome", id: "tomorrow", label: "Drift starts here", tone: "bad",
+      body: "Tomorrow's queue starts with three half-done items from yesterday on top of whatever new work arrives overnight. The Huntress side is closed; the PSA drift will grow if you don't close it now." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-closing-loop-ticketing-system" client:visible />

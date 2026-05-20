@@ -2,16 +2,117 @@
 slug: 38-submitting-exclusions-safely
 vendor: huntress
 level: l2
-title: Submitting Exclusions Safely
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Submitting exclusions safely
+summary: Exclusions are persistent suppression of a detection pattern. Done right they reduce noise; done wrong they create blind spots. Four conditions gate "appropriate", and customer pressure isn't one of them.
+estimatedMinutes: 7
 order: 38
 topics:
-  - critical
   - exclusions
+  - suppression
+  - process
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Exclusions are the formal mechanism for telling the SOC "this activity is legitimate at this customer, don't keep firing on it." Done right they reduce noise and keep the queue focused on real signals. Done wrong they create blind spots, the customer's environment now has a documented allow-list that includes activity the SOC originally flagged for a reason. The skill is recognising what's a legitimate exclusion candidate, what shape the request should take, and when the request itself is above the helpdesk ceiling.
+
+## What an exclusion is and why the persistence matters
+
+An exclusion tells the SOC to stop generating Incident Reports on a specific pattern at a specific customer (or across the partner, depending on scope). The pattern can be a process path, a hash, a scheduled task name, a sign-in source, or other signals depending on the surface. Once the exclusion is in place, future activity matching the pattern doesn't land as an incident.
+
+Exclusions are persistent. They live until someone removes them. That's the source of the risk. If a pattern that was benign last month becomes part of attacker tradecraft this month, the exclusion that suppressed the old benign version also suppresses the new malicious version. The cost of a bad exclusion is paid in the moment you most need the detection to fire.
+
+<Callout type="danger" title="Suppression-by-closing is not the same as filing an exclusion">
+Closing the next incident as "benign, dismissing" without filing the documented exclusion request bypasses the senior review. The SOC doesn't get told to stop firing; the next incident just gets a slightly more dismissive close on your side. It doesn't reduce noise, it doesn't get the senior's review, and it isn't the right path. Either the conditions are met and you file the documented request, or they aren't and you keep triaging.
+</Callout>
+
+## Four conditions, all required
+
+The right time to file an exclusion is when:
+
+- **The same legitimate activity has fired multiple incidents** (three, four, five times) and the SOC has classified each one as benign on its own.
+- **The customer's environment has stabilised**, no fresh onboarding noise, no recent changes that might explain the new pattern; the baseline is settled.
+- **The activity is genuinely characteristic of the customer**, a specific in-house tool, a documented admin script, a niche legitimate application that doesn't appear elsewhere in your portfolio.
+- **The exclusion would be narrow**, a specific binary path, a specific process tree, a specific scheduled task, not a broad "ignore PowerShell on this host."
+
+Four together, not one alone. Customer pressure alone is not a trigger. A single SOC-benign close is not a trigger. A request for a broad exclusion isn't appropriate even when the other three conditions are met.
+
+## When an exclusion is not appropriate
+
+- **During the first-week noise window** for a new customer. The SOC is still classifying; an exclusion against something the SOC was about to baseline-approve creates a permanent gap. Most common new-tech failure on exclusions.
+- **During or immediately after a Critical incident.** The activity that just fired Critical is exactly the activity you don't want to suppress, even if it turns out to be a false positive. The false-positive determination should be the SOC's classification, not your exclusion.
+- **As a way to "stop the noise" without confirming the activity is benign.** That's suppression without classification, and it's the failure mode that creates real blind spots.
+- **In response to customer pressure alone.** "Our IT manager wants you to stop alerting on X." If X has been classified as benign by the SOC across multiple incidents, that's a legitimate exclusion candidate; if the customer's preference is the only driver, it isn't.
+- **When the exclusion would be broad.** "Ignore PowerShell on `WS-EXAMPLE-IT-02`" is the most likely shape to create a real gap. The narrow version, "ignore this specific scheduled task by name", is the shape that earns approval.
+
+## What a good exclusion request looks like
+
+A documented request includes the specific pattern (binary path, hash, scheduled task name, source IP) as narrow as possible; the customer and host or identity scope; evidence the activity is benign (multiple past incidents already classified by the SOC, documentation of the legitimate tool, confirmation from the customer's IT); reason for the request now rather than continuing to triage each instance; and an acknowledgement of the risk ("customer's IT has agreed they will tell us if the underlying process changes").
+
+The request goes through your MSP's documented exclusion-request path: usually a specific ticket category in the PSA, a portal-side request form, or a Slack channel for senior review.
+
+## Who reviews what
+
+The review flow has three gates: you, the senior, the SOC.
+
+<StepThrough client:load>
+  <Step title="Tech files the request via the documented path">
+    The right surface is the documented exclusion-request path (PSA ticket category, portal form, or designated Slack channel). Not an informal email to the SOC, not configuring the exclusion in the portal directly.
+  </Step>
+  <Step title="Senior reviews against the four-condition bar">
+    Senior checks: multiple SOC-classified-benign incidents, stable baseline, narrow scope, customer-characteristic activity. If the bar isn't met, the request gets sent back with feedback. If it's met, the senior moves to the next step.
+  </Step>
+  <Step title="Senior submits to Huntress, or tech submits with senior approval">
+    Either path is fine depending on your MSP's process. What doesn't happen is the tech submitting without senior sign-off.
+  </Step>
+  <Step title="SOC reviews and decides">
+    SOC either applies the exclusion as requested, applies a narrower version, or declines with reasoning. A narrower version is a common outcome; the SOC sees the cross-customer pattern data you don't.
+  </Step>
+  <Step title="Document the outcome">
+    Whether approved, narrowed, or declined, the outcome goes in the PSA against the customer's record. Future techs reading the customer notes need to know what's been excluded and why.
+  </Step>
+</StepThrough>
+
+## A legitimate case
+
+Riverbend Legal has had eight Low EDR incidents over two weeks for the same scheduled task, `Riverbend-Daily-Inventory-Sync`. Each one has been classified by the SOC as "legitimate scheduled task running the customer's nightly inventory script." Each one took 10 minutes to triage. The customer's IT manager hasn't pushed back, but you've noticed the pattern. The first-week noise window ended four months ago, the environment is stable.
+
+<DecisionTree client:load
+  title="Eight benign closes on the same scheduled task"
+  description="The four conditions are met. The question is what you do with that, file the request through the documented path, keep triaging, or take a shortcut. Two of those answers create the problem the lesson is built to prevent."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Eight repeat SOC-benign incidents on a stable customer's known scheduled task. What's the action?", choices: [
+      { label: "Keep triaging each instance as a routine Low, the workflow is the workflow", next: "keep" },
+      { label: "File a narrow exclusion request via the documented path, scheduled task name, eight prior incident IDs, customer IT confirmation", next: "file" },
+      { label: "Close the next instance as 'benign, dismissing' without filing a request", next: "dismiss" },
+      { label: "File a broad exclusion: 'ignore all scheduled tasks on this customer'", next: "broad" },
+    ]},
+    { type: "outcome", id: "file", label: "File the narrow request, conditions met", tone: "success",
+      body: <>Conditions met across all four gates: multiple SOC-classified-benign incidents, stable environment, customer-characteristic activity, narrow scope. The request is the right move, the senior reviews, the SOC applies (or narrows). 80 minutes a month of triage time gets redirected to incidents that actually need it.</> },
+    { type: "outcome", id: "keep", label: "Defensible but missing the opportunity", tone: "warn",
+      body: <>Triaging eight repeat benign incidents isn't wrong, but it's missing the opportunity. The bar is met. The senior would approve the narrow request. The risk of the exclusion is low (narrow scope, characteristic activity); the cost of not filing is 80 minutes a month spent on the same thing.</> },
+    { type: "outcome", id: "dismiss", label: "Suppression-by-closing, bypasses the review", tone: "bad",
+      body: <>Closing the next instance as 'benign, dismissing' isn't suppression in the formal sense, the SOC still gets to classify, the incident still hits the queue. But it normalises the dismissive close, doesn't reduce queue volume, doesn't get the senior's review, and doesn't put the documented exclusion on the customer's record where future techs can see it.</> },
+    { type: "outcome", id: "broad", label: "Wrong shape, creates a real gap", tone: "bad",
+      body: <>'Ignore all scheduled tasks on this customer' is the named failure mode. Broad exclusions are the ones most likely to create the blind spots an attacker takes advantage of. The narrow version (this specific task name) is what the senior approves; the broad version is what they decline and use as a teaching moment.</> },
+  ]}
+/>
+
+## When the customer asks you to extend the exclusion
+
+A week later the customer's IT manager calls: "We've changed our nightly inventory script to a new one. It's called `Riverbend-Daily-Inventory-Sync-v2`. Will you exclude that too?"
+
+The honest answer is *not yet, and here's why*. The new script hasn't been classified by the SOC, there's no history of "fired and classified benign multiple times." Filing an exclusion for an unclassified pattern is suppression-on-customer-request, not a legitimate exclusion.
+
+The right shape of the call: "The new script will likely fire as a routine Low for the first few incidents while the SOC classifies it. Once classified benign across multiple incidents, the existing exclusion can be updated or a new one filed. The customer benefits from the same speed eventually; the safety bar is held in the meantime."
+
+"We can't suppress anything without going through process" is defensible but misses the customer-relationship piece. The full answer gives them the eventual yes plus the why-not-immediately, and it's the answer that builds trust without compromising the classification bar.
+
+## When to escalate instead of filing the request yourself
+
+- The customer is pushing hard for an exclusion that doesn't meet the four-condition bar. Customer-relationship piece, senior territory.
+- The proposed exclusion would be broad. Probably the wrong shape; the senior helps narrow it or declines.
+- The exclusion would suppress an activity pattern the senior is currently investigating across the broader portfolio. The senior may want to keep the signals flowing for visibility reasons.
+- You're not sure whether the conditions are met. "Not sure" plus permanent suppression equals bump to the senior.
+
+<Checkpoint slug="huntress-operations-checkpoint-submitting-exclusions-safely" client:visible />

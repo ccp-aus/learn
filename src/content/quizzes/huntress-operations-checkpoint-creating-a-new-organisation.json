@@ -1,0 +1,219 @@
+{
+  "slug": "huntress-operations-checkpoint-creating-a-new-organisation",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: creating a new organisation",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "naming-convention",
+      "type": "mcq",
+      "topic": "naming-convention",
+      "difficulty": "easy",
+      "prompt": "Why is getting the organisation name right the first time so important?",
+      "choices": [
+        "Renames after the fact are messy and often leave stale references in incident notification templates and PSA mappings.",
+        {
+          "label": "Huntress charges a fee for organisation renames.",
+          "rationale": "Renames are free but operationally expensive in downstream impact."
+        },
+        {
+          "label": "The name field doesn't accept changes after the first save.",
+          "rationale": "Renames are technically possible."
+        },
+        {
+          "label": "Renames break the agent's enrolment token.",
+          "rationale": "Agent enrolment uses an org key, not the display name."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Renames leave stale references in incident notifications and PSA mappings. Get the name right at creation."
+    },
+    {
+      "id": "blank-state",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "You just saved a new organisation but the Agents tab shows 4 endpoints already enrolled. What does this mean?",
+      "choices": [
+        "Stop. You may be looking at the wrong org, the wrong portal, or someone else has started the onboarding in parallel. Bump.",
+        {
+          "label": "The agents are pre-enrolled; this is fine, proceed.",
+          "rationale": "A brand-new org should never have pre-existing agents. Pre-existing enrolments are a duplicate-onboarding flag."
+        },
+        {
+          "label": "The numbers will reset within an hour; check back.",
+          "rationale": "The portal doesn't reset enrolment counts; the agents are really there."
+        },
+        {
+          "label": "Contact Huntress support; the portal is showing test data.",
+          "rationale": "Misuses support. The issue is internal, a stale, wrong-tenant, or in-progress onboarding by someone else."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Pre-existing state on a brand-new org is a stop signal. The blank-state check exists exactly for this."
+    },
+    {
+      "id": "custom-routing",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Custom one-off notification routing per customer\" is named as a common mistake. Why?",
+      "choices": [
+        "The MSP's partner-level notification template keeps on-call rotations, PSA integration, and incident routing consistent. One-off routing decays the moment the original tech leaves.",
+        {
+          "label": "Custom routing breaks Huntress's audit log.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Huntress charges extra for custom notification routing.",
+          "rationale": "Wrong on the commercial model."
+        },
+        {
+          "label": "Custom routing is forbidden by the schema and will throw an error.",
+          "rationale": "It's technically allowed; it's just operationally bad."
+        }
+      ],
+      "correct": 0,
+      "explanation": "One-off routing decays operationally; the partner-level template keeps the platform consistent across techs and customers."
+    },
+    {
+      "id": "duplicate-name",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "You're creating an org for \"Northwind Logistics Pty Ltd\" per the runbook. You spot an existing org called \"Northwind\" with 8 agents and 3 closed incidents from last year. What do you do?",
+      "choices": [
+        {
+          "label": "Create the new org and ignore the existing one; the names differ.",
+          "rationale": "Premature. The existing org could be the same customer mid-rename, a different customer with a similar name, or a previous incomplete onboarding. Don't create in parallel without checking."
+        },
+        "Stop, bump to a senior: \"Existing org 'Northwind' has 8 agents, same customer, different one, or incomplete onboarding? Should I reuse, rename, or create new?\"",
+        {
+          "label": "Rename the existing 'Northwind' to 'Northwind Logistics - Tier 2' and reuse it.",
+          "rationale": "Worst response. You've renamed an org with agents and incidents on an assumption. If it isn't the same customer, you've broken another customer's portal."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The pre-existing org is the signal you need a senior call before clicking anything."
+    },
+    {
+      "id": "stale-org-cleanup",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The senior replies: \"Different customer. The old 'Northwind' is a stale prospect we never billed. Create the new org, and bump the stale one to me, I'll deactivate it.\" What do you do?",
+      "choices": [
+        "Create the new org. Leave the stale one alone; the senior said they'd handle it.",
+        {
+          "label": "Create the new org, then deactivate the stale 'Northwind' since the senior confirmed it's stale.",
+          "rationale": "\"I'll deactivate it\" was the senior taking the action; they didn't delegate. Permanent deactivation always escalates regardless."
+        },
+        {
+          "label": "Create the new org and rename the stale one to 'DELETE_ME_OLD_NORTHWIND' so it's obvious.",
+          "rationale": "The senior is going to deactivate it anyway. 'DELETE_ME' prefixes linger and confuse search for a year."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The senior is explicit about owning the stale-org cleanup. You do the part you own (create), document the bump in your notes, move on."
+    },
+    {
+      "id": "escalate-before-save",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "Which of these org-creation situations should trigger an escalation BEFORE saving?",
+      "choices": [
+        "The customer asks for branding or notification customisation that diverges from the partner template.",
+        {
+          "label": "The runbook fully specifies all values needed and you've confirmed them.",
+          "rationale": "Standard tech work, proceed."
+        },
+        {
+          "label": "The customer's tier is one your MSP has worked with hundreds of times.",
+          "rationale": "Standard tech work, apply the documented template."
+        },
+        {
+          "label": "The branding template renders correctly in the customer-view portal.",
+          "rationale": "Success path of verification, not an escalation trigger."
+        }
+      ],
+      "correct": 0,
+      "explanation": "One-off customisations are senior-owned. Bump as a product-mix-style question."
+    },
+    {
+      "id": "no-embed-runbook",
+      "type": "mcq",
+      "topic": "runbook",
+      "difficulty": "easy",
+      "prompt": "Why does the lesson explicitly NOT embed the MSP's onboarding runbook directly?",
+      "choices": [
+        "Runbooks drift fast and the MSP's version is the source of truth.",
+        {
+          "label": "Huntress's documentation team writes the runbook, not the MSP.",
+          "rationale": "The MSP owns and maintains the runbook."
+        },
+        {
+          "label": "Embedding the runbook would breach Huntress's licence terms.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "Runbooks are confidential and can't appear in training material.",
+          "rationale": "The framing is about avoiding stale embedded copies, not confidentiality."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The MSP's runbook is the source of truth; the lesson teaches the shape, not the values."
+    },
+    {
+      "id": "verify-skip",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "\"The form saved, must be fine, skip the verify step.\" What's the risk?",
+      "choices": [
+        "You miss the case where you started against the wrong runbook or another tech has already done part of the onboarding. Two minutes of verification, zero minutes of regret.",
+        {
+          "label": "Huntress retains the unsaved data on the server; the form might not have actually saved.",
+          "rationale": "The verify step isn't about save reliability, it's about state correctness."
+        },
+        {
+          "label": "Skipping verify breaks the audit log.",
+          "rationale": "Not the lesson's reason."
+        },
+        {
+          "label": "There is no risk, modern portals are reliable enough that verify is paranoia.",
+          "rationale": "Inverts the lesson's named common-mistake category."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two minutes of verification catches wrong-runbook or duplicate-onboarding situations the form-saved check can't see."
+    },
+    {
+      "id": "procedure-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Put the org-creation steps in the right order.",
+      "items": [
+        "Open the runbook and confirm naming convention, branding template, notification routing, and tier label.",
+        "Open the Organisations list and click Add Organisation.",
+        "Set the organisation name per the runbook convention.",
+        "Apply the branding template and set notification routing per the partner-level template.",
+        "Tag the tier label and save.",
+        "Verify the blank state (0 agents, no integrations, no incidents) before moving on."
+      ],
+      "explanation": "Read the runbook before clicking; do the portal work in the documented order; verify the blank state catches wrong-tenant or duplicate-onboarding signals."
+    },
+    {
+      "id": "pre-existing-not-fine",
+      "type": "tf",
+      "topic": "verify",
+      "difficulty": "easy",
+      "prompt": "A brand-new organisation in Huntress that shows pre-existing agents, integrations, or incident history is normal and can be proceeded with.",
+      "correct": false,
+      "explanation": "A new org should be blank. Pre-existing state means wrong tenant, wrong portal, or someone else started the onboarding in parallel. Stop and bump."
+    }
+  ]
+}

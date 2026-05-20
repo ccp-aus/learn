@@ -2,16 +2,83 @@
 slug: 02-creating-a-new-organisation
 vendor: huntress
 level: l2
-title: Creating a New Organisation
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Creating a new organisation in the portal
+summary: The org record is the spine every onboarding step hangs off. Get the name, branding, and notification routing right from the runbook before you click save, then verify the blank state catches the wrong-tenant or duplicate-onboarding signal.
+estimatedMinutes: 7
 order: 2
 topics:
   - onboarding
   - portal
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The organisation record is the spine every other onboarding step hangs off. Agents enrol against it, ITDR integrations attach to it, incidents route inside it, notifications fan out from it. A naming-convention mistake here gets baked into every downstream piece. A wrong notification template gets seen by the customer on every incident from now on. The action is simple. The discipline is doing it the same way every time so the rest of the platform stays consistent.
+
+## What to pull from the runbook before clicking
+
+This lesson does not embed the runbook. Runbooks drift, and your MSP's version is the source of truth. Open it and confirm:
+
+- The **naming convention** for organisations (often `<CustomerLegalName> - <Tier>` or a short code). Get this right; renames later leave stale references in incident notification templates and PSA mappings.
+- The **branding template** (logo, colour scheme, white-label visibility). Many MSPs use a shared partner template; copy it.
+- The **notification routing**, where Incident Report notifications fan out. PSA email-in, a Slack channel, an on-call distribution list. This usually lives in the MSP's incident-routing matrix, not the Huntress UI.
+- The **tier label**, if your MSP categorises tenants. The tier may drive notification routing and SLA mapping.
+
+If the runbook is silent on any of these, bump per the lesson before the click. A runbook gap is a senior question, not a tech improvisation.
+
+## The procedure
+
+The portal moves between releases, but the shape of the work holds:
+
+<StepThrough client:load>
+  <Step title="Open the Organisations list">
+    From the global view, click **Add Organisation** (or its current-named equivalent).
+  </Step>
+  <Step title="Set the organisation name">
+    Type the name exactly per the runbook convention. Trailing spaces and case matter; the portal will not fix typos for you.
+  </Step>
+  <Step title="Apply the branding template">
+    If your MSP uses a shared partner template, apply it. The branding shows on any customer-visible portal pages and on some notification emails.
+  </Step>
+  <Step title="Set notification routing">
+    Confirm the new org inherits the partner-level notification template. One-off custom routing per customer is rare and almost always a mistake at this stage.
+  </Step>
+  <Step title="Tag the tier label">
+    If your MSP uses tiers (small business, mid-market, managed-service Tier 1/2/3), tag the org now. The tier drives routing and SLA mapping downstream.
+  </Step>
+  <Step title="Save and verify the blank state">
+    Save. The org appears in the Organisations list. Now run the verification below before going further.
+  </Step>
+</StepThrough>
+
+## Verify the blank state
+
+Before moving to integrations or agent rollout, confirm the new organisation looks the way a brand-new one should:
+
+- **Agents count: 0.** No endpoints enrolled.
+- **Identity integrations: none.** M365 and Google Workspace both read "Not connected."
+- **SIEM data sources: none.** Empty.
+- **Incidents: none.** A new org has zero history.
+- **Branding renders correctly** if your MSP exposes the customer to portal pages.
+- **Notification routing test.** If the runbook includes a synthetic test event or a portal-side "send test notification" step, run it and confirm it landed where it should.
+
+<Callout type="warn" title="Pre-existing state on a brand-new org is a stop signal">
+If the new organisation shows agents already enrolled, integrations already connected, or any incident history, stop. You are looking at the wrong org, the wrong portal, or someone else has started the onboarding in parallel. Bump.
+</Callout>
+
+## A worked ticket: a name that looks familiar
+
+You are creating an org for *Northwind Logistics Pty Ltd* per the runbook. The convention is `<Short trading name> - <Tier>` and the kickoff note says Tier 2. You scroll to the Add Organisation page and notice an existing org called *Northwind* with eight agents and three closed incidents from last year.
+
+The pre-existing org is the signal. It could be the same customer mid-rename, a different customer with a similar name, or an incomplete onboarding from another tech. Creating in parallel without checking risks duplicate orgs and confused agent enrolment. Renaming the existing org on an assumption is worse, you have changed the name of an org with agents and incidents already attached, and if it is not the same customer, you have just broken someone else's portal.
+
+The right move is the one-line bump: *"Existing org 'Northwind' has 8 agents and incident history. Same customer mid-rename, or different? Reuse, rename, or create new?"* The senior either confirms it is a different customer (you proceed), the same customer (you reuse the existing org), or someone else's in-progress onboarding (you coordinate, you do not duplicate).
+
+When the senior replies *"different customer, the old Northwind is a stale prospect we never billed, create the new org as planned and bump the stale one to me, I will deactivate it"*, the right thing to do is create the new org and leave the stale one alone. The senior was explicit about owning the cleanup. Deactivating it yourself would be acting on a category of action that escalates regardless. Renaming it to `DELETE_ME_OLD_NORTHWIND` is the kind of breadcrumb that lingers in search results for a year.
+
+## Common mistakes
+
+- **Naming the org "Northwind" when the runbook says "Northwind Logistics - Tier 2".** The portal's filter and search become miserable when conventions drift. Rename-after-the-fact leaves stale references in incident notifications and PSA mappings.
+- **One-off notification routing per customer.** Almost always a mistake. The partner-level template exists so on-call rotations, PSA integration, and incident routing stay consistent. One-off routing decays the moment the original tech leaves.
+- **Skipping the verify step because the form saved.** Two minutes of verification catches the cases where you started against the wrong runbook or another tech has already done part of the onboarding.
+
+<Checkpoint slug="huntress-operations-checkpoint-creating-a-new-organisation" client:visible />

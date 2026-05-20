@@ -1,0 +1,234 @@
+{
+  "slug": "huntress-operations-checkpoint-install-failure-av-conflict",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: install failure, AV conflict",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "right-fix",
+      "type": "mcq",
+      "topic": "right-fix",
+      "difficulty": "easy",
+      "prompt": "What's the right-fix path for an AV-blocked install?",
+      "choices": [
+        {
+          "label": "Ask the customer to disable AV during the install window.",
+          "rationale": "Removes coverage during install and trains the customer to disable AV when something gets in the way."
+        },
+        "Apply the documented AV exclusions for the specific AV product, pushed via the AV management console.",
+        {
+          "label": "Switch the customer to a different AV product.",
+          "rationale": "Wildly out of scope. Deployment-strategy decision, not a tech fix."
+        },
+        {
+          "label": "Re-run the install three times and hope it works on the fourth.",
+          "rationale": "AV behaviour isn't random."
+        }
+      ],
+      "correct": 1,
+      "explanation": "AV and Huntress are designed to coexist; the exclusions are the contract."
+    },
+    {
+      "id": "av-signature",
+      "type": "mcq",
+      "topic": "symptoms",
+      "difficulty": "medium",
+      "prompt": "Which symptom pattern most cleanly points at AV interference rather than another failure class?",
+      "choices": [
+        "RMM exit non-zero with 'access denied' or 'file in use' on the agent binary itself, possibly with the binary quarantined; sometimes the service starts briefly then dies.",
+        {
+          "label": "Service-creation operations failing with policy-shaped event log entries under AppLocker or CodeIntegrity.",
+          "rationale": "That's lesson 15 (policy block)."
+        },
+        {
+          "label": "Service running, install logs showing repeated 'TCP connection refused' against Huntress hostnames.",
+          "rationale": "That's lesson 17 (blocked outbound)."
+        },
+        {
+          "label": "Installer exits with 'unsupported OS version' message.",
+          "rationale": "That's lesson 16 (unsupported OS)."
+        }
+      ],
+      "correct": 0,
+      "explanation": "AV interference touches the agent binary or service directly; the install log shows it in plain text."
+    },
+    {
+      "id": "local-exclusions-evaporate",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "Why is 'adding exclusions only to the endpoint locally' called out as wrong?",
+      "choices": [
+        "It survives until the next AV policy refresh and then evaporates. Push exclusions via the AV management console.",
+        {
+          "label": "Huntress can detect local-only exclusions and refuses to install.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "Local exclusions break Huntress's audit log.",
+          "rationale": "Not a lesson concern."
+        },
+        {
+          "label": "Local exclusions trigger Critical incidents in the SOC queue.",
+          "rationale": "Not how the SOC operates."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Local exclusions on managed endpoints are temporary by design; policy refreshes wipe them."
+    },
+    {
+      "id": "trial-and-error",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "'Let me try the install again' five times in a row is the signature of what mistake?",
+      "choices": [
+        "Diagnosing by trial and error rather than reading the install logs.",
+        {
+          "label": "Aggressively warming up the AV's heuristics so it learns the binary.",
+          "rationale": "Not how AV works."
+        },
+        {
+          "label": "Following the documented runbook.",
+          "rationale": "The runbook would have you read the logs first."
+        },
+        {
+          "label": "Practising the install procedure under load.",
+          "rationale": "Misframes the behaviour as deliberate practice."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The install logs name the failure mode in plain text. Retries without reading them are a substitute for diagnosis."
+    },
+    {
+      "id": "bitdefender-first-step",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "A push to a workstation fails with exit code 1 and 'access denied' in the output. The customer runs Bitdefender, managed via their own console (not yours). What's your first step?",
+      "choices": [
+        {
+          "label": "Ask the customer's IT to disable Bitdefender on the endpoint while you re-run the install.",
+          "rationale": "Removes AV coverage during the install window and trains them to reach for 'disable AV' as a normal step."
+        },
+        "Pull the Huntress install log from the endpoint to confirm AV interference, then ask the customer's IT to apply the documented Huntress exclusions in their Bitdefender console.",
+        {
+          "label": "Re-run the install three more times and hope it works on the fourth.",
+          "rationale": "AV behaviour is not random; if it blocked once, it'll block again."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Confirm the cause from the logs, propose the documented fix to the right party (the customer's IT), don't ask them to lower coverage."
+    },
+    {
+      "id": "post-exclusion-still-fails",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The customer's IT applies the exclusions and confirms the policy is in place. You re-run the install. The RMM reports success. After 20 minutes, the agent is not in the portal. What's the right diagnostic?",
+      "choices": [
+        {
+          "label": "Assume the AV is still blocking and ask for more exclusions.",
+          "rationale": "The RMM exit code is now clean; the failure has moved on."
+        },
+        "Check the agent's local logs to see whether the first phone-home attempt succeeded, and check the network path (lesson 17 territory).",
+        {
+          "label": "Re-push the install.",
+          "rationale": "Re-pushing an already-installed agent risks duplicate state. The install succeeded; the question is why it didn't register."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Treat the install failure and the registration failure as separate problems with separate diagnostics, even when they appear back-to-back."
+    },
+    {
+      "id": "av-console-not-managed",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "easy",
+      "prompt": "The customer's AV management console is one your MSP doesn't manage. What's the escalation guidance?",
+      "choices": [
+        "That's a customer-side change request, not a tech fix. Bump.",
+        {
+          "label": "Push the exclusions yourself via PowerShell on each endpoint.",
+          "rationale": "Per-endpoint manual exclusions are the named anti-pattern."
+        },
+        {
+          "label": "Open a Huntress support ticket and let them coordinate with the customer's AV vendor.",
+          "rationale": "Misuses support; not their workflow."
+        },
+        {
+          "label": "Tell the customer to switch AV products.",
+          "rationale": "Wildly out of scope."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The senior owns the customer-side change conversation."
+    },
+    {
+      "id": "av-is-enough",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer asks to be left without Huntress on a specific endpoint 'because the AV is enough.' What's the right move?",
+      "choices": [
+        "Bump. Product-mix question.",
+        {
+          "label": "Agree, the customer is right that AV provides coverage.",
+          "rationale": "Different layers. The tech doesn't agree or disagree; the senior owns the conversation."
+        },
+        {
+          "label": "Push Huntress anyway and let the senior sort it out later.",
+          "rationale": "Acting before the layer-that-decides has weighed in."
+        },
+        {
+          "label": "Disable the AV exclusions and re-push to prove a point.",
+          "rationale": "Hostile to the customer's posture."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Coverage decisions are commercial/scope, not tech-level."
+    },
+    {
+      "id": "av-procedure",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Order the steps for resolving an AV-blocked install.",
+      "items": [
+        "Confirm AV is the cause from the agent's install log (and the AV's own logs if available).",
+        "Identify which AV product is on the endpoint.",
+        "Apply the documented exclusions for that AV product via the AV management console.",
+        "Wait for the exclusion policy to apply on the endpoint.",
+        "Re-run the Huntress install from the RMM targeted at the same endpoint.",
+        "Verify enrolment in the portal."
+      ],
+      "explanation": "Confirm cause, identify product, push exclusions at the management console, wait, retry once, verify in the portal."
+    },
+    {
+      "id": "psa-documentation",
+      "type": "mcq",
+      "topic": "documentation",
+      "difficulty": "medium",
+      "prompt": "Which detail should the PSA record after resolving an AV-blocked install?",
+      "choices": [
+        "Which AV product was on the endpoint and the exclusion path used.",
+        {
+          "label": "The endpoint's BIOS version.",
+          "rationale": "Out of scope."
+        },
+        {
+          "label": "Screenshots of the AV's UI showing the exclusions.",
+          "rationale": "Not the named documentation requirement."
+        },
+        {
+          "label": "The customer's IT contact's calendar availability.",
+          "rationale": "Out of scope."
+        }
+      ],
+      "correct": 0,
+      "explanation": "So the next tech doesn't repeat the diagnosis."
+    }
+  ]
+}

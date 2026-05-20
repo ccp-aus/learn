@@ -2,17 +2,93 @@
 slug: 04-connecting-google-workspace-for-itdr
 vendor: huntress
 level: l2
-title: Connecting Google Workspace for ITDR
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Connecting Google Workspace for Managed ITDR
+summary: Same back-end model as M365, different integration path. Super-admin role, Google OAuth consent, and sometimes a domain-wide-delegation step in the Admin console. Don't run the M365 runbook with names swapped.
+estimatedMinutes: 10
 order: 4
 topics:
   - onboarding
   - itdr
   - gws
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+ITDR's identity coverage is the same idea across Microsoft 365 and Google Workspace, telemetry, SOC analysis, recommendations. The detection model on the back end is unified. The *integration* on the front end is not. M365 uses Azure AD enterprise-application consent. Google Workspace uses Google's OAuth consent flow plus a domain-wide-delegation step in some configurations. The mechanics aren't hard. The divergence catches techs who learnt the M365 flow first and assume Google will mirror it.
+
+## How Workspace ITDR differs from M365 ITDR
+
+- **Admin role naming.** Workspace calls it a **super-admin**, not Global Admin. Customers will sometimes use either name; confirm before the call.
+- **Consent flow.** Google's OAuth consent screen, not Microsoft's admin-consent screen. Same purpose, visually different.
+- **Domain-wide delegation.** May need to be configured separately in the Google Admin console. Your runbook should specify whether the wizard handles it or you do it by hand.
+- **Baseline period.** Often longer on Workspace for customers with large mailbox histories. Set expectations accordingly.
+- **Audit-log differences.** The SOC sees Workspace events slightly differently from M365 in some areas. Most of this matters at the SOC layer, not yours; the Incident Reports you receive will sometimes have different evidence vocabulary.
+
+The portal abstracts most of this. You run a wizard. What you need to know is where the wizard hands off to the customer and where the divergence from M365 shows up.
+
+## Before the call
+
+<StepThrough client:load>
+  <Step title="Confirm the customer's admin is specifically a super-admin">
+    Not a delegated admin, not a user-management admin. A delegated role will get partway through the flow and Google will reject the scope grant for lack of privilege.
+  </Step>
+  <Step title="Confirm Google's OAuth consent screen settings on the customer's domain">
+    Some customers restrict third-party app access at the tenant level. If so, that's a change-management item the senior may already be working. Bump if unsure.
+  </Step>
+  <Step title="Send the consent-scope reference doc ahead of the call">
+    Huntress publishes one for the Workspace integration. Your runbook has the link.
+  </Step>
+  <Step title="Confirm the org exists in Huntress with Identity, Google Workspace reading Not connected">
+    Blank-state check from lesson 2, applied to the Workspace surface.
+  </Step>
+</StepThrough>
+
+## Running the wizard
+
+<StepThrough client:load>
+  <Step title="Open Identity, Google Workspace and click Connect">
+    From inside the customer's organisation in Huntress.
+  </Step>
+  <Step title="Confirm the primary Workspace domain with the super-admin">
+    On screen, read aloud. The wizard uses this for the OAuth-consent URL.
+  </Step>
+  <Step title="Hand the OAuth-consent link to the super-admin">
+    They sign in with their account and grant the requested scopes. Brief them on what each scope covers using the reference doc.
+  </Step>
+  <Step title="Walk through the domain-wide-delegation step if the runbook calls for it">
+    Some Workspace configurations require it as a separate action in the Google Admin console. Doing it now while the super-admin is on the call beats booking a second call.
+  </Step>
+  <Step title="Wait for the portal to confirm">
+    Identity, Google Workspace flips to Connected with green status. Initial sync starts.
+  </Step>
+  <Step title="Set the baseline expectation">
+    Tell the super-admin the baseline can take 24 to 72 hours before identity incidents start landing in earnest. Longer than M365; say so explicitly.
+  </Step>
+</StepThrough>
+
+## Verify
+
+- **Identity, Google Workspace** reads Connected with green status.
+- The integration's **last-sync timestamp** updates within an hour. If it hasn't moved by end of day, that's a real concern, bump.
+- If domain-wide delegation was part of setup, the integration shows as an authorised app in the customer's Google Admin console under **Security, API controls, Domain-wide delegation** (or the current-named equivalent).
+- The super-admin has been told the 24-to-72-hour baseline so they don't ring you on day one.
+- **If the customer has both Workspace and M365**, confirm both tenants now show green under Identity. Mixed tenants are common; missing one of them is a recurring oversight.
+
+<Callout type="warn" title="Connected with no DWD is a quiet half-state">
+The wizard reports Connected even when domain-wide delegation isn't done. Parts of the telemetry the SOC expects won't flow. Same partial-state problem as M365 partial consent, looks fine, isn't. Run the DWD step while the super-admin is on the call; don't book a return trip for two minutes of work.
+</Callout>
+
+## A worked ticket: the wrong vocabulary
+
+The customer's IT manager joins the Workspace connection call: *"I'm an admin on the Google side, should be quick, right?"*
+
+You don't start the wizard. The role check costs 30 seconds and saves an awkward second-failure path. You ask, *"Are you specifically a super-admin? Not a delegated admin or user-management admin?"* If they aren't, this is a scheduling problem better surfaced now than mid-wizard. If you'd told them you needed a *Global Admin*, you would have used the wrong vocabulary for their environment, M365's term, and lost credibility with the customer who knows their own surface.
+
+Once they confirm super-admin and grant the OAuth scopes, the wizard says Connected. The runbook also calls for the domain-wide-delegation step. The super-admin says, *"Cool, are we done? I have a meeting in two minutes."* The right answer is *"Two more minutes, there's one step in the Google Admin console to enable domain-wide delegation, then we're done. Otherwise the telemetry won't be complete."* You're respecting their time and being explicit about why the extra step matters. Booking a second call for a two-minute step is how half-installed integrations live for weeks.
+
+## Common mistakes
+
+- **Running the M365 runbook with names swapped.** It mostly looks similar, but the consent screen is different and the domain-wide-delegation step exists on Workspace in a way M365 doesn't.
+- **Letting a delegated admin try to consent.** Partway through the flow, Google rejects the scope grant. Confirm super-admin at booking, not at the consent step.
+- **Skipping domain-wide delegation when the runbook calls for it.** Connected status without DWD is the half-installed state.
+
+<Checkpoint slug="huntress-operations-checkpoint-connecting-google-workspace-for-itdr" client:visible />

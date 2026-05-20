@@ -1,0 +1,242 @@
+{
+  "slug": "huntress-operations-checkpoint-first-week-noise-window",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the first-week noise window",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "definition",
+      "type": "mcq",
+      "topic": "definition",
+      "difficulty": "easy",
+      "prompt": "What is the \"noise window\" the lesson describes?",
+      "choices": [
+        "The one-to-two-week period after a new customer's rollout in which the SOC and agent are learning what's normal, producing a Low-severity wave of detections that mostly resolve as baseline-benign.",
+        {
+          "label": "A scheduled maintenance window when the SOC pauses analysis.",
+          "rationale": "The SOC doesn't pause; the opposite, it's actively learning and raising/analysing rather than absorbing."
+        },
+        {
+          "label": "A daily 4-hour quiet period when the portal accepts no new events.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "The 30 days after offboarding during which legacy events finish processing.",
+          "rationale": "Confuses onboarding with offboarding."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Complex environments take longer; clean environments are quieter from the start."
+    },
+    {
+      "id": "failure-modes",
+      "type": "mcq",
+      "topic": "failure-modes",
+      "difficulty": "medium",
+      "prompt": "What are the two failure modes the lesson explicitly names for handling the noise window?",
+      "choices": [
+        "Treating every initial detection as a real incident (exhausting), and suppressing initial detections to clear the queue (dangerous).",
+        {
+          "label": "Ignoring all Low detections, and escalating all Low detections.",
+          "rationale": "The failure mode is suppressing/closing-without-reading, not generic ignoring. Different mechanism."
+        },
+        {
+          "label": "Disconnecting ITDR early, and requesting exclusions late.",
+          "rationale": "Not the two failure modes."
+        },
+        {
+          "label": "Setting customer expectations too low, and setting them too high.",
+          "rationale": "Customer expectation-setting matters but isn't the named pair of failure modes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "A is exhausting; B is dangerous. The discipline is the middle, read each recommendation, act on what it says."
+    },
+    {
+      "id": "exclusions-timing",
+      "type": "mcq",
+      "topic": "exclusions",
+      "difficulty": "medium",
+      "prompt": "A customer's IT manager asks you to file an exclusion request on day three for a noisy detection. What's the right response?",
+      "choices": [
+        {
+          "label": "File the exclusion; the customer asked for it.",
+          "rationale": "Exclusion requests during the noise window create gaps the SOC didn't approve."
+        },
+        "Explain the noise window: week one is the wrong time to file exclusions; the SOC is still classifying. Revisit at week three if the detection is still firing.",
+        {
+          "label": "Tell the customer Huntress doesn't allow exclusions at all.",
+          "rationale": "Exclusions exist; the issue is timing, not availability."
+        },
+        {
+          "label": "File the exclusion but mark it as draft.",
+          "rationale": "'Draft' doesn't prevent the gap."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Week one is explicitly the wrong moment. Week three is the right time if the detection is still firing."
+    },
+    {
+      "id": "customer-call",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Day three of a rollout. Portal shows 14 Low EDR incidents in 48 hours. The IT manager calls: \"Is this normal? Should we be worried?\" What do you say?",
+      "choices": [
+        {
+          "label": "\"It's working as designed, ignore them, we'll close them out for you.\"",
+          "rationale": "You've dismissed alerts the customer is seeing; 'ignore Huntress alerts' is the worst takeaway."
+        },
+        "\"You're seeing the noise window, the SOC is learning what's normal for your environment, so the first one to two weeks are heavier on Lows. We're working each one through the recommendation; most resolve as baseline-benign. We'll let you know if any are real.\"",
+        {
+          "label": "\"Let me request exclusions for the noisy detections so they stop firing.\"",
+          "rationale": "Offering to suppress detections during the baseline is exactly the failure mode B mistake."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Name what's happening, give the timeline, say what you're doing, and reserve the 'we'll let you know if any are real' line for when it matters."
+    },
+    {
+      "id": "real-low-in-noise",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Working through 14 Lows, you find one whose recommendation says \"Approve the scheduled-task remediation, this task is a known persistence mechanism, no legitimate use.\" It looks identical at-a-glance to the other 13 baseline closures. What do you do?",
+      "choices": [
+        {
+          "label": "Close as benign like the others, surrounding noise suggests it's the same.",
+          "rationale": "The recommendation is the difference. The cardinal mistake in onboarding clothing."
+        },
+        "Treat it as a real Low: claim, approve the remediation, verify, document, close, same workflow as steady-state Low.",
+        {
+          "label": "Escalate to a senior because you can't tell baseline from real.",
+          "rationale": "The recommendation tells you the difference. Escalating every real Low in week one because of surrounding noise is failure mode A in slow motion."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Read each recommendation; don't let baseline volume blur the real one when it appears."
+    },
+    {
+      "id": "batch-close",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Suppressing or batch-closing the queue to clear it.\" Why does the lesson call this the worse of the two failure modes?",
+      "choices": [
+        "It hides the real Low among the noise: the one that needed action gets closed without action, and the platform develops gaps the SOC didn't approve.",
+        {
+          "label": "It generates a notification email to Huntress every time you batch-close.",
+          "rationale": "Not a real platform mechanic."
+        },
+        {
+          "label": "It costs more in platform usage.",
+          "rationale": "No usage-billing penalty for closing items."
+        },
+        {
+          "label": "It triggers an automatic re-open by the SOC.",
+          "rationale": "Not how the platform works."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Reacting too hard is exhausting; reacting too lightly by suppression is dangerous, the missed real Low is the worst case."
+    },
+    {
+      "id": "customer-expectations",
+      "type": "mcq",
+      "topic": "customer-expectations",
+      "difficulty": "easy",
+      "prompt": "When is the right time to set the noise-window expectation with the customer's IT contact?",
+      "choices": [
+        {
+          "label": "After the first Low arrives, wait until the customer notices, then explain it.",
+          "rationale": "Too late. The customer who hears the expectation in advance is calm; the one who doesn't reacts to every notification as panic."
+        },
+        "During the rollout call, then again at coverage verification, set ahead of time.",
+        {
+          "label": "Only if the customer asks; don't pre-empt their concern.",
+          "rationale": "The whole point of pre-setting is to avoid the panic call."
+        },
+        {
+          "label": "Two weeks in, once the noise has settled.",
+          "rationale": "By then the customer has either already panicked or learned to ignore the platform."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Pre-set the expectation; reinforce at coverage verification. Reactive expectation-setting is too late."
+    },
+    {
+      "id": "high-volume",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "A new customer's noise window has produced hundreds of Lows in 24 hours on a 200-endpoint customer, or sustained High volume. What does the lesson say?",
+      "choices": [
+        "Bump. Could be a real incident hiding in the baseline.",
+        {
+          "label": "Stay the course; high volume is the noise window working as designed.",
+          "rationale": "The expected baseline wave is Low-severity and trickling; sustained High volume is the case to bump on."
+        },
+        {
+          "label": "Open a Huntress support ticket asking the SOC to reduce sensitivity.",
+          "rationale": "Senior first; the SOC doesn't 'reduce sensitivity' on demand."
+        },
+        {
+          "label": "Batch-close the older Lows so the recent ones are visible.",
+          "rationale": "Worst response, the failure mode the lesson explicitly names."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Volume materially above expectation is a named escalation trigger; could be a real incident hiding in the baseline."
+    },
+    {
+      "id": "pattern-detection",
+      "type": "mcq",
+      "topic": "pattern-detection",
+      "difficulty": "medium",
+      "prompt": "You notice the same detection repeating across many endpoints in the same customer. What's the right next step?",
+      "choices": [
+        {
+          "label": "Treat each detection as an independent Low and work through them one by one.",
+          "rationale": "Misses the signal. Repetition across many endpoints could be a baseline pattern OR a real spreading process."
+        },
+        "Bump rather than wait and see, could be a baseline pattern the SOC will absorb, could also be a real spreading process.",
+        {
+          "label": "File a bulk exclusion request for the detection type.",
+          "rationale": "Two named mistakes in one: exclusion during the noise window, and acting on a pattern without senior review."
+        },
+        {
+          "label": "Wait two weeks to see if it self-resolves.",
+          "rationale": "Wait-and-see on a repeating cross-endpoint pattern is exactly the wrong reflex."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Cross-endpoint patterns warrant a bump because the same pattern could mean either baseline or real, and the SOC is the right body to weigh it."
+    },
+    {
+      "id": "middle-path",
+      "type": "mcq",
+      "topic": "discipline",
+      "difficulty": "easy",
+      "prompt": "What's the lesson's framing of the right disposition for week one of a new customer?",
+      "choices": [
+        "Stay close to the portal (daily glance, not every 20 minutes), work each Low through the standard workflow on the recommendation, let the SOC do the classification, communicate the expectation to the customer.",
+        {
+          "label": "Triage every Low at full tempo and call the customer about each one.",
+          "rationale": "That's failure mode A, exhausting."
+        },
+        {
+          "label": "Glance at the queue once a week and batch-close the Lows.",
+          "rationale": "That's failure mode B, dangerous."
+        },
+        {
+          "label": "Disable the customer's notifications until the noise window settles.",
+          "rationale": "Disabling customer notifications is a deeper change than the lesson contemplates."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The middle path between catastrophising and dismissing. Standard Low workflow, on each one, every time."
+    }
+  ]
+}

@@ -2,16 +2,69 @@
 slug: 11-final-offboarding-checklist
 vendor: huntress
 level: l2
-title: Final Offboarding Checklist
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Final offboarding checklist and handoff
+summary: Six final-state targets. The discipline is the physical checklist, ticks are honest. Permanent org deletion is not on the list, the senior owns it.
+estimatedMinutes: 7
 order: 11
 topics:
   - offboarding
   - checklist
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The final checklist exists because offboardings get *almost* done and then quietly stop. The agents are at 4 of 198 instead of zero. The ITDR is disconnected but the customer-side OAuth grant lingers. The billing ticket got filed but the incident archive didn't. None of these is catastrophic in isolation; each one is a half-done state the next tech inherits without warning. The checklist is the one place where someone (you, today) confirms in writing that everything that needed doing has been done.
+
+## The six final-state targets
+
+When the offboarding sequence is complete, the customer's organisation should look like this:
+
+| Target | Expected state |
+|---|---|
+| Agents | 0, or a documented exception list (rare, senior-owned) |
+| ITDR connections | None, Identity, M365 and Identity, Google Workspace both *Not connected* where applicable |
+| SIEM data sources | None active, no ingestion for any source associated with the customer |
+| Notifications | Still paused until the org is archived or deactivated |
+| Incidents | Archived or exported per retention policy, with the path recorded |
+| Billing-closure ticket | Open with the senior, not closed by the tech |
+
+A short final-state note in the PSA captures the above: which date the offboarding completed, what the exception list (if any) contains, which retention path was used for incidents, and the billing-closure ticket reference.
+
+## The checklist in practice
+
+Most MSPs have a one-page offboarding checklist, a PSA template, a wiki page, or a printed sheet. Tick each item as completed, with a name and a date. The discipline is *not* memorising the checklist; it is running through it physically. Even seniors do this. The point of a checklist is that it removes the question *"did we do that?"* from the conversation, replacing it with a tick or a blank.
+
+If your MSP doesn't have a checklist, that is a runbook gap. Bump it to the senior as something the MSP needs documented. Don't invent one on the fly for a specific customer; the value of a checklist is consistency across customers.
+
+## What is not in scope for the tech
+
+**Permanent organisation deletion.** Removing the organisation from the Huntress portal is irreversible. The incident history goes with it. Most MSPs do not delete the org at the end of offboarding; the org stays archived for record-retention reasons (often seven-plus years for compliance). When deletion is eventually right, the senior makes the call and runs the action.
+
+**Subscription cancellation with Huntress.** A Huntress-customer-portal action the senior or the billing function handles, coordinated with Huntress's account team. Not your action.
+
+**Customer contract closure and final invoice.** Owned by the senior or the account function.
+
+The pattern: anything that touches money, the contract, or an irreversible portal state is out of scope, every time. The same line lesson 1 named at the start of the course; the offboarding closes with the boundary it opened with.
+
+<Callout type="danger" title="The verbal-delegation trap">
+"While you're at it, delete the org, saves us cluttering up the portal" is the moment the lesson exists for. Permanent org deletion is a senior decision; *the senior tech said in passing* is not the form senior decisions take. Same family as the org-rename mistake from lesson 2. If you find yourself on the org-delete confirmation page at the end of an offboarding, stop. Ask for the delegation in writing, or hand the click to someone with the authority.
+</Callout>
+
+## A worked ticket: closing out cleanly
+
+You have finished what you believe is the full offboarding sequence for a customer. The portal shows 1 agent still online, a server with a known tamper-protection issue. The senior agreed last week to leave it as a documented exception. ITDR is disconnected on both M365 and Workspace. SIEM is disconnected. Incidents are exported. You are raising the billing-closure ticket. A more senior tech walks past: *"While you're at it, delete the org, saves us cluttering up the portal."*
+
+Deleting the org because *the senior tech said it is fine* is the worst response. Permanent org deletion is a senior decision; the form senior decisions take is a documented runbook delegation or a senior taking the click themselves, not a passing-comment. Renaming the org to `DELETED-<customer>-2026-05` so it is *clearly closed without actually deleting* is the wrong middle path, renames at offboarding are noise. The org's status (archived, no agents, no integrations) tells the next tech everything they need.
+
+The right move is to ask the senior tech to either delete it themselves (if they have the authority and want to take it) or document the delegation in the offboarding runbook before you click. Meanwhile, raise the billing-closure ticket as planned. You are not refusing; you are putting the irreversible action behind the same gate the runbook puts all of them behind. Most seniors who ask in passing will reconsider; the few who meant it will document it.
+
+The billing-closure ticket goes to the senior, who replies: *"Looks good, but the documented exception for the tamper-protected server should be a customer-side issue, not ours. Tell the customer we need them to handle the agent removal on their side, then close out fully."*
+
+Updating the checklist to *agents at zero* prematurely so the offboarding doesn't look stuck is wrong, the agent is still online, tick-with-fiction is worse than tick-with-exception. Closing the offboarding now and revisiting the residual agent *later* is wrong, *later* rarely happens, and the residual becomes the artefact a different tech finds in six months and doesn't know what to do with. The right shape is pass the senior's message to the customer's IT contact (with the senior's blessing on phrasing), wait for the customer-side removal, then close out the agent line item when the portal shows zero. The exception clears legitimately.
+
+## Common mistakes
+
+- **Signing off the checklist with one or more *mostly done* items.** Agents at 4 of 198 isn't *agents at zero*. If there is a documented exception, name it as an exception, not as a tick.
+- **Closing the billing-closure ticket yourself.** The ticket is raised *for the senior*. The tech who closes it is taking an action they don't own on a step with commercial implications they don't see.
+- **Permanently deleting the organisation at the end of the checklist.** The irreversible mistake the lesson exists to prevent.
+
+<Checkpoint slug="huntress-operations-checkpoint-final-offboarding-checklist" client:visible />

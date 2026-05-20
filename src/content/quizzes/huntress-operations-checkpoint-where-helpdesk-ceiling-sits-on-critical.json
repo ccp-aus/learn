@@ -1,0 +1,228 @@
+{
+  "slug": "huntress-operations-checkpoint-where-helpdesk-ceiling-sits-on-critical",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the helpdesk ceiling on Critical",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "freeze-failure",
+      "type": "mcq",
+      "topic": "freeze-failure",
+      "difficulty": "medium",
+      "prompt": "A new tech sees a Critical Incident Report and refuses to isolate, on the grounds that \"this is too serious, I shouldn't act alone.\" What's the lesson's framing?",
+      "choices": [
+        "The freeze failure mode. Misreads containment as investigation. Containment is the action under the ceiling; isolation is in scope and refusing to act is the failure.",
+        {
+          "label": "Appropriate caution, better to wait for a senior than risk the wrong action.",
+          "rationale": "Misreads the rule. Waiting costs the containment window; the senior wants the host isolated by the time they pick up."
+        },
+        {
+          "label": "Fine, as long as the tech bumps the senior immediately.",
+          "rationale": "Bumping the senior is required either way. Containment doesn't wait for the senior to take it."
+        },
+        {
+          "label": "The right call only if it's the tech's first Critical.",
+          "rationale": "Experience level doesn't change the rule. Isolation is in scope from day one on Critical."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The freeze failure is real, and it's the one to actively guard against early."
+    },
+    {
+      "id": "three-costs",
+      "type": "mcq",
+      "topic": "overstep-costs",
+      "difficulty": "medium",
+      "prompt": "What three costs does the lesson name for the tech overstepping the line on Critical?",
+      "choices": [
+        "Time lost containing; damage to the senior's forensic investigation (order-of-volatility on the endpoint); customer-relationship risk in the post-incident conversation.",
+        {
+          "label": "Huntress audit penalties, SOC re-grading costs, and customer billing adjustments.",
+          "rationale": "Fabricated commercial mechanics."
+        },
+        {
+          "label": "Time, money, and reputation.",
+          "rationale": "Too generic. The lesson is specific about the three costs."
+        },
+        {
+          "label": "Tech burnout, senior frustration, and longer hours.",
+          "rationale": "Not the framing. The costs are about incident outcomes."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Three specific costs make the line sharper on Critical than on Lows and Highs."
+    },
+    {
+      "id": "five-minute-gap",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "You isolated in 25 seconds, bumped the senior, and the senior says \"stand by, 5 minutes.\" You have time on your hands. What do you do?",
+      "choices": [
+        {
+          "label": "Open the Evidence section to read what the SOC saw, to be ready to brief the senior when they arrive.",
+          "rationale": "Exactly the overstep this lesson is built to prevent. The SOC's Evidence is for the senior; reading it isn't briefing-prep, it's encroachment."
+        },
+        "Document the isolation timestamp and the bump in the PSA. Stand by. Don't touch the customer's portal further. Watch for additional Criticals firing on the same customer.",
+        {
+          "label": "Phone the customer's IT manager to brief them before the senior arrives.",
+          "rationale": "Wrong reflex. Customer comms follow the senior's brief."
+        },
+        {
+          "label": "Check the customer's recent PSA ticket history for related issues.",
+          "rationale": "Wrong direction. PSA and ticket-history checks during a Critical aren't in scope."
+        }
+      ],
+      "correct": 1,
+      "explanation": "In scope: documentation and standby. Five minutes feels passive but it's part of the job."
+    },
+    {
+      "id": "what-did-you-check",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Senior arrives 5 minutes after the bump and asks: \"Quick, what was on the endpoint? What did the user have access to?\" What's the right answer?",
+      "choices": [
+        "\"I didn't look. I was waiting for you.\"",
+        {
+          "label": "\"I read the Evidence section while I was waiting, here's what I saw.\"",
+          "rationale": "You stepped over the line. The senior has to weigh whether your tech-seat read affected the forensic value of the endpoint."
+        },
+        {
+          "label": "\"I checked the customer's PSA history to see if there were related tickets.\"",
+          "rationale": "Wrong direction. The kind of 'I'll be helpful' investigation that isn't help."
+        },
+        {
+          "label": "\"I started looking at the process tree but didn't finish.\"",
+          "rationale": "Partial overstep is still overstep. Order-of-volatility costs apply to a partial look at running processes too."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The line was held. Whether the senior was testing you or genuinely wants you to dig now under direction, 'I held the line' is the right starting answer."
+    },
+    {
+      "id": "explicit-delegation",
+      "type": "mcq",
+      "topic": "explicit-delegation",
+      "difficulty": "medium",
+      "prompt": "Mid-response the senior says: \"Go look at the recent process history on the endpoint.\" What's the right interpretation?",
+      "choices": [
+        "Explicit delegation, the line moved temporarily because the senior moved it. Do exactly what they asked, document, return.",
+        {
+          "label": "A signal that the helpdesk ceiling doesn't really apply during Criticals.",
+          "rationale": "Wrong inference. The ceiling holds; the senior can delegate a specific task across it."
+        },
+        {
+          "label": "Permission to dig more broadly than what the senior asked for.",
+          "rationale": "Wrong. Explicit delegation is scoped to exactly what the senior asked."
+        },
+        {
+          "label": "A test you should refuse, investigation is above the line.",
+          "rationale": "Wrong. Refusing explicit delegation is the freeze failure dressed up as principle."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Explicit senior delegation is the only legitimate path across the line."
+    },
+    {
+      "id": "more-complete-picture",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"If I investigate first, I can hand the senior a more complete picture.\" Why is this wrong on Critical?",
+      "choices": [
+        "The senior wants you contained-and-paused, not contained-and-pre-investigating. They have tools and training; you have the line.",
+        {
+          "label": "The senior already has access to the same information you'd find.",
+          "rationale": "Partially true but not the lesson's framing. The point is role boundaries and forensic damage, not information overlap."
+        },
+        {
+          "label": "The customer pays per investigation step.",
+          "rationale": "Fabricated commercial mechanic."
+        },
+        {
+          "label": "Wrong only if the senior is more than 10 minutes away.",
+          "rationale": "Senior's ETA doesn't change the scope rule."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Role boundaries and forensic damage are the reasons, not information overlap."
+    },
+    {
+      "id": "critical-vs-high",
+      "type": "mcq",
+      "topic": "misconception",
+      "difficulty": "medium",
+      "prompt": "\"Critical is the same as High, just with more stakes.\" What does the lesson say?",
+      "choices": [
+        "Wrong, the response model is different, not just the tempo. High involves the tech doing the full workflow; Critical involves the tech containing and handing off.",
+        {
+          "label": "Correct, same workflow, faster clock.",
+          "rationale": "The misconception in the lesson. Treating Critical as 'High with a tighter SLA' misses the workflow shape change."
+        },
+        {
+          "label": "Correct if the Recommendation only contains containment steps.",
+          "rationale": "The shape difference holds regardless of the Recommendation's specifics."
+        },
+        {
+          "label": "Correct if the customer is paying for a premium tier.",
+          "rationale": "Fabricated commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Different response model, not just a faster tempo."
+    },
+    {
+      "id": "in-scope-isolation",
+      "type": "tf",
+      "topic": "in-scope",
+      "difficulty": "easy",
+      "prompt": "Isolation of an affected host is in scope for the helpdesk on a Critical.",
+      "correct": true,
+      "explanation": "It's the most-in-scope action on Critical. Refusing to isolate is the freeze failure mode."
+    },
+    {
+      "id": "severity-reclassification",
+      "type": "mcq",
+      "topic": "out-of-scope",
+      "difficulty": "hard",
+      "prompt": "Mid-Critical, you notice the SOC's classification looks wrong, you think it should be tagged differently. What does the lesson say to do?",
+      "choices": [
+        "Don't change the severity classification on the incident, that's the SOC's call. Hold the containment, escalate per the rule, let the senior or SOC weigh the classification through the normal channel.",
+        {
+          "label": "Change the severity in the portal to match the right tag.",
+          "rationale": "Named out of scope. The tech doesn't re-grade."
+        },
+        {
+          "label": "Reply to the SOC arguing for the re-classification, in lieu of bumping the senior.",
+          "rationale": "Wrong sequencing. Senior bump first; the SOC clarification is parallel, not a substitute."
+        },
+        {
+          "label": "Wait until after the senior is on the line, then suggest the re-classification together.",
+          "rationale": "Waiting on classification isn't the failure; waiting on containment is. Contain first."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Severity re-classification is named out of scope on Critical. It's the SOC's call."
+    },
+    {
+      "id": "out-of-scope-list",
+      "type": "multi",
+      "topic": "out-of-scope",
+      "difficulty": "medium",
+      "prompt": "Which of these are explicitly OUT of scope for the helpdesk on a Critical? (Select all that apply.)",
+      "choices": [
+        "Imaging the disk and dumping memory for forensic review.",
+        "Looking for additional persistence mechanisms the agent didn't flag.",
+        "Filing an exclusion request mid-Critical because the SOC's detection looks false-positive-shaped.",
+        "Isolating the affected host via the portal.",
+        "Documenting the timeline in the PSA running entry.",
+        "Talking with the customer's cyber insurance IR provider."
+      ],
+      "correct": [0, 1, 2, 5],
+      "explanation": "Forensic preservation, persistence hunting, exclusion requests during incidents, and external IR conversations are all above the line. Isolation and documentation are the most-in-scope actions."
+    }
+  ]
+}

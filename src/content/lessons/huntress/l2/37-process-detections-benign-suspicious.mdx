@@ -2,16 +2,105 @@
 slug: 37-process-detections-benign-suspicious
 vendor: huntress
 level: l2
-title: Process Detections Benign Suspicious
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Process detections and benign-but-suspicious activity
+summary: Legitimate admin tools and attacker tradecraft look identical at the OS level. The SOC weighs context the OS can't see; the tech reads the Recommendation, not the pattern.
+estimatedMinutes: 7
 order: 37
 topics:
-  - critical
   - process-detection
+  - benign-but-suspicious
+  - recommendation
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Some of the tools attackers use look identical to tools your MSP and the customer's IT team use. PowerShell. PsExec. Remote-execution patterns from the RMM. Scheduled tasks that download and run scripts. The pattern at the OS level is the same; what differs is the context, who initiated it, against what, for what purpose. The SOC weighs the context; the tech who tries to weigh the context from gut feel will sometimes dismiss real threats ("oh, that's just our RMM") and sometimes treat normal admin work as Critical ("PowerShell encoded command, must be malicious"). This lesson is the calibration.
+
+## Why the tools look the same
+
+Legitimate IT and attackers use overlapping toolkits because the toolkits are useful for the same reasons.
+
+PowerShell is on every Windows endpoint, has a deep reach into the OS, and supports remote execution. Sysadmins love it. Attackers love it too.
+
+Remote-execution mechanisms (PsExec, WMI Exec, WinRM, scheduled tasks calling back to a command-and-control server) work the same on the OS level whether they're driven by an RMM or by an attacker.
+
+Encoded commands are a normal way to pass complex PowerShell through systems that filter on visible content. They're also a normal way for attackers to hide what they're doing.
+
+Persistence mechanisms (autoruns, services, scheduled tasks) are how legitimate software lives between reboots and how attackers maintain access.
+
+The OS doesn't know which is which. The SOC's job is to add context the OS can't see. The tech's job is to read what the SOC has classified, not to re-classify from the OS-level pattern.
+
+## How the SOC marks the difference
+
+A Huntress Incident Report on benign-but-suspicious activity typically:
+
+- Carries a lower severity (Low or High, not Critical) than the same pattern would on truly malicious activity.
+- Has a Recommendation that's lighter than the worst case: "no action required" with a context note, or "approve a small remediation" rather than "isolate."
+- Has an Evidence section that names the tool *and the context*: "PsExec used from `RMM-SERVER-01` to deploy software per the customer's documented RMM pattern."
+- Sometimes includes an explicit "this looks suspicious because [pattern] but it appears to be legitimate [tool/usage]" note.
+
+A genuinely malicious version of the same pattern has different markers: the source isn't the documented RMM; the target is unusual; the command is encoded in ways the customer's IT doesn't use; the timing is wrong.
+
+The tech doesn't need to weigh all of this. The tech reads the Recommendation. If the SOC's recommendation is "no action required, this is legitimate RMM activity," then no action is required. If the Recommendation is "approve the remediation, this activity is malicious," then the remediation gets approved.
+
+## Two failure modes that mirror each other
+
+**Dismissal-by-pattern.** The tech sees a process detection involving PsExec or remote execution from an RMM-shaped source and dismisses the incident as routine without reading the Recommendation. Sometimes correct. Sometimes the incident is *because* the SOC saw RMM-shaped activity that was actually attacker activity disguising itself as RMM. The dismissal-without-reading is what makes this dangerous.
+
+**Escalation-by-pattern.** The tech sees encoded PowerShell and reaches for the Critical reflex from earlier in this course without reading the Recommendation. Sometimes appropriate. Sometimes the encoded PowerShell is from a legitimate admin script the customer's IT runs nightly, and the SOC has classified it as legitimate-but-flagged.
+
+Both failures share a shape: the tech let the OS-level pattern make the decision instead of reading the SOC's classification. The right reflex on a process detection is always the same, read the Recommendation. The pattern is the starting point; the Recommendation is the answer.
+
+## The two-question test
+
+When a process detection lands and you're tempted to either dismiss or escalate based on pattern alone, run:
+
+1. **Did the analyst say to do this, in the Recommendation?** Whatever the Recommendation says, do that.
+2. **Is there new signal the analyst didn't have?** A user calling to say they didn't do the activity. A second host showing the same pattern. A timing anomaly the SOC's notes don't mention. New signal goes back to the SOC as a clarifying reply, it doesn't drive unilateral action.
+
+If neither test moves you, you're in dismissal-by-pattern or escalation-by-pattern territory. Read the Recommendation, act on it.
+
+## Two detections, two right answers
+
+**Detection one.** Low EDR incident, `WS-EXAMPLE-IT-02` (a customer's own IT staff workstation). Title: "Suspicious PsExec usage detected." Evidence: PsExec running from `WS-EXAMPLE-IT-02` to `WS-EXAMPLE-RECEPTION-01`. Recommendation: "No action required. Activity matches the customer's documented internal IT process for software deployment. Closing as legitimate."
+
+<DecisionTree client:load
+  title="PsExec from a customer's IT workstation, SOC says legitimate"
+  description="The pattern (PsExec, lateral execution) looks suspicious at the OS level. The SOC's Recommendation is 'no action required, legitimate'. The action is in the Recommendation, not in the pattern."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What's the right action?", choices: [
+      { label: "Close the incident with no action, per the Recommendation", next: "right" },
+      { label: "Investigate PsExec usage to confirm it's really the customer's IT process", next: "investigate" },
+      { label: "Approve a remediation 'to be safe' even though none is recommended", next: "remediation" },
+      { label: "File an exclusion for PsExec on this host so it doesn't fire again", next: "exclude" },
+    ]},
+    { type: "outcome", id: "right", label: "Close per the Recommendation", tone: "success",
+      body: <>The SOC has classified the activity based on customer context they know. The Recommendation is the action zone; "no action required" is the action. Standard close, document, move on.</> },
+    { type: "outcome", id: "investigate", label: "Second-guessing the SOC", tone: "bad",
+      body: <>The investigation has happened, the SOC's Recommendation tells you so. Re-investigating from the tech seat with less context is the second-guessing failure mode you've met before. The Recommendation is the action zone, not the pattern.</> },
+    { type: "outcome", id: "remediation", label: "Acting outside the Recommendation, doubly wrong", tone: "bad",
+      body: <>There's no remediation in the Recommendation. You'd be acting on pattern (PsExec-shaped activity) AND acting outside the Recommendation (approving something not asked for). Two failure modes at once.</> },
+    { type: "outcome", id: "exclude", label: "Wrong timing and wrong shape", tone: "warn",
+      body: <>Exclusions need multiple SOC-classified-benign incidents before they're appropriate (lesson 38). A single incident isn't the bar, and a knee-jerk exclusion after one close is exactly the failure mode that creates blind spots.</> },
+  ]}
+/>
+
+**Detection two.** Low EDR incident on `WS-EXAMPLE-MARKETING-04`. Title: "PowerShell encoded command." Evidence: the encoded payload reaches a known-bad domain. Recommendation: "Approve the autoruns remediation. The encoded payload reaches out to a known-bad domain. This is not legitimate admin activity."
+
+Same OS-level pattern as a legitimate admin script (encoded PowerShell). Different SOC classification. The right action is the standard EDR workflow: claim, review, approve the remediation, verify, close, document. Don't treat it as Critical because the pattern looked Critical; don't dismiss it as "probably admin" because the pattern overlaps with legitimate admin work. The Recommendation said approve the remediation, so you approve the remediation.
+
+## When you have new signal
+
+You read a benign-classified process detection. The user phones to say they didn't initiate the activity that's been classified as their script. That's new signal the SOC didn't have when they wrote the Recommendation.
+
+The right move is a reply to the SOC with the new signal, not unilateral action. The user denial is information; the right surface for it is the SOC's reply channel, not a tech-seat re-classification. Don't close as benign on the SOC's word and ignore the user. Don't approve a remediation against the SOC's "no action" classification. New signal goes back to the analyst.
+
+## Misconceptions to drop
+
+*If it looks like the RMM, it's the RMM.* Sometimes. Read the SOC's classification, the SOC has access to information about your RMM's normal patterns that you can confirm at the moment.
+
+*Encoded PowerShell is always malicious.* Often suspicious, not always malicious. Admin scripts use encoded commands too. The SOC weighs the context.
+
+*I should investigate the process to be sure.* No. Same family of mistake as second-guessing. The SOC's classification is the action zone; your investigation is duplicating their work with worse tooling.
+
+<Checkpoint slug="huntress-operations-checkpoint-process-detections-benign-suspicious" client:visible />

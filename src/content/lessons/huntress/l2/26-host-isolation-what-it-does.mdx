@@ -2,16 +2,90 @@
 slug: 26-host-isolation-what-it-does
 vendor: huntress
 level: l2
-title: Host Isolation What IT Does
-summary: Skeleton — lesson body to be written.
+title: "Host isolation: what it does, what it breaks"
+summary: Isolation cuts the endpoint's network at the agent, with a documented allow-list. Local stays working. Knowing what the user will experience is what makes the customer call survivable.
 estimatedMinutes: 8
 order: 26
 topics:
   - edr
   - isolation
+  - customer-comms
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Isolation is the most powerful response action a helpdesk-level tech can take through Huntress, and the one customers feel most. Done right, it cuts an attacker's access in seconds. Done badly, it takes a working endpoint offline at a critical moment without warning, and the customer is rightly upset. The skill is twofold: knowing *what* isolation actually does, so you can predict the customer impact, and knowing *how* to explain it to a customer in language they understand. The decision about *when* to isolate is the next lesson; this one is the mechanics.
+
+## What isolation does
+
+The agent reconfigures the endpoint's network to block almost all traffic. The endpoint stays powered on, the user can still log in locally, but the network is severed except for a documented allow-list:
+
+- **Huntress's own back end**, so the agent can continue to report and so you can un-isolate later.
+- **A small set of management exceptions** the runbook may specify (RMM, sometimes the customer's domain controller, sometimes a specific monitoring tool).
+
+Everything else (internet access, file shares, internal application access, email) is cut. The endpoint becomes a stranded island on its own subnet.
+
+The isolation is enforced by the agent itself, not by the customer's firewall. That means it works regardless of where the endpoint is: corporate network, home, hotel WiFi, cellular. As long as the agent can reach Huntress, the isolation policy applies.
+
+<Callout type="info" title="Why the agent enforces, not the firewall">
+Firewall-enforced isolation only works on the corporate network. The agent-enforced model is the SOC's tool: containment that travels with the endpoint. A laptop at a coffee shop is contained the same way a workstation at HQ is, because the policy lives in the agent.
+</Callout>
+
+## What the user experiences
+
+A user on an isolated endpoint typically sees:
+
+- Browser shows "no internet." Most internal applications fail to load.
+- Email client can't connect.
+- File shares unavailable.
+- Teams / Zoom / Slack disconnect.
+- Local files (already on the endpoint) still accessible.
+- RDP from a documented management workstation usually still works, if the allow-list includes that path.
+- The endpoint is otherwise functional; applications that don't need the network keep running.
+
+The user thinks their computer is broken. Without warning, that's the moment they call. With warning, they know what is happening and what comes next.
+
+## Un-isolating
+
+The reverse action is straightforward: in the portal, un-isolate the host. The agent removes the network restrictions on its next check-in (seconds to a minute or two). Network access returns; the user resumes work.
+
+Un-isolation is not a decision to take lightly either. Releasing the host while the underlying threat is unresolved puts the same problem back on the network with the original access intact. The recovery checklist is the next-but-one lesson; it is what makes un-isolation safe.
+
+## The plain-language explanation for a customer
+
+When the conversation lands on the user's phone, the framing matters. "We've blocked the endpoint" sounds like the MSP is doing the damage. The right framing names the threat and the protection in four moves:
+
+1. **Name the trigger.** "Activity on your machine that needs immediate containment."
+2. **Name the action.** "We've put it into a protected isolation state."
+3. **Name the limits.** "You can still log in locally and use what's on the machine, but it can't reach the network until we've cleared the threat."
+4. **Name the next step.** "I'll call you when the machine is ready to come out of isolation."
+
+Customers who hear those four cleanly tend to be patient. Customers who hear "your machine is offline" without explanation tend to escalate immediately.
+
+## Patterns you'll see in real work
+
+- An isolated host shows in the portal with a clear visual indicator. Other techs glancing at the customer's Agents view see at a glance that something is in containment.
+- A customer calls because "the internet is down" on a single workstation, and that workstation has an active Incident Report. Often the isolation, not an internet outage.
+- A user reports "Outlook is broken on my machine but Teams works on my phone." Single-machine network failure with phone unaffected is isolation-shaped. Check the portal before troubleshooting Outlook.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="The user calls panicking — how do you explain isolation?"
+  description={"You just isolated WS-EXAMPLE-FINANCE-08 per a High Incident Report. The user, Sarah, calls panicking: \"My computer is broken. I can't get to anything. I have a quarterly report due in two hours.\" Pick the response."}
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "What do you say to Sarah?", choices: [
+      { label: "\"We've blocked your machine because of a security issue. You need to wait.\"", next: "blocked" },
+      { label: "Use the four-move explanation (trigger, action, limits, next step) and address the quarterly report specifically — local vs. shared storage", next: "fourmove" },
+      { label: "\"Your computer was compromised. We had to take it offline. Don't touch anything.\"", next: "scary" },
+    ]},
+    { type: "outcome", id: "blocked", label: "Wrong tone", tone: "bad",
+      body: "\"Blocked\" makes it sound like the MSP did the damage; \"you need to wait\" doesn't tell Sarah anything about scope or timing." },
+    { type: "outcome", id: "fourmove", label: "Four-move explanation", tone: "success",
+      body: "Right answer. Trigger, action, limits, next step — then a specific answer for the quarterly report: if it's saved locally she can still work on it; if it's in OneDrive or a shared drive she'll need to wait. Honest about the timeline, honest about what still works." },
+    { type: "outcome", id: "scary", label: "Overclaim", tone: "bad",
+      body: "\"Compromised\" without qualification scares Sarah more than necessary; \"don't touch anything\" gives her nothing to do for an hour; \"had to take it offline\" frames the action as damage rather than protection." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-host-isolation-what-it-does" client:visible />

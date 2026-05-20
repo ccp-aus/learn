@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-connecting-google-workspace-for-itdr",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: connecting Google Workspace for ITDR",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "admin-role",
+      "type": "mcq",
+      "topic": "admin-role",
+      "difficulty": "easy",
+      "prompt": "Which admin role do you need on the customer's Google Workspace side to grant the ITDR integration's OAuth scopes?",
+      "choices": [
+        {
+          "label": "Global Admin",
+          "rationale": "That's the M365 term. Using M365 vocabulary on a Workspace call costs you credibility."
+        },
+        "Super-admin",
+        {
+          "label": "User-management admin",
+          "rationale": "A delegated admin. They'll get partway through the flow and Google will reject the scope grant."
+        },
+        {
+          "label": "Domain admin",
+          "rationale": "Not the named role on the Google side."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Super-admin is the named Workspace role with the privileges to grant the consent scopes the integration requests."
+    },
+    {
+      "id": "divergence",
+      "type": "mcq",
+      "topic": "gws-vs-m365",
+      "difficulty": "medium",
+      "prompt": "Which of these is a real divergence between the M365 and Workspace ITDR integration paths?",
+      "choices": [
+        "Workspace uses Google's OAuth consent screen and may require a domain-wide-delegation step in the Admin console; M365 uses Azure AD enterprise-app consent and doesn't.",
+        {
+          "label": "Workspace ingests events instantly; M365 has a baseline period.",
+          "rationale": "Inverts what the lesson says. Workspace baseline can actually be longer than M365 for customers with large mailbox histories."
+        },
+        {
+          "label": "Workspace ITDR is billed per identity; M365 ITDR is per tenant.",
+          "rationale": "Not the lesson's framing and not a real divergence."
+        },
+        {
+          "label": "Workspace ITDR requires a separate Huntress portal; M365 lives in the main portal.",
+          "rationale": "Both surfaces appear in the same portal under Identity."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The detection model is unified on the back end; the integration paths diverge at the customer's end."
+    },
+    {
+      "id": "m365-mirror",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Assuming the Workspace flow will mirror M365\" is named as a common mistake. What's the specific risk?",
+      "choices": [
+        "You run the M365 runbook with names swapped, miss the domain-wide-delegation step, and end up with a 'Connected' integration that's silently missing parts of the telemetry.",
+        {
+          "label": "Google will refuse to authorise any integration based on M365 patterns.",
+          "rationale": "Google doesn't know what the M365 flow looked like; the failure isn't a deliberate Google rejection."
+        },
+        {
+          "label": "Huntress charges a re-onboarding fee if you use the wrong runbook.",
+          "rationale": "Not a real commercial penalty."
+        },
+        {
+          "label": "The OAuth grant locks the customer out of their own admin console.",
+          "rationale": "OAuth consent grants scopes to the app; it doesn't lock out the granting admin."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same partial-state problem as M365 partial consent: looks fine, isn't."
+    },
+    {
+      "id": "role-check",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "The customer's IT manager joins the Workspace connection call: \"I'm an admin on the Google side, should be quick, right?\" What do you do before clicking anything?",
+      "choices": [
+        {
+          "label": "Run the wizard. If their admin role isn't enough, the wizard will tell you.",
+          "rationale": "You'll start the flow, the super-admin role check fails partway, and you risk a half-configured integration if some scopes were granted before the failure."
+        },
+        "Confirm they're specifically a super-admin, not a delegated or user-management admin, before starting the wizard.",
+        {
+          "label": "Tell them you need a \"Global Admin\", same as the M365 flow.",
+          "rationale": "Wrong vocabulary. 'Global Admin' is the M365 term; Workspace uses 'super-admin'."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The role check costs 30 seconds and prevents the second-failure path."
+    },
+    {
+      "id": "domain-wide-delegation",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "The super-admin grants the OAuth scopes. The wizard says \"Connected.\" The runbook also calls for a domain-wide-delegation step in the Google Admin console. The super-admin says: \"Cool, are we done? I have a meeting in two minutes.\" What do you do?",
+      "choices": [
+        {
+          "label": "Yes, you're done. The wizard says Connected.",
+          "rationale": "Half the integration is in place. Without domain-wide delegation, parts of the telemetry the SOC expects won't flow."
+        },
+        "\"Two more minutes, there's one step in the Google Admin console to enable domain-wide delegation, then we're done. Otherwise the telemetry won't be complete.\"",
+        {
+          "label": "\"Don't worry about it, I'll book another call to finish off.\"",
+          "rationale": "Booked-but-not-done is where half-installed integrations live for weeks."
+        }
+      ],
+      "correct": 1,
+      "explanation": "You're respecting the super-admin's time and being explicit about why the extra step matters. Most super-admins will give you the two minutes."
+    },
+    {
+      "id": "verify-gws",
+      "type": "mcq",
+      "topic": "verify",
+      "difficulty": "medium",
+      "prompt": "Which is the right verify check after the Workspace ITDR wizard reports Connected?",
+      "choices": [
+        "Confirm Identity → Google Workspace reads Connected with green status, and that the last-sync timestamp updates within an hour.",
+        {
+          "label": "Confirm the customer has more than one super-admin so you have a backup contact.",
+          "rationale": "Reasonable customer hygiene, but not the lesson's verify step."
+        },
+        {
+          "label": "Open a Huntress support ticket to confirm the connection registered server-side.",
+          "rationale": "The portal shows the state directly."
+        },
+        {
+          "label": "Wait 24 hours, then check; the integration won't show anything useful until then.",
+          "rationale": "Last-sync should update within about an hour; 24 hours is when you'd worry that something stalled."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Green status is necessary but the moving last-sync is what tells you the pipeline activated, not just the registration."
+    },
+    {
+      "id": "tenant-restrictions",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "The customer's Workspace has third-party-app restrictions that block the consent grant. What do you do?",
+      "choices": [
+        {
+          "label": "Talk the super-admin into changing tenant policy on the spot so the consent goes through.",
+          "rationale": "Tenant-wide policy is exactly the wrong thing to change in the moment to unblock yourself."
+        },
+        "Bump. Tenant policy changes are a change-management item the senior may already be working.",
+        {
+          "label": "Retry the consent step three or four more times in case it works the next time.",
+          "rationale": "The block is a policy outcome, not a transient failure."
+        },
+        {
+          "label": "Document the block and skip Workspace coverage.",
+          "rationale": "Skipping ITDR coverage is a product-mix decision and is itself an escalation trigger."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Tenant policy is something the senior may already be working with the customer. Bump rather than renegotiate on the call."
+    },
+    {
+      "id": "baseline-expectation",
+      "type": "mcq",
+      "topic": "baseline",
+      "difficulty": "medium",
+      "prompt": "A customer with a large historic mailbox volume asks \"how long until we see real identity incidents?\" What do you tell them?",
+      "choices": [
+        "Set the expectation that baseline can take longer on Workspace than M365, typically 24 to 72 hours before identity incidents start landing in earnest.",
+        {
+          "label": "Tell them incidents land within minutes of the green status appearing.",
+          "rationale": "Confuses ingested events with identity incidents. Events flow inside an hour; incidents take the baseline window."
+        },
+        {
+          "label": "Tell them the baseline is the same as M365 (about 24 hours).",
+          "rationale": "Workspace baseline is typically longer than M365, especially with large mailbox histories."
+        },
+        {
+          "label": "Tell them you'll know when the SOC opens the first incident.",
+          "rationale": "Sets no expectation, which is the opposite of what the customer needs."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Set the window so the customer can stand down for that long; they ring you on day one without the expectation set."
+    },
+    {
+      "id": "mixed-tenant",
+      "type": "mcq",
+      "topic": "mixed-tenant",
+      "difficulty": "easy",
+      "prompt": "Your customer runs both M365 and Workspace. You just finished the Workspace connection. Why does the verify step include checking M365 status as well?",
+      "choices": [
+        "Mixed tenants are common and missing one of them is a recurring oversight; confirming both are green closes the loop.",
+        {
+          "label": "The two integrations cross-validate each other; both must be green at the same time or neither works.",
+          "rationale": "The integrations are independent. The verify is about not forgetting the other tenant."
+        },
+        {
+          "label": "Huntress requires both to be reconnected each time one is touched.",
+          "rationale": "Not a real platform behaviour."
+        },
+        {
+          "label": "You're charged twice if both aren't green, so it's a billing check.",
+          "rationale": "Not a billing mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Operational hygiene, not commercial. Mixed-tenant customers are a common oversight."
+    },
+    {
+      "id": "delegated-admin",
+      "type": "tf",
+      "topic": "admin-role",
+      "difficulty": "easy",
+      "prompt": "A delegated admin or user-management admin on Google Workspace can grant the OAuth scopes the ITDR integration requires.",
+      "correct": false,
+      "explanation": "Only a super-admin has the privileges to grant the consent scopes. A delegated role will get partway through the flow and Google will reject the scope grant."
+    }
+  ]
+}

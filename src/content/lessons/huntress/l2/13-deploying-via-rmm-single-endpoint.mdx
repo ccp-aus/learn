@@ -2,17 +2,68 @@
 slug: 13-deploying-via-rmm-single-endpoint
 vendor: huntress
 level: l2
-title: Deploying Via RMM Single Endpoint
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Deploying via RMM to a single endpoint
+summary: The daily reflex for new laptops, replacement workstations, and rebuilt servers. Five-minute job when pre-flight is done; a long week when the RMM exit code gets trusted as the final word.
+estimatedMinutes: 7
 order: 13
 topics:
   - agent
   - rmm
   - deploy
+  - single-endpoint
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+Single-endpoint deploy is the bread-and-butter workflow on this course: a new staff member's laptop, a replacement workstation, a server returning to production after rebuild. Done well, the agent is registered before you close the ticket. Done badly, the install lands, registration never completes, and someone in two weeks discovers a workstation with no coverage that everyone thought was protected.
+
+## Pre-flight
+
+The five checks that turn most of the failure modes from lessons 14–17 into "did not occur":
+
+1. **Identify the correct customer organisation.** Confirm which customer the endpoint belongs to in the RMM, and which Huntress organisation maps to that customer. The wrong-org slip is recoverable (lesson 22), but recoverable doesn't mean free.
+2. **Identify the correct installer or RMM job.** The runbook has one installer per customer with the right org key bundled, or one parameterised RMM job that takes the key as input. Use the runbook; don't paste keys from chat.
+3. **Confirm the endpoint is online in the RMM.** A push to an offline endpoint queues silently and the failure doesn't surface until later.
+4. **Note any AV or policy compatibility steps for this customer.** Lessons 14 through 17 cover the failure modes if these are skipped.
+5. **Open the customer's Agents view** in a separate tab. That's where the post-push verify happens.
+
+## The push and the verify
+
+<StepThrough client:load>
+  <Step title="Target the specific endpoint in the RMM">
+    Pick the endpoint by name. Two endpoints with similar names is the most common slip; confirm the target before kicking the job.
+  </Step>
+  <Step title="Kick the install job">
+    Watch the RMM-side output. Successful exit is the first signal. It doesn't tell you the agent registered.
+  </Step>
+  <Step title="Switch to the Huntress portal">
+    The customer's Agents view should show the new agent within a few minutes of a successful install. Fifteen minutes is the outer edge; longer means treat it as a registration problem.
+  </Step>
+  <Step title="Confirm the hostname matches">
+    The hostname you pushed should match the hostname now in the Agents view. Two-endpoint slips become visible at this step if you watch.
+  </Step>
+  <Step title="Close out in the PSA">
+    Deployment timestamp, hostname, customer organisation. The next tech reads this when something goes sideways later.
+  </Step>
+</StepThrough>
+
+A successful single-endpoint deploy clears four checks before the ticket closes: RMM exit code zero, agent in the customer's Agents view, agent online with a current version, PSA record updated. RMM exit code zero is half the answer. The portal check is the half that gets skipped.
+
+<Callout type="warn" title="Common slips">
+- Pasting an org key from chat or memory. Keys belong in runbook-managed installers, not ad-hoc commands. A wrong-customer key sends the agent to the wrong portal.
+- Closing the ticket on RMM success without checking the portal. The dormant-installed-not-registered state is what lesson 12 is about.
+- Pushing to a similarly-named endpoint by mistake. Confirm in the RMM before kicking and in the portal after. Two checks, twenty seconds total.
+</Callout>
+
+## When to escalate
+
+- The endpoint's customer isn't clear: multiple plausible matches in the RMM, no clean mapping to a Huntress organisation. Bump rather than guess.
+- The RMM doesn't have the customer in scope at all. Could be a customer-side endpoint the MSP doesn't manage. Deployment-strategy question; senior owns it.
+- The install fails repeatedly with the same error after one retry. Same-error second failure is the right time to bump rather than chase a third attempt.
+
+## A worked ticket: Able Moose Accounting
+
+Able Moose's new bookkeeper laptop has arrived: `WS-AMOOSE-BK02`. The current bookkeeper laptop `WS-AMOOSE-BK01` is still in service during handover. The pre-flight: open Able Moose's organisation in Huntress, confirm the runbook's named installer for the customer, then push from the RMM targeted at `WS-AMOOSE-BK02`. Three checks, one push.
+
+The RMM job exits clean. Twenty minutes later the laptop still isn't in the Agents view. The right move is not to re-push and not to close the ticket. Look at the agent locally: is the service running, what do the install logs say about its first phone-home attempt, and does the org key bundled with your runbook's installer match Able Moose's expected key? The local logs lean you toward lesson 17 (blocked outbound) or a wrong-key install you'll need to redo. Pattern-first, action-second.
+
+<Checkpoint slug="huntress-operations-checkpoint-deploying-via-rmm-single-endpoint" client:visible />

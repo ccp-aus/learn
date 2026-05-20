@@ -2,17 +2,90 @@
 slug: 31-walkthrough-low-severity
 vendor: huntress
 level: l2
-title: Walkthrough Low Severity
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: "Walkthrough: a Low-severity incident, start to finish"
+summary: The whole EDR machine working together on a routine Low. Eleven minutes, six steps, no surprises. The rhythm is the point; the components are familiar by now.
+estimatedMinutes: 9
 order: 31
 topics:
   - edr
   - walkthrough
-  - low
+  - low-severity
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The previous lessons are the components. This one is the whole machine working together on a routine Low. The point isn't the individual steps; it's the rhythm of executing them as one continuous activity rather than as eight discrete checks. The first ten Low tickets feel like eight steps; by the fortieth they feel like one workflow. This is the walkthrough that makes the rhythm visible.
+
+## The scenario
+
+**11:42 Tuesday.** A Low-severity EDR Incident Report lands in the queue for example.com. Host: `WS-EXAMPLE-DISPATCH-04`. Summary: an autoruns entry in `HKLM\Software\Microsoft\Windows\CurrentVersion\Run` points to `C:\Users\Public\Updater\rupdate.exe`, a binary the SOC has classified as a known unwanted program (PUP-shaped, worth removing but not actively malicious in the persistent-threat sense). Recommendation: approve the autoruns remediation.
+
+## Walking it through
+
+<StepThrough client:load>
+  <Step title="11:43 — Claim">
+    Open the incident, click Claim. The duplicate-work guard is up.
+  </Step>
+  <Step title="11:44 — Review">
+    Header confirms: Low severity, EDR surface, host `WS-EXAMPLE-DISPATCH-04`, customer example.com. Hostname matches the customer's dispatch-workstation naming convention. Recommendation is autoruns remediation only — no isolation, no user verification asked for. Glance at the Evidence: PUP classification, persistence-only recommendation (the file isn't in the action zone).
+  </Step>
+  <Step title="11:46 — Approve">
+    Click the recommended-action button. The portal records your approval; the agent will pick up the remediation on its next check-in.
+  </Step>
+  <Step title="11:48 — Wait briefly">
+    Portal shows the remediation as "pending." Two minutes is normal.
+  </Step>
+  <Step title="11:50 — Verify">
+    Portal updates: remediation applied. Verify the end state: the autoruns key no longer shows the `rupdate.exe` entry. The file itself remains at `C:\Users\Public\Updater\` (the SOC didn't recommend file removal); without the autoruns key, it doesn't run on its own. Wait another minute for any re-detection. None fires.
+  </Step>
+  <Step title="11:52 — Close in Huntress">
+    Set the resolution disposition ("remediated") and close.
+  </Step>
+  <Step title="11:53 — Close in PSA">
+    Integration auto-created the PSA ticket; you find it linked from the Huntress incident. Note: actions (approved autoruns remediation per SOC recommendation), verifications (registry clean; file remains at original path, not in remediation scope), contacts (none required — no user verification asked for), open items (none). Eight minutes of time against the security-incident-EDR category. Close the PSA.
+  </Step>
+  <Step title="11:54 — Done">
+    Eleven minutes. Next ticket.
+  </Step>
+</StepThrough>
+
+## What made this routine
+
+- **No second-guessing.** The Recommendation said "approve the autoruns remediation"; you approved the autoruns remediation. The test passed for the remediation; it failed for "should I also remove the file?" — so you didn't.
+- **No skipped steps.** Verify after approve. PSA close after Huntress close. Note written into the PSA ticket while the work was fresh.
+- **No customer comms needed.** A Low with no user verification asked for is a Low that doesn't need a customer call. The Recommendation is the contract.
+
+The walkthrough is unremarkable. That is the point.
+
+## Patterns you'll see in real work
+
+- A queue that clears at roughly 10-minute-per-Low cadence is a queue being worked correctly. Faster usually means a skipped step; much slower usually means investigation that wasn't needed.
+- A re-detection of the same PUP a week later on the same endpoint. The file was still there; the SOC's recommendation was deliberate (persistence, not file). A pattern of re-detection warrants a clarifying reply to the SOC, not a unilateral file removal.
+
+## The rhythm-breakers
+
+- **Investigating the binary** because the path looks suspicious. The path looking suspicious is exactly what the SOC saw and classified. Adds 30 minutes to a 10-minute ticket.
+- **Removing the file** "for completeness." The Recommendation specified autoruns; the file is in Evidence but not in the action zone. Don't go further than the SOC asked.
+- **Skipping the post-remediation wait.** Closing in 8 minutes instead of 11 because "the portal said applied." Most of the time it's fine; the times it isn't are the re-detection-within-minutes cases that catch you out three days later.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="End of shift, five PUP-pattern Lows across three customers"
+  description="You've processed five Low incidents with the same rupdate.exe PUP autoruns pattern across three different customers today. Each was processed cleanly per the walkthrough. What do you do at end of shift?"
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Same PUP pattern across three customers in one shift. EOD move?", choices: [
+      { label: "Nothing extra; each was processed correctly", next: "nothing" },
+      { label: "Add a one-line entry to the EOD handover note surfacing the pattern at the portfolio level", next: "handover" },
+      { label: "Reply to the SOC on each individual incident asking \"are you seeing this elsewhere?\"", next: "interrupt" },
+    ]},
+    { type: "outcome", id: "nothing", label: "The pattern is worth surfacing", tone: "warn",
+      body: "Each ticket was correct, but the pattern (same PUP across multiple customers same day) is worth a one-line note to the senior. Might be a campaign, a bundled-software wave, or background noise. Senior or SOC does portfolio-level analysis." },
+    { type: "outcome", id: "handover", label: "Surface the pattern", tone: "success",
+      body: "Right answer. \"5 instances of rupdate.exe PUP autoruns across 3 customers today; all processed per SOC recommendation. Surfacing the pattern in case it's relevant at the portfolio level.\" You did the work, observed the pattern, handed it up." },
+    { type: "outcome", id: "interrupt", label: "Wrong surface", tone: "bad",
+      body: "Replying on each incident interrupts the SOC's per-incident workflow with a portfolio question. The EOD handover note is the right surface; the senior takes the pattern up if it deserves a SOC conversation." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-walkthrough-low-severity" client:visible />

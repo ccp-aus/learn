@@ -2,9 +2,9 @@
 slug: 03-connecting-m365-for-itdr
 vendor: huntress
 level: l2
-title: Connecting M365 for ITDR
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Connecting Microsoft 365 for Managed ITDR
+summary: Two integration paths exist. Direct per-tenant Global Admin consent or GDAP/CSP via Partner Center. Your MSP uses one; the runbook says which. Many MSPs reserve the connection step itself for senior staff because of the permissions involved.
+estimatedMinutes: 12
 order: 3
 topics:
   - onboarding
@@ -12,8 +12,109 @@ topics:
   - m365
   - gdap
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The ITDR integration gives the SOC visibility into the customer's identity surface, sign-ins, mailbox rules, MFA changes, OAuth grants. Without it, the identity-incident work later in the platform has no signal to feed it. Your MSP can do the integration in two ways, and the two look different both to you and to the customer. A tech who doesn't know which path their MSP uses ends up scheduling a Global Admin call that nobody needed, or sitting in front of the Partner Center flow with permissions they don't have.
+
+## The two integration paths
+
+### Direct tenant mapping
+
+The MSP signs into Huntress, runs an integration wizard, and a Global Admin from the **customer's** tenant clicks through an admin-consent prompt for the Huntress enterprise application. The consent grants Huntress the documented scopes against that one tenant. Lighter on the MSP-side prerequisites. Best fit for MSPs who don't operate as a Microsoft Cloud Solution Provider, or who don't manage all of their customers through Partner Center.
+
+### GDAP / CSP-based mapping
+
+The MSP has already established a **GDAP** (Granular Delegated Admin Privileges) relationship with the customer through Microsoft Partner Center, usually when the customer joined the MSP. A dedicated **service account** in the MSP's own tenant, with specific GDAP-assigned roles and MFA-bound Conditional Access, is what Huntress authenticates as. The Huntress portal pulls the customer's tenants from Partner Center and the MSP maps each tenant to a Huntress organisation. No customer-side Global Admin click-through at the connection step. The customer consented to the GDAP relationship earlier.
+
+Both paths land in the same place, telemetry flowing into Huntress and the SOC seeing the customer's identity events. The difference is who needs to be present at the connection step.
+
+## Which path your MSP uses
+
+Read the runbook. Signals:
+
+- Your MSP uses Microsoft Partner Center to manage customer tenants. Likely GDAP.
+- The onboarding runbook references a "Huntress service account" or specifies which user signs in to perform the connection. GDAP.
+- The runbook says to schedule with the customer's Global Admin. Direct.
+- You don't have permissions to perform the connection step at all. GDAP at your MSP, and it has been scoped above the helpdesk floor (see the next section).
+
+If you can't tell from the runbook, bump before booking anything with the customer.
+
+## When the connection step is senior-only
+
+The M365 connection touches sensitive permissions either way. On the direct path, the customer's Global Admin is consenting to an enterprise application. On GDAP, an MSP service account with broad delegated roles is authenticating. Many MSPs scope the *Huntress-side* connection step above the helpdesk floor for reasons that don't apply to the rest of the onboarding:
+
+- The service-account credentials are tightly held.
+- The GDAP role assignments and Conditional Access policies are senior-managed and not the kind of thing changed for a one-off.
+- Even the direct path, where a Global Admin clicks through, often involves a customer-side change-management conversation the MSP wants a senior to lead.
+
+If your MSP's runbook puts the connection step above the line, this lesson is **read-to-understand**, not read-to-execute. You still own the org-create (lesson 2), the customer-facing pieces if any, and the post-connection coverage verification (lesson 6).
+
+<Callout type="info" title="Same telemetry, two paths">
+The scope set granted is the same on both paths, read access on identity events, sign-in history, mailbox rules and forwarders, OAuth grants, plus a small set of write capabilities for ITDR auto-response actions. The Huntress docs list the scopes; reference them, don't memorise.
+</Callout>
+
+## Running the integration on the direct path
+
+<StepThrough client:load>
+  <Step title="Schedule with the customer's Global Admin">
+    They must be a Global Admin; no other role will do. Allow 15 to 20 minutes.
+  </Step>
+  <Step title="Send the consent-scope reference doc ahead of the call">
+    Your runbook should have the link. The Global Admin reads it before they consent.
+  </Step>
+  <Step title="Confirm the org exists in Huntress with no integration yet">
+    The blank-state check from lesson 2. Identity, Microsoft 365, should read **Not connected**.
+  </Step>
+  <Step title="Start the wizard from inside the customer's org">
+    Go to **Identity, Microsoft 365** and click **Connect**. Confirm the primary domain on screen with the Global Admin.
+  </Step>
+  <Step title="Hand the admin-consent URL to the Global Admin">
+    Walk them through the scope list. They sign in and consent.
+  </Step>
+  <Step title="Wait for the portal to confirm">
+    Identity, Microsoft 365 flips to **Connected** with green status.
+  </Step>
+</StepThrough>
+
+## Running the integration on the GDAP path
+
+<StepThrough client:load>
+  <Step title="Confirm the prerequisites are in place">
+    GDAP relationship in Partner Center, Huntress service account with the required GDAP roles, service-account Conditional Access configured. These are MSP-wide infrastructure, not per-customer steps. Anything missing is a senior question, not a tech improvisation.
+  </Step>
+  <Step title="Sign in to Huntress as the user authorised to perform the integration">
+    Often a tenant-level permission inside the Huntress portal, separate from normal portal access. If you don't have it, bump.
+  </Step>
+  <Step title="Start the CSP / Partner Center mapping flow">
+    From the customer's organisation, go to **Identity, Microsoft 365** and start the flow. Huntress pulls tenants from the connected Partner Center account.
+  </Step>
+  <Step title="Map the customer's tenant to their Huntress organisation">
+    Confirm the primary domain matches.
+  </Step>
+  <Step title="Wait for the portal to confirm">
+    Identity, Microsoft 365 flips to **Connected** with green status. No customer-side click-through.
+  </Step>
+</StepThrough>
+
+## Verify
+
+Connected status is necessary but not sufficient. Either path, the integration is live when:
+
+- **Identity, Microsoft 365** reads **Connected** with green status.
+- The integration's **last-sync timestamp** updates within an hour. Connected without a moving last-sync is a half-installed state.
+- **Identity events are flowing.** Within 24 to 48 hours, the portal should show ingested sign-in events, mailbox-rule scans, and OAuth-grant inventories. Connected with no event volume after 48 hours is a real problem; bump. (Lesson 6 makes this check formal.)
+- **The customer's contact has been told the baseline period.** 24 to 48 hours before identity incidents start landing in earnest. Setting this expectation prevents the *is it working?* callback on day one.
+
+<Callout type="warn" title="Connected is the wizard's success state, not the integration's">
+Stopping at Connected and skipping the event-flow check leaves you with a quietly half-integrated tenant that doesn't produce identity incidents. The Course 6 identity-incident work has no signal to feed it. Always wait for the 24-to-48-hour event check before declaring the integration live.
+</Callout>
+
+## A worked ticket: the call that didn't need booking
+
+You are handed a new customer onboarding. The kickoff note says: *"Standard onboarding, ITDR M365 included."* You start scheduling a call with the customer's IT manager to run the integration. Before you click Send invite, your senior pings in chat: *"Why are you booking a call with them?"*
+
+The senior asking that question usually means your MSP uses the GDAP path and no customer-side call is needed. Two minutes re-reading the runbook saves an awkward call with the customer. If it is the direct path but the senior is still asking, the senior may own the connection step at your MSP. Either way, reading the runbook before pushing back is the cheap first move.
+
+If the senior confirms your MSP uses GDAP and the actual connection is senior-only (they hold the service-account credentials and the Partner Center permissions), the right scope split is clean. You create the org per lesson 2, confirm the blank state, confirm the customer's tenant is one the MSP has GDAP with, schedule the 48-hour verification check. The senior runs the connection itself. Pushing back to run the broader scope would be asking for permissions you haven't been given. Skipping the org-create or the verification because the senior owns the connection step would be wrong in the opposite direction.
+
+<Checkpoint slug="huntress-operations-checkpoint-connecting-m365-for-itdr" client:visible />

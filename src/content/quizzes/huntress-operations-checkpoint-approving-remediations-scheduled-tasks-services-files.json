@@ -1,0 +1,227 @@
+{
+  "slug": "huntress-operations-checkpoint-approving-remediations-scheduled-tasks-services-files",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: scheduled-task, service, and file remediations",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "scheduled-task-running",
+      "type": "mcq",
+      "topic": "scheduled-task",
+      "difficulty": "medium",
+      "prompt": "You approve a scheduled-task remediation while the task is currently running. What happens?",
+      "choices": [
+        "The remediation removes the task entry. The currently-running instance finishes its current iteration; the task doesn't re-fire.",
+        {
+          "label": "The remediation kills the running process and removes the task entry simultaneously.",
+          "rationale": "The remediation doesn't kill the running instance. That would need a separate process-kill or isolation."
+        },
+        {
+          "label": "The remediation fails because the task is in use.",
+          "rationale": "The task entry is removed regardless of whether an iteration is currently running."
+        },
+        {
+          "label": "The remediation waits for the next reboot before applying.",
+          "rationale": "The remediation applies at the agent's next check-in, not at reboot."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Bounded blast radius. Entry removed; running instance finishes; no re-fire."
+    },
+    {
+      "id": "service-new-signal",
+      "type": "mcq",
+      "topic": "service",
+      "difficulty": "medium",
+      "prompt": "The \"new signal\" case (customer's IT contact recognising the affected object as legitimate) shows up MORE often with which remediation type, and why?",
+      "choices": [
+        "Services — because services tend to be deliberately set up by IT, so someone in the customer's organisation knew about it. Verify before approving in environments rich with custom tooling.",
+        {
+          "label": "Scheduled tasks — every task is set up by a customer admin.",
+          "rationale": "Scheduled tasks more often have a documented business purpose someone forgot to flag, but services are the more frequent new-signal case because they're more deliberate."
+        },
+        {
+          "label": "Files — customers always recognise their own files.",
+          "rationale": "LOB-file misclassification is less common than for services; the SOC's classification on files is usually careful."
+        },
+        {
+          "label": "Autoruns — the registry surface is the most-customised on Windows.",
+          "rationale": "Services are the higher-rate new-signal case."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Services are deliberately installed by IT more often than scheduled tasks; the customer-recognises-it case is more frequent."
+    },
+    {
+      "id": "interchangeable",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "A tech approves a service remediation with the same speed and inattention as an autoruns remediation, and is surprised when it takes longer or breaks something. What's the failure?",
+      "choices": [
+        "Treating all three remediation types as interchangeable. The blast-radius spectrum is the thing to carry.",
+        {
+          "label": "Failing to read the Recommendation.",
+          "rationale": "The tech did read it; the failure is treating the types as interchangeable."
+        },
+        {
+          "label": "Skipping the claim step.",
+          "rationale": "Different failure mode."
+        },
+        {
+          "label": "Calling the customer before reading the Evidence.",
+          "rationale": "Not the named failure here."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Each remediation type has a different blast radius. Same workflow shape; different diligence on review and verify."
+    },
+    {
+      "id": "server-service-pause",
+      "type": "mcq",
+      "topic": "server-service",
+      "difficulty": "medium",
+      "prompt": "The Recommendation includes a service remediation on a server, but the customer hasn't confirmed it's safe to stop the service. What's the right move?",
+      "choices": [
+        "Bump rather than approve blind. The \"verify with user\" pairing matters more on services on servers than on most workstations.",
+        {
+          "label": "Approve immediately; the SOC's Recommendation overrides server-impact concerns.",
+          "rationale": "The SOC usually accounts for server impact; when customer confirmation is part of the pattern and you can't reach them, bumping is the call."
+        },
+        {
+          "label": "Wait until after-hours to approve.",
+          "rationale": "No after-hours rule; customer confirmation or bump is what the lesson asks for."
+        },
+        {
+          "label": "Approve the service remediation but skip the file removal.",
+          "rationale": "Softening the recommendation, which is a separate failure."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Server-side service has the largest blast radius. Confirm or bump; don't approve blind."
+    },
+    {
+      "id": "server-decision",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Low EDR Incident Report. Host: SRV-EXAMPLE-DB-01. Recommendation: approve the service remediation. Evidence shows a service named HelperUpdater with elevated privileges, binary at C:\\ProgramData\\HU\\hu.exe. Customer's IT manager is unreachable. What's the right move?",
+      "choices": [
+        {
+          "label": "Approve the service remediation, document, close. The SOC has triaged.",
+          "rationale": "Service remediation on a server has the largest blast radius; the five-second sanity check is worth doing even with SOC triage."
+        },
+        "Hold the incident open with a note, reach the IT manager via documented backup contact, then approve once confirmed unknown / not legitimate.",
+        {
+          "label": "Escalate to a senior immediately.",
+          "rationale": "Premature. The Recommendation is in the standard helpdesk workflow; you just need user confirmation before clicking."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Service on server + unfamiliar service name + customer unreachable = pause-and-confirm via the backup contact."
+    },
+    {
+      "id": "re-detection-services",
+      "type": "mcq",
+      "topic": "re-detection",
+      "difficulty": "hard",
+      "prompt": "Continuing the SRV-EXAMPLE-DB-01 scenario: the IT manager confirms HelperUpdater is not legitimate. You approve, the portal shows completed in 90 seconds, the service is gone and the binary is in quarantine. Within 45 minutes, a new incident: same service name re-appearing on the same host. What do you do?",
+      "choices": [
+        {
+          "label": "Approve the remediation again; it worked the first time.",
+          "rationale": "Same pattern as autoruns Decision 2: the remediation removed it, something on the endpoint re-installed it. Re-approving is whack-a-mole."
+        },
+        "Recognise the pattern (clean removal, re-establishment within an hour), isolate the host, escalate to senior in parallel.",
+        {
+          "label": "Re-approve the service remediation and approve any new remediation that lands in the next hour.",
+          "rationale": "Worst response. Playing whack-a-mole on persistence being actively re-established."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Same containment-and-escalate trigger as autoruns re-detection. The remediation type doesn't matter; the pattern does."
+    },
+    {
+      "id": "file-lob-check",
+      "type": "mcq",
+      "topic": "file",
+      "difficulty": "medium",
+      "prompt": "The lesson recommends a quick check before approving a file remediation. What is it?",
+      "choices": [
+        "Does the affected file path look like part of a customer's line-of-business application? Five-second sanity check; if it looks LOB-shaped, bump.",
+        {
+          "label": "Has Huntress support approved the file remediation in writing?",
+          "rationale": "Misuses support and isn't the lesson's check."
+        },
+        {
+          "label": "Has the file hash been checked against VirusTotal?",
+          "rationale": "Investigation above the helpdesk ceiling; the SOC has classified."
+        },
+        {
+          "label": "Have you rebooted the endpoint first?",
+          "rationale": "Reboot isn't part of the remediation flow and isn't a pre-check."
+        }
+      ],
+      "correct": 0,
+      "explanation": "LOB-shaped file path → bump. Five-second check, cheap to do, catches the misclassified-DLL case."
+    },
+    {
+      "id": "diligence-scales",
+      "type": "mcq",
+      "topic": "diligence",
+      "difficulty": "medium",
+      "prompt": "Across the three remediation types, where should diligence on review and verify scale MOST sharply?",
+      "choices": [
+        "With the blast radius. Scheduled tasks are easiest to approve confidently; services need user verification more often; files need a sanity check for LOB shape.",
+        {
+          "label": "With the severity tag. High needs more diligence; Low needs less.",
+          "rationale": "Severity drives tempo; blast radius drives diligence. A server-side Low can have a larger blast radius than a workstation High."
+        },
+        {
+          "label": "With the customer's MSP tier.",
+          "rationale": "Tier isn't part of the framework. Diligence isn't gated by commercial tier."
+        },
+        {
+          "label": "Equally across all three; the workflow is identical.",
+          "rationale": "Workflow is the same shape, but diligence scales with blast radius."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Same workflow, scaling diligence. The blast radius is what scales it."
+    },
+    {
+      "id": "watch-window",
+      "type": "mcq",
+      "topic": "verify-window",
+      "difficulty": "easy",
+      "prompt": "How long should you watch for re-detection after a clean service or file remediation?",
+      "choices": [
+        "About an hour. A re-detection in that window is a containment-and-escalate signal regardless of remediation type.",
+        {
+          "label": "Five minutes is enough; the portal confirms applied quickly.",
+          "rationale": "Too short. The hour window catches the persistence-had-a-friend pattern."
+        },
+        {
+          "label": "24 hours; effects propagate slowly.",
+          "rationale": "Too long for active monitoring. The lesson uses the hour window for escalation triggering."
+        },
+        {
+          "label": "Until the customer's next business day.",
+          "rationale": "Calendar-driven, not signal-driven."
+        }
+      ],
+      "correct": 0,
+      "explanation": "One hour. The persistence-had-a-friend pattern surfaces in that window."
+    },
+    {
+      "id": "blast-radius-tf",
+      "type": "tf",
+      "topic": "blast-radius",
+      "difficulty": "medium",
+      "prompt": "A service remediation has a larger blast radius than a scheduled-task remediation because stopping a service halts a running process, while removing a scheduled task only stops future iterations.",
+      "correct": true,
+      "explanation": "The lesson's framing exactly. Services stop a live process; scheduled tasks let the running instance finish before stopping."
+    }
+  ]
+}

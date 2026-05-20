@@ -1,0 +1,243 @@
+{
+  "slug": "huntress-operations-checkpoint-containment-first-response",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: the containment-first response",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "the-rule",
+      "type": "mcq",
+      "topic": "the-rule",
+      "difficulty": "easy",
+      "prompt": "Summarise the rule for the helpdesk on Critical.",
+      "choices": [
+        "Contain, escalate in parallel, do not investigate.",
+        {
+          "label": "Investigate, then contain, then escalate.",
+          "rationale": "The opposite of the rule. Investigation is above the line on Critical."
+        },
+        {
+          "label": "Contain, document fully, then escalate when the documentation is complete.",
+          "rationale": "Wrong sequencing. Escalation is in parallel with containment, not after."
+        },
+        {
+          "label": "Wait for the senior, then contain under their direction.",
+          "rationale": "The freeze failure mode. Containment is in scope; waiting costs the containment window."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The three steps are one motion across every Critical pattern."
+    },
+    {
+      "id": "parallel-channels",
+      "type": "mcq",
+      "topic": "parallel-escalation",
+      "difficulty": "medium",
+      "prompt": "\"Escalate in parallel\", what does the lesson say this looks like in practice?",
+      "choices": [
+        "Phone the on-call senior, hit the dedicated chat channel with an @-mention, and set the PSA priority flag. All three on a Critical isn't excessive, it's standard.",
+        {
+          "label": "Email the senior with full context and await acknowledgement before continuing.",
+          "rationale": "Wrong channel and wrong sequencing. Email is too slow; awaiting acknowledgement is sequenced, not parallel."
+        },
+        {
+          "label": "Post in the team's general Slack channel and assume someone responds.",
+          "rationale": "Wrong channel. The dedicated escalation path exists so the general channel isn't load-bearing for Critical."
+        },
+        {
+          "label": "Open a Huntress support ticket and route the senior through that.",
+          "rationale": "Misuses support. The escalation is internal to the MSP."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Phone first (highest signal), chat as backup, PSA flag as durable record."
+    },
+    {
+      "id": "bump-message",
+      "type": "mcq",
+      "topic": "escalation-text",
+      "difficulty": "medium",
+      "prompt": "Which bump message shape does the lesson endorse for a Critical?",
+      "choices": [
+        "\"Critical canary trip on SRV-EXAMPLE-FILE-01, isolated at 03:14, on the line, who's available?\", short, specific, action-oriented.",
+        {
+          "label": "\"I have something I'd like to discuss when you have a moment.\"",
+          "rationale": "Named anti-example. Hedging on a Critical wastes time and signals the wrong tempo."
+        },
+        {
+          "label": "A full timeline of every signal you've seen so the senior has the context up front.",
+          "rationale": "Wrong format. The detailed timeline lives in the PSA; the bump is short and specific."
+        },
+        {
+          "label": "A vague \"we have a situation\" so the senior calls back to ask what.",
+          "rationale": "Same family. Wrong tempo and wrong information density."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Short, specific, action-oriented. The detailed timeline goes in the PSA, not the bump."
+    },
+    {
+      "id": "multi-host-order",
+      "type": "mcq",
+      "topic": "multi-host",
+      "difficulty": "hard",
+      "prompt": "11:22 Wednesday. Two Criticals land within 90 seconds. Incident A: SRV-NORTHWIND-DC-01 (domain controller), \"Suspicious LSASS access pattern,\" Recommendation isolate. Incident B: WS-NORTHWIND-IT-03, \"Mimikatz-shaped tool execution detected,\" Recommendation isolate. What's the order of actions?",
+      "choices": [
+        {
+          "label": "Isolate A (DC, higher blast radius), then call the senior, then isolate B.",
+          "rationale": "Half right. A-first by blast radius is correct, but stretching the escalation to 'after I isolate A' leaves a minute or more before the senior knows."
+        },
+        "Isolate A. While the agent processes A, phone the senior with the full picture: \"two Criticals on Northwind, A is DC LSASS, B is Mimikatz on IT workstation, isolating A now, B next.\" Then isolate B.",
+        {
+          "label": "Call the senior first, ask which to isolate first, then act on their direction.",
+          "rationale": "Wrong reflex. Both are Critical with isolate-immediately Recommendations; asking permission delays both."
+        },
+        {
+          "label": "Isolate B first because it's the foothold, then A, then escalate.",
+          "rationale": "Inverts the blast-radius priority. DC compromise is the higher-priority containment."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Containment of A first (DC blast radius), escalation in the seconds-long gap, B follows immediately. Senior is fully aware before either containment finishes."
+    },
+    {
+      "id": "customer-call-mid-response",
+      "type": "mcq",
+      "topic": "customer-comms",
+      "difficulty": "hard",
+      "prompt": "Both hosts isolated, senior says \"I'm looking at DC logs and lateral movement scope, stand by.\" Three minutes later the customer's IT manager calls: \"My morning stand-up just got cancelled because two of our machines went dark. What's going on?\"",
+      "choices": [
+        {
+          "label": "Tell them the situation in full: \"we're handling an active incident, two of your machines are contained, our senior is investigating, more soon.\"",
+          "rationale": "Half right. Phrasing is fine but you haven't checked with the senior on what to disclose at this stage."
+        },
+        "Tell the IT manager you're handling an active security event, two systems are intentionally contained as a protective measure, the senior will brief them within 10 minutes. Then bridge to the senior: \"What do you want me to tell them?\"",
+        {
+          "label": "Tell them you can't comment, the senior will call them back.",
+          "rationale": "Wrong tone. 'Can't comment' frames the MSP as guarded at a moment the customer needs reassurance."
+        },
+        {
+          "label": "Decline the call and let it go to voicemail.",
+          "rationale": "Worse. Ducking the call is the freeze failure mode dressed as deference."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Hold the immediate line (customer knows it's deliberate, knows a senior is involved, expects a callback) without freelancing the deeper message the senior will want to control."
+    },
+    {
+      "id": "investigating-in-the-gap",
+      "type": "mcq",
+      "topic": "gap-investigation",
+      "difficulty": "medium",
+      "prompt": "\"I've contained the host. The senior is on their way. I might as well investigate while I wait.\" What's wrong with this?",
+      "choices": [
+        "Named common mistake, investigating in the gap is the failure mode the lesson is built to prevent. Document timestamps; stand by; don't dig.",
+        {
+          "label": "Nothing, the senior will appreciate a head start on the investigation.",
+          "rationale": "Wrong. The senior wants you contained-and-paused. Tech-seat investigation has order-of-volatility costs."
+        },
+        {
+          "label": "Only wrong if the investigation takes more than 5 minutes.",
+          "rationale": "Time limit isn't the criterion. The activity is out of scope."
+        },
+        {
+          "label": "Only wrong if the senior explicitly told you not to investigate.",
+          "rationale": "The default is no investigation. The senior doesn't need to remind you."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The 'I'm waiting anyway' rationalisation is exactly the named overstep."
+    },
+    {
+      "id": "sequencing-multi-host",
+      "type": "mcq",
+      "topic": "escalation-sequencing",
+      "difficulty": "medium",
+      "prompt": "Why is \"let me contain both hosts and then call the senior\" the wrong sequencing for a multi-host Critical?",
+      "choices": [
+        "The senior wants to know there's a multi-host Critical event in flight from the moment the second one lands, sequencing escalation after full containment of multiple hosts is a named mistake.",
+        {
+          "label": "Containing two hosts takes too long.",
+          "rationale": "Containing takes seconds; situational awareness is the real issue."
+        },
+        {
+          "label": "The second host won't isolate while the first is still being contained.",
+          "rationale": "Fabricated platform constraint. Isolations work independently per host."
+        },
+        {
+          "label": "The senior charges per call and bundling saves the customer money.",
+          "rationale": "Fabricated commercial mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Two Criticals firing means escalation on the first, in parallel with containment, not after."
+    },
+    {
+      "id": "scenario-action-pair",
+      "type": "mcq",
+      "topic": "branching-scenarios",
+      "difficulty": "medium",
+      "prompt": "Which containment action matches the \"identity Critical\" scenario from the lesson?",
+      "choices": [
+        "Run the ITDR compromise playbook on the affected identity, escalate immediately because identity has wider blast radius than endpoint.",
+        {
+          "label": "Isolate the workstation the identity last signed in from, then escalate.",
+          "rationale": "Endpoint response on an identity incident. The identity surface needs the identity-side playbook, not a host isolation."
+        },
+        {
+          "label": "Open a Huntress support ticket and wait for them to advise.",
+          "rationale": "Misuses support. The containment-first rule applies."
+        },
+        {
+          "label": "Reset the password and consider the incident closed.",
+          "rationale": "Partial action. The compromise playbook includes session revocation and other steps, not just a password reset."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Identity Criticals tend to have wider blast radius than endpoint. The compromise playbook is the containment action; Course 6 details it."
+    },
+    {
+      "id": "further-escalation-siem",
+      "type": "mcq",
+      "topic": "further-escalation",
+      "difficulty": "medium",
+      "prompt": "Which of these is named in the lesson as a reason to escalate FURTHER, beyond the standard senior bump?",
+      "choices": [
+        "The Critical is on a customer whose product mix includes Managed SIEM and the SIEM is showing related signals you can see in the portal. Surface this to the senior as a correlation signal.",
+        {
+          "label": "The customer's account manager is on holiday.",
+          "rationale": "Not a named further-escalation trigger."
+        },
+        {
+          "label": "The incident has been open for more than 30 minutes.",
+          "rationale": "Duration isn't a further-escalation trigger; the senior's situational awareness is."
+        },
+        {
+          "label": "The customer hasn't been emailed yet.",
+          "rationale": "Customer comms happens under senior direction; the absence of an email isn't itself a further-escalation case."
+        }
+      ],
+      "correct": 0,
+      "explanation": "SIEM correlation is the kind of signal that drives the senior's next decision."
+    },
+    {
+      "id": "in-scope-after-contain",
+      "type": "multi",
+      "topic": "in-scope",
+      "difficulty": "hard",
+      "prompt": "Once you've contained and escalated, which of these are in-scope for the tech? (Select all that apply.)",
+      "choices": [
+        "Document the timeline of timestamps and actions taken.",
+        "Stand by for senior direction.",
+        "Isolate further hosts if more Critical incidents land on the same customer.",
+        "Open the Evidence section to read what the canary trip looked like.",
+        "Check the endpoint's recent process tree to see what spawned the activity.",
+        "Handle customer comms when the senior gives the go-ahead."
+      ],
+      "correct": [0, 1, 2, 5],
+      "explanation": "The 'you do' list after containment is document, stand by, isolate further hosts as Criticals land, and handle customer comms under senior direction. Reading Evidence and checking process trees are named overstep."
+    }
+  ]
+}

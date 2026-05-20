@@ -2,17 +2,76 @@
 slug: 28-returning-isolated-host-to-service
 vendor: huntress
 level: l2
-title: Returning Isolated Host to Service
-summary: Skeleton — lesson body to be written.
-estimatedMinutes: 8
+title: Returning an isolated host to service
+summary: Un-isolation is the easiest action in the portal to click and the hardest one to do correctly. A five-item recovery checklist walked before the click is what separates fast triage from fast triage that holds up.
+estimatedMinutes: 7
 order: 28
 topics:
   - edr
   - isolation
   - recovery
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+A click un-isolates; the discipline is checking everything that needs checking *before* the click. An endpoint released back to the network with the threat unresolved is worse than not isolating at all. You have trained the customer that isolation is a brief interruption rather than a containment, and you have handed the attacker their access back.
+
+## The recovery checklist
+
+Five items, in order. Each one matters, and each one has caused a tech to un-isolate prematurely when skipped.
+
+<StepThrough client:load>
+  <Step title="Remediations applied AND verified">
+    The Recommendation usually pairs one or more remediations with isolation. Un-isolating before all of them are *applied* and *verified* releases the host with persistence still in place. "Applied" alone isn't enough; verify is per-remediation, on the endpoint.
+  </Step>
+  <Step title="No re-detection within the last hour or so">
+    A re-detection on the same host within the last hour is the containment-and-escalate signal from the remediation lessons. Un-isolating in the middle of that pattern is the wrong move. The threat isn't contained; the senior or SOC needs to weigh the next step before release.
+  </Step>
+  <Step title="SOC closure or sign-off on release">
+    For routine Low- and High-severity incidents, the Recommendation includes the conditions for release implicitly: once the remediations are applied, release is appropriate. For incidents the SOC has held open with specific notes, those notes drive when release is right. Read them.
+  </Step>
+  <Step title="User / customer informed">
+    The user whose endpoint was isolated wants to know when it's coming back. The customer's IT manager wants the status. The brief callback closes the loop: "Your machine is being released now; you should have network access in the next minute or two. Let me know if anything's off."
+  </Step>
+  <Step title="PSA ticket up-to-date">
+    Document the un-isolation timestamp, the verifications done, who was informed. The incident note and the PSA close are the next two lessons.
+  </Step>
+</StepThrough>
+
+## Monitor after the click
+
+The endpoint should re-establish network connectivity, the user should be able to reach normal services, no new detection should fire immediately. A new detection within five minutes of un-isolation is a strong signal that the release was premature; re-isolate and bump.
+
+The hour-long post-release watch is the check that catches the threat that was 95 percent addressed but not 100 percent. Walking away after un-isolation means a re-detection lands on the next shift's queue with no context.
+
+<Callout type="warn" title="Customer pressure isn't a checklist item">
+Customer pressure is real and worth acknowledging, but the release decision is based on whether the threat is contained, not on how loud the customer is. The right move on customer pressure is to update them honestly on the timeline ("the remediation is verified, we're waiting for the SOC to close the incident, expect release in ~15 minutes"), not to release early. Releasing under pressure trains the customer that isolation is a brief interruption rather than a containment.
+</Callout>
+
+## When to escalate
+
+- A re-detection fires within minutes of un-isolation. Re-isolate; bump; the threat isn't fully resolved.
+- The customer pushes hard to release the host before remediations are complete. Customer-relationship piece; senior territory if the push is intense.
+- The SOC has held the Incident Report open with specific release conditions you can't yet satisfy. Wait or bump; don't release on the runbook's default timing.
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="Re-detection three minutes after un-isolating"
+  description="You isolated WS-EXAMPLE-OPS-04 two hours ago per a High Recommendation. Scheduled-task and autoruns remediations are applied and verified clean. Checklist all green; SOC has closed the Incident Report as remediation-complete. You un-isolate. Within three minutes, a new EDR detection fires: a different scheduled task on the same host, similar pattern to the one you remediated. Pick the next move."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "New detection within three minutes of release. What now?", choices: [
+      { label: "Approve the new remediation and let the host stay online", next: "approve" },
+      { label: "Re-isolate the host. Escalate to senior. Document the pattern", next: "reisolate" },
+      { label: "Investigate the new scheduled task yourself before re-isolating", next: "investigate" },
+    ]},
+    { type: "outcome", id: "approve", label: "Wrong family", tone: "bad",
+      body: "Re-detection within minutes of release is a containment-and-escalate signal, not a fix-it-on-the-fly signal. Approving the new remediation may remove the new entry; the next will fire shortly. Whack-a-mole." },
+    { type: "outcome", id: "reisolate", label: "Re-isolate, escalate, document", tone: "success",
+      body: "Right answer. The threat isn't fully resolved; the pattern is the answer regardless of the severity tag on the new incident. Pull the host back into containment, bump to senior, and the SOC will weigh the next move with the new context." },
+    { type: "outcome", id: "investigate", label: "Investigation comes second", tone: "warn",
+      body: "Investigation is above the helpdesk ceiling and the time-on-the-endpoint window is what matters. Re-isolate first to shrink the window, investigate with the senior second." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-returning-isolated-host-to-service" client:visible />

@@ -2,8 +2,8 @@
 slug: 27-when-to-isolate-before-contacting-user
 vendor: huntress
 level: l2
-title: When to Isolate Before Contacting User
-summary: Skeleton — lesson body to be written.
+title: When to isolate before contacting the user
+summary: Severity and the Recommendation decide. Critical and isolation-recommended High mean isolate first, then call. High without isolation and Low mean don't add it. The 30-second-vs-30-minute trade is the whole game.
 estimatedMinutes: 8
 order: 27
 topics:
@@ -11,8 +11,70 @@ topics:
   - isolation
   - decision
 updated: 2026-05-20
-draft: true
-draftReason: Skeleton scaffold — body to be written.
 ---
 
-Lesson body to be written.
+The mechanics of isolation are from the previous lesson. This one is the *when*. The trap is binary thinking: "isolate everything" gives the customer-relationship damage; "always call first" gives the attacker the time it takes to find the user. The right shape is a small decision tree based on severity and the SOC's recommendation, and it is a tree you'll run dozens of times.
+
+## The rule
+
+| Severity / Recommendation shape | Action |
+|---|---|
+| Critical, any kind | Isolate first. Always. Notify and escalate in parallel. |
+| High with isolation in the Recommendation | Isolate first. Then call. |
+| High without isolation | Standard workflow. User contact only if the Recommendation calls for verification. |
+| Low | Don't isolate. Standard workflow. |
+
+That is the spine. The branching cases are what fill it in.
+
+## Why "isolate first, then call"
+
+The temptation on a High with isolation recommended is to call the user first ("just want to give you a heads up before we cut you off"). That is polite but expensive. The time between "we saw the activity" and "the user is isolated" is the time the attacker has to do more damage, exfiltrate more, or escalate. Most attackers move fast once they are discovered.
+
+The right reflex is isolate, then call. The user gets a phone call 30 seconds after isolation rather than a heads-up call 30 minutes before. The customer-relationship pain is the same; the security outcome is hours of additional damage versus a clean cut.
+
+## When the Recommendation doesn't include isolation
+
+A High with a remediation Recommendation but no isolation is the SOC's call that isolation isn't warranted. Don't add it unilaterally. That is the second-guessing failure and the acting-on-context failure in the same move. "Not in the Recommendation" is itself the disposition.
+
+If the situation changes during triage — new signal from the user, observable behaviour in the portal — reply to the SOC with the new information. Don't isolate to "be safe."
+
+## What "call the user" looks like
+
+Call the **user** when only the user can confirm or deny activity on their machine: a suspicious sign-in they did or didn't do, a script they did or didn't run, an inbox rule they did or didn't create.
+
+Call the **customer's IT manager** when the question is operational rather than user-specific: does this server need to stay running, is this scheduled task production, when is the next maintenance window.
+
+Both are "user contact" in a loose sense; the right phone number depends on the question.
+
+<Callout type="warn" title="Unreachable doesn't pause an isolation-recommended action">
+Trying to reach the user is a courtesy on top of an isolation-recommended action; it isn't the prerequisite. Document the attempt, try alternative contacts (the customer's IT manager, on-call), and isolate. Waiting indefinitely for the user gives the attacker more time on the endpoint.
+</Callout>
+
+## When to escalate
+
+- The incident severity feels wrong for what the Evidence shows. Reply to the SOC with the specific question; don't isolate unilaterally to "be safe."
+- The customer pushes back hard on the isolation. The isolation stands until the threat is addressed; the customer conversation about how that is handled is the senior's place.
+- The Recommendation includes isolation but the customer is in the middle of something genuinely catastrophic (live board presentation, real-time trade). The SOC usually accounts for this, but if the timing is catastrophic, the bump is to senior before action, not "isolate anyway."
+
+## Decision walkthrough
+
+<DecisionTree client:load
+  title="High Incident Report on the CFO's laptop — what's the first move?"
+  description="High EDR Incident Report. Host: WS-EXAMPLE-EXECUTIVE-02, the CFO's laptop. Recommendation: isolate the host, approve the scheduled-task remediation, verify with user. Evidence: a scheduled task running PowerShell with encoded commands; the SOC's Summary notes the payload reaches a known-bad domain. Pick the first move."
+  startId="root"
+  nodes={[
+    { type: "question", id: "root", prompt: "Activity on the CFO's laptop reaching known-bad infrastructure. Recommendation includes isolation. First move?", choices: [
+      { label: "Call the CFO and explain what's happening before isolating", next: "callfirst" },
+      { label: "Isolate the host, then call the CFO with the plain-language explanation, then approve the scheduled-task remediation", next: "isolate" },
+      { label: "Skip isolation, run the remediation, then call the CFO", next: "soften" },
+    ]},
+    { type: "outcome", id: "callfirst", label: "Polite but expensive", tone: "warn",
+      body: "Wrong despite being polite. The Recommendation includes isolation, the activity reaches out to known-bad infrastructure. The call comes 30 seconds after isolation, not 30 minutes before. The minutes spent trying to reach a CFO before isolating is what the attacker uses." },
+    { type: "outcome", id: "isolate", label: "Isolate, call, remediate", tone: "success",
+      body: "Right answer. Isolation first, call second, remediation third. The 30 seconds between isolation and call is fine; the call uses the four-move explanation and piggy-backs the verify-with-user question (\"did you run anything unusual today?\")." },
+    { type: "outcome", id: "soften", label: "Softening the recommendation", tone: "bad",
+      body: "Skipping isolation from a Recommendation that explicitly includes it is acting on a subset of the SOC's call — the softening failure. The Recommendation is the contract; you don't pick a sub-set." },
+  ]}
+/>
+
+<Checkpoint slug="huntress-operations-checkpoint-when-to-isolate-before-contacting-user" client:visible />

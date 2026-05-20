@@ -1,0 +1,249 @@
+{
+  "slug": "huntress-operations-checkpoint-submitting-exclusions-safely",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: submitting exclusions safely",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "persistence-risk",
+      "type": "mcq",
+      "topic": "definition",
+      "difficulty": "easy",
+      "prompt": "What's the core risk the lesson names with exclusions?",
+      "choices": [
+        "Exclusions are persistent, they live until someone removes them. If a pattern that was benign last month becomes part of attacker tradecraft this month, the exclusion that suppressed the old benign version also suppresses the new malicious version.",
+        {
+          "label": "Exclusions cost the MSP money per filing.",
+          "rationale": "Fabricated commercial mechanic."
+        },
+        {
+          "label": "Exclusions expire after 30 days automatically.",
+          "rationale": "The opposite of the lesson, exclusions persist until removed."
+        },
+        {
+          "label": "Exclusions are visible to the customer's IT, which the customer dislikes.",
+          "rationale": "Not the lesson's risk framing."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Persistence is the source of the risk. That's why the bar for filing is conditions plus narrow scope."
+    },
+    {
+      "id": "four-conditions",
+      "type": "mcq",
+      "topic": "appropriate-conditions",
+      "difficulty": "medium",
+      "prompt": "Which combination of conditions makes an exclusion appropriate per the lesson?",
+      "choices": [
+        "Same legitimate activity has fired multiple SOC-classified-benign incidents AND the customer's environment has stabilised AND the activity is genuinely characteristic of the customer AND the exclusion would be narrow.",
+        {
+          "label": "Customer has asked for it AND the activity has fired at least once.",
+          "rationale": "Customer pressure alone isn't a legitimate trigger. Single firing isn't the bar."
+        },
+        {
+          "label": "The activity is PowerShell-related AND the source is the RMM.",
+          "rationale": "Pattern-based filing, not classification-based."
+        },
+        {
+          "label": "The activity has fired in the last 24 hours AND the senior approves.",
+          "rationale": "Recent firing isn't the bar; consistent prior classification is."
+        }
+      ],
+      "correct": 0,
+      "explanation": "All four conditions together, not any one alone."
+    },
+    {
+      "id": "most-common-failure",
+      "type": "mcq",
+      "topic": "wrong-time",
+      "difficulty": "medium",
+      "prompt": "Which of these is the MOST COMMON new-tech failure on exclusions per the lesson?",
+      "choices": [
+        "Filing exclusion requests during the first-week noise window because 'five incidents on the same thing seems efficient to exclude'.",
+        {
+          "label": "Filing exclusion requests after the customer is offboarded.",
+          "rationale": "Wrong category. Offboarding isn't the noise-window case."
+        },
+        {
+          "label": "Filing exclusions for SIEM data sources.",
+          "rationale": "Not named as the most common failure."
+        },
+        {
+          "label": "Filing exclusions in writing rather than verbally.",
+          "rationale": "The lesson endorses the written documented path."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The SOC is still classifying during the noise window. Wait."
+    },
+    {
+      "id": "mid-critical-timing",
+      "type": "mcq",
+      "topic": "wrong-time",
+      "difficulty": "medium",
+      "prompt": "Why is filing an exclusion mid-Critical (or immediately after) explicitly wrong?",
+      "choices": [
+        "The activity that just fired Critical is exactly the activity you don't want to suppress, even if it turns out to be a false positive. The false-positive determination should be the SOC's classification, not the tech's exclusion.",
+        {
+          "label": "Huntress charges extra for exclusions filed during an active incident.",
+          "rationale": "Fabricated commercial mechanic."
+        },
+        {
+          "label": "The exclusion would only apply to future incidents.",
+          "rationale": "That's actually how all exclusions work; not the reason for the timing rule."
+        },
+        {
+          "label": "The senior isn't available to review exclusions during a Critical.",
+          "rationale": "Not the structural reason."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Suppressing the exact pattern that just fired Critical is the worst class of exclusion."
+    },
+    {
+      "id": "narrow-vs-broad",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "medium",
+      "prompt": "Which exclusion shape does the lesson endorse versus reject?",
+      "choices": [
+        "Endorses 'exclude this specific scheduled task by name'; rejects 'exclude PowerShell on WS-EXAMPLE-IT-02'.",
+        {
+          "label": "Endorses 'exclude PowerShell on WS-EXAMPLE-IT-02'; rejects per-task names.",
+          "rationale": "Inverted. Broad exclusions are the named common mistake."
+        },
+        {
+          "label": "Endorses both shapes equally.",
+          "rationale": "Wrong. The narrow-vs-broad distinction is load-bearing."
+        },
+        {
+          "label": "Endorses 'exclude all SIEM logs from this customer'.",
+          "rationale": "Catastrophically broad. Disables a whole detection surface."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Narrow exclusions earn approval; broad exclusions create blind spots."
+    },
+    {
+      "id": "review-flow-order",
+      "type": "order",
+      "topic": "review-flow",
+      "difficulty": "medium",
+      "prompt": "Order the exclusion review flow from the lesson.",
+      "items": [
+        "Tech files the request via the documented exclusion-request path (PSA ticket category, portal form, or designated Slack channel).",
+        "Senior reviews against the four-condition bar.",
+        "Senior submits to Huntress, or tech submits with senior approval.",
+        "SOC reviews and either applies the exclusion, applies a narrower version, or declines with reasoning."
+      ],
+      "explanation": "Documented path, senior review, SOC approval. Each gate is there for a reason; suppression-by-closing bypasses all of them."
+    },
+    {
+      "id": "legitimate-case",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "Riverbend Legal has had eight Low EDR incidents over two weeks for the same scheduled task, each SOC-classified benign. Noise window ended four months ago, environment is stable. What's the right action?",
+      "choices": [
+        {
+          "label": "Keep triaging each instance as a routine Low, the workflow is the workflow.",
+          "rationale": "Defensible but missing the opportunity. Eight repeat benign incidents on a stable customer is the legitimate exclusion case."
+        },
+        "File an exclusion request via the MSP's documented path. Include the specific scheduled-task name, the eight prior incident IDs, customer IT confirmation, and the narrowness of the proposed scope.",
+        {
+          "label": "Close the next instance as 'benign, dismissing' without filing a request.",
+          "rationale": "Suppression-by-closing bypasses the documented flow; the SOC doesn't get told to stop firing."
+        },
+        {
+          "label": "File a broad exclusion: 'ignore all scheduled tasks on this customer'.",
+          "rationale": "Wrong shape. Broad exclusions create the gap you'd hate to have when the actual attacker shows up."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Conditions met, request narrow, evidence documented. Senior reviews; SOC applies if approved."
+    },
+    {
+      "id": "customer-new-pattern",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "Customer's IT manager calls: \"We've changed our nightly inventory script to a new one called Riverbend-Daily-Inventory-Sync-v2. Please add that to the exclusion too.\" What's the right answer?",
+      "choices": [
+        {
+          "label": "Yes, file the exclusion for the new name immediately, since we already have one for v1.",
+          "rationale": "Wrong. The new script hasn't been SOC-classified yet; no history of 'fired and classified benign multiple times'."
+        },
+        "Explain that the new script will likely fire as a routine Low for the first few incidents while the SOC classifies; once classified benign across multiple incidents, the existing exclusion can be updated or a new one filed.",
+        {
+          "label": "Tell the customer 'we can't suppress anything without going through process' and end the conversation.",
+          "rationale": "Defensible but missing the customer-relationship piece. The full answer gives them the eventual yes plus the why-not-immediately."
+        },
+        {
+          "label": "File an exclusion for both the old and new script names, plus any future versions.",
+          "rationale": "Catastrophically wrong shape. Future-versions exclusion is broad; the new name hasn't been classified."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Honest about the process, gives the customer the expectation, doesn't compromise the classification bar."
+    },
+    {
+      "id": "customer-pressure",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "medium",
+      "prompt": "\"Our IT manager wants you to stop alerting on X.\" Is this a legitimate exclusion trigger?",
+      "choices": [
+        "Only if X has been classified as benign by the SOC across multiple incidents and the other conditions are met. Customer preference alone isn't the trigger.",
+        {
+          "label": "Yes, customer preferences are authoritative on their own environment.",
+          "rationale": "Named common mistake. Customer pressure as sole driver is the failure mode."
+        },
+        {
+          "label": "Yes, but only if the customer is paying for the premium support tier.",
+          "rationale": "Fabricated commercial mechanic."
+        },
+        {
+          "label": "No, customer preferences are irrelevant to exclusion decisions.",
+          "rationale": "Too strong. Customer context can be supporting evidence; it's not the trigger but it's also not irrelevant."
+        }
+      ],
+      "correct": 0,
+      "explanation": "The trigger is the SOC's classification history plus the four conditions; customer preference is at most contextual."
+    },
+    {
+      "id": "escalate-instead",
+      "type": "mcq",
+      "topic": "when-to-escalate",
+      "difficulty": "medium",
+      "prompt": "When should the tech ESCALATE to a senior instead of filing the exclusion request themselves?",
+      "choices": [
+        "Customer pushing hard for an exclusion that doesn't meet the bar; proposed exclusion would be broad; exclusion would suppress a pattern the senior is investigating across the portfolio; tech is not sure whether the conditions are met.",
+        {
+          "label": "Whenever the exclusion would affect more than one host.",
+          "rationale": "Multi-host scope isn't the criterion; broad-pattern scope is. A narrow exclusion across many hosts can still meet the bar."
+        },
+        {
+          "label": "Whenever the tech has been on the platform for less than 6 months.",
+          "rationale": "Experience-based gating isn't the lesson's framing."
+        },
+        {
+          "label": "Never, exclusion requests are always senior-led from the start.",
+          "rationale": "Wrong. The tech files the request; the senior reviews."
+        }
+      ],
+      "correct": 0,
+      "explanation": "Four named cases for escalating instead of filing."
+    },
+    {
+      "id": "suppression-by-closing",
+      "type": "tf",
+      "topic": "process",
+      "difficulty": "easy",
+      "prompt": "Closing repeat incidents as \"benign, dismissing\" without filing a documented exclusion request is the same thing as filing an exclusion.",
+      "correct": false,
+      "explanation": "Suppression-by-closing bypasses the senior review and the documented flow. The SOC doesn't get told to stop firing; the next incident still hits the queue and just gets a more dismissive close."
+    }
+  ]
+}

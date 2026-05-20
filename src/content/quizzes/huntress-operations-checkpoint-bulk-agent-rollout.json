@@ -1,0 +1,218 @@
+{
+  "slug": "huntress-operations-checkpoint-bulk-agent-rollout",
+  "course": "huntress-operations",
+  "kind": "checkpoint",
+  "title": "Quick check: bulk agent rollout",
+  "drawCount": 5,
+  "passThreshold": 0.8,
+  "questions": [
+    {
+      "id": "runbook-scope",
+      "type": "mcq",
+      "topic": "scope",
+      "difficulty": "easy",
+      "prompt": "Which of these belongs to \"what the runbook owns\" rather than \"what you own\" during a bulk rollout?",
+      "choices": [
+        {
+          "label": "Watching the portal for new enrolments while the RMM job runs.",
+          "rationale": "That's the monitoring step; you own the running, which includes watching the portal."
+        },
+        "Which RMM group, OU, or device list the installer targets.",
+        {
+          "label": "Comparing the RMM success count to the portal agent count.",
+          "rationale": "You own reconciliation while monitoring. The runbook tells you what to push; you tell the runbook how it landed."
+        },
+        {
+          "label": "Investigating a gap between installs and enrolments after 30 minutes.",
+          "rationale": "Tech work on the running rollout, not a runbook decision."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Scope decisions are deployment-strategy items the runbook owns; the tech runs the documented push."
+    },
+    {
+      "id": "worst-failure",
+      "type": "mcq",
+      "topic": "wrong-customer",
+      "difficulty": "medium",
+      "prompt": "What is the worst failure mode in bulk rollout per the lesson?",
+      "choices": [
+        {
+          "label": "A small percentage of endpoints fail to install on first push.",
+          "rationale": "Normal and manageable. Not the worst outcome."
+        },
+        "Enrolling agents into the wrong customer's organisation because the installer was bundled with the wrong org key.",
+        {
+          "label": "Some endpoints take 30 minutes to enrol after the RMM job completes.",
+          "rationale": "Slow is normal; not a failure mode at all."
+        },
+        {
+          "label": "The RMM job logs grow too large to parse quickly.",
+          "rationale": "Operational annoyance, not the worst outcome."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Bulk wrong-customer enrolment is why the global Agents view sanity check exists in the first ten minutes of a push."
+    },
+    {
+      "id": "slow-or-stalled-wait",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "medium",
+      "prompt": "You push the rollout to a 147-workstation OU at 8:00pm. By 8:35pm the RMM shows 142 successful installs (5 known-offline). The portal shows 109 agents enrolled and is still climbing. What do you do?",
+      "choices": [
+        {
+          "label": "Re-push to the missing endpoints to speed things up.",
+          "rationale": "The trickle is normal and the gap will likely close in the next 20-30 minutes. Re-pushing creates duplicate-install attempts on machines mid-enrolment."
+        },
+        "Wait until 9:00pm and re-check; if the count is still moving it's slow, not stalled.",
+        {
+          "label": "Cancel the RMM job and start over to get a cleaner picture.",
+          "rationale": "Lose visibility into which endpoints already installed, create duplicate-push problems on the 109 that did enrol, and reset the clock for no reason."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Slow vs. stalled. As long as the count is moving, it's still working. Wait, then investigate if it stops."
+    },
+    {
+      "id": "pattern-first",
+      "type": "mcq",
+      "topic": "decision-walkthrough",
+      "difficulty": "hard",
+      "prompt": "An hour later, the count is stuck at 138 agents for the last 15 minutes. The four missing endpoints are all in one site office. What do you do?",
+      "choices": [
+        {
+          "label": "Re-push to those four specifically.",
+          "rationale": "Reasonable instinct, premature execution. Re-pushing without understanding the pattern repeats the same failure."
+        },
+        "Investigate the pattern first, different AV, different egress firewall, or any compatibility difference the runbook didn't surface.",
+        {
+          "label": "Mark the four as failures and move on; they're a small percentage.",
+          "rationale": "Coverage gaps you don't investigate today become the 'missing endpoints' findings at coverage verification tomorrow."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Pattern-first, action-second. A cluster of failures usually has a single cause; the re-push is the right next step once you know what it is."
+    },
+    {
+      "id": "stalled-definition",
+      "type": "mcq",
+      "topic": "slow-vs-stalled",
+      "difficulty": "medium",
+      "prompt": "Which pattern indicates the rollout has actually stalled (versus just slow)?",
+      "choices": [
+        {
+          "label": "Agents trickling in at an uneven rate, a batch of 20 in two minutes, then a pause, then another batch.",
+          "rationale": "That's slow. Uneven trickle is normal as endpoints phone home post-install at different times."
+        },
+        "No new agents in 30 or more minutes despite the RMM job claiming success; the gap has stopped closing.",
+        {
+          "label": "The portal shows fewer agents than the RMM after the first ten minutes.",
+          "rationale": "Expected. Agents take minutes to phone home post-install."
+        },
+        {
+          "label": "The RMM job reports 100% success.",
+          "rationale": "That's the install side. Stalled is defined by portal-side movement, not RMM completion."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Stalled is when the count stops moving. Now it's worth investigating, AV blocking, blocked outbound, or a wrong org key."
+    },
+    {
+      "id": "install-window",
+      "type": "mcq",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "Why does the runbook usually call for pushing the rollout out-of-hours, even though the install is silent?",
+      "choices": [
+        "Silent installs aren't truly silent on every endpoint configuration, UAC prompts, AV alerts, or noticeable performance blips can still hit users at their desks.",
+        {
+          "label": "Huntress charges a premium for installs during business hours.",
+          "rationale": "Not a real commercial mechanic."
+        },
+        {
+          "label": "Out-of-hours pushes complete faster because the network is less busy.",
+          "rationale": "Not the lesson's reason. The reason is user impact, not network throughput."
+        },
+        {
+          "label": "Daytime pushes can trigger licensing checks that fail.",
+          "rationale": "No real licensing-by-hour mechanic."
+        }
+      ],
+      "correct": 0,
+      "explanation": "User impact, not throughput. Silent on most endpoints doesn't mean silent on every endpoint."
+    },
+    {
+      "id": "sanity-check",
+      "type": "mcq",
+      "topic": "sanity-check",
+      "difficulty": "medium",
+      "prompt": "What's the single fastest sanity check that catches a wrong-customer enrolment in the first ten minutes of a rollout?",
+      "choices": [
+        {
+          "label": "Compare the RMM job log against your runbook checklist.",
+          "rationale": "Useful pre-flight, but it tells you what you pushed, not where it landed."
+        },
+        "Open the global Agents view, filter by enrolment time, and confirm new agents all belong to the intended customer org.",
+        {
+          "label": "Wait 24 hours and reconcile against AD.",
+          "rationale": "That's coverage verification's job. Too late to catch wrong-customer enrolment in the first 10 minutes."
+        },
+        {
+          "label": "Open a Huntress support ticket asking which org the new agents are in.",
+          "rationale": "The portal exposes the answer directly."
+        }
+      ],
+      "correct": 1,
+      "explanation": "The global Agents view filtered by enrolment time is the named sanity check for the worst failure mode."
+    },
+    {
+      "id": "pre-flight-order",
+      "type": "order",
+      "topic": "procedure",
+      "difficulty": "medium",
+      "prompt": "Put the pre-flight checks in the order they should run before pushing the bulk install.",
+      "items": [
+        "Confirm the right organisation key is bundled with the installer or referenced by the RMM job.",
+        "Confirm the target endpoint list matches the runbook's scope (workstation OU, server group, etc.).",
+        "Confirm the install window matches the runbook's intended time (usually out-of-hours).",
+        "Confirm AV/RMM compatibility steps from the runbook are done, exclusions, signed RMM script, log paths.",
+        "If anything above isn't right, stop and bump rather than push with an incomplete pre-flight."
+      ],
+      "explanation": "Right key first (the worst failure mode), then scope, then window, then compatibility, then stop-and-bump if anything is off. Don't improvise around a gap."
+    },
+    {
+      "id": "wrong-customer-action",
+      "type": "mcq",
+      "topic": "escalation",
+      "difficulty": "medium",
+      "prompt": "You realise mid-push that 40 agents have landed in the wrong customer's organisation. What's the right move?",
+      "choices": [
+        {
+          "label": "Try to move them back to the right org yourself using the bulk agent tools.",
+          "rationale": "Agent relocation between orgs is a senior-owned bulk procedure, not a tech action."
+        },
+        "Stop the rollout. Bump to a senior with the specific state: which agents, which org, how many.",
+        {
+          "label": "Let the rollout complete, then uninstall the wrong-org agents and re-push with the right key.",
+          "rationale": "Compounds the mistake. You'd have history, incidents, and noise on a customer who shouldn't have been touched."
+        },
+        {
+          "label": "Switch the org key on the installer mid-job so future endpoints land in the right place.",
+          "rationale": "Doesn't fix the agents already in the wrong place, and changes the rollout state mid-flight without senior sign-off."
+        }
+      ],
+      "correct": 1,
+      "explanation": "Don't keep pushing into the wrong place; don't try to fix it yourself. Bump with the specific state."
+    },
+    {
+      "id": "re-push-too-early",
+      "type": "tf",
+      "topic": "common-mistake",
+      "difficulty": "easy",
+      "prompt": "If the portal enrolment count is below the RMM success count 30 minutes into the push, re-pushing immediately to close the gap is the right reflex.",
+      "correct": false,
+      "explanation": "Re-pushing too early creates duplicate-install attempts and noise. Wait for the trickle to settle, then investigate the gap pattern if it persists."
+    }
+  ]
+}
