@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Why is calling the customer for every Low \"to be safe\" a mistake?",
       "choices": [
-        "Wastes the customer's time on Lows, trains them to dread MSP calls, and lowers the urgency of genuine Critical calls.",
+        "Wastes the customer's time on Lows, trains them to dread MSP calls.",
         {
           "label": "Huntress charges per outbound call.",
           "rationale": "No such commercial mechanic exists."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Over-calling devalues the phone channel for the moments it matters."
+      "explanation": "Lowers the urgency of genuine Critical calls. Over-calling devalues the phone channel for the moments it matters."
     },
     {
       "id": "preference-override",
@@ -89,7 +89,7 @@
           "label": "Send only an email. The preference is explicit.",
           "rationale": "A Critical-with-email-only-preference is the example of when preference and situation conflict. Surface it."
         },
-        "Bump to senior. The documented preference does not fit the situation; senior decides whether to deviate.",
+        "Bump to senior. The documented preference does not fit the situation;",
         {
           "label": "Call the customer anyway and apologise for breaching their preference.",
           "rationale": "Unilateral deviation without senior sign-off."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "When the preference seems wrong for the situation, surface to senior. The deviation is not a tech-level call."
+      "explanation": "Senior decides whether to deviate. When the preference seems wrong for the situation, surface to senior. The deviation is not a tech-level call."
     },
     {
       "id": "channel-matters-more",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "Why does the lesson argue that the channel matters more than the message text?",
       "choices": [
-        "The same message lands differently by channel. Phone implies urgency and engagement; email is digested at the reader's pace; ticket-update only is noticed on next check. Mismatching channel to expected urgency wastes the response work.",
+        "The same message lands differently by channel.",
         {
           "label": "Customers do not read the message body, only the subject line.",
           "rationale": "Inverts the work that goes into well-framed notifications."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Channel sets the customer's experience of urgency. Mismatching it wastes good response work."
+      "explanation": "Phone implies urgency and engagement; email is digested at the reader's pace; ticket-update only is noticed on next check. Mismatching channel to expected urgency wastes the response work. Channel sets the customer's experience of urgency. Mismatching it wastes good response work."
     },
     {
       "id": "all-three-channels",
@@ -161,7 +161,7 @@
           "label": "Two channels are required by Huntress for compliance.",
           "rationale": "No such compliance rule."
         },
-        "Phone confirms awareness and engagement. Email is the durable record the customer forwards or refers back to. Skipping either leaves a gap.",
+        "Phone confirms awareness and engagement.",
         {
           "label": "Phone is unreliable, so email is the real notification.",
           "rationale": "Both have specific roles. Neither is a backup for the other."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Phone for immediate awareness; email for the durable written trail."
+      "explanation": "Email is the durable record the customer forwards or refers back to. Skipping either leaves a gap. Phone for immediate awareness; email for the durable written trail."
     },
     {
       "id": "high-business-hours-scenario",
@@ -185,14 +185,14 @@
           "label": "Phone, then email, then ticket update. Three channels for a High.",
           "rationale": "Three channels is reserved for Criticals with wide audiences. Over-communicates for a High."
         },
-        "Update the ticket with the full incident note, then send a short email summary. Email is appropriate for a contained High mid-business-day, and the ticket update fulfils the \"every incident\" requirement.",
+        "Update the ticket with the full incident note.",
         {
           "label": "Ticket update only.",
           "rationale": "Customer preference includes \"phone or email\" for Highs in addition to ticket. Ticket-only is the Low pattern."
         }
       ],
       "correct": 1,
-      "explanation": "Preference says phone or email for Highs (email fits a contained mid-day High) plus ticket on every incident."
+      "explanation": "Then send a short email summary. Email is appropriate for a contained High mid-business-day, and the ticket update fulfils the \"every incident\" requirement. Preference says phone or email for Highs (email fits a contained mid-day High) plus ticket on every incident."
     },
     {
       "id": "severity-channel-match",
@@ -214,7 +214,7 @@
       "difficulty": "medium",
       "prompt": "The IT manager replies by email asking \"what does isolation mean, and will it happen often?\" What is the best response channel?",
       "choices": [
-        "Reply by email with a plain-language explanation. An email reply gives the IT manager something to refer back to.",
+        "Reply by email with a plain-language explanation.",
         {
           "label": "Call them to explain in person. Voice is warmer for educational topics.",
           "rationale": "Defensible but a step heavier than needed. Switching to phone for an educational follow-up question is over-channelling."
@@ -225,7 +225,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Educational question by email; email reply with the full explanation. The customer can refer back to it."
+      "explanation": "An email reply gives the IT manager something to refer back to. Educational question by email; email reply with the full explanation. The customer can refer back to it."
     }
   ]
 }

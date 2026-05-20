@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "You just saved a new organisation but the Agents tab shows 4 endpoints already enrolled. What does this mean?",
       "choices": [
-        "Stop. You may be looking at the wrong org, the wrong portal, or someone else has started the onboarding in parallel. Bump.",
+        "Stop. You may be looking at the wrong org.",
         {
           "label": "The agents are pre-enrolled; this is fine, proceed.",
           "rationale": "A brand-new org should never have pre-existing agents. Pre-existing enrolments are a duplicate-onboarding flag."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Pre-existing state on a brand-new org is a stop signal. The blank-state check exists exactly for this."
+      "explanation": "The wrong portal, or someone else has started the onboarding in parallel. Bump. Pre-existing state on a brand-new org is a stop signal. The blank-state check exists exactly for this."
     },
     {
       "id": "custom-routing",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "\"Custom one-off notification routing per customer\" is named as a common mistake. Why?",
       "choices": [
-        "The MSP's partner-level notification template keeps on-call rotations, PSA integration, and incident routing consistent. One-off routing decays the moment the original tech leaves.",
+        "The MSP's partner-level notification template keeps on-call rotations.",
         {
           "label": "Custom routing breaks Huntress's audit log.",
           "rationale": "Not a real platform behaviour."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "One-off routing decays operationally; the partner-level template keeps the platform consistent across techs and customers."
+      "explanation": "PSA integration. Incident routing consistent. One-off routing decays the moment the original tech leaves. One-off routing decays operationally; the partner-level template keeps the platform consistent across techs and customers."
     },
     {
       "id": "duplicate-name",
@@ -89,14 +89,14 @@
           "label": "Create the new org and ignore the existing one; the names differ.",
           "rationale": "Premature. The existing org could be the same customer mid-rename, a different customer with a similar name, or a previous incomplete onboarding. Don't create in parallel without checking."
         },
-        "Stop, bump to a senior: \"Existing org 'Northwind' has 8 agents, same customer, different one, or incomplete onboarding? Should I reuse, rename, or create new?\"",
+        "Stop, bump to a senior: \"Existing org 'Northwind' has 8 agents, same customer, different one.",
         {
           "label": "Rename the existing 'Northwind' to 'Northwind Logistics - Tier 2' and reuse it.",
           "rationale": "Worst response. You've renamed an org with agents and incidents on an assumption. If it isn't the same customer, you've broken another customer's portal."
         }
       ],
       "correct": 1,
-      "explanation": "The pre-existing org is the signal you need a senior call before clicking anything."
+      "explanation": "Or incomplete onboarding? Should I reuse, rename, or create new?\" The pre-existing org is the signal you need a senior call before clicking anything."
     },
     {
       "id": "stale-org-cleanup",
@@ -173,7 +173,7 @@
       "difficulty": "easy",
       "prompt": "\"The form saved, must be fine, skip the verify step.\" What's the risk?",
       "choices": [
-        "You miss the case where you started against the wrong runbook or another tech has already done part of the onboarding. Two minutes of verification, zero minutes of regret.",
+        "You miss the case where you started against the wrong runbook or another tech has already done part of the onboarding.",
         {
           "label": "Huntress retains the unsaved data on the server; the form might not have actually saved.",
           "rationale": "The verify step isn't about save reliability, it's about state correctness."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two minutes of verification catches wrong-runbook or duplicate-onboarding situations the form-saved check can't see."
+      "explanation": "Two minutes of verification, zero minutes of regret. Two minutes of verification catches wrong-runbook or duplicate-onboarding situations the form-saved check can't see."
     },
     {
       "id": "procedure-order",

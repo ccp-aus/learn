@@ -14,12 +14,12 @@
       "prompt": "A UK-based client (no Australian presence) wants `excellentbiz.com.au` to market services in Australia. They have no ABN, no ACN, and no Australian agent. What's the calibrated response?",
       "choices": [
         "Register it; .com.au eligibility is loose for foreign clients.",
-        "Surface the constraint: .com.au requires an Australian commercial entity with ABN or ACN. Foreign-only entities don't qualify. The client's options are (a) form an Australian subsidiary or branch, (b) use a local agent that can hold the registration, or (c) pick a different TLD (.com, .biz, .au's open second-level via auDA's policy).",
+        "Surface the constraint.",
         "Refuse and tell the client to drop the Australian expansion.",
         "Submit anyway and let auDA sort it out."
       ],
       "correct": 1,
-      "explanation": "The eligibility + presence dimensions both apply to `.com.au`. A foreign entity without Australian presence doesn't qualify. The constructive path is naming the gap and offering real options; submitting blind wastes the client's payment, and refusing on principle (when alternatives exist) over-rotates. The .au second-level is more open under recent auDA policy but still requires Australian presence."
+      "explanation": ".com.au requires an Australian commercial entity with ABN or ACN. Foreign-only entities don't qualify. The client's options are (a) form an Australian subsidiary or branch, (b) use a local agent that can hold the registration, or (c) pick a different TLD (.com, .biz, .au's open second-level via auDA's policy). The eligibility + presence dimensions both apply to `.com.au`. A foreign entity without Australian presence doesn't qualify. The constructive path is naming the gap and offering real options; submitting blind wastes the client's payment, and refusing on principle (when alternatives exist) over-rotates. The .au second-level is more open under recent auDA policy but still requires Australian presence."
     },
     {
       "id": "ck-cctld-restricted-second-level",
@@ -29,12 +29,12 @@
       "prompt": "A client with an Australian sole-trader ABN successfully registered `freshfoods.com.au` last week. They now ask for `freshfoods.org.au` 'for the social impact side of the business.' Does the same ABN qualify?",
       "choices": [
         "Yes, if the ABN qualifies for `.com.au`, it qualifies for `.org.au`.",
-        "No. `.org.au` is a restricted second-level name with its own eligibility (non-profits and charities); a sole-trader commercial ABN typically doesn't qualify.",
+        "No. `.org.au` is a restricted second-level name with its own eligibility.",
         "Yes, `.org` is open globally so `.org.au` is also open.",
         "Refuse to register any ccTLD second-level name other than `.com.<cc>`."
       ],
       "correct": 1,
-      "explanation": "Same registry, different restricted-second-level-name rules, different outcome. The global `.org` is open, but `.org.au` is a separate namespace under auDA with its own restrictions. Surface the constraint to the client and offer alternatives (`.net.au` is open to commercial entities)."
+      "explanation": "(non-profits and charities); A sole-trader commercial ABN typically doesn't qualify. Same registry, different restricted-second-level-name rules, different outcome. The global `.org` is open, but `.org.au` is a separate namespace under auDA with its own restrictions. Surface the constraint to the client and offer alternatives (`.net.au` is open to commercial entities)."
     },
     {
       "id": "ck-cctld-trust-the-registry",

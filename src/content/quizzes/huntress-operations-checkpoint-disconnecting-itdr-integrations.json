@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why is the ITDR disconnect the step half-done offboardings most often skip?",
       "choices": [
-        "Once the agents are removed and billing is closed, it feels done, but the OAuth grant on the customer's tenant is still there, and identity telemetry keeps flowing into the portal for weeks.",
+        "Once the agents are removed and billing is closed, it feels done.",
         {
           "label": "It requires Huntress support to action, so techs forget to file the ticket.",
           "rationale": "The disconnect is a portal action the tech runs; it doesn't require a support ticket."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The disconnect is a single action per tenant; the discipline is doing it, verifying it, and documenting it."
+      "explanation": "But the OAuth grant on the customer's tenant is still there, and identity telemetry keeps flowing into the portal for weeks. The disconnect is a single action per tenant; the discipline is doing it, verifying it, and documenting it."
     },
     {
       "id": "single-tenant",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "\"Disconnecting one tenant when the customer had both.\" What's the consequence?",
       "choices": [
-        "The portal continues to receive telemetry from the remaining connected tenant; the offboarding looks complete but isn't.",
+        "The portal continues to receive telemetry from the remaining connected tenant;",
         {
           "label": "Huntress automatically disconnects the second tenant 24 hours later.",
           "rationale": "Not a real platform behaviour. There's no auto-disconnect cascade."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "A customer with both M365 and Workspace needs both disconnected. Doing one and not the other is the named half-state."
+      "explanation": "The offboarding looks complete but isn't. A customer with both M365 and Workspace needs both disconnected. Doing one and not the other is the named half-state."
     },
     {
       "id": "customer-side-removal",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "The runbook calls for \"customer-side removal\" of the OAuth artefact. What does that mean in practice?",
       "choices": [
-        "After the portal disconnect, the customer's admin removes the enterprise application (M365) or revokes the OAuth grant (Workspace) from their own tenant, so the artefact doesn't linger.",
+        "After the portal disconnect, the customer's admin removes the enterprise application.",
         {
           "label": "Huntress sends the customer an automated email asking them to remove the app themselves.",
           "rationale": "Not a real platform behaviour. The MSP coordinates the customer-side step."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Some MSPs treat customer-side removal as part of a clean handover; others leave it to the customer. The runbook decides."
+      "explanation": "(M365) or revokes the OAuth grant (Workspace) from their own tenant, so the artefact doesn't linger. Some MSPs treat customer-side removal as part of a clean handover; others leave it to the customer. The runbook decides."
     },
     {
       "id": "both-tenants",
@@ -89,14 +89,14 @@
           "label": "Disconnect M365, leave Workspace for a few days \"in case the customer needs it.\"",
           "rationale": "The customer is offboarding; you don't keep telemetry flowing in case they want it later."
         },
-        "Disconnect both in the portal. Schedule a short call with the customer's admin to remove the OAuth grants on the customer side, per the senior's note.",
+        "Disconnect both in the portal.",
         {
           "label": "Disconnect both and skip the customer-side removal, the customer is gone, they don't care.",
           "rationale": "The senior's note included customer-side removal. Cutting it short is a quiet deviation from the runbook."
         }
       ],
       "correct": 1,
-      "explanation": "Portal disconnect on both, plus customer-side removal per the runbook. Loop closed cleanly."
+      "explanation": "Schedule a short call with the customer's admin to remove the OAuth grants on the customer side, per the senior's note. Portal disconnect on both, plus customer-side removal per the runbook. Loop closed cleanly."
     },
     {
       "id": "late-event",
@@ -109,14 +109,14 @@
           "label": "Close as benign, the customer is offboarded.",
           "rationale": "The new incident is the signal that something didn't take. Dismissing it without investigation lets the underlying issue continue."
         },
-        "Investigate: was it a state-sync glitch, was the disconnect reverted, or is it a late-arriving event from before the disconnect timestamp? Confirm which, then act.",
+        "Investigate: was it a state-sync glitch, was the disconnect reverted.",
         {
           "label": "Re-run the disconnect on both tenants without investigating.",
           "rationale": "You might be solving the right problem, or papering over a state-sync issue that re-disconnect won't fix."
         }
       ],
       "correct": 1,
-      "explanation": "Treat the new incident as a debugging signal, not routine triage. Then act on what the investigation tells you."
+      "explanation": "Or is it a late-arriving event from before the disconnect timestamp? Confirm which, then act. Treat the new incident as a debugging signal, not routine triage. Then act on what the investigation tells you."
     },
     {
       "id": "verify-disconnect",
@@ -125,7 +125,7 @@
       "difficulty": "medium",
       "prompt": "Which is the right verify step the morning after an ITDR disconnect?",
       "choices": [
-        "Confirm the integration shows \"Not connected,\" last-event timestamp is from before the disconnect, and no identity-related Incident Reports for this customer arrived in the last 24 hours.",
+        "Confirm the integration shows \"Not connected,\" last-event timestamp is from before the disconnect.",
         {
           "label": "Confirm the customer's super-admin received the disconnect confirmation email.",
           "rationale": "Not a Huntress-side check. The portal is the verify surface."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "State, timestamp, and absence of new incidents are the three checks. If a new incident did arrive, the disconnect didn't take."
+      "explanation": "No identity-related Incident Reports for this customer arrived in the last 24 hours. State, timestamp, and absence of new incidents are the three checks. If a new incident did arrive, the disconnect didn't take."
     },
     {
       "id": "no-day-after-check",
@@ -149,7 +149,7 @@
       "difficulty": "medium",
       "prompt": "\"Not verifying with a 24-hour check.\" Why is this called a common mistake?",
       "choices": [
-        "Disconnects almost always work; when they don't, the failure is silent, the portal shows \"Not connected\" but events continue to arrive. A glance the next day catches this.",
+        "Disconnects almost always work;",
         {
           "label": "The disconnect doesn't fully complete until 24 hours later.",
           "rationale": "The disconnect is immediate; the 24-hour check is verification, not propagation delay."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "State-sync glitches are rare but not zero. The only way to detect them is the next-day check."
+      "explanation": "When they don't, the failure is silent, the portal shows \"Not connected\" but events continue to arrive. A glance the next day catches this. State-sync glitches are rare but not zero. The only way to detect them is the next-day check."
     },
     {
       "id": "customer-restriction",

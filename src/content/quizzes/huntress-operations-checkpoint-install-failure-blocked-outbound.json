@@ -13,7 +13,7 @@
       "difficulty": "medium",
       "prompt": "Which symptom set is the canonical blocked-outbound signature?",
       "choices": [
-        "RMM exit code zero, agent service running, agent's local log showing repeated DNS/TCP/TLS/HTTP failures against documented Huntress hostnames; portal shows no agent.",
+        "RMM exit code zero, agent service running.",
         {
           "label": "RMM exit non-zero with 'access denied' and the agent binary quarantined.",
           "rationale": "That's lesson 14 (AV)."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Install completed, registration is failing at the network layer."
+      "explanation": "Agent's local log showing repeated DNS/TCP/TLS/HTTP failures against documented Huntress hostnames; portal shows no agent. Install completed, registration is failing at the network layer."
     },
     {
       "id": "documented-list",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "What does 'the documented network requirements' mean in this lesson?",
       "choices": [
-        "Huntress publishes the hostnames, ports, and TLS requirements the agent needs outbound. The list is small (a handful of `*.huntress.io` hostnames over HTTPS/443), no static-IP allowlists required.",
+        "Huntress publishes the hostnames, ports.",
         {
           "label": "A wide IP range that varies daily and must be downloaded as a feed.",
           "rationale": "Not how the documented list works."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The list is specific and short; ask for exactly that, not more."
+      "explanation": "TLS requirements the agent needs outbound. The list is small (a handful of `*.huntress.io` hostnames over HTTPS/443), no static-IP allowlists required. The list is specific and short; ask for exactly that, not more."
     },
     {
       "id": "proxy-approach",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "The customer's network uses an outbound proxy. What's the right approach?",
       "choices": [
-        "Configure the agent to use the proxy (registry key, environment variable, or installer parameter per the runbook). Bypassing the proxy isn't the answer.",
+        "Configure the agent to use the proxy (registry key, environment variable.",
         {
           "label": "Ask the customer to disable the proxy during install.",
           "rationale": "Hostile to the customer's posture; sister mistake to disabling AV."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The runbook has the agent-side proxy configuration mechanism."
+      "explanation": "Or installer parameter per the runbook). Bypassing the proxy isn't the answer. The runbook has the agent-side proxy configuration mechanism."
     },
     {
       "id": "tcp-refused-scenario",
@@ -89,14 +89,14 @@
           "label": "AV is killing the connection.",
           "rationale": "AV would have killed the binary or service, not allowed it to run and then blocked TCP. The log says TCP refused."
         },
-        "Outbound TCP/443 to Huntress endpoints is being blocked, likely by the customer's perimeter firewall or endpoint firewall.",
+        "Outbound TCP/443 to Huntress endpoints is being blocked.",
         {
           "label": "The agent is broken; re-install.",
           "rationale": "The agent is trying to reach the documented endpoint. The network is what's broken from its perspective."
         }
       ],
       "correct": 1,
-      "explanation": "Signature: service running, network call refused. Canonical blocked-outbound case."
+      "explanation": "Likely by the customer's perimeter firewall or endpoint firewall. Signature: service running, network call refused. Canonical blocked-outbound case."
     },
     {
       "id": "customer-firewall",
@@ -125,7 +125,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'asking the customer to whitelist a wide range of IPs or domains beyond the documented list' wrong?",
       "choices": [
-        "Wrong direction. The documented list is short and specific; wider rules expand the customer's outbound surface unnecessarily.",
+        "Wrong direction.",
         {
           "label": "Wider rules slow the firewall down.",
           "rationale": "Not the lesson's reason."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Specific allow rules are the contract; wider asks weaken the customer's posture."
+      "explanation": "The documented list is short and specific; Wider rules expand the customer's outbound surface unnecessarily. Specific allow rules are the contract; wider asks weaken the customer's posture."
     },
     {
       "id": "diag-order",
@@ -189,7 +189,7 @@
       "difficulty": "medium",
       "prompt": "Which mistake does this lesson share with the single-endpoint deploy lesson, and why is it especially dangerous here?",
       "choices": [
-        "Closing the ticket on RMM success without checking the portal. The install-vs-registration split is the whole reason this failure mode hides; RMM exit code zero is half the answer.",
+        "Closing the ticket on RMM success without checking the portal.",
         {
           "label": "Failing to escalate every install to a senior.",
           "rationale": "Not a real lesson concern."
@@ -204,7 +204,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Blocked outbound is exactly where the dormant-installed-not-registered state lives."
+      "explanation": "The install-vs-registration split is the whole reason this failure mode hides; RMM exit code zero is half the answer. Blocked outbound is exactly where the dormant-installed-not-registered state lives."
     },
     {
       "id": "tf-tcp-error-type",

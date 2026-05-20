@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What's the core risk the lesson names with exclusions?",
       "choices": [
-        "Exclusions are persistent, they live until someone removes them. If a pattern that was benign last month becomes part of attacker tradecraft this month, the exclusion that suppressed the old benign version also suppresses the new malicious version.",
+        "Exclusions are persistent, they live until someone removes them.",
         {
           "label": "Exclusions cost the MSP money per filing.",
           "rationale": "Fabricated commercial mechanic."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Persistence is the source of the risk. That's why the bar for filing is conditions plus narrow scope."
+      "explanation": "If a pattern that was benign last month becomes part of attacker tradecraft this month, the exclusion that suppressed the old benign version also suppresses the new malicious version. Persistence is the source of the risk. That's why the bar for filing is conditions plus narrow scope."
     },
     {
       "id": "four-conditions",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Which of these is the MOST COMMON new-tech failure on exclusions per the lesson?",
       "choices": [
-        "Filing exclusion requests during the first-week noise window because 'five incidents on the same thing seems efficient to exclude'.",
+        "Filing exclusion requests during the first-week noise window.",
         {
           "label": "Filing exclusion requests after the customer is offboarded.",
           "rationale": "Wrong category. Offboarding isn't the noise-window case."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The SOC is still classifying during the noise window. Wait."
+      "explanation": "Because 'five incidents on the same thing seems efficient to exclude'. The SOC is still classifying during the noise window. Wait."
     },
     {
       "id": "mid-critical-timing",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Why is filing an exclusion mid-Critical (or immediately after) explicitly wrong?",
       "choices": [
-        "The activity that just fired Critical is exactly the activity you don't want to suppress, even if it turns out to be a false positive. The false-positive determination should be the SOC's classification, not the tech's exclusion.",
+        "The activity that just fired Critical is exactly the activity you don't want to suppress.",
         {
           "label": "Huntress charges extra for exclusions filed during an active incident.",
           "rationale": "Fabricated commercial mechanic."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Suppressing the exact pattern that just fired Critical is the worst class of exclusion."
+      "explanation": "Even if it turns out to be a false positive. The false-positive determination should be the SOC's classification, not the tech's exclusion. Suppressing the exact pattern that just fired Critical is the worst class of exclusion."
     },
     {
       "id": "narrow-vs-broad",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "Which exclusion shape does the lesson endorse versus reject?",
       "choices": [
-        "Endorses 'exclude this specific scheduled task by name'; rejects 'exclude PowerShell on WS-EXAMPLE-IT-02'.",
+        "Endorses 'exclude this specific scheduled task by name';",
         {
           "label": "Endorses 'exclude PowerShell on WS-EXAMPLE-IT-02'; rejects per-task names.",
           "rationale": "Inverted. Broad exclusions are the named common mistake."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Narrow exclusions earn approval; broad exclusions create blind spots."
+      "explanation": "Rejects 'exclude PowerShell on WS-EXAMPLE-IT-02'. Narrow exclusions earn approval; broad exclusions create blind spots."
     },
     {
       "id": "review-flow-order",
@@ -151,7 +151,7 @@
           "label": "Keep triaging each instance as a routine Low, the workflow is the workflow.",
           "rationale": "Defensible but missing the opportunity. Eight repeat benign incidents on a stable customer is the legitimate exclusion case."
         },
-        "File an exclusion request via the MSP's documented path. Include the specific scheduled-task name, the eight prior incident IDs, customer IT confirmation, and the narrowness of the proposed scope.",
+        "File an exclusion request via the MSP's documented path.",
         {
           "label": "Close the next instance as 'benign, dismissing' without filing a request.",
           "rationale": "Suppression-by-closing bypasses the documented flow; the SOC doesn't get told to stop firing."
@@ -162,7 +162,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Conditions met, request narrow, evidence documented. Senior reviews; SOC applies if approved."
+      "explanation": "Include the specific scheduled-task name, the eight prior incident IDs, customer IT confirmation, and the narrowness of the proposed scope. Conditions met, request narrow, evidence documented. Senior reviews; SOC applies if approved."
     },
     {
       "id": "customer-new-pattern",
@@ -175,7 +175,7 @@
           "label": "Yes, file the exclusion for the new name immediately, since we already have one for v1.",
           "rationale": "Wrong. The new script hasn't been SOC-classified yet; no history of 'fired and classified benign multiple times'."
         },
-        "Explain that the new script will likely fire as a routine Low for the first few incidents while the SOC classifies; once classified benign across multiple incidents, the existing exclusion can be updated or a new one filed.",
+        "Explain that the new script will likely fire as a routine Low for the first few incidents while the SOC classifies;",
         {
           "label": "Tell the customer 'we can't suppress anything without going through process' and end the conversation.",
           "rationale": "Defensible but missing the customer-relationship piece. The full answer gives them the eventual yes plus the why-not-immediately."
@@ -186,7 +186,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Honest about the process, gives the customer the expectation, doesn't compromise the classification bar."
+      "explanation": "Once classified benign across multiple incidents, the existing exclusion can be updated or a new one filed. Honest about the process, gives the customer the expectation, doesn't compromise the classification bar."
     },
     {
       "id": "customer-pressure",
@@ -195,7 +195,7 @@
       "difficulty": "medium",
       "prompt": "\"Our IT manager wants you to stop alerting on X.\" Is this a legitimate exclusion trigger?",
       "choices": [
-        "Only if X has been classified as benign by the SOC across multiple incidents and the other conditions are met. Customer preference alone isn't the trigger.",
+        "Only if X has been classified as benign by the SOC across multiple incidents and the other conditions are met.",
         {
           "label": "Yes, customer preferences are authoritative on their own environment.",
           "rationale": "Named common mistake. Customer pressure as sole driver is the failure mode."
@@ -210,7 +210,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The trigger is the SOC's classification history plus the four conditions; customer preference is at most contextual."
+      "explanation": "Customer preference alone isn't the trigger. The trigger is the SOC's classification history plus the four conditions; customer preference is at most contextual."
     },
     {
       "id": "escalate-instead",
@@ -219,7 +219,7 @@
       "difficulty": "medium",
       "prompt": "When should the tech ESCALATE to a senior instead of filing the exclusion request themselves?",
       "choices": [
-        "Customer pushing hard for an exclusion that doesn't meet the bar; proposed exclusion would be broad; exclusion would suppress a pattern the senior is investigating across the portfolio; tech is not sure whether the conditions are met.",
+        "Customer pushing hard for an exclusion that doesn't meet the bar;",
         {
           "label": "Whenever the exclusion would affect more than one host.",
           "rationale": "Multi-host scope isn't the criterion; broad-pattern scope is. A narrow exclusion across many hosts can still meet the bar."
@@ -234,7 +234,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Four named cases for escalating instead of filing."
+      "explanation": "Proposed exclusion would be broad; exclusion would suppress a pattern the senior is investigating across the portfolio; tech is not sure whether the conditions are met. Four named cases for escalating instead of filing."
     },
     {
       "id": "suppression-by-closing",

@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why are OAuth grants a particularly persistent attacker foothold?",
       "choices": [
-        "They survive password resets and session revocations. The OAuth token keeps the attacker's app authenticated even after those steps.",
+        "They survive password resets and session revocations.",
         {
           "label": "They include the user's password in plaintext.",
           "rationale": "Tokens do not carry passwords."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Without explicit grant revocation, the attacker's app keeps reading mail, sending as the user, and downloading files."
+      "explanation": "The OAuth token keeps the attacker's app authenticated even after those steps. Without explicit grant revocation, the attacker's app keeps reading mail, sending as the user, and downloading files."
     },
     {
       "id": "two-abuse-shapes",
@@ -41,7 +41,7 @@
           "label": "Steal an OAuth token from a legitimate app and reuse it.",
           "rationale": "Token theft is a different mechanism. Not the lesson's named pair."
         },
-        "Trick the user into granting via a phishing consent page, or grant a malicious app from inside an already-compromised account.",
+        "Trick the user into granting via a phishing consent page.",
         {
           "label": "Brute-force the OAuth consent screen.",
           "rationale": "Not how OAuth consent works."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Both shapes appear. The second (grant from inside a compromised account) is the most common one the SOC catches."
+      "explanation": "Or grant a malicious app from inside an already-compromised account. Both shapes appear. The second (grant from inside a compromised account) is the most common one the SOC catches."
     },
     {
       "id": "compromise-marker-strongest",
@@ -69,14 +69,14 @@
           "label": "A grant authorised more than six months ago.",
           "rationale": "Long-standing grants are typically legitimate."
         },
-        "A new grant authorised within minutes of a suspicious sign-in, to an app with a generic display name and broad scopes from an unverified publisher.",
+        "A new grant authorised within minutes of a suspicious sign-in.",
         {
           "label": "A grant with read-only Calendar scope.",
           "rationale": "Narrow scope used by many legitimate integrations."
         }
       ],
       "correct": 2,
-      "explanation": "Compromise-window timing, deceptive name, broad scopes, and unverified publisher together form the compromise marker set."
+      "explanation": "To an app with a generic display name and broad scopes from an unverified publisher. Compromise-window timing, deceptive name, broad scopes, and unverified publisher together form the compromise marker set."
     },
     {
       "id": "reset-enough-misconception",
@@ -97,10 +97,10 @@
           "label": "Session revoke takes 24 hours to propagate.",
           "rationale": "Revoke is near-immediate."
         },
-        "OAuth grants survive both password reset and session revoke. The grant has to be revoked explicitly."
+        "OAuth grants survive both password reset and session revoke."
       ],
       "correct": 3,
-      "explanation": "The grant needs its own revoke step. Without it, the attacker keeps access days after you thought the compromise was fixed."
+      "explanation": "The grant has to be revoked explicitly. The grant needs its own revoke step. Without it, the attacker keeps access days after you thought the compromise was fixed."
     },
     {
       "id": "blanket-revoke-wrong",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "\"Revoking all OAuth grants is the safe response.\" Why is this wrong?",
       "choices": [
-        "Disrupts legitimate integrations the user relies on. The discipline is targeted revoke of the attacker-pattern grants, not blanket revoke.",
+        "Disrupts legitimate integrations the user relies on.",
         {
           "label": "Blanket revoke is forbidden by the identity provider.",
           "rationale": "Not a platform constraint."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Targeted revoke: the grants added during the compromise window, not all grants."
+      "explanation": "The discipline is targeted revoke of the attacker-pattern grants, not blanket revoke. Targeted revoke: the grants added during the compromise window, not all grants."
     },
     {
       "id": "playbook-order",
@@ -189,10 +189,10 @@
           "label": "Granted in the same minute as a suspicious sign-in.",
           "rationale": "Compromise marker."
         },
-        "Verified publisher, recognisable product name, scope appropriate to the app's function, user can articulate why they granted."
+        "Verified publisher, recognisable product name."
       ],
       "correct": 3,
-      "explanation": "Verified publisher, recognisable name, appropriate scope, and user awareness together form the legitimate-grant marker set."
+      "explanation": "Scope appropriate to the app's function, user can articulate why they granted. Verified publisher, recognisable name, appropriate scope, and user awareness together form the legitimate-grant marker set."
     },
     {
       "id": "user-would-notice-misconception",
@@ -205,7 +205,7 @@
           "label": "OAuth grants are hidden from users entirely.",
           "rationale": "They are visible. Users just do not look."
         },
-        "Most users never look at their OAuth grants. Attackers exploit this. The grant sits there persistently while the attacker uses it.",
+        "Most users never look at their OAuth grants.",
         {
           "label": "Users receive an email every time the grant is used.",
           "rationale": "Not the default platform behaviour."
@@ -216,7 +216,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "User-visibility does not mean user-noticing. The attacker counts on the user never checking."
+      "explanation": "Attackers exploit this. The grant sits there persistently while the attacker uses it. User-visibility does not mean user-noticing. The attacker counts on the user never checking."
     },
     {
       "id": "compromise-window-definition",
@@ -233,14 +233,14 @@
           "label": "The 24-hour period after any ITDR incident lands.",
           "rationale": "The window is the attacker-active window from the Timeline, not a fixed clock."
         },
-        "The timeframe from the suspicious sign-in to the completion of session revoke. Grants inside that window are suspect.",
+        "The timeframe from the suspicious sign-in to the completion of session revoke.",
         {
           "label": "Any time before the password reset.",
           "rationale": "Over-broad. The window has a start (suspicious sign-in) and an end (containment)."
         }
       ],
       "correct": 2,
-      "explanation": "Grants outside the window from verified publishers are legitimate-by-context. Grants inside the window are suspect."
+      "explanation": "Grants inside that window are suspect. Grants outside the window from verified publishers are legitimate-by-context. Grants inside the window are suspect."
     }
   ]
 }

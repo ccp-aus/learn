@@ -28,7 +28,7 @@
       "difficulty": "medium",
       "prompt": "Un-isolation is \"the easiest action in the portal to click and the hardest one to do correctly.\" Why?",
       "choices": [
-        "Walking the recovery checklist BEFORE the click is the discipline. The click is fast; the checklist is what makes the click safe.",
+        "Walking the recovery checklist BEFORE the click is the discipline.",
         {
           "label": "Waiting at least 4 hours after isolation before un-isolating, regardless of state.",
           "rationale": "Calendar-driven, not signal-driven. The lesson uses the checklist."
@@ -43,7 +43,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Walk the five items first; the click follows."
+      "explanation": "The click is fast; the checklist is what makes the click safe. Walk the five items first; the click follows."
     },
     {
       "id": "customer-pressure",
@@ -52,7 +52,7 @@
       "difficulty": "medium",
       "prompt": "The customer's IT manager pings hard: \"How much longer? My ops team is blocked.\" None of the recovery checks are complete yet. What's the right move?",
       "choices": [
-        "Customer pressure isn't a checklist item. Update the customer honestly on the timeline (\"remediation verified, waiting for SOC sign-off, expect release in ~15 minutes\") rather than release early.",
+        "Customer pressure isn't a checklist item.",
         {
           "label": "Release the host; customer pressure overrides the checklist on commercial grounds.",
           "rationale": "Releasing under pressure trains the customer that isolation is a brief interruption rather than a containment."
@@ -67,7 +67,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Containment governs the release decision, not volume. Honest timeline updates are what customer pressure gets."
+      "explanation": "Update the customer honestly on the timeline (\"remediation verified, waiting for SOC sign-off, expect release in ~15 minutes\") rather than release early. Containment governs the release decision, not volume. Honest timeline updates are what customer pressure gets."
     },
     {
       "id": "post-release-window",
@@ -76,7 +76,7 @@
       "difficulty": "medium",
       "prompt": "How long after un-isolation should you monitor for re-detection?",
       "choices": [
-        "About an hour. A genuinely-resolved incident produces a clean post-release period; a not-quite-resolved one re-detects in this window.",
+        "About an hour. A genuinely-resolved incident produces a clean post-release period;",
         {
           "label": "Five minutes; if it doesn't re-fire fast, it won't fire later.",
           "rationale": "Too short. Re-detections may take 15–60 minutes to surface."
@@ -91,7 +91,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Walk away after un-isolation and a re-detection lands on the next shift's queue with no context."
+      "explanation": "A not-quite-resolved one re-detects in this window. Walk away after un-isolation and a re-detection lands on the next shift's queue with no context."
     },
     {
       "id": "soc-held",
@@ -100,7 +100,7 @@
       "difficulty": "medium",
       "prompt": "The SOC has held the Incident Report open with specific release conditions you can't yet satisfy. What's the right move?",
       "choices": [
-        "Read the SOC notes; if release isn't appropriate per their conditions, wait or bump. Don't release on the runbook's default timing.",
+        "Read the SOC notes;.",
         {
           "label": "Release per the runbook; the SOC's notes are advisory.",
           "rationale": "SOC-specific release conditions override the runbook default. Releasing against them is a unilateral override."
@@ -115,7 +115,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "SOC-held incidents have specific conditions for a reason. Read them, satisfy them, or wait."
+      "explanation": "If release isn't appropriate per their conditions, wait or bump. Don't release on the runbook's default timing. SOC-held incidents have specific conditions for a reason. Read them, satisfy them, or wait."
     },
     {
       "id": "it-manager-pressure",
@@ -124,7 +124,7 @@
       "difficulty": "medium",
       "prompt": "You isolated WS-EXAMPLE-OPS-04 two hours ago. Both remediations applied and verified clean. No new detections since isolation. The IT manager pings: \"How much longer? Mike's blocked.\" What do you check before deciding?",
       "choices": [
-        "Walk the recovery checklist (remediations verified, no recent re-detection, SOC sign-off, user informed, PSA up-to-date). Five greens, release; one yellow, communicate the timeline.",
+        "Walk the recovery checklist.",
         {
           "label": "Release immediately; Mike needs the machine.",
           "rationale": "Wrong reflex. Haven't walked the checklist. The IT manager's pressure gets a \"soon, here's what I'm waiting on\" response."
@@ -135,7 +135,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "IT manager pressure is real but isn't a checklist item. Walk the checklist; act on its state."
+      "explanation": "(remediations verified, no recent re-detection, SOC sign-off, user informed, PSA up-to-date). Five greens, release; one yellow, communicate the timeline. IT manager pressure is real but isn't a checklist item. Walk the checklist; act on its state."
     },
     {
       "id": "three-minute-redetection",
@@ -148,14 +148,14 @@
           "label": "Approve the new remediation and let the host stay online.",
           "rationale": "Re-detection within minutes of release is a containment-and-escalate signal, not a fix-on-the-fly signal."
         },
-        "Re-isolate the host. Escalate to senior. Document the pattern in the new Incident Report.",
+        "Re-isolate the host. Escalate to senior.",
         {
           "label": "Investigate the new scheduled task yourself before re-isolating.",
           "rationale": "Investigation is above the helpdesk ceiling and the time window matters. Re-isolate first, investigate with senior second."
         }
       ],
       "correct": 1,
-      "explanation": "The first persistence had a friend. Re-isolate, bump, let the senior plus SOC weigh the next move."
+      "explanation": "Document the pattern in the new Incident Report. The first persistence had a friend. Re-isolate, bump, let the senior plus SOC weigh the next move."
     },
     {
       "id": "user-confirmation",
@@ -164,7 +164,7 @@
       "difficulty": "medium",
       "prompt": "After un-isolation, what should you do regarding the user?",
       "choices": [
-        "Confirm with the user that the endpoint is working — brief call or message. Wraps the comms loop cleanly.",
+        "Confirm with the user that the endpoint is working — brief call or message.",
         {
           "label": "Don't contact the user; they'll notice the network is back on their own.",
           "rationale": "\"Forgetting to tell the user the machine is back\" is the named common mistake."
@@ -179,7 +179,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "30 seconds of close-the-loop comms means the user trusts the next isolation when it happens."
+      "explanation": "Wraps the comms loop cleanly. 30 seconds of close-the-loop comms means the user trusts the next isolation when it happens."
     },
     {
       "id": "worse-than-not-isolating",
@@ -188,7 +188,7 @@
       "difficulty": "medium",
       "prompt": "What does the lesson say is \"worse than not isolating at all\"?",
       "choices": [
-        "Releasing an endpoint back to the network with the threat unresolved. You've trained the customer that isolation is a brief interruption rather than a containment, and you've handed the attacker their access back.",
+        "Releasing an endpoint back to the network with the threat unresolved.",
         {
           "label": "Isolating for too long.",
           "rationale": "Long isolation has customer-relationship cost but isn't worse than the threat being back on the network unresolved."
@@ -203,7 +203,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Premature release undoes the containment and damages future credibility. Worse than not isolating in the first place."
+      "explanation": "You've trained the customer that isolation is a brief interruption rather than a containment, and you've handed the attacker their access back. Premature release undoes the containment and damages future credibility. Worse than not isolating in the first place."
     },
     {
       "id": "customer-escalates-commercial",
@@ -212,7 +212,7 @@
       "difficulty": "medium",
       "prompt": "The customer pushes hard to release the host before remediations are complete and escalates to your account manager. What's the right move?",
       "choices": [
-        "Customer-relationship piece, often senior territory if the push is intense. The isolation itself stands until the threat is addressed; the customer conversation about how that's handled is the senior's place.",
+        "Customer-relationship piece, often senior territory if the push is intense.",
         {
           "label": "Release; commercial pressure outranks security recommendations.",
           "rationale": "Commercial pressure goes through the senior, not through the isolation itself."
@@ -227,7 +227,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Action stands; conversation goes up. The senior handles the customer side."
+      "explanation": "The isolation itself stands until the threat is addressed; the customer conversation about how that's handled is the senior's place. Action stands; conversation goes up. The senior handles the customer side."
     }
   ]
 }

@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What's the normal upgrade flow?",
       "choices": [
-        "The agent self-upgrades. The user sees nothing; the portal's version column updates. Manual upgrades are a symptom, not routine.",
+        "The agent self-upgrades. The user sees nothing;",
         {
           "label": "Manual upgrades are the default; auto-upgrade has to be enabled per agent.",
           "rationale": "Self-upgrade is the default."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Self-upgrade is the design; manual touch means something interrupted the normal flow."
+      "explanation": "The portal's version column updates. Manual upgrades are a symptom, not routine. Self-upgrade is the design; manual touch means something interrupted the normal flow."
     },
     {
       "id": "upgrade-cause-mapping",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "'An upgrade failure is rarely its own diagnostic class.' What pattern does the lesson teach?",
       "choices": [
-        "Upgrade failures are install-failure causes (AV, policy, blocked outbound, or resource shortage) showing up again on a different operation.",
+        "Upgrade failures are install-failure causes.",
         {
           "label": "Upgrade failures are always caused by Huntress's back end.",
           "rationale": "Most upgrade failures are MSP/customer-side."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same diagnostic toolkit; different trigger."
+      "explanation": "(AV, policy, blocked outbound. Or resource shortage) showing up again on a different operation. Same diagnostic toolkit; different trigger."
     },
     {
       "id": "silent-drift",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'online with a stale version' a problem despite the agent still phoning home?",
       "choices": [
-        "Silent drift out of effective coverage. The SOC's detections shift over time; an agent that can't take updates loses ground gradually.",
+        "Silent drift out of effective coverage.",
         {
           "label": "Stale agents send extra telemetry that costs more.",
           "rationale": "Not a real commercial mechanic."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Online and stale is the silent-drift state; the version number is the only signal."
+      "explanation": "The SOC's detections shift over time; an agent that can't take updates loses ground gradually. Online and stale is the silent-drift state; the version number is the only signal."
     },
     {
       "id": "manual-upgrade-symptom",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'upgrading by hand without finding the cause' called out as wrong?",
       "choices": [
-        "A manual upgrade fixes one endpoint; the next time the agent needs to upgrade, the same wall is in place and the endpoint goes stale again. Fix the cause, not the symptom.",
+        "A manual upgrade fixes one endpoint;",
         {
           "label": "Manual upgrades void the warranty.",
           "rationale": "Not a real commercial mechanic."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Manual upgrades treat a symptom and guarantee the same problem next time."
+      "explanation": "The next time the agent needs to upgrade, the same wall is in place and the endpoint goes stale again. Fix the cause, not the symptom. Manual upgrades treat a symptom and guarantee the same problem next time."
     },
     {
       "id": "cluster-investigation",
@@ -113,14 +113,14 @@
           "label": "Manually upgrade all 18 from the portal or RMM, one at a time.",
           "rationale": "If the cause is shared, they re-stale next month. Find the cause first."
         },
-        "Look at the 18 endpoints for patterns: same OU, same site, same OS patch level, same AV policy scope?",
+        "Look at the 18 endpoints for patterns.",
         {
           "label": "Tell the customer's IT they have a problem with their endpoints.",
           "rationale": "You haven't diagnosed; the problem might be on the MSP's side."
         }
       ],
       "correct": 1,
-      "explanation": "Eighteen on one customer is the cluster shape that almost always has a shared cause."
+      "explanation": "Same OU, same site, same OS patch level, same AV policy scope? Eighteen on one customer is the cluster shape that almost always has a shared cause."
     },
     {
       "id": "applocker-stale-allowlist",
@@ -129,7 +129,7 @@
       "difficulty": "hard",
       "prompt": "Pattern investigation finds: all 18 are on the customer's 'tier-2 user' GPO scope with a tighter AppLocker policy. The policy allow-listed Huntress paths months ago, but the new agent version's binary path is slightly different and isn't allowed. What do you do?",
       "choices": [
-        "Ask the customer's IT to update the AppLocker GPO allow-list with the new Huntress agent binary path, push the policy, then re-attempt the upgrades. Document in the PSA so the next agent-version bump triggers a check of the same policy.",
+        "Ask the customer's IT to update the AppLocker GPO allow-list with the new Huntress agent binary path, push the policy.",
         {
           "label": "Remove the 18 endpoints from the tier-2 GPO scope.",
           "rationale": "Weakening the customer's GPO to fit our tooling is hostile."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Cause identified, fix at the policy level, all 18 unstick with one change."
+      "explanation": "Then re-attempt the upgrades. Document in the PSA so the next agent-version bump triggers a check of the same policy. Cause identified, fix at the policy level, all 18 unstick with one change."
     },
     {
       "id": "compliance-check-procedure",
@@ -149,7 +149,7 @@
       "difficulty": "medium",
       "prompt": "How do you check version compliance?",
       "choices": [
-        "Open the customer's Agents view; sort or filter by version; identify the target version; flag agents more than one or two versions behind.",
+        "Open the customer's Agents view;",
         {
           "label": "Email each endpoint's owner asking which version is installed.",
           "rationale": "Out of scope; the portal exposes the data."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The Agents view exposes the data; the portal is the canonical source."
+      "explanation": "Sort or filter by version; identify the target version; flag agents more than one or two versions behind. The Agents view exposes the data; the portal is the canonical source."
     },
     {
       "id": "rollback-territory",
@@ -197,7 +197,7 @@
       "difficulty": "medium",
       "prompt": "After fixing an upgrade-failure cluster, what should you watch for?",
       "choices": [
-        "No spike in offline agents in the same customer immediately after the fix. Upgrades that break the agent are rare but do happen.",
+        "No spike in offline agents in the same customer immediately after the fix.",
         {
           "label": "A spike in incident volume from the upgraded agents.",
           "rationale": "Not the named symptom."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Verification isn't just 'version updated'; it's 'agents stayed online after the update.'"
+      "explanation": "Upgrades that break the agent are rare but do happen. Verification isn't just 'version updated'; it's 'agents stayed online after the update.'"
     },
     {
       "id": "tf-cluster-shared-cause",

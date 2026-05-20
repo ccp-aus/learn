@@ -69,14 +69,14 @@
           "label": "Removing rules requires a Huntress support ticket.",
           "rationale": "Rule removal is a portal/admin-tool action."
         },
-        "The attacker may also have configured a mailbox-level forwarder. Same attack, two mechanisms. Removing only one leaves exfiltration intact.",
+        "The attacker may also have configured a mailbox-level forwarder.",
         {
           "label": "Rules re-create themselves automatically when removed.",
           "rationale": "Not a real platform behaviour."
         }
       ],
       "correct": 2,
-      "explanation": "Check for ForwardingSmtpAddress separately. The lesson's central discipline: do not remove one of two mechanisms."
+      "explanation": "Same attack, two mechanisms. Removing only one leaves exfiltration intact. Check for ForwardingSmtpAddress separately. The lesson's central discipline: do not remove one of two mechanisms."
     },
     {
       "id": "forward-and-hide-pattern",
@@ -97,10 +97,10 @@
           "label": "Rule moves project mail from one client into a project folder.",
           "rationale": "Routine power-user routing, not attacker-shaped."
         },
-        "Rule forwards mail with 'invoice', 'payment', or 'wire' keywords to an external address and deletes or moves the original."
+        "Rule forwards mail with 'invoice', 'payment'."
       ],
       "correct": 3,
-      "explanation": "Forward and hide on financial keywords is the classic compromise shape."
+      "explanation": "Or 'wire' keywords to an external address and deletes or moves the original. Forward and hide on financial keywords is the classic compromise shape."
     },
     {
       "id": "suppress-security-notifications",
@@ -141,10 +141,10 @@
           "label": "Wait for the SOC to update the Recommendation before doing anything.",
           "rationale": "The named rule is exfiltrating now. Act on the named actions while surfacing the additional finding."
         },
-        "Execute the Recommendation as written, and in parallel reply to the SOC asking whether the forwarder should be removed."
+        "Execute the Recommendation as written."
       ],
       "correct": 2,
-      "explanation": "Execute the Recommendation cleanly. Surface the additional finding to the layer that decides."
+      "explanation": "In parallel reply to the SOC asking whether the forwarder should be removed. Execute the Recommendation cleanly. Surface the additional finding to the layer that decides."
     },
     {
       "id": "deliver-and-forward-nasty",
@@ -161,14 +161,14 @@
           "label": "It bypasses MFA.",
           "rationale": "MFA is not involved in mail forwarding."
         },
-        "The user still sees their mail in their inbox and does not notice, while the attacker receives a copy externally.",
+        "The user still sees their mail in their inbox and does not notice.",
         {
           "label": "It deletes the user's existing mail.",
           "rationale": "No deletion occurs. The user sees everything."
         }
       ],
       "correct": 2,
-      "explanation": "Stealth-by-design: the user sees nothing missing, while the attacker has a copy of everything."
+      "explanation": "While the attacker receives a copy externally. Stealth-by-design: the user sees nothing missing, while the attacker has a copy of everything."
     },
     {
       "id": "user-created-rule-misconception",
@@ -189,10 +189,10 @@
           "label": "All inbox rules are malicious by default.",
           "rationale": "Overcorrects. Many legitimate rules exist."
         },
-        "Not if the user's account was compromised at the time. The Timeline tells you whether the rule creation correlates with a suspicious sign-in."
+        "Not if the user's account was compromised at the time."
       ],
       "correct": 3,
-      "explanation": "The Timeline view discriminates. Rule creation during a compromise window is attacker activity wearing the user's identity."
+      "explanation": "The Timeline tells you whether the rule creation correlates with a suspicious sign-in. The Timeline view discriminates. Rule creation during a compromise window is attacker activity wearing the user's identity."
     },
     {
       "id": "weird-but-legitimate",
@@ -229,14 +229,14 @@
           "label": "Whether the destination email is also used elsewhere in the mailbox.",
           "rationale": "Defensible but secondary. The check the lesson centres on is different."
         },
-        "Whether the mailbox also has ForwardingSmtpAddress or ForwardingAddress set, since the second mechanism may be present alongside the rule.",
+        "Whether the mailbox also has ForwardingSmtpAddress or ForwardingAddress set.",
         {
           "label": "Skip any pre-check; execute exactly as written.",
           "rationale": "Execute the Recommendation, yes. The check for an additional forwarder is what makes the response complete."
         }
       ],
       "correct": 1,
-      "explanation": "The lesson's central discipline: do not remove one of two mechanisms. Check for both."
+      "explanation": "Since the second mechanism may be present alongside the rule. The lesson's central discipline: do not remove one of two mechanisms. Check for both."
     }
   ]
 }

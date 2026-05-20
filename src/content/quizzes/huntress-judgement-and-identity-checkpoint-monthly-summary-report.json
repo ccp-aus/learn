@@ -69,14 +69,14 @@
           "label": "\"The platform did its job -- 27 incidents handled automatically.\"",
           "rationale": "\"The platform did this\" hides the SOC and the tech work. Name the work, don't hide it."
         },
-        "\"23 routine reviews of suspicious activity that turned out benign; 4 prompt-action items contained and resolved; no critical events, which is the goal.\"",
+        "\"23 routine reviews of suspicious activity that turned out benign;",
         {
           "label": "\"Nothing serious happened -- you can ignore the detail.\"",
           "rationale": "Dismisses the customer's interest. The deep-dive offer is the right move."
         }
       ],
       "correct": 2,
-      "explanation": "The metric-to-security-outcome translation is the tech's value-add on the report walk-through."
+      "explanation": "4 prompt-action items contained and resolved; no critical events, which is the goal.\" The metric-to-security-outcome translation is the tech's value-add on the report walk-through."
     },
     {
       "id": "audit-log-trap",
@@ -121,10 +121,10 @@
           "label": "Imply something is wrong with the platform's detection logic.",
           "rationale": "Undermines the customer's trust for no reason."
         },
-        "Frame it as expected and a sign of healthy operations, not as a sign Huntress isn't doing anything."
+        "Frame it as expected and a sign of healthy operations."
       ],
       "correct": 3,
-      "explanation": "Zero Criticals on a healthy 200-endpoint customer is expected. Frame it that way for the customer."
+      "explanation": "Not as a sign Huntress isn't doing anything. Zero Criticals on a healthy 200-endpoint customer is expected. Frame it that way for the customer."
     },
     {
       "id": "trend-escalation",
@@ -137,7 +137,7 @@
           "label": "Nothing -- each Low was resolved cleanly.",
           "rationale": "Misses the trend. Per-incident cleanliness does not address the volume pattern."
         },
-        "Flag the trend to the senior even though individual incidents were clean. The volume change may warrant a closer look.",
+        "Flag the trend to the senior.",
         {
           "label": "Tell the customer to expect more Lows next month.",
           "rationale": "Speculative and skips the senior bump."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Sustained-trend signals are escalation surfaces even when each individual item was handled cleanly."
+      "explanation": "Even though individual incidents were clean. The volume change may warrant a closer look. Sustained-trend signals are escalation surfaces even when each individual item was handled cleanly."
     },
     {
       "id": "raw-data-export",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "A customer asks for raw incident-data exports beyond what the monthly report includes. What is the right move?",
       "choices": [
-        "Bump to a senior. Raw-data requests may have compliance or contract implications.",
+        "Bump to a senior.",
         {
           "label": "Generate the export yourself from the Incidents view.",
           "rationale": "Bypasses the contract and compliance gate. The scope of customer-facing data exports is not a tech-level decision."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Raw-data requests go to senior. The format and scope of customer-facing data exports are not a tech-level decision."
+      "explanation": "Raw-data requests may have compliance or contract implications. Raw-data requests go to senior. The format and scope of customer-facing data exports are not a tech-level decision."
     },
     {
       "id": "walk-through-prep",
@@ -189,10 +189,10 @@
           "label": "Ask the account manager what to say.",
           "rationale": "The tech owns the technical side of the walk-through. Asking the account manager to script the technical part hands off work that is yours."
         },
-        "Pre-read the report. Identify the incidents and metrics that tell the strongest story for this customer. Plan to lead with the security outcomes, with specific incidents ready to deep-dive on."
+        "Pre-read the report."
       ],
       "correct": 2,
-      "explanation": "Customer-focused prep. Lead with the story; have detail ready if asked."
+      "explanation": "Identify the incidents and metrics that tell the strongest story for this customer. Plan to lead with the security outcomes, with specific incidents ready to deep-dive on. Customer-focused prep. Lead with the story; have detail ready if asked."
     },
     {
       "id": "severity-explanation",
@@ -205,14 +205,14 @@
           "label": "Quote the formal severity definitions verbatim from the earlier severity-bands lesson.",
           "rationale": "Too technical for a non-security-specialist customer."
         },
-        "Plain-language ladder: Low means routine review, mostly benign. High means prompt action, contained in a tight window. Critical means containment-first, we'd be calling you directly. Ground it with the specific incidents from the report.",
+        "Plain-language ladder: Low means routine review, mostly benign.",
         {
           "label": "Hand off to the account manager to explain severity classification.",
           "rationale": "The technical-classification question is the tech's to answer. Handing off makes you look less competent."
         }
       ],
       "correct": 1,
-      "explanation": "Plain language, laddering from Low to Critical, grounded with specific incidents from the report."
+      "explanation": "High means prompt action, contained in a tight window. Critical means containment-first, we'd be calling you directly. Ground it with the specific incidents from the report. Plain language, laddering from Low to Critical, grounded with specific incidents from the report."
     },
     {
       "id": "report-sections-match",
@@ -221,7 +221,7 @@
       "difficulty": "medium",
       "prompt": "The report says \"Coverage: 198 endpoints, M365 connected, no SIEM.\" What is the correct plain-language translation?",
       "choices": [
-        "\"Monitoring on every workstation and server you manage with us, plus identity monitoring on your Microsoft 365 tenant. No log-source monitoring at this stage.\"",
+        "\"Monitoring on every workstation and server you manage with us.",
         {
           "label": "\"The platform handled everything automatically; no further action needed.\"",
           "rationale": "Hides the SOC and tech work. The lesson warns against this framing."
@@ -236,7 +236,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Name what is protected and what is not, in customer terms. Coverage is the 'what's monitored' view."
+      "explanation": "Plus identity monitoring on your Microsoft 365 tenant. No log-source monitoring at this stage.\" Name what is protected and what is not, in customer terms. Coverage is the 'what's monitored' view."
     }
   ]
 }

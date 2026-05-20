@@ -28,13 +28,13 @@
       "topic": "pre-flight-timing",
       "prompt": "A client is migrating their mail provider next Wednesday at 6pm. The MX records currently have a TTL of 7200 seconds (2 hours). It's Sunday evening. When should you drop the TTL?",
       "choices": [
-        "Wednesday at 5:55pm, five minutes before the change.",
-        "Sunday evening or Monday — 48+ hours of lead is plenty for any cached old TTL to expire and the new lower TTL to spread.",
-        "Right at the cutover; the new TTL applies as soon as the change saves.",
-        "Don't bother; 7200 is already low enough."
+        {"label": "Wednesday at 5:55pm, five minutes before the change.", "rationale": "Five minutes isn't enough. The old TTL (7200s) is still cached at resolvers, so the lower TTL hasn't propagated yet."},
+        "Sunday or Monday, 48+ hours before cutover.",
+        {"label": "Right at the cutover; the new TTL applies as soon as you save.", "rationale": "The new TTL applies to new lookups, but resolvers still cache the old record for the old TTL duration."},
+        {"label": "Don't bother; 7200 is already low enough for a mail migration.", "rationale": "2 hours of stale MX records means 2 hours where some mail goes to the old provider. That matters."}
       ],
       "correct": 1,
-      "explanation": "Lower TTL has to propagate before the value change for the drop to take effect. With the current TTL at 7200 (2 hours), waiting at least one current-TTL cycle after the drop is the rule. Sunday-or-Monday gives plenty of margin. 7200 isn't 'low enough' for a planned cutover — the worst-case stale view stays cached for 2 hours, which matters for mail."
+      "explanation": "The lower TTL has to propagate before the value change. With the current TTL at 7200 (2 hours), you need at least one full TTL cycle after the drop. Sunday or Monday gives plenty of margin. 7200 isn't low enough for a planned cutover; worst-case stale cache is 2 hours, which matters for mail."
     },
     {
       "id": "ck-ttl-retroactive-myth",

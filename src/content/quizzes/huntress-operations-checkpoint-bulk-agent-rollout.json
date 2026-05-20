@@ -41,7 +41,7 @@
           "label": "A small percentage of endpoints fail to install on first push.",
           "rationale": "Normal and manageable. Not the worst outcome."
         },
-        "Enrolling agents into the wrong customer's organisation because the installer was bundled with the wrong org key.",
+        "Enrolling agents into the wrong customer's organisation.",
         {
           "label": "Some endpoints take 30 minutes to enrol after the RMM job completes.",
           "rationale": "Slow is normal; not a failure mode at all."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Bulk wrong-customer enrolment is why the global Agents view sanity check exists in the first ten minutes of a push."
+      "explanation": "Because the installer was bundled with the wrong org key. Bulk wrong-customer enrolment is why the global Agents view sanity check exists in the first ten minutes of a push."
     },
     {
       "id": "slow-or-stalled-wait",
@@ -65,14 +65,14 @@
           "label": "Re-push to the missing endpoints to speed things up.",
           "rationale": "The trickle is normal and the gap will likely close in the next 20-30 minutes. Re-pushing creates duplicate-install attempts on machines mid-enrolment."
         },
-        "Wait until 9:00pm and re-check; if the count is still moving it's slow, not stalled.",
+        "Wait until 9:00pm and re-check;",
         {
           "label": "Cancel the RMM job and start over to get a cleaner picture.",
           "rationale": "Lose visibility into which endpoints already installed, create duplicate-push problems on the 109 that did enrol, and reset the clock for no reason."
         }
       ],
       "correct": 1,
-      "explanation": "Slow vs. stalled. As long as the count is moving, it's still working. Wait, then investigate if it stops."
+      "explanation": "If the count is still moving it's slow, not stalled. Slow vs. stalled. As long as the count is moving, it's still working. Wait, then investigate if it stops."
     },
     {
       "id": "pattern-first",
@@ -85,14 +85,14 @@
           "label": "Re-push to those four specifically.",
           "rationale": "Reasonable instinct, premature execution. Re-pushing without understanding the pattern repeats the same failure."
         },
-        "Investigate the pattern first, different AV, different egress firewall, or any compatibility difference the runbook didn't surface.",
+        "Investigate the pattern first, different AV, different egress firewall.",
         {
           "label": "Mark the four as failures and move on; they're a small percentage.",
           "rationale": "Coverage gaps you don't investigate today become the 'missing endpoints' findings at coverage verification tomorrow."
         }
       ],
       "correct": 1,
-      "explanation": "Pattern-first, action-second. A cluster of failures usually has a single cause; the re-push is the right next step once you know what it is."
+      "explanation": "Or any compatibility difference the runbook didn't surface. Pattern-first, action-second. A cluster of failures usually has a single cause; the re-push is the right next step once you know what it is."
     },
     {
       "id": "stalled-definition",
@@ -125,7 +125,7 @@
       "difficulty": "easy",
       "prompt": "Why does the runbook usually call for pushing the rollout out-of-hours, even though the install is silent?",
       "choices": [
-        "Silent installs aren't truly silent on every endpoint configuration, UAC prompts, AV alerts, or noticeable performance blips can still hit users at their desks.",
+        "Silent installs aren't truly silent on every endpoint configuration.",
         {
           "label": "Huntress charges a premium for installs during business hours.",
           "rationale": "Not a real commercial mechanic."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "User impact, not throughput. Silent on most endpoints doesn't mean silent on every endpoint."
+      "explanation": "UAC prompts, AV alerts. Or noticeable performance blips can still hit users at their desks. User impact, not throughput. Silent on most endpoints doesn't mean silent on every endpoint."
     },
     {
       "id": "sanity-check",
@@ -153,7 +153,7 @@
           "label": "Compare the RMM job log against your runbook checklist.",
           "rationale": "Useful pre-flight, but it tells you what you pushed, not where it landed."
         },
-        "Open the global Agents view, filter by enrolment time, and confirm new agents all belong to the intended customer org.",
+        "Open the global Agents view, filter by enrolment time.",
         {
           "label": "Wait 24 hours and reconcile against AD.",
           "rationale": "That's coverage verification's job. Too late to catch wrong-customer enrolment in the first 10 minutes."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The global Agents view filtered by enrolment time is the named sanity check for the worst failure mode."
+      "explanation": "Confirm new agents all belong to the intended customer org. The global Agents view filtered by enrolment time is the named sanity check for the worst failure mode."
     },
     {
       "id": "pre-flight-order",

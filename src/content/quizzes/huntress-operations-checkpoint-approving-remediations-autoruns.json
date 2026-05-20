@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What counts as an \"autoruns\" entry on Windows?",
       "choices": [
-        "Any mechanism Windows uses to launch code automatically without the user asking — Run keys, startup folders, WMI subscriptions, services configured to start at boot, browser helper objects, Winlogon, IFEO, AppInit DLLs.",
+        "Any mechanism Windows uses to launch code automatically without the user asking.",
         {
           "label": "Any process currently running on the endpoint.",
           "rationale": "A running process isn't an autoruns entry; autoruns are persistence mechanisms that launch code automatically."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The term is borrowed from Sysinternals' Autoruns tool: the mechanisms that launch code automatically. Persistence, not live processes."
+      "explanation": "Run keys, startup folders, WMI subscriptions, services configured to start at boot, browser helper objects, Winlogon, IFEO, AppInit DLLs. The term is borrowed from Sysinternals' Autoruns tool: the mechanisms that launch code automatically. Persistence, not live processes."
     },
     {
       "id": "what-remediation-does",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "When you approve an autoruns remediation, the agent does which set of things?",
       "choices": [
-        "Removes the autoruns mechanism itself (registry key, startup-folder shortcut, WMI subscription), removes the backing file when classified malicious, and re-scans to confirm.",
+        "Removes the autoruns mechanism itself.",
         {
           "label": "Reboots the endpoint to clear any running instance.",
           "rationale": "The remediation does not reboot. Explicit in the lesson."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Remove persistence, optionally remove the backing file, re-scan to confirm. No reboot, no live-process kill."
+      "explanation": "(registry key, startup-folder shortcut, WMI subscription), removes the backing file when classified malicious, and re-scans to confirm. Remove persistence, optionally remove the backing file, re-scan to confirm. No reboot, no live-process kill."
     },
     {
       "id": "applied-walked-away",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "A tech approves an autoruns remediation, sees the portal flip to \"applied,\" and closes the ticket. What's the failure?",
       "choices": [
-        "Skipping verify. \"Applied\" means the command ran; the end-state check is the *did it work* question. If the agent was offline or the remediation hit an unexpected condition, the same detection re-fires later with no context.",
+        "Skipping verify. \"Applied\" means the command ran;",
         {
           "label": "Approving without first calling the SOC for permission.",
           "rationale": "The Recommendation IS the SOC's permission. Asking again duplicates the analyst's work."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The verify step skipped. Applied and verified are different checks."
+      "explanation": "The end-state check is the *did it work* question. If the agent was offline or the remediation hit an unexpected condition, the same detection re-fires later with no context. The verify step skipped. Applied and verified are different checks."
     },
     {
       "id": "reboot-myth",
@@ -94,7 +94,7 @@
       "difficulty": "medium",
       "prompt": "What's the recommendation on batch-approving autoruns remediations across multiple open incidents?",
       "choices": [
-        "Don't. Each incident's recommendation is for its specific autoruns entry on its specific host; batch-approving across unrelated tickets is the pattern that produces \"I approved twelve and one was for a different host.\"",
+        "Don't. Each incident's recommendation is for its specific autoruns entry on its specific host;",
         {
           "label": "Batch is encouraged; it's the fastest way to clear the queue.",
           "rationale": "The wrong-customer trap shows up at scale through this pattern."
@@ -109,7 +109,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Per-host, per-incident. The wrong-customer trap waits at the end of every batch operation."
+      "explanation": "Batch-approving across unrelated tickets is the pattern that produces \"I approved twelve and one was for a different host.\" Per-host, per-incident. The wrong-customer trap waits at the end of every batch operation."
     },
     {
       "id": "customer-reinforces",
@@ -142,14 +142,14 @@
           "label": "The remediation didn't work; re-approve it.",
           "rationale": "The remediation did work (you verified). The persistence reappeared, which means something on the endpoint is re-installing it. Re-approving chases your tail."
         },
-        "Recognise the pattern (clean removal, re-establishment within hours), isolate the host, escalate to senior in parallel.",
+        "Recognise the pattern.",
         {
           "label": "Reply to the SOC asking what to do.",
           "rationale": "Defensible but too slow. Containment matters and the time-on-the-endpoint window is shrinking. Isolate first, communicate after."
         }
       ],
       "correct": 1,
-      "explanation": "Clean removal followed by re-establishment within hours is a containment-and-escalate signal. The persistence had a friend that's still active."
+      "explanation": "(clean removal, re-establishment within hours), isolate the host, escalate to senior in parallel. Clean removal followed by re-establishment within hours is a containment-and-escalate signal. The persistence had a friend that's still active."
     },
     {
       "id": "new-signal",
@@ -162,7 +162,7 @@
           "label": "Approve anyway; the SOC's call stands.",
           "rationale": "The IT contact's statement is new signal. Approving against new customer-context information without surfacing it is the unilateral execution failure."
         },
-        "Reply to the SOC analyst with the user's confirmation before approving; wait for the analyst's response.",
+        "Reply to the SOC analyst with the user's confirmation before approving;",
         {
           "label": "Close the incident as benign because the customer confirms it's legitimate.",
           "rationale": "Unilateral override of the SOC — the cardinal mistake."
@@ -173,7 +173,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "New signal is information the analyst didn't have. Surface, wait, act on the updated disposition."
+      "explanation": "Wait for the analyst's response. New signal is information the analyst didn't have. Surface, wait, act on the updated disposition."
     },
     {
       "id": "verify-checks",
@@ -182,7 +182,7 @@
       "difficulty": "easy",
       "prompt": "Which set of checks IS the verify step for an autoruns remediation?",
       "choices": [
-        "Portal shows the remediation completed; the autoruns entry no longer appears in the endpoint's inventory; no re-detection within the next hour; incident note records the remediation, the check, and the closure.",
+        "Portal shows the remediation completed;",
         {
           "label": "Customer confirms via email that the machine feels faster.",
           "rationale": "Customer-feel isn't a verify input."
@@ -197,7 +197,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The lesson's Verify section, lifted: completed in portal, entry gone, no re-detection in the hour after, note records it."
+      "explanation": "The autoruns entry no longer appears in the endpoint's inventory; no re-detection within the next hour; incident note records the remediation, the check, and the closure. The lesson's Verify section, lifted: completed in portal, entry gone, no re-detection in the hour after, note records it."
     },
     {
       "id": "remediation-failed",
@@ -206,7 +206,7 @@
       "difficulty": "medium",
       "prompt": "The portal shows the remediation failed to apply (error after approval). What's the guidance?",
       "choices": [
-        "One retry; bump after the second failure. Could be the agent offline at the wrong moment, could be a deeper endpoint problem.",
+        "One retry; bump after the second failure.",
         {
           "label": "Retry as many times as needed until it works.",
           "rationale": "Repeated failures signal something beyond agent-offline; retries are capped before escalation."
@@ -221,7 +221,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "One retry, then bump. The lesson's explicit cap."
+      "explanation": "Could be the agent offline at the wrong moment, could be a deeper endpoint problem. One retry, then bump. The lesson's explicit cap."
     }
   ]
 }

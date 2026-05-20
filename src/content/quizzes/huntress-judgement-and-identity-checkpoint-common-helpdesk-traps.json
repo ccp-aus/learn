@@ -13,7 +13,7 @@
       "difficulty": "medium",
       "prompt": "A new customer was onboarded three days ago. The detection queue is full of PUP autoruns and noisy signals. A peer suggests batch-closing them all as benign. What is wrong with this approach?",
       "choices": [
-        "Trap 1. The wave of look-alike detections always includes the one that was not. Batch-closure dismisses the real Low or Critical with the noise. The right path for suppression is the exclusion-request flow.",
+        "Trap 1. The wave of look-alike detections always includes the one that was not.",
         {
           "label": "Nothing. New customers always generate noise, so batch-closure is the expected workflow.",
           "rationale": "Inverts the rule. New-customer noise is the highest-risk window for Trap 1."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The first-week noise window is exactly where Trap 1 lives. Suppression through dismissive closures is the trap; suppression through the exclusion-request flow is the right path."
+      "explanation": "Batch-closure dismisses the real Low or Critical with the noise. The right path for suppression is the exclusion-request flow. The first-week noise window is exactly where Trap 1 lives. Suppression through dismissive closures is the trap; suppression through the exclusion-request flow is the right path."
     },
     {
       "id": "trap-2-compounding",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Why does the lesson describe second-guessing the SOC as a \"trap\" rather than a one-off mistake?",
       "choices": [
-        "The pattern compounds. The next disposition gets overridden too, and the relationship with the SOC degrades over time. Customer-specific context belongs as a clarifying reply, not a unilateral override.",
+        "The pattern compounds.",
         {
           "label": "The SOC tracks per-tech override counts and reports them to your MSP.",
           "rationale": "Not the lesson's framing. The compounding is internal to the tech's habits and the senior's review."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The trap is the compounding pattern, not any single override. Customer-specific context goes through the clarifying-reply channel."
+      "explanation": "The next disposition gets overridden too, and the relationship with the SOC degrades over time. Customer-specific context belongs as a clarifying reply, not a unilateral override. The trap is the compounding pattern, not any single override. Customer-specific context goes through the clarifying-reply channel."
     },
     {
       "id": "trap-3-unreachable-user",
@@ -61,7 +61,7 @@
       "difficulty": "hard",
       "prompt": "You have just isolated a user's laptop on a High EDR incident. The user is unreachable: no answer on phone, no Teams response. You are tempted to move on to the next ticket. What is the right move?",
       "choices": [
-        "Try the documented backup contact (the customer's IT manager or executive assistant) within the same comms window. Leaving the user dark without a backup-channel attempt is Trap 3.",
+        "Try the documented backup contact.",
         {
           "label": "Move on. The user will work it out when their machine does not connect.",
           "rationale": "Trap 3 in real time. The user's experience of 'my machine just died, no one explained' lingers longer than the incident."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The isolation is correct. The comms responsibility is also non-negotiable. Backup contacts live within the same minutes-of-isolation window."
+      "explanation": "(the customer's IT manager or executive assistant) within the same comms window. Leaving the user dark without a backup-channel attempt is Trap 3. The isolation is correct. The comms responsibility is also non-negotiable. Backup contacts live within the same minutes-of-isolation window."
     },
     {
       "id": "trap-4-end-of-shift",
@@ -89,7 +89,7 @@
           "label": "Close all PSAs quickly with generic time entry and category.",
           "rationale": "Trap 4 in real time. Generic time and category creates reporting drift."
         },
-        "Spend the necessary minutes closing each PSA properly: time entry per actual time, specific category, notes.",
+        "Spend the necessary minutes closing each PSA properly.",
         {
           "label": "Leave them for tomorrow morning.",
           "rationale": "Drift grows overnight. Tomorrow starts behind."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "End-of-shift discipline catches Trap 4 reliably. Both systems, every time, even when end-of-shift makes it tempting to skip."
+      "explanation": "Time entry per actual time, specific category, notes. End-of-shift discipline catches Trap 4 reliably. Both systems, every time, even when end-of-shift makes it tempting to skip."
     },
     {
       "id": "common-shape",
@@ -133,7 +133,7 @@
       "difficulty": "easy",
       "prompt": "The four traps split into two pairs. Which is the right split?",
       "choices": [
-        "Recommendation-side: Trap 1 (suppressing alerts) and Trap 2 (second-guessing SOC). Workflow-side: Trap 3 (isolating without comms) and Trap 4 (closing Huntress but not PSA).",
+        "Recommendation-side: Trap 1.",
         {
           "label": "Recommendation-side: Traps 3 and 4. Workflow-side: Traps 1 and 2.",
           "rationale": "Inverts the mapping."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Traps 1 and 2 are about skipping reads and overriding analysis. Traps 3 and 4 are about skipping comms and admin."
+      "explanation": "(suppressing alerts) and Trap 2 (second-guessing SOC). Workflow-side: Trap 3 (isolating without comms) and Trap 4 (closing Huntress but not PSA). Traps 1 and 2 are about skipping reads and overriding analysis. Traps 3 and 4 are about skipping comms and admin."
     },
     {
       "id": "trap-detection-signals",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "Match the traps to their characteristic detection surfaces.",
       "choices": [
-        "Trap 1 surfaces in the senior's closed-incident review. Trap 3 surfaces in next-morning customer friction. Trap 4 surfaces in the end-of-shift self-check.",
+        "Trap 1 surfaces in the senior's closed-incident review.",
         {
           "label": "All four traps surface only in the LMS final assessment.",
           "rationale": "The traps surface in live work signals; the assessment is calibration, not detection."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Each trap has its own characteristic detection surface. The end-of-shift self-check catches Trap 4 reliably."
+      "explanation": "Trap 3 surfaces in next-morning customer friction. Trap 4 surfaces in the end-of-shift self-check. Each trap has its own characteristic detection surface. The end-of-shift self-check catches Trap 4 reliably."
     },
     {
       "id": "not-advanced-mistakes",
@@ -194,7 +194,7 @@
           "label": "Move on. The incident is closed.",
           "rationale": "The customer-relationship piece is part of close-out discipline. Ignoring it lets Trap 3 stand uncorrected."
         },
-        "Add a note to the PSA ticket reflecting what happened, flag the situation to your senior tomorrow. The customer-relationship recovery is the next step after the senior weighs in.",
+        "Add a note to the PSA ticket reflecting what happened.",
         {
           "label": "Apologise to the IT manager by email right now.",
           "rationale": "Premature. Customer-relationship recovery has tone and possibly account-manager involvement. The senior should weigh in first."
@@ -205,7 +205,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Name the trap, document what happened, get the senior in the loop. Do not reach out to the customer before the senior weighs in on tone."
+      "explanation": "Flag the situation to your senior tomorrow. The customer-relationship recovery is the next step after the senior weighs in. Name the trap, document what happened, get the senior in the loop. Do not reach out to the customer before the senior weighs in on tone."
     },
     {
       "id": "avoiding-traps-speed",

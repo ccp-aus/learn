@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "The lesson splits the Incident Report into two zones. What are they, and which one do you act on?",
       "choices": [
-        "Context zone (Summary, Evidence, Timeline, analyst reasoning) and action zone (Recommendation). You act on the action zone.",
+        "Context zone (Summary, Evidence.",
         {
           "label": "Header zone and body zone. You act on the body.",
           "rationale": "Wrong split. Header carries metadata; the action-vs-context split is inside the body."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Context is why the incident landed; action is what to do. You act on action."
+      "explanation": "Timeline, analyst reasoning) and action zone (Recommendation). You act on the action zone. Context is why the incident landed; action is what to do. You act on action."
     },
     {
       "id": "the-test",
@@ -37,7 +37,7 @@
       "difficulty": "easy",
       "prompt": "What single test does the lesson teach you to run before any action on an incident?",
       "choices": [
-        "Did the analyst say to do this, in the Recommendation section? If yes, proceed. If no, stop.",
+        "Did the analyst say to do this.",
         {
           "label": "Has the customer agreed to the action?",
           "rationale": "Customer agreement isn't the test."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The test is yes/no. \"No, but the Evidence supports it\" is the cardinal-mistake signature."
+      "explanation": "In the Recommendation section? If yes, proceed. If no, stop. The test is yes/no. \"No, but the Evidence supports it\" is the cardinal-mistake signature."
     },
     {
       "id": "share-block",
@@ -65,7 +65,7 @@
           "label": "The tech did exactly what the SOC wanted — thorough response.",
           "rationale": "Being thorough on this platform means executing the Recommendation cleanly, not extending the action set."
         },
-        "The tech expanded the recommended action set unilaterally — acted on the context zone.",
+        "The tech expanded the recommended action set unilaterally.",
         {
           "label": "The tech violated Huntress's licence terms.",
           "rationale": "Licence isn't the issue; scope-of-action discipline is."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Evidence treated as a to-do list. Absence in the Recommendation is itself a decision."
+      "explanation": "Acted on the context zone. Evidence treated as a to-do list. Absence in the Recommendation is itself a decision."
     },
     {
       "id": "oauth-grant",
@@ -89,7 +89,7 @@
           "label": "Revoke it because the Evidence flagged it.",
           "rationale": "The grant is in the Evidence, not the Recommendation. Revoking unilaterally is acting on context."
         },
-        "Execute the Recommendation as written. Reply to the analyst asking whether the grant is part of the compromise.",
+        "Execute the Recommendation as written.",
         {
           "label": "Skip the password reset because the OAuth grant might be the real vector.",
           "rationale": "Worst response. Skipping recommended actions is the cardinal mistake at its most expensive."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Not refusing to act on the grant; routing the question to the body that decides."
+      "explanation": "Reply to the analyst asking whether the grant is part of the compromise. Not refusing to act on the grant; routing the question to the body that decides."
     },
     {
       "id": "analyst-reply",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "\"The Evidence section is there for me to interpret.\" What's the right correction?",
       "choices": [
-        "The Evidence is there for you to UNDERSTAND the incident; the interpretation has happened, it's in the Recommendation.",
+        "The Evidence is there for you to UNDERSTAND the incident;",
         {
           "label": "Evidence is open for interpretation — that's why the analyst included it.",
           "rationale": "You read Evidence to understand, not to re-decide."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Understand the incident vs. interpret the incident. The interpretation is the analyst's already-done work."
+      "explanation": "The interpretation has happened, it's in the Recommendation. Understand the incident vs. interpret the incident. The interpretation is the analyst's already-done work."
     },
     {
       "id": "absence-is-decision",
@@ -194,7 +194,7 @@
           "label": "Proceed — Evidence-supported is good enough.",
           "rationale": "Exactly the wrong call. The \"but\" is the smell."
         },
-        "Stop, reply to the analyst with the factual question, wait for the answer.",
+        "Stop, reply to the analyst with the factual question.",
         {
           "label": "Document the action in the ticket, then proceed.",
           "rationale": "Documenting an unsanctioned extension doesn't make it sanctioned."
@@ -205,7 +205,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The \"but\" is the cardinal mistake's signature. Surface the question."
+      "explanation": "Wait for the answer. The \"but\" is the cardinal mistake's signature. Surface the question."
     },
     {
       "id": "worst-class",
@@ -218,7 +218,7 @@
           "label": "Adding actions beyond the Recommendation.",
           "rationale": "Bad, but the lesson explicitly says skipping recommended actions is more expensive."
         },
-        "Skipping recommended actions because the Evidence suggests a different vector matters more.",
+        "Skipping recommended actions.",
         {
           "label": "Reopening a closed incident with no new signal.",
           "rationale": "A real failure mode but not the one this lesson names as most expensive."
@@ -229,7 +229,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Most expensive because the analyst-prescribed remediation doesn't happen."
+      "explanation": "Because the Evidence suggests a different vector matters more. Most expensive because the analyst-prescribed remediation doesn't happen."
     }
   ]
 }

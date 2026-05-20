@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "\"Suspicious sign-in\" is best described as:",
       "choices": [
-        "A family of signals (unusual client, unusual location, token theft, MFA-fatigue, credential-stuffing) rather than a single pattern.",
+        "A family of signals (unusual client.",
         {
           "label": "A lower-severity version of impossible travel.",
           "rationale": "Different category, different signals, different patterns."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "A family, not a single pattern. The Recommendation tells you the specific shape of this one."
+      "explanation": "Unusual location, token theft, MFA-fatigue, credential-stuffing) rather than a single pattern. A family, not a single pattern. The Recommendation tells you the specific shape of this one."
     },
     {
       "id": "specific-category-wins",
@@ -41,7 +41,7 @@
           "label": "Suspicious sign-in is always the primary category when both apply.",
           "rationale": "Inverted. The more specific category wins."
         },
-        "The SOC routes to the most specific category that fits. When the primary is 'suspicious sign-in,' the sign-in itself is the signal.",
+        "The SOC routes to the most specific category that fits.",
         {
           "label": "The SOC raises two incidents, one for each category.",
           "rationale": "Wrong on the platform behaviour."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The more specific category (inbox rule, OAuth, MFA tampering) takes primary when it applies."
+      "explanation": "When the primary is 'suspicious sign-in,' the sign-in itself is the signal. The more specific category (inbox rule, OAuth, MFA tampering) takes primary when it applies."
     },
     {
       "id": "no-follow-on-misconception",
@@ -69,14 +69,14 @@
           "label": "All sign-ins always have follow-on activity.",
           "rationale": "Some sign-ins genuinely have no follow-on yet."
         },
-        "Attackers establish access and wait. The SOC's classification weighs the sign-in's own signals. A high-confidence-suspicious sign-in with no follow-on is still a compromise to address.",
+        "Attackers establish access and wait.",
         {
           "label": "Lack of follow-on confirms the compromise rather than ruling it out.",
           "rationale": "Overstates in the opposite direction."
         }
       ],
       "correct": 2,
-      "explanation": "No-follow-on is not the disposition. The SOC's classification has already considered it."
+      "explanation": "The SOC's classification weighs the sign-in's own signals. A high-confidence-suspicious sign-in with no follow-on is still a compromise to address. No-follow-on is not the disposition. The SOC's classification has already considered it."
     },
     {
       "id": "mfa-fatigue-accepted-not-intent",
@@ -97,10 +97,10 @@
           "label": "MFA prompts cannot be accepted by accident.",
           "rationale": "The whole point of fatigue attacks is accidental acceptance."
         },
-        "Under MFA fatigue, the user accepts to make spammed prompts stop, not because they intended to sign in. The Timeline's prompt timing reveals the pattern."
+        "Under MFA fatigue, the user accepts to make spammed prompts stop, not."
       ],
       "correct": 3,
-      "explanation": "Accepted-under-duress is not user intent. Seven push prompts in two minutes at 3am is the fatigue pattern."
+      "explanation": "Because they intended to sign in. The Timeline's prompt timing reveals the pattern. Accepted-under-duress is not user intent. Seven push prompts in two minutes at 3am is the fatigue pattern."
     },
     {
       "id": "tomas-mfa-fatigue-action",
@@ -113,14 +113,14 @@
           "label": "Tomas approved the MFA, so the sign-in was probably him. Close as benign.",
           "rationale": "MFA-fatigue is a known attack pattern. The Recommendation classified this as compromise."
         },
-        "Execute the playbook (revoke sessions, reset password and MFA), then call Tomas to explain the fatigue pattern and confirm he was not intending to sign in at 03:13.",
+        "Execute the playbook (revoke sessions, reset password and MFA).",
         {
           "label": "Call Tomas first to ask whether he was signing in at 03:13.",
           "rationale": "Same blast-radius reasoning. Even with no follow-on, the SOC's classification is compromise."
         }
       ],
       "correct": 1,
-      "explanation": "Execute first. The user education during the post-action call prevents the same mistake next time."
+      "explanation": "Then call Tomas to explain the fatigue pattern and confirm he was not intending to sign in at 03:13. Execute first. The user education during the post-action call prevents the same mistake next time."
     },
     {
       "id": "post-action-education-framing",
@@ -137,10 +137,10 @@
           "label": "Tell him tersely: 'Do not approve random MFA prompts.'",
           "rationale": "Too terse. Tomas needs the why and the protective framing to build the habit."
         },
-        "Explain that the prompts were an attacker, that tapping approve let them sign in, that containment is complete, and that he should deny unsolicited prompts and call the helpdesk instead."
+        "Explain that the prompts were an attacker."
       ],
       "correct": 2,
-      "explanation": "Educate on the pattern (prevents repeat), name what you did, give clear next steps."
+      "explanation": "That tapping approve let them sign in, that containment is complete. That he should deny unsolicited prompts and call the helpdesk instead. Educate on the pattern (prevents repeat), name what you did, give clear next steps."
     },
     {
       "id": "not-lower-severity-impossible-travel",
@@ -157,14 +157,14 @@
           "label": "Correct; it is a lower-severity version.",
           "rationale": "They are different categories."
         },
-        "Different signals, different category. Impossible-travel is about geographic impossibility. Suspicious-sign-in is the broader family of 'something is off about this sign-in.'",
+        "Different signals, different category.",
         {
           "label": "Impossible-travel is an EDR signal, suspicious sign-in is ITDR.",
           "rationale": "Both are ITDR."
         }
       ],
       "correct": 2,
-      "explanation": "Categories are distinct, not severity tiers of the same thing."
+      "explanation": "Impossible-travel is about geographic impossibility. Suspicious-sign-in is the broader family of 'something is off about this sign-in.' Categories are distinct, not severity tiers of the same thing."
     },
     {
       "id": "user-verification-more-common",
@@ -185,10 +185,10 @@
           "label": "The user always knows more than the SOC on this category.",
           "rationale": "Overstates. The SOC has cross-customer pattern visibility."
         },
-        "The SOC sometimes needs the user's input to confirm whether the activity was theirs. Suspicious-sign-in classifications include cases that are benign-but-flagged-for-visibility."
+        "The SOC sometimes needs the user's input to confirm whether the activity was theirs."
       ],
       "correct": 3,
-      "explanation": "The category covers ambiguous-by-design cases where user input helps the SOC's classification."
+      "explanation": "Suspicious-sign-in classifications include cases that are benign-but-flagged-for-visibility. The category covers ambiguous-by-design cases where user input helps the SOC's classification."
     },
     {
       "id": "verify-then-playbook-meaning",
@@ -201,7 +201,7 @@
           "label": "Skip the playbook unless the user actively asks for it.",
           "rationale": "Default is to proceed if not confirmed."
         },
-        "The SOC has classified the activity as likely-suspicious but wants a user check before the destructive playbook runs. If the user denies or is unreachable on active-exfiltration patterns, proceed.",
+        "The SOC has classified the activity as likely-suspicious but wants a user check before the destructive playbook runs.",
         {
           "label": "Wait indefinitely until the user is reachable.",
           "rationale": "Lesson 8 handles the unreachable case. Cost-of-waiting still applies."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Verification is the gating step the SOC has chosen. If the user denies or is unreachable, the playbook proceeds."
+      "explanation": "If the user denies or is unreachable on active-exfiltration patterns, proceed. Verification is the gating step the SOC has chosen. If the user denies or is unreachable, the playbook proceeds."
     },
     {
       "id": "credential-stuffing-shape",
@@ -229,14 +229,14 @@
           "label": "A sign-in from two countries in five minutes.",
           "rationale": "That is the impossible-travel shape, not credential-stuffing."
         },
-        "Multiple failed sign-ins from one source followed by a success, suggesting password-spray or credential-list attacks.",
+        "Multiple failed sign-ins from one source followed by a success.",
         {
           "label": "A sign-in with no MFA challenge.",
           "rationale": "Missing MFA challenge alone is not the credential-stuffing pattern."
         }
       ],
       "correct": 2,
-      "explanation": "Failed-then-success from a single source is the credential-stuffing pattern."
+      "explanation": "Suggesting password-spray or credential-list attacks. Failed-then-success from a single source is the credential-stuffing pattern."
     }
   ]
 }

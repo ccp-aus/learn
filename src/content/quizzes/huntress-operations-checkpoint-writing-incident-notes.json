@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Who is the incident note for?",
       "choices": [
-        "The next shift, the senior reviewing your work, the auditor pulling the record six months from now, and the future-you who has to answer \"what did we do on this?\"",
+        "The next shift, the senior reviewing your work.",
         {
           "label": "You — to help you remember while the work is happening.",
           "rationale": "Inverts the framing. The note isn't for you."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The note is for the next reader. The cold-read test is the standard."
+      "explanation": "The auditor pulling the record six months from now, and the future-you who has to answer \"what did we do on this?\" The note is for the next reader. The cold-read test is the standard."
     },
     {
       "id": "four-sections-order",
@@ -51,7 +51,7 @@
       "difficulty": "medium",
       "prompt": "Which of these does NOT belong in an incident note?",
       "choices": [
-        "Personal commentary like \"frustrating customer, took forever to reach them.\"",
+        "Personal commentary like \"frustrating customer.",
         {
           "label": "The times of each action and contact.",
           "rationale": "Times DO belong. Times are part of the contact-trail."
@@ -66,7 +66,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Tone-stripped facts only. Personal commentary doesn't survive an audit and doesn't help the next tech."
+      "explanation": "Took forever to reach them.\" Tone-stripped facts only. Personal commentary doesn't survive an audit and doesn't help the next tech."
     },
     {
       "id": "length",
@@ -75,7 +75,7 @@
       "difficulty": "easy",
       "prompt": "What's the typical length range for an incident note?",
       "choices": [
-        "3–8 lines for a Low, 6–15 for a High. Past 20 lines you're either genuinely complex or padding.",
+        "3–8 lines for a Low, 6–15 for a High.",
         {
           "label": "Always at least one full page for accountability.",
           "rationale": "Brevity and specifics over length."
@@ -90,7 +90,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Specificity, not length. The cold-read test is the standard."
+      "explanation": "Past 20 lines you're either genuinely complex or padding. Specificity, not length. The cold-read test is the standard."
     },
     {
       "id": "timing",
@@ -99,7 +99,7 @@
       "difficulty": "medium",
       "prompt": "When should the note be written?",
       "choices": [
-        "While the context is fresh — ideally during the work in a scratchpad or running PSA entry; acceptable immediately after verify; worst at end-of-shift while catching up.",
+        "While the context is fresh.",
         {
           "label": "Always at end-of-shift to ensure consistency across the day's tickets.",
           "rationale": "End-of-shift is the worst case explicitly named. Memory degrades; notes get vague."
@@ -114,7 +114,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "By end-of-shift the day's incidents blur. Fresh context produces useful notes."
+      "explanation": "Ideally during the work in a scratchpad or running PSA entry; Acceptable immediately after verify; worst at end-of-shift while catching up. By end-of-shift the day's incidents blur. Fresh context produces useful notes."
     },
     {
       "id": "cold-read-test",
@@ -151,14 +151,14 @@
           "label": "\"Handled an EDR incident on WS-EXAMPLE-LEGAL-02. Bad autoruns, scheduled task, both gone now. User's all good.\"",
           "rationale": "No times, no specific actions or verifications, no contact record, no follow-up section."
         },
-        "Four-section note with timestamped actions, specific verifications, named contacts with times, follow-ups explicitly named (mid-incident re-detection acknowledged by SOC as residual; no other open items).",
+        "Four-section note with timestamped actions, specific verifications, named contacts with times, follow-ups explicitly named.",
         {
           "label": "\"Isolated and remediated WS-EXAMPLE-LEGAL-02. Two persistence mechanisms removed. Spoke with user and IT. No follow-ups.\"",
           "rationale": "Half-right. Reads cleanly but lacks the specifics — which remediations, which times, which IT contact — that make it useful six months later."
         }
       ],
       "correct": 1,
-      "explanation": "Specific facts, named contacts with times, follow-up explicitly named even when it's \"none open.\""
+      "explanation": "(mid-incident re-detection acknowledged by SOC as residual; no other open items). Specific facts, named contacts with times, follow-up explicitly named even when it's \"none open.\""
     },
     {
       "id": "off-handed-comment",
@@ -196,7 +196,7 @@
       "difficulty": "medium",
       "prompt": "A tech's note runs three paragraphs and includes their reasoning for why the activity \"looked suspicious.\" What's the failure?",
       "choices": [
-        "Padding with reasoning that belongs in the SOC's analysis. The tech's note records actions; the Incident Report already has the analyst's reasoning.",
+        "Padding with reasoning that belongs in the SOC's analysis.",
         {
           "label": "No failure — long, thorough notes are best.",
           "rationale": "Past 20 lines is usually padding."
@@ -211,7 +211,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The tech's note is actions, not analysis. The analyst's reasoning is already in the Incident Report."
+      "explanation": "The tech's note records actions; the Incident Report already has the analyst's reasoning. The tech's note is actions, not analysis. The analyst's reasoning is already in the Incident Report."
     }
   ]
 }

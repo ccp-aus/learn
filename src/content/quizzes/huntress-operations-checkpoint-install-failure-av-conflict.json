@@ -17,7 +17,7 @@
           "label": "Ask the customer to disable AV during the install window.",
           "rationale": "Removes coverage during install and trains the customer to disable AV when something gets in the way."
         },
-        "Apply the documented AV exclusions for the specific AV product, pushed via the AV management console.",
+        "Apply the documented AV exclusions for the specific AV product.",
         {
           "label": "Switch the customer to a different AV product.",
           "rationale": "Wildly out of scope. Deployment-strategy decision, not a tech fix."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "AV and Huntress are designed to coexist; the exclusions are the contract."
+      "explanation": "Pushed via the AV management console. AV and Huntress are designed to coexist; the exclusions are the contract."
     },
     {
       "id": "av-signature",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Which symptom pattern most cleanly points at AV interference rather than another failure class?",
       "choices": [
-        "RMM exit non-zero with 'access denied' or 'file in use' on the agent binary itself, possibly with the binary quarantined; sometimes the service starts briefly then dies.",
+        "RMM exit non-zero with 'access denied' or 'file in use' on the agent binary itself, possibly with the binary quarantined;",
         {
           "label": "Service-creation operations failing with policy-shaped event log entries under AppLocker or CodeIntegrity.",
           "rationale": "That's lesson 15 (policy block)."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "AV interference touches the agent binary or service directly; the install log shows it in plain text."
+      "explanation": "Sometimes the service starts briefly then dies. AV interference touches the agent binary or service directly; the install log shows it in plain text."
     },
     {
       "id": "local-exclusions-evaporate",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'adding exclusions only to the endpoint locally' called out as wrong?",
       "choices": [
-        "It survives until the next AV policy refresh and then evaporates. Push exclusions via the AV management console.",
+        "It survives until the next AV policy refresh and then evaporates.",
         {
           "label": "Huntress can detect local-only exclusions and refuses to install.",
           "rationale": "Not a real platform behaviour."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Local exclusions on managed endpoints are temporary by design; policy refreshes wipe them."
+      "explanation": "Push exclusions via the AV management console. Local exclusions on managed endpoints are temporary by design; policy refreshes wipe them."
     },
     {
       "id": "trial-and-error",
@@ -113,14 +113,14 @@
           "label": "Ask the customer's IT to disable Bitdefender on the endpoint while you re-run the install.",
           "rationale": "Removes AV coverage during the install window and trains them to reach for 'disable AV' as a normal step."
         },
-        "Pull the Huntress install log from the endpoint to confirm AV interference, then ask the customer's IT to apply the documented Huntress exclusions in their Bitdefender console.",
+        "Pull the Huntress install log from the endpoint to confirm AV interference.",
         {
           "label": "Re-run the install three more times and hope it works on the fourth.",
           "rationale": "AV behaviour is not random; if it blocked once, it'll block again."
         }
       ],
       "correct": 1,
-      "explanation": "Confirm the cause from the logs, propose the documented fix to the right party (the customer's IT), don't ask them to lower coverage."
+      "explanation": "Then ask the customer's IT to apply the documented Huntress exclusions in their Bitdefender console. Confirm the cause from the logs, propose the documented fix to the right party (the customer's IT), don't ask them to lower coverage."
     },
     {
       "id": "post-exclusion-still-fails",
@@ -133,14 +133,14 @@
           "label": "Assume the AV is still blocking and ask for more exclusions.",
           "rationale": "The RMM exit code is now clean; the failure has moved on."
         },
-        "Check the agent's local logs to see whether the first phone-home attempt succeeded, and check the network path (lesson 17 territory).",
+        "Check the agent's local logs to see whether the first phone-home attempt succeeded.",
         {
           "label": "Re-push the install.",
           "rationale": "Re-pushing an already-installed agent risks duplicate state. The install succeeded; the question is why it didn't register."
         }
       ],
       "correct": 1,
-      "explanation": "Treat the install failure and the registration failure as separate problems with separate diagnostics, even when they appear back-to-back."
+      "explanation": "Check the network path (lesson 17 territory). Treat the install failure and the registration failure as separate problems with separate diagnostics, even when they appear back-to-back."
     },
     {
       "id": "av-console-not-managed",

@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What is \"click approve and see\" in the lesson's framing?",
       "choices": [
-        "Taking an action when you do not fully understand what it does, on the assumption you will find out as it executes.",
+        "Taking an action when you do not fully understand what it does.",
         {
           "label": "Approving a recommendation after carefully reading and understanding it.",
           "rationale": "That is the correct disposition. The lesson's reflex is the opposite."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Action without understanding, justified by 'we'll see.' The common shape across all the examples the lesson names."
+      "explanation": "On the assumption you will find out as it executes. Action without understanding, justified by 'we'll see.' The common shape across all the examples the lesson names."
     },
     {
       "id": "not-a-reason",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Why does the lesson call the portal \"forgiving in the UI\" a trap?",
       "choices": [
-        "Low UI friction (most actions just need a confirm dialog) does not match the action's real consequence. The cost is hidden until later, when the customer feels it.",
+        "Low UI friction (most actions just need a confirm dialog) does not match the action's real consequence.",
         {
           "label": "The UI has bugs that let you click the wrong button.",
           "rationale": "The UI works correctly; that is part of the problem."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "UI friction does not track action weight on a security platform. Low friction masks high consequence."
+      "explanation": "The cost is hidden until later, when the customer feels it. UI friction does not track action weight on a security platform. Low friction masks high consequence."
     },
     {
       "id": "pause-habit",
@@ -89,7 +89,7 @@
           "label": "Always wait five minutes before any portal action.",
           "rationale": "Wrong duration and wrong criterion. The pause is brief and conditional."
         },
-        "Ask yourself: do I know what this action does, on this customer, in this situation? If yes, click. If no, escalate or clarify.",
+        "Ask yourself: do I know what this action does.",
         {
           "label": "Ask Huntress support before any approval.",
           "rationale": "Misuses support. Most approvals are routine; the pause is for the unsure ones."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The pause is the practice. Recognising the reflex matters more than memorising any specific rule."
+      "explanation": "On this customer, in this situation? If yes, click. If no, escalate or clarify. The pause is the practice. Recognising the reflex matters more than memorising any specific rule."
     },
     {
       "id": "senior-annoyance",
@@ -117,14 +117,14 @@
           "label": "Only ask via the ticket comment thread, never face-to-face.",
           "rationale": "Wrong channel rule. The lesson allows senior, SOC reply, or runbook re-read."
         },
-        "Almost never true. The senior is far more annoyed by recovery work from a wrong click than by a clarifying question. Asking is cheap; recovery is not.",
+        "Almost never true.",
         {
           "label": "You should never ask the senior and always figure it out yourself.",
           "rationale": "Inverts the lesson entirely."
         }
       ],
       "correct": 2,
-      "explanation": "The senior's actual preference inverts the tech's assumption. Recovery work from a wrong click costs more than a thirty-second question."
+      "explanation": "The senior is far more annoyed by recovery work from a wrong click than by a clarifying question. Asking is cheap; recovery is not. The senior's actual preference inverts the tech's assumption. Recovery work from a wrong click costs more than a thirty-second question."
     },
     {
       "id": "speed-misconception",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "A new tech says: \"Speed is the goal. Slow-and-correct will get me flagged for being too slow.\" What is the right correction?",
       "choices": [
-        "Speed at the cost of correctness on a security platform is the failure mode. Slow-and-correct beats fast-and-wrong every time.",
+        "Speed at the cost of correctness on a security platform is the failure mode.",
         {
           "label": "Speed is the goal, but only on Lows. Highs and Criticals deserve more care.",
           "rationale": "Wrong calibration. All severity classes need the do-I-understand-this check."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Queue pressure is real, but correctness is the metric the customer feels. The mismatch is what the reflex exploits."
+      "explanation": "Slow-and-correct beats fast-and-wrong every time. Queue pressure is real, but correctness is the metric the customer feels. The mismatch is what the reflex exploits."
     },
     {
       "id": "pattern-compounding",
@@ -161,7 +161,7 @@
           "label": "Because Huntress raises the customer's subscription fee if click-and-see patterns are detected.",
           "rationale": "Wrong on the commercial model. Click-and-see is not a billing event."
         },
-        "A single bad click is recoverable. The pattern is not. Once flagged, the tech's reliability drops, the senior's trust drops, and the runway shortens.",
+        "A single bad click is recoverable.",
         {
           "label": "Each individual click is irreversible by design.",
           "rationale": "Most portal actions are reversible at some cost. The lesson's point is the pattern, not individual reversibility."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The compounding is the third reason careers end. A single miss is a learning moment; a pattern of misses is a reliability signal."
+      "explanation": "The pattern is not. Once flagged, the tech's reliability drops, the senior's trust drops, and the runway shortens. The compounding is the third reason careers end. A single miss is a learning moment; a pattern of misses is a reliability signal."
     },
     {
       "id": "alternative-order",
@@ -204,14 +204,14 @@
           "label": "Click approve to see if it breaks the customer's legal software.",
           "rationale": "The verbatim reflex this lesson exists to prevent."
         },
-        "Pause and reply to the SOC: the path matches an installed legal-industry software vendor for this customer. Confirm the binary classification is malicious despite the legitimate-vendor path, before approving.",
+        "Pause and reply to the SOC.",
         {
           "label": "Close the incident as benign because the path looks like legitimate business software.",
           "rationale": "Worse than click-and-see. Overriding the SOC's High-severity Recommendation on path alone is the cardinal mistake."
         }
       ],
       "correct": 2,
-      "explanation": "Twenty seconds to write the question. One minute to wait. The analyst confirms (binary tampered, malicious despite the path) and you proceed with confidence, or clarifies and you avoid a customer-impact mistake."
+      "explanation": "The path matches an installed legal-industry software vendor for this customer. Confirm the binary classification is malicious despite the legitimate-vendor path, before approving. Twenty seconds to write the question. One minute to wait. The analyst confirms (binary tampered, malicious despite the path) and you proceed with confidence, or clarifies and you avoid a customer-impact mistake."
     },
     {
       "id": "post-clarification",

@@ -61,9 +61,9 @@
       "difficulty": "medium",
       "prompt": "You diagnose an offline agent as 'uninstalled.' What should you do BEFORE re-pushing?",
       "choices": [
-        "Investigate why it was uninstalled (deliberate user/admin removal, deployment-tool cleanup, AV update removing it as a perceived threat, sysprep wipe). If AV removed it, re-install hits the same condition.",
+        "Investigate why it was removed before re-pushing.",
         {
-          "label": "Just re-push the install; that's what uninstalled means.",
+          "label": "Re-push the install immediately; uninstalled means re-push.",
           "rationale": "Shotgun fix. Hits the same failure if the cause is still present."
         },
         {
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Cause-investigation before re-push is the named discipline."
+      "explanation": "Cause-investigation before re-push is the named discipline. Deliberate removal, deployment-tool cleanup, AV removing it as a perceived threat, or sysprep wipe are all plausible. If AV removed it, re-installing hits the same condition."
     },
     {
       "id": "three-offlines-start",
@@ -89,14 +89,14 @@
           "label": "Re-push the install to all three.",
           "rationale": "Three different endpoints, three potentially different causes, one indiscriminate fix."
         },
-        "Run the two-question diagnostic on each (RMM online? Huntress service running?). Categorise before fixing.",
+        "Run the two-question diagnostic on each.",
         {
           "label": "Reboot all three from the RMM.",
           "rationale": "Reboots fix some service-stopped cases by accident; don't help with the other three causes. Heavyweight on a production server."
         }
       ],
       "correct": 1,
-      "explanation": "Two minutes of categorisation saves an hour of misapplied fixes."
+      "explanation": "(RMM online? Huntress service running?). Categorise before fixing. Two minutes of categorisation saves an hour of misapplied fixes."
     },
     {
       "id": "three-causes-action-set",
@@ -105,13 +105,13 @@
       "difficulty": "hard",
       "prompt": "Results: receptionist's workstation powered off (away two weeks). Production server online in RMM, Huntress service running, agent log shows phone-home failures. Executive laptop online in RMM, Huntress service entry missing. What's the action set?",
       "choices": [
-        "Leave the receptionist's workstation (powered off; no action). Treat the production server as network-blocked per lesson 17. Investigate why the executive laptop is uninstalled before re-pushing.",
+        "No-action on the workstation, network-blocked diagnostic on the server, investigate-then-re-push on the laptop.",
         {
-          "label": "Re-push to the executive laptop immediately because at least one of them needs the install.",
+          "label": "Re-push to the executive laptop immediately, then circle back to the other two once the install confirms.",
           "rationale": "You'd want to know why the agent was removed first. AV-removed-it or user-removed-it is plausible on an executive laptop."
         },
         {
-          "label": "Escalate to the senior because three offlines is a lot.",
+          "label": "Escalate to the senior because three offlines across three different cause categories warrants a second opinion.",
           "rationale": "Three offlines on a 200-endpoint customer is well within normal range, and you've categorised them."
         }
       ],
@@ -125,9 +125,9 @@
       "difficulty": "medium",
       "prompt": "Why is 'offline means the agent is broken' called out as a misconception?",
       "choices": [
-        "Most offlines are powered off. Don't reach for a fix before confirming the endpoint is actually up.",
+        "Most offlines are just powered off, not broken.",
         {
-          "label": "Offline is a rare state that rarely happens in practice.",
+          "label": "Offline is a rare state that rarely happens in production environments.",
           "rationale": "Inverts the lesson. Offlines happen routinely."
         },
         {
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Single most common cause and the cheapest to recognise."
+      "explanation": "Single most common cause and the cheapest to recognise. Don't reach for a fix before confirming the endpoint is actually up."
     },
     {
       "id": "shotgun-reinstall",
@@ -149,9 +149,9 @@
       "difficulty": "medium",
       "prompt": "'Service-stopped agents can be fixed by re-installing.' Why is this a misconception?",
       "choices": [
-        "Sometimes it works, but re-installing without knowing why the service stopped is shotgun debugging. The service stopped for a reason; find it.",
+        "The service stopped for a reason; re-installing without finding it is shotgun debugging.",
         {
-          "label": "Re-installing is impossible on a service-stopped state.",
+          "label": "Re-installing is impossible when the service is in a stopped state on the endpoint.",
           "rationale": "The install would run; the underlying cause might still stop the service."
         },
         {
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same family as the uninstalled-re-push-without-cause anti-pattern."
+      "explanation": "Same family as the uninstalled-re-push-without-cause anti-pattern. Sometimes it works, but next time the service stops for the same reason, you're back to square one."
     },
     {
       "id": "whole-site-offline",
@@ -173,7 +173,7 @@
       "difficulty": "medium",
       "prompt": "A whole site shows offline at once. What's the likely cause?",
       "choices": [
-        "Network blocked at the site level (firewall change, ISP outage) until proven otherwise.",
+        "Network blocked at the site level.",
         {
           "label": "All endpoints uninstalled simultaneously.",
           "rationale": "Coincidence at scale is extremely unlikely."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Mass simultaneous offline is the canonical network-level fingerprint."
+      "explanation": "(firewall change, ISP outage) until proven otherwise. Mass simultaneous offline is the canonical network-level fingerprint."
     },
     {
       "id": "routing-to-network-lesson",

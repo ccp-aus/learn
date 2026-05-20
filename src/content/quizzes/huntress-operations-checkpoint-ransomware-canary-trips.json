@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What is a ransomware canary?",
       "choices": [
-        "A decoy file in a plausible-looking location, crafted to look attractive to ransomware's file-walking and encryption logic. Legitimate users and applications generally don't touch it.",
+        "A decoy file in a plausible-looking location.",
         {
           "label": "A real customer data file that Huntress monitors for any access.",
           "rationale": "Wrong. Real customer files aren't the canaries; decoys are. The whole point is that legitimate users have no reason to touch them."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The agent watches for the touch pattern; the SOC raises Critical when it fires."
+      "explanation": "Crafted to look attractive to ransomware's file-walking and encryption logic. Legitimate users and applications generally don't touch it. The agent watches for the touch pattern; the SOC raises Critical when it fires."
     },
     {
       "id": "canary-product-surface",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Where do canaries sit in Huntress's product structure?",
       "choices": [
-        "Inside Managed EDR. The same agent that runs EDR places and watches the canaries; they're an EDR feature, not a separate product surface.",
+        "Inside Managed EDR.",
         {
           "label": "A fourth product surface alongside EDR, ITDR, and SIEM.",
           "rationale": "Wrong on the product structure. Huntress is three surfaces and canaries ride inside EDR."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The temptation to round Huntress up to four surfaces is wrong on the product structure. Canaries are counted inside EDR."
+      "explanation": "The same agent that runs EDR places and watches the canaries; They're an EDR feature, not a separate product surface. The temptation to round Huntress up to four surfaces is wrong on the product structure. Canaries are counted inside EDR."
     },
     {
       "id": "the-reflex",
@@ -61,7 +61,7 @@
       "difficulty": "easy",
       "prompt": "A canary-trip Incident Report lands. What's the reflex per the lesson?",
       "choices": [
-        "See canary trip, isolate host, escalate in parallel. No reading the Evidence first, no calling the user, no checking whether the trip was 'a real one'.",
+        "See canary trip, isolate host, escalate in parallel.",
         {
           "label": "Read the Evidence to confirm the canary trip was a genuine ransomware event before isolating.",
           "rationale": "Named common mistake. Second-guessing the SOC applied to the most time-critical incident type."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The isolation rule applies with extra force on Critical. Isolate first, every time."
+      "explanation": "No reading the Evidence first, no calling the user, no checking whether the trip was 'a real one'. The isolation rule applies with extra force on Critical. Isolate first, every time."
     },
     {
       "id": "why-no-investigate",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Why does the lesson insist on \"don't investigate the canary itself\"?",
       "choices": [
-        "The SOC has already classified the trip as real when they raised it. By the time you've finished a tech-seat investigation, the attacker has had the same minutes to keep encrypting on other hosts.",
+        "The SOC has already classified the trip as real when they raised it.",
         {
           "label": "Investigation is forbidden by Huntress licensing terms.",
           "rationale": "Fabricated licensing claim. The reason is operational, not contractual."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Containment closes the time window. Investigation extends it."
+      "explanation": "By the time you've finished a tech-seat investigation, the attacker has had the same minutes to keep encrypting on other hosts. Containment closes the time window. Investigation extends it."
     },
     {
       "id": "first-action-2am",
@@ -113,7 +113,7 @@
           "label": "Read the Evidence to confirm it's a real ransomware event before isolating.",
           "rationale": "Worst response on the most time-critical incident type."
         },
-        "Isolate SRV-NORTHWIND-FILE-01 via the portal, then call the on-call senior on the runbook's dedicated number, then start the PSA entry.",
+        "Isolate SRV-NORTHWIND-FILE-01 via the portal.",
         {
           "label": "Call the customer's IT manager first to let them know what's happening.",
           "rationale": "Wrong order. Customer call comes after containment and senior awareness."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Containment in under 60 seconds, senior notification in parallel. Documentation immediately after but doesn't delay containment."
+      "explanation": "Then call the on-call senior on the runbook's dedicated number, then start the PSA entry. Containment in under 60 seconds, senior notification in parallel. Documentation immediately after but doesn't delay containment."
     },
     {
       "id": "second-canary",
@@ -133,7 +133,7 @@
       "difficulty": "hard",
       "prompt": "You isolated the file server. Senior is on the phone. They said \"don't touch anything else on Northwind's portal, I'm going to look at the network-level scope.\" Two minutes later a second Critical canary trip lands on SRV-NORTHWIND-APP-02. What do you do?",
       "choices": [
-        "Isolate SRV-NORTHWIND-APP-02 immediately, confirming with the senior in real time as you do it: \"second canary just fired on SRV-NORTHWIND-APP-02, isolating now.\"",
+        "Isolate SRV-NORTHWIND-APP-02 immediately, confirming with the senior in real time as you do it.",
         {
           "label": "Wait for the senior to explicitly tell you to isolate this one too, they said 'don't touch anything else'.",
           "rationale": "Misreads the senior's direction. 'Don't touch anything else' was about not freelancing outside the containment workflow; a new Critical canary IS the containment workflow."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The reflex doesn't pause for per-host permission. Confirm-as-you-act, not ask-then-act."
+      "explanation": "\"second canary just fired on SRV-NORTHWIND-APP-02, isolating now.\" The reflex doesn't pause for per-host permission. Confirm-as-you-act, not ask-then-act."
     },
     {
       "id": "customer-pushback",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "The customer's IT contact phones in mid-response: \"Un-isolate that file server now, we're sure that canary trip was a mistake.\" What do you do?",
       "choices": [
-        "Tell the customer the isolation stays until cleared by the senior leading the response, not by customer preference. Escalate the request to the senior as a customer-relationship piece.",
+        "Tell the customer the isolation stays until cleared by the senior leading the response.",
         {
           "label": "Un-isolate the host, the customer's IT is the authoritative voice on their own environment.",
           "rationale": "Wrong. Customer preference doesn't override the SOC's Critical classification."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The isolation stays until cleared by the senior, not by the customer."
+      "explanation": "Not by customer preference. Escalate the request to the senior as a customer-relationship piece. The isolation stays until cleared by the senior, not by the customer."
     },
     {
       "id": "why-canaries-trip-early",

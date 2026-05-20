@@ -15,11 +15,11 @@
       "choices": [
         "Registrar transfer.",
         "DNS host transfer.",
-        "Record-level migration — only the A (and AAAA, if present) records change to point at the new web host. The registrar, DNS host, and mail host stay put.",
+        "Record-level migration.",
         "All three transfers; moving the website implies moving everything."
       ],
       "correct": 2,
-      "explanation": "Web host migration changes the A/AAAA values; nothing else. Mail at M365 stays untouched, the registrar doesn't change, the DNS host doesn't change. The 'move means everything' assumption is the documented misconception."
+      "explanation": "Only the A (and AAAA, if present) records change to point at the new web host. The registrar, DNS host, and mail host stay put. Web host migration changes the A/AAAA values; nothing else. Mail at M365 stays untouched, the registrar doesn't change, the DNS host doesn't change. The 'move means everything' assumption is the documented misconception."
     },
     {
       "id": "ck-three-transfers-ambiguous-request",
@@ -29,12 +29,12 @@
       "prompt": "A client says 'we're consolidating with one provider — they sell hosting, DNS, and email.' What does that imply you'll touch, before you've clarified?",
       "choices": [
         "All four layers (registrar, DNS host, web host, mail host) will likely change.",
-        "Three layers (DNS host, web host, mail host) likely change; the registrar might or might not. Confirm whether the new provider is also taking over the domain registration before quoting.",
+        "Three layers (DNS host, web host, mail host) likely change;",
         "Only the web host changes; consolidation never touches mail or DNS.",
         "Refuse — consolidation is too risky to attempt."
       ],
       "correct": 1,
-      "explanation": "Hosting/DNS/email consolidation usually means three layer changes (DNS host, web host, mail host). Whether the registrar moves too is a separate question. 'All four' isn't safe to assume; many consolidations keep the registrar with the existing provider for cost or lock-in reasons. Always confirm the registrar layer explicitly before quoting."
+      "explanation": "The registrar might or might not. Confirm whether the new provider is also taking over the domain registration before quoting. Hosting/DNS/email consolidation usually means three layer changes (DNS host, web host, mail host). Whether the registrar moves too is a separate question. 'All four' isn't safe to assume; many consolidations keep the registrar with the existing provider for cost or lock-in reasons. Always confirm the registrar layer explicitly before quoting."
     },
     {
       "id": "ck-three-transfers-sequencing",
@@ -44,12 +44,12 @@
       "prompt": "A client wants all four layers moved to a new all-in-one provider. What's the safer approach?",
       "choices": [
         "Do everything at once on cutover day for minimum disruption.",
-        "Sequence: DNS host transfer first (dual-provisioned), then record-level migrations for web and mail, then registrar transfer. Verify after each step.",
+        "Sequence: DNS host transfer first (dual-provisioned).",
         "Registrar transfer first; the others follow automatically.",
         "Refuse; the layers can't all move at once."
       ],
       "correct": 1,
-      "explanation": "Parallel execution means a failure during cutover takes more time to diagnose. Sequencing with verification between each step catches problems early. Each layer is independent; registrar transfer doesn't auto-move DNS or hosting."
+      "explanation": "Then record-level migrations for web and mail, then registrar transfer. Verify after each step. Parallel execution means a failure during cutover takes more time to diagnose. Sequencing with verification between each step catches problems early. Each layer is independent; registrar transfer doesn't auto-move DNS or hosting."
     }
   ]
 }

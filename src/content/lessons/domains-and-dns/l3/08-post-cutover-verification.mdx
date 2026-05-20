@@ -54,6 +54,123 @@ Verification is the difference between *I changed the record* and *the change wo
   </Step>
 </StepThrough>
 
+## Practice: the first two verification steps
+
+You just changed an A record for a client's website migration. Walk through the verification sequence.
+
+<Console
+  client:load
+  title="post-cutover-verify"
+  steps={[
+    {
+      narration: "Step 1: confirm the new value is live at the authoritative server.",
+      variants: {
+        bash: {
+          choices: [
+            "dig A example.com @ns1.example.com +noall +answer",
+            {
+              label: "dig A example.com +short",
+              rationale: "Without @server, dig queries your default resolver. You need the authoritative to confirm the change saved, not what your cache holds.",
+            },
+            {
+              label: "curl -I https://example.com",
+              rationale: "curl tests the web server, not the DNS record. Step 1 is confirming DNS at the authoritative before anything else.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    300    IN    A    198.51.100.42",
+          comment: "New IP at the authoritative with the lowered TTL (300). Change saved correctly.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A -Server ns1.example.com",
+            {
+              label: "Resolve-DnsName example.com -Type A",
+              rationale: "Without -Server, this queries the system resolver. You need the authoritative to confirm the save.",
+            },
+            {
+              label: "Invoke-WebRequest https://example.com -Method Head",
+              rationale: "Tests the web server, not the DNS record. Verify DNS first.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 300\nIPAddress : 198.51.100.42",
+          comment: "Authoritative returns the new IP with TTL 300. Change is correct at the source.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=A example.com ns1.example.com",
+            {
+              label: "nslookup example.com",
+              rationale: "Queries the system resolver. You need the authoritative server (ns1.example.com) to confirm the save.",
+            },
+            {
+              label: "ping example.com",
+              rationale: "ping resolves and tests reachability but doesn't tell you which server answered the DNS query.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  ns1.example.com\nAddress: 203.0.113.53\n\nName:    example.com\nAddress: 198.51.100.42",
+          comment: "New IP confirmed at the authoritative. Step 1 passed.",
+        },
+      },
+    },
+    {
+      narration: "Step 2: check a public resolver. Compare what the internet sees against what the authoritative holds.",
+      variants: {
+        bash: {
+          choices: [
+            "dig A example.com @1.1.1.1 +noall +answer",
+            {
+              label: "dig A example.com @ns1.example.com +noall +answer",
+              rationale: "You already checked the authoritative. Now check a public resolver (1.1.1.1 or 8.8.8.8) to see what downstream caches hold.",
+            },
+            {
+              label: "dig A example.com +trace",
+              rationale: "+trace walks the full delegation chain. Useful for delegation problems but overkill for a standard propagation check. A single public-resolver query is faster.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    247    IN    A    198.51.100.42",
+          comment: "Public resolver has the new IP with 247 seconds of TTL remaining. Propagation complete for this resolver. Spot-check a second (8.8.8.8) to confirm.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A -Server 1.1.1.1",
+            {
+              label: "Resolve-DnsName example.com -Type A -Server ns1.example.com",
+              rationale: "Already checked the authoritative. Compare against a public resolver now.",
+            },
+            {
+              label: "Clear-DnsClientCache; Resolve-DnsName example.com -Type A",
+              rationale: "Clears your local cache then queries the system resolver. Better to query a known public resolver directly for a clean comparison.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 247\nIPAddress : 198.51.100.42",
+          comment: "Cloudflare's resolver has the new IP. Propagation is landing. Check 8.8.8.8 as a second data point.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=A example.com 1.1.1.1",
+            {
+              label: "nslookup -type=A example.com ns1.example.com",
+              rationale: "Already verified the authoritative. Compare against a public resolver.",
+            },
+            {
+              label: "ipconfig /flushdns",
+              rationale: "Flushes your local cache. Doesn't tell you what public resolvers hold.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  one.one.one.one\nAddress: 1.1.1.1\n\nNon-authoritative answer:\nName:    example.com\nAddress: 198.51.100.42",
+          comment: "Public resolver shows the new IP. Propagation is complete for Cloudflare. Cross-check with 8.8.8.8 to confirm.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## What this is NOT
 
 - "The panel saved the change, so it's done." Saving and propagating are different events. Verify after both.

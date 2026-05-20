@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Which of these is a legitimate reason to reply to a SOC analyst on an Incident Report?",
       "choices": [
-        "You learned new customer-context during triage that the analyst did not have (e.g., IT confirms an automated process explains the flagged event).",
+        "You learned new customer-context during triage that the analyst did not have.",
         {
           "label": "You think the SOC got the classification wrong and want them to reclassify.",
           "rationale": "Without new signal, that is relitigating the classification."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "New customer-context is the first of the three legitimate reply triggers."
+      "explanation": "(e.g., IT confirms an automated process explains the flagged event). New customer-context is the first of the three legitimate reply triggers."
     },
     {
       "id": "framing-properties",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Which set of properties describes a good SOC reply?",
       "choices": [
-        "Factually anchored; scoped to one question; customer-context-bringing, not analyst-correcting; colleague-to-colleague tone.",
+        "Factually anchored; scoped to one question;",
         {
           "label": "Long, deferential, comprehensive across multiple incidents.",
           "rationale": "Scoped to one question is the discipline, and tone is colleague-to-colleague, not deferential."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Four properties: factually anchored, scoped to one question, context-bringing not correcting, colleague-to-colleague."
+      "explanation": "Customer-context-bringing, not analyst-correcting; colleague-to-colleague tone. Four properties: factually anchored, scoped to one question, context-bringing not correcting, colleague-to-colleague."
     },
     {
       "id": "multi-question-mistake",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Why is bundling multiple questions into one reply a named mistake?",
       "choices": [
-        "Slows the SOC, who has to address each, and loses the thread. One question per reply.",
+        "Slows the SOC, who has to address each, and loses the thread.",
         {
           "label": "The portal cannot display multi-question replies.",
           "rationale": "No such platform constraint."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "One question per reply. If you have three, decide which is priority and ask that one."
+      "explanation": "One question per reply. One question per reply. If you have three, decide which is priority and ask that one."
     },
     {
       "id": "exclusion-wrong-channel",
@@ -113,7 +113,7 @@
           "label": "Productive disagreement that the SOC welcomes.",
           "rationale": "The SOC welcomes clarifying questions and new context, not litigation without signal."
         },
-        "Second-guessing the SOC expressed via the reply surface. Relitigating the classification without new signal.",
+        "Second-guessing the SOC expressed via the reply surface.",
         {
           "label": "A standard part of every reply thread.",
           "rationale": "Inverts the discipline."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Without new information, 'I think you got this wrong' is relitigating. If you have new info, frame it as context."
+      "explanation": "Relitigating the classification without new signal. Without new information, 'I think you got this wrong' is relitigating. If you have new info, frame it as context."
     },
     {
       "id": "cross-surface-finding",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "You spot a mailbox-level forwarder while removing the recommended inbox rule. The analyst did not mention it. What is the right move?",
       "choices": [
-        "Reply with the finding for the analyst to weigh. Cross-surface findings are one of the three legitimate reply triggers.",
+        "Reply with the finding for the analyst to weigh.",
         {
           "label": "Remove the forwarder yourself without telling the analyst.",
           "rationale": "Acts outside the Recommendation scope without surfacing the finding."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Cross-surface findings are the third legitimate reply trigger. Surface them for the analyst to weigh."
+      "explanation": "Cross-surface findings are one of the three legitimate reply triggers. Cross-surface findings are the third legitimate reply trigger. Surface them for the analyst to weigh."
     },
     {
       "id": "three-exchanges",
@@ -185,14 +185,14 @@
           "label": "No. Execute the Recommendation as written.",
           "rationale": "The documented-travel detail is new signal the analyst may want to weigh."
         },
-        "Yes. Factually-anchored note: \"Customer's IT confirms documented business travel to Vietnam; sign-in matches travel. Inbox rule may still be suspicious independently; please advise.\"",
+        "Yes. Factually-anchored note.",
         {
           "label": "Hold all response steps until the analyst replies.",
           "rationale": "The inbox rule is suspicious independent of location. Execute immediate actions while the question is in flight."
         }
       ],
       "correct": 1,
-      "explanation": "New customer-context, one question, scoped, factual. Execute immediate actions in parallel."
+      "explanation": "\"Customer's IT confirms documented business travel to Vietnam; Sign-in matches travel. Inbox rule may still be suspicious independently; please advise.\" New customer-context, one question, scoped, factual. Execute immediate actions in parallel."
     },
     {
       "id": "clean-close",
@@ -201,7 +201,7 @@
       "difficulty": "easy",
       "prompt": "The analyst replies with a clear answer. You agree and will proceed. What is the right move?",
       "choices": [
-        "Proceed with the Recommendation. Close the reply thread cleanly: \"Got it, proceeding. Thanks for the quick turn.\"",
+        "Proceed with the Recommendation.",
         {
           "label": "Reply again asking if they are sure.",
           "rationale": "Relitigating after a clear answer. The analyst's response resolved the question."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Act on the answer. Close the thread with a brief acknowledgement. The analyst does not have to wonder if more is needed."
+      "explanation": "Close the reply thread cleanly: \"Got it, proceeding. Thanks for the quick turn.\" Act on the answer. Close the thread with a brief acknowledgement. The analyst does not have to wonder if more is needed."
     },
     {
       "id": "reply-vs-not-match",

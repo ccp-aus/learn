@@ -46,6 +46,70 @@ flowchart LR
 - **`p=quarantine`**: failing mail goes to spam folders. Spoofing visibly degraded; legitimate mail that fails for unexpected reasons also lands in spam, potentially missed.
 - **`p=reject`**: failing mail bounces. Spoofing blocked at the SMTP layer; legitimate mail that fails for any reason is gone, with bounces visible to the sender.
 
+## Practice: check a domain's DMARC
+
+Before adding a DMARC record, check whether one exists already.
+
+<Console
+  client:load
+  title="dmarc-check"
+  steps={[
+    {
+      narration: "Look up the DMARC record. It lives at a specific subdomain.",
+      variants: {
+        bash: {
+          choices: [
+            "dig TXT _dmarc.example.com +short",
+            {
+              label: "dig TXT example.com +short",
+              rationale: "DMARC lives at _dmarc.example.com, not at the apex. The apex TXT records are SPF, verification tokens, and other things.",
+            },
+            {
+              label: "dig DMARC example.com",
+              rationale: "DMARC is not a DNS record type. It's a TXT record at the _dmarc subdomain.",
+            },
+          ],
+          correctIndex: 0,
+          response: "\"v=DMARC1; p=none; rua=mailto:dmarc-reports@example.com\"",
+          comment: "DMARC exists with p=none (monitor-only). Reports go to dmarc-reports@example.com. No enforcement yet.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName _dmarc.example.com -Type TXT | Select-Object -ExpandProperty Strings",
+            {
+              label: "Resolve-DnsName example.com -Type TXT",
+              rationale: "Apex TXT gives you SPF and verification tokens. DMARC lives at _dmarc.example.com.",
+            },
+            {
+              label: "Resolve-DnsName _dmarc.example.com -Type MX",
+              rationale: "DMARC is a TXT record, not MX. Query -Type TXT at _dmarc.example.com.",
+            },
+          ],
+          correctIndex: 0,
+          response: "v=DMARC1; p=none; rua=mailto:dmarc-reports@example.com",
+          comment: "p=none means monitoring only. Reports are flowing to dmarc-reports@example.com. Ramping to quarantine or reject is the senior's call.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=TXT _dmarc.example.com",
+            {
+              label: "nslookup -type=TXT example.com",
+              rationale: "DMARC is at _dmarc.example.com, not the apex.",
+            },
+            {
+              label: "nslookup _dmarc.example.com",
+              rationale: "Without -type=TXT, nslookup tries an A lookup on _dmarc.example.com, which doesn't exist. Specify -type=TXT.",
+            },
+          ],
+          correctIndex: 0,
+          response: "_dmarc.example.com    text = \"v=DMARC1; p=none; rua=mailto:dmarc-reports@example.com\"",
+          comment: "DMARC in monitoring mode (p=none). Reports go to the specified address. The ramp to enforcement is escalation.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## Why ramping is design, not helpdesk
 
 <Callout type="warn" title="The escalation line">

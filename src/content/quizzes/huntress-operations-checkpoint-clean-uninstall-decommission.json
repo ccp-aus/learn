@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What is the uninstall key?",
       "choices": [
-        "An organisation-specific credential exposed under the customer's organisation Settings in the Huntress portal; authorises the agent to uninstall cleanly. Per-organisation, not per-endpoint.",
+        "An organisation-specific credential exposed under the customer's organisation Settings in the Huntress portal;",
         {
           "label": "A one-time-use code generated per endpoint.",
           "rationale": "The key is per-org, not per-endpoint."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Per-organisation credential, lives in the portal's organisation Settings."
+      "explanation": "Authorises the agent to uninstall cleanly. Per-organisation, not per-endpoint. Per-organisation credential, lives in the portal's organisation Settings."
     },
     {
       "id": "why-gated",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "'Skipping the uninstall key and running the installer's uninstall mode without it' — what's the consequence?",
       "choices": [
-        "The gated uninstall either fails or removes the binary without cleanly deregistering. The portal then shows a stale online agent that has actually gone away, or a partial-uninstall state that confuses the next tech.",
+        "The gated uninstall either fails or removes the binary without cleanly deregistering.",
         {
           "label": "Nothing; the uninstall succeeds cleanly without the key.",
           "rationale": "Inverts the design."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Both ends of the uninstall (endpoint and portal) need to land cleanly; the key is what makes both happen."
+      "explanation": "The portal then shows a stale online agent that has actually gone away, or a partial-uninstall state that confuses the next tech. Both ends of the uninstall (endpoint and portal) need to land cleanly; the key is what makes both happen."
     },
     {
       "id": "credential-handling",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'pasting the uninstall key into chat or a customer email' called out as wrong?",
       "choices": [
-        "Same family as the install-time org-key mistake. The key is a credential; treat it as one.",
+        "Same family as the install-time org-key mistake.",
         {
           "label": "Chat platforms are insecure but email is fine.",
           "rationale": "Both surfaces are wrong."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Credential discipline applies; use the runbook's documented surface."
+      "explanation": "The key is a credential; treat it as one. Credential discipline applies; use the runbook's documented surface."
     },
     {
       "id": "uninstall-order",
@@ -130,14 +130,14 @@
           "label": "Run the uninstall via RMM with the organisation's uninstall key.",
           "rationale": "Whether the agent still exists on the wiped laptop depends on what the wipe touched. The portal will tell you in 30 seconds."
         },
-        "Check the portal first. If the agent is still registered, run the documented uninstall with the org key. If the agent isn't registered, the wipe already removed it; the laptop will need a fresh install when redeployed.",
+        "Check the portal first.",
         {
           "label": "Skip the uninstall; the laptop was wiped, the agent is gone.",
           "rationale": "Wipes vary; some leave services in place, some don't."
         }
       ],
       "correct": 1,
-      "explanation": "Two minutes of checking saves a redundant uninstall attempt and tells you what the next step actually is."
+      "explanation": "If the agent is still registered, run the documented uninstall with the org key. If the agent isn't registered, the wipe already removed it; the laptop will need a fresh install when redeployed. Two minutes of checking saves a redundant uninstall attempt and tells you what the next step actually is."
     },
     {
       "id": "remove-from-portal",
@@ -150,14 +150,14 @@
           "label": "Click the 'remove from portal' / 'delete agent' option in the Agents view.",
           "rationale": "Some MSPs treat 'delete from portal' as a senior-only destructive admin action."
         },
-        "Confirm the runbook's policy on removing decommissioned agents from the portal view. If it's in your scope, do it; if not, bump.",
+        "Confirm the runbook's policy on removing decommissioned agents from the portal view.",
         {
           "label": "Ignore the request; the agent is offline, the customer is happy.",
           "rationale": "The customer asked for a clean view; the action is small but whether you can do it is what's worth checking."
         }
       ],
       "correct": 1,
-      "explanation": "The runbook decides whether this is helpdesk scope or senior scope."
+      "explanation": "If it's in your scope, do it; if not, bump. The runbook decides whether this is helpdesk scope or senior scope."
     },
     {
       "id": "resistant-agent",
@@ -166,7 +166,7 @@
       "difficulty": "medium",
       "prompt": "The agent resists the uninstall even with the documented manual command. What's the guidance?",
       "choices": [
-        "Investigate the cause (tamper-protection, permissions, AV interference) before forcing a retry. Bump if you can't identify the cause.",
+        "Investigate the cause.",
         {
           "label": "Force a retry every 10 minutes until it takes.",
           "rationale": "Brute-force without cause-investigation."
@@ -181,7 +181,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Cause-investigation before brute-force; senior bump if cause isn't findable."
+      "explanation": "(tamper-protection, permissions, AV interference) before forcing a retry. Bump if you can't identify the cause. Cause-investigation before brute-force; senior bump if cause isn't findable."
     },
     {
       "id": "abandoned-offline",
@@ -190,7 +190,7 @@
       "difficulty": "medium",
       "prompt": "'Leaving the endpoint in the portal as offline forever because nobody clicked through the uninstall' — what's the issue?",
       "choices": [
-        "The agent is still installed, still trying to phone home, still occupying a license slot. The decommission isn't real until the agent is off.",
+        "The agent is still installed, still trying to phone home.",
         {
           "label": "Abandoned offline agents auto-delete after 30 days.",
           "rationale": "Not a real platform behaviour."
@@ -205,7 +205,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Offline in the portal isn't decommissioned; the agent is still on the endpoint."
+      "explanation": "Still occupying a license slot. The decommission isn't real until the agent is off. Offline in the portal isn't decommissioned; the agent is still on the endpoint."
     },
     {
       "id": "customer-keep-for-next",

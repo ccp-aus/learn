@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What's the cardinal close-out trap?",
       "choices": [
-        "Closing the Huntress incident and walking away — \"closed in Huntress, forgot the PSA.\" The Huntress side feels like the real work; the PSA close feels like paperwork. Both are required.",
+        "Closing the Huntress incident and walking away.",
         {
           "label": "Approving a remediation without reading the Evidence.",
           "rationale": "Different failure; not this lesson's trap."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Both systems hold the work. Closing one without the other is the drift trap named in the helpdesk-traps lesson."
+      "explanation": "\"closed in Huntress, forgot the PSA.\" The Huntress side feels like the real work; The PSA close feels like paperwork. Both are required. Both systems hold the work. Closing one without the other is the drift trap named in the helpdesk-traps lesson."
     },
     {
       "id": "checklist-order",
@@ -53,7 +53,7 @@
       "difficulty": "medium",
       "prompt": "Why does PSA closure matter at all if Huntress already records the security action?",
       "choices": [
-        "The PSA holds the time, the billing, and the customer-facing record. Auditors don't always have access to Huntress; the PSA is usually the canonical record.",
+        "The PSA holds the time, the billing, and the customer-facing record.",
         {
           "label": "Huntress automatically purges incident data after 30 days; the PSA is the archive.",
           "rationale": "Not the reason. The reason is auditing, billing, and customer-record."
@@ -68,7 +68,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "PSA is the canonical MSP-side record. Auditors and billing reads from the PSA, not from Huntress."
+      "explanation": "Auditors don't always have access to Huntress; the PSA is usually the canonical record. PSA is the canonical MSP-side record. Auditors and billing reads from the PSA, not from Huntress."
     },
     {
       "id": "generic-category",
@@ -125,14 +125,14 @@
           "label": "Close the PSA ticket as \"unable to locate.\"",
           "rationale": "Closing without investigating could hide real work that needed doing."
         },
-        "Open the PSA fully. Read who created it, when, why. Search Huntress for the host's recent incidents, not just the referenced ID. Reconcile based on what you find, then close cleanly.",
+        "Open the PSA fully. Read who created it, when, why.",
         {
           "label": "Bump to senior immediately.",
           "rationale": "Defensible but premature. The investigation is in scope for a tech; senior would ask what you already found."
         }
       ],
       "correct": 1,
-      "explanation": "The integration may have closed an old incident with a different ID; the typed reference may have a typo. Investigate first."
+      "explanation": "Search Huntress for the host's recent incidents, not just the referenced ID. Reconcile based on what you find, then close cleanly. The integration may have closed an old incident with a different ID; the typed reference may have a typo. Investigate first."
     },
     {
       "id": "missing-integration",
@@ -141,7 +141,7 @@
       "difficulty": "medium",
       "prompt": "The PSA ticket for the incident doesn't exist and no integration is in place to auto-create one. What's the recommendation?",
       "choices": [
-        "Could be a one-off integration failure or a customer with different PSA mapping. Bump rather than create-from-scratch on customers you don't know the conventions for.",
+        "Could be a one-off integration failure or a customer with different PSA mapping.",
         {
           "label": "Create a PSA ticket from scratch using your best guess.",
           "rationale": "Creates noise if your guess differs from the customer's PSA structure."
@@ -156,7 +156,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Don't invent PSA structure for customers you don't know. Bump."
+      "explanation": "Bump rather than create-from-scratch on customers you don't know the conventions for. Don't invent PSA structure for customers you don't know. Bump."
     },
     {
       "id": "stale-drift",
@@ -165,7 +165,7 @@
       "difficulty": "medium",
       "prompt": "You spot drift between a closed Huntress incident and an open PSA ticket from three weeks ago. What's the move?",
       "choices": [
-        "Drift gets cleaned up when you find it, not \"next time.\" A drifted ticket from three weeks ago is harder to reconcile than one from three minutes ago.",
+        "Drift gets cleaned up when you find it.",
         {
           "label": "Old drift is fine to leave; the customer report is already out.",
           "rationale": "Old drift means worse reconstruction work and worse audit trail."
@@ -180,7 +180,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Reconcile when found. Cost grows with age."
+      "explanation": "Not \"next time.\" A drifted ticket from three weeks ago is harder to reconcile than one from three minutes ago. Reconcile when found. Cost grows with age."
     },
     {
       "id": "missing-category",

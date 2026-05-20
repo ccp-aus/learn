@@ -13,9 +13,9 @@
       "difficulty": "easy",
       "prompt": "How is this training organised?",
       "choices": [
-        "Short lessons grouped into topics, with a checkpoint between topics and a single final scenario assessment at the end.",
+        "Short lessons grouped into topics, with checkpoints and a final assessment.",
         {
-          "label": "Three courses (l1, l2, l3) with weekly cohorts.",
+          "label": "Three courses (l1, l2, l3) with weekly cohorts and scheduled deadlines.",
           "rationale": "Self-paced, not cohort-based."
         },
         {
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Topics of short lessons with checkpoints and a final scenario assessment."
+      "explanation": "Short lessons grouped into topics, with a checkpoint between topics and a single final scenario assessment at the end."
     },
     {
       "id": "final-sign-off",
@@ -37,10 +37,10 @@
       "difficulty": "medium",
       "prompt": "\"The final assessment IS the sign-off to work live tickets.\" Why is that wrong?",
       "choices": [
-        "The final is a recommendation of readiness, not a sign-off. Your MSP has its own shadow-and-review process.",
+        "It's a recommendation of readiness, not a sign-off. The MSP still owns sign-off.",
         {
-          "label": "Because the assessment is too easy to count as a sign-off.",
-          "rationale": "The issue is what kind of input the score is."
+          "label": "Because the assessment is too easy and too short to count as a real sign-off.",
+          "rationale": "The issue is what kind of input the score is, not difficulty."
         },
         {
           "label": "Because Huntress runs the assessment and your MSP isn't involved.",
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "LMS recommendation vs. MSP sign-off. The two layers don't substitute for each other."
+      "explanation": "The final is a recommendation of readiness. Your MSP has its own shadow-and-review process; the two layers don't substitute for each other."
     },
     {
       "id": "final-what-you-tried",
@@ -61,22 +61,22 @@
       "difficulty": "easy",
       "prompt": "Which field of a questions-list entry pulls the most weight, and why?",
       "choices": [
-        "\"What you tried.\" It blocks trivial questions, gives the senior usable context, and builds the habit of trying before asking.",
+        "\"What you tried.\" It blocks trivial questions and gives the senior usable context.",
         {
           "label": "\"Where.\" Without the lesson number the senior can't look anything up.",
           "rationale": "Useful but not load-bearing."
         },
         {
-          "label": "\"What you didn't understand.\"",
+          "label": "\"What you didn't understand.\" It forces the learner to articulate the gap clearly.",
           "rationale": "Necessary, but \"what you tried\" pulls the most weight."
         },
         {
-          "label": "The timestamp.",
+          "label": "The timestamp, so the senior can correlate questions with lesson progress.",
           "rationale": "Not a recommended field."
         }
       ],
       "correct": 0,
-      "explanation": "Three benefits in one line."
+      "explanation": "Three benefits in one field: blocks trivial questions, gives the senior usable context, and builds the habit of trying before asking."
     },
     {
       "id": "final-ceiling-percent",
@@ -86,21 +86,21 @@
       "prompt": "Roughly what percentage of daily Huntress ticket volume does the helpdesk tech handle independently after this course?",
       "choices": [
         {
-          "label": "About 50%.",
+          "label": "About 50%, with the other half escalated to a senior.",
           "rationale": "Understates the role."
         },
-        "About 95% — the remaining 5% (Critical investigation, detection tuning, commercial decisions, irreversible policy changes) escalates.",
+        "About 95%. The remaining 5% escalates.",
         {
-          "label": "100%.",
+          "label": "100%, once you finish all three course levels.",
           "rationale": "The 5% escalates regardless of training."
         },
         {
-          "label": "About 25%.",
+          "label": "About 25%, since most tickets need senior review.",
           "rationale": "Inverts the ceiling intent."
         }
       ],
       "correct": 1,
-      "explanation": "95% in scope; the 5% above the ceiling stays escalated."
+      "explanation": "95% in scope. The remaining 5% (Critical investigation, detection tuning, commercial decisions, irreversible policy changes) stays escalated."
     },
     {
       "id": "final-two-question-test",
@@ -109,13 +109,13 @@
       "difficulty": "medium",
       "prompt": "The two-question test that holds the escalation ceiling together asks what?",
       "choices": [
-        "Is this reversible, and do I understand why it's the right action? If either answer is no, escalate.",
+        "Is this reversible, and do I understand why it's the right action?",
         {
-          "label": "Is this Critical, and has the SOC closed the incident?",
+          "label": "Is this Critical, and has the SOC already closed the incident?",
           "rationale": "Severity isn't the ceiling test."
         },
         {
-          "label": "Will the customer notice, and will my senior approve?",
+          "label": "Will the customer notice the change, and will my senior approve it?",
           "rationale": "Misframes the test as social."
         },
         {
@@ -134,12 +134,12 @@
       "prompt": "How does Huntress primarily differ from a traditional anti-virus product?",
       "choices": [
         {
-          "label": "Huntress runs on more operating systems.",
+          "label": "Huntress runs on more operating systems than most AV products do.",
           "rationale": "OS coverage isn't the primary difference."
         },
-        "Huntress collects telemetry, the SOC analyses and recommends, and the tech actions — while AV blocks autonomously based on signatures.",
+        "The SOC analyses telemetry and recommends; the tech actions it.",
         {
-          "label": "Huntress quarantines files faster.",
+          "label": "Huntress quarantines files faster than signature-based AV can.",
           "rationale": "Huntress mostly does not autonomously quarantine."
         },
         {
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Notify vs. block, SOC-analyst writeup vs. signatures."
+      "explanation": "AV blocks autonomously based on signatures. Huntress collects telemetry, the SOC analyses and recommends, and the tech actions. Notify-and-recommend vs. block."
     },
     {
       "id": "final-soc-pre-handoff",
@@ -182,21 +182,21 @@
       "prompt": "A peer closes an EDR Incident Report as benign because the activity \"looks legitimate\" to them, with no new signal. What class of mistake is this?",
       "choices": [
         {
-          "label": "Standard triage.",
+          "label": "Standard triage; the tech is just applying their own judgement.",
           "rationale": "Overriding the SOC's disposition isn't standard triage."
         },
-        "Second-guessing the SOC — unilateral disagreement without new signal.",
+        "Second-guessing the SOC, disagreeing without new signal.",
         {
-          "label": "Customer comms — informing the customer the SOC was wrong.",
+          "label": "Customer comms, informing the customer the SOC was wrong.",
           "rationale": "Comms isn't the action being described."
         },
         {
-          "label": "Following the keystone rule.",
+          "label": "Following the keystone rule as intended by the training.",
           "rationale": "Inverted; the keystone says you don't do this."
         }
       ],
       "correct": 1,
-      "explanation": "The cardinal mistake."
+      "explanation": "Unilateral disagreement without new signal is second-guessing the SOC. The cardinal mistake."
     },
     {
       "id": "final-new-signal",
@@ -287,10 +287,10 @@
       "prompt": "Three incidents: (1) Suspicious sign-in, alice@example.com, impossible travel. (2) Process detection, SRV-FILE01, powershell.exe via scheduled task. (3) Canary tripped, WS-FINANCE-04. Which surface produced each?",
       "choices": [
         {
-          "label": "All three are EDR.",
+          "label": "All three are EDR because they all involve endpoint activity.",
           "rationale": "#1 is identity (UPN + sign-in = ITDR)."
         },
-        "1 is ITDR, 2 is EDR, 3 is a canary trip (under EDR, Critical by default).",
+        "1 is ITDR, 2 is EDR, 3 is a canary trip under EDR.",
         {
           "label": "1 is ITDR, 2 is SIEM, 3 is EDR.",
           "rationale": "Mistakes process detection for a SIEM log event."
@@ -301,7 +301,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "UPN vs. hostname is the easiest tell."
+      "explanation": "UPN + sign-in = ITDR; hostname + process = EDR; canary trip rides under EDR, Critical by default."
     },
     {
       "id": "final-shift-start",

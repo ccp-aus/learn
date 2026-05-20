@@ -108,14 +108,14 @@
           "label": "Reading the Timeline twice for understanding.",
           "rationale": "Re-reading for understanding isn't a misuse."
         },
-        "Using the Timeline to argue with the Recommendation — second-guessing in slow motion.",
+        "Using the Timeline to argue with the Recommendation.",
         {
           "label": "Showing the Timeline to the customer.",
           "rationale": "Client comms is a named legitimate use."
         }
       ],
       "correct": 2,
-      "explanation": "Building a counter-argument from the analyst's chronological view is second-guessing in slow motion."
+      "explanation": "Second-guessing in slow motion. Building a counter-argument from the analyst's chronological view is second-guessing in slow motion."
     },
     {
       "id": "worked-report-first",
@@ -152,7 +152,7 @@
           "label": "Approve the recommendation, then isolate the two other hosts on the strength of the Evidence.",
           "rationale": "The Recommendation explicitly didn't include those hosts; acting on them is going beyond what the SOC asked for."
         },
-        "Approve the recommendation as written. In parallel, reply to Sam P. asking whether HOST-A and HOST-B should be checked or remediated.",
+        "Approve the recommendation as written.",
         {
           "label": "Hold off on the recommended action until Sam P. clarifies HOST-A and HOST-B.",
           "rationale": "Delaying execution to argue scope on Evidence is the stuck-ticket the SOC model is designed to avoid."
@@ -163,7 +163,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Execute the Recommendation cleanly; raise the Evidence-side question as a factual reply to the analyst."
+      "explanation": "In parallel, reply to Sam P. asking whether HOST-A and HOST-B should be checked or remediated. Execute the Recommendation cleanly; raise the Evidence-side question as a factual reply to the analyst."
     },
     {
       "id": "wrong-host-sibling",
@@ -196,7 +196,7 @@
       "difficulty": "medium",
       "prompt": "A Recommendation reads: \"Preserve forensic evidence; do not isolate.\" What's the right action for a helpdesk tech?",
       "choices": [
-        "Surface to a senior — preserving forensic evidence is outside the helpdesk ceiling. Don't half-do it.",
+        "Surface to a senior.",
         {
           "label": "Take a screenshot of the Incident Report and save it to OneDrive.",
           "rationale": "A screenshot doesn't constitute forensic preservation."
@@ -211,7 +211,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Forensic preservation is above the helpdesk ceiling; surface to a senior who has the procedure."
+      "explanation": "Preserving forensic evidence is outside the helpdesk ceiling. Don't half-do it. Forensic preservation is above the helpdesk ceiling; surface to a senior who has the procedure."
     },
     {
       "id": "self-check",

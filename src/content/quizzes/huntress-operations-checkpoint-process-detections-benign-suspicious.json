@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why do legitimate IT and attackers use overlapping toolkits (PowerShell, PsExec, scheduled tasks)?",
       "choices": [
-        "The toolkits are useful for the same reasons, deep OS reach, remote execution, persistence, so both legitimate admins and attackers gravitate to them.",
+        "The toolkits are useful for the same reasons, deep OS reach, remote execution, persistence.",
         {
           "label": "Attackers deliberately copy IT toolkits to confuse defenders.",
           "rationale": "Partial framing; the lesson's point is structural (the tools are inherently useful), not deceptive."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The OS doesn't know which is which; that's why the SOC adds context."
+      "explanation": "So both legitimate admins and attackers gravitate to them. The OS doesn't know which is which; that's why the SOC adds context."
     },
     {
       "id": "soc-marks-difference",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "How does the SOC mark a benign-but-suspicious detection differently from a malicious one?",
       "choices": [
-        "Lower severity (Low or High, not Critical); a lighter Recommendation; Evidence that names the tool AND the context (e.g. \"PsExec from RMM-SERVER-01 per the customer's documented RMM pattern\").",
+        "Lower severity (Low or High, not Critical);",
         {
           "label": "The SOC doesn't raise benign-but-suspicious detections, only malicious ones.",
           "rationale": "Wrong. The SOC raises both; the tech reads the Recommendation to know which is which."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The tech reads the Recommendation. If 'no action required, legitimate', no action is required."
+      "explanation": "A lighter Recommendation; Evidence that names the tool AND the context (e.g. \"PsExec from RMM-SERVER-01 per the customer's documented RMM pattern\"). The tech reads the Recommendation. If 'no action required, legitimate', no action is required."
     },
     {
       "id": "failure-mode-a",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Failure mode A: \"Oh, that's just our RMM.\" What's the failure?",
       "choices": [
-        "The tech dismisses an incident as routine RMM activity without reading the Recommendation, but sometimes the SOC raised the incident because the RMM-shaped activity was actually attacker activity disguising itself as the RMM.",
+        "The tech dismisses an incident as routine RMM activity without reading the Recommendation.",
         {
           "label": "The tech dismisses an incident even after the Recommendation says to act.",
           "rationale": "Cruder form. The lesson's specific framing is dismissal-without-reading."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The dismissal-without-reading is what makes it dangerous. Read the Recommendation first."
+      "explanation": "Sometimes the SOC raised the incident. Because the RMM-shaped activity was actually attacker activity disguising itself as the RMM. The dismissal-without-reading is what makes it dangerous. Read the Recommendation first."
     },
     {
       "id": "failure-mode-b",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Failure mode B: \"PowerShell encoded command, must be malicious.\" What's the failure?",
       "choices": [
-        "The tech reaches for the Critical reflex based on the OS-level pattern without reading the Recommendation, but encoded PowerShell can be a legitimate admin script the customer's IT runs nightly, classified by the SOC as legitimate-but-flagged.",
+        "The tech reaches for the Critical reflex based on the OS-level pattern without reading the Recommendation.",
         {
           "label": "The tech escalates every encoded PowerShell detection to a senior even after the senior says not to.",
           "rationale": "That's a coarser failure; the lesson's specific framing is pattern-as-substitute-for-Recommendation."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Escalation-by-pattern misses the SOC's actual classification."
+      "explanation": "But encoded PowerShell can be a legitimate admin script the customer's IT runs nightly, classified by the SOC as legitimate-but-flagged. Escalation-by-pattern misses the SOC's actual classification."
     },
     {
       "id": "two-question-test",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "The lesson's two-question test for process detections. What are the two questions?",
       "choices": [
-        "(1) Did the analyst say to do this in the Recommendation? (2) Is there new signal the analyst didn't have?",
+        "(1) Did the analyst say to do this in the Recommendation?",
         {
           "label": "(1) Is the source the RMM? (2) Is the command encoded?",
           "rationale": "Pattern-based questions, not Recommendation-based. The whole point is the test isn't pattern-based."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The test is Recommendation plus new signal, not pattern matching."
+      "explanation": "(2) Is there new signal the analyst didn't have? The test is Recommendation plus new signal, not pattern matching."
     },
     {
       "id": "psexec-legitimate",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "Low EDR incident on WS-EXAMPLE-MARKETING-04. Title: \"PowerShell encoded command.\" Evidence: encoded payload reaches a known-bad domain. Recommendation: \"Approve the autoruns remediation. This is not legitimate admin activity.\" What's the right action?",
       "choices": [
-        "Run the standard EDR workflow per the Recommendation: claim, review, approve the remediation, verify, close, document.",
+        "Run the standard EDR workflow per the Recommendation.",
         {
           "label": "Treat as Critical because 'PowerShell encoded command always means malicious'.",
           "rationale": "Wrong reflex. Escalation-by-pattern; the SOC tagged it Low with a specific remediation."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The SOC's classification, not the OS-level pattern, drove the response. Standard Low workflow."
+      "explanation": "Claim, review, approve the remediation, verify, close, document. The SOC's classification, not the OS-level pattern, drove the response. Standard Low workflow."
     },
     {
       "id": "rmm-misconception",
@@ -181,7 +181,7 @@
       "difficulty": "hard",
       "prompt": "\"If it looks like the RMM, it's the RMM.\" What does the lesson say?",
       "choices": [
-        "Sometimes. Read the SOC's classification, the SOC has access to information about your RMM's normal patterns that you can confirm at the moment.",
+        "Sometimes. Read the SOC's classification.",
         {
           "label": "Always, RMM sources are trusted by default.",
           "rationale": "The misconception. Trusting source-by-appearance is the dismissal-by-pattern failure."
@@ -196,7 +196,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Read the Recommendation, not the pattern."
+      "explanation": "The SOC has access to information about your RMM's normal patterns that you can confirm at the moment. Read the Recommendation, not the pattern."
     },
     {
       "id": "new-signal-clarifying-reply",
@@ -205,7 +205,7 @@
       "difficulty": "medium",
       "prompt": "You read a benign-classified process detection. You have new signal the SOC didn't have, the user phoned to say they didn't initiate the activity. What do you do?",
       "choices": [
-        "Reply to the SOC with the new signal, don't act unilaterally. New signal routes through the analyst, not through tech-seat re-classification.",
+        "Reply to the SOC with the new signal, don't act unilaterally.",
         {
           "label": "Close the incident as benign anyway, the SOC has already classified.",
           "rationale": "Wrong. The user denial IS new signal the SOC didn't have."
@@ -220,7 +220,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "New signal goes back to the SOC. Tech-seat re-classification isn't the answer."
+      "explanation": "New signal routes through the analyst, not through tech-seat re-classification. New signal goes back to the SOC. Tech-seat re-classification isn't the answer."
     },
     {
       "id": "investigate-to-be-sure",

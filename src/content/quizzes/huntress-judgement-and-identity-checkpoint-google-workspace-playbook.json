@@ -13,7 +13,7 @@
       "difficulty": "medium",
       "prompt": "Which forwarding-related divergence between M365 and GWS does the lesson call out?",
       "choices": [
-        "M365's ForwardingSmtpAddress is one field. GWS has multiple mechanisms: SendAs aliases, IMAP forwarding via filters, vacation responder auto-forwards. Checking external forwarding requires more places in GWS.",
+        "M365's ForwardingSmtpAddress is one field.",
         {
           "label": "M365 forwards mail without rules; GWS requires a rule for any forwarding.",
           "rationale": "Both platforms support both rule-level and mailbox-level forwarding."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "GWS has a wider forwarding surface area. Three mechanisms to check instead of one field."
+      "explanation": "GWS has multiple mechanisms: SendAs aliases, IMAP forwarding via filters, vacation responder auto-forwards. Checking external forwarding requires more places in GWS. GWS has a wider forwarding surface area. Three mechanisms to check instead of one field."
     },
     {
       "id": "super-admin",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "A user account in a GWS tenant has the super-admin role. The Incident Report shows compromise on this account. What does the lesson say?",
       "choices": [
-        "Treat as tenant-wide. Compromise on a super-admin in GWS is tenant-wide territory the moment it is recognised. Bump.",
+        "Treat as tenant-wide.",
         {
           "label": "Treat as single-user; the playbook applies normally.",
           "rationale": "Super-admin compromise crosses the tenant ceiling."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "GWS tenants often have less admin/user separation. Super-admin compromise is tenant-wide."
+      "explanation": "Compromise on a super-admin in GWS is tenant-wide territory the moment it is recognised. Bump. GWS tenants often have less admin/user separation. Super-admin compromise is tenant-wide."
     },
     {
       "id": "first-move-gws",
@@ -65,14 +65,14 @@
           "label": "Look for an Entra ID admin centre to start the session revoke.",
           "rationale": "Wrong tooling. GWS uses the Google Admin console."
         },
-        "Open the Huntress portal's ITDR view for Daniel and trigger session revoke via the portal. Verify in the Google Admin console (User, Security, Sign out user) if needed.",
+        "Open the Huntress portal's ITDR view for Daniel and trigger session revoke via the portal.",
         {
           "label": "Tell the customer to revoke the session themselves because you are not familiar with GWS.",
           "rationale": "The Huntress portal exposes the action. The runbook covers the verify paths."
         }
       ],
       "correct": 1,
-      "explanation": "The Huntress portal abstracts the tooling. Verification falls back to the GWS admin console with the right vocabulary."
+      "explanation": "Verify in the Google Admin console (User, Security, Sign out user) if needed. The Huntress portal abstracts the tooling. Verification falls back to the GWS admin console with the right vocabulary."
     },
     {
       "id": "sendas-check",
@@ -85,14 +85,14 @@
           "label": "Close the step; the Recommendation did not mention them.",
           "rationale": "Half-right. The GWS-specific forwarding-mechanism checks still apply."
         },
-        "Check SendAs aliases and the vacation responder. If unchanged from pre-compromise, document and close. If modified in the compromise window, reply to the SOC.",
+        "Check SendAs aliases and the vacation responder.",
         {
           "label": "Remove SendAs aliases and the vacation responder yourself to be thorough.",
           "rationale": "Acting on context the Recommendation did not include. Surface to SOC."
         }
       ],
       "correct": 1,
-      "explanation": "GWS-specific additional checks happen even when the Recommendation only names the filter. Surface findings to the SOC."
+      "explanation": "If unchanged from pre-compromise, document and close. If modified in the compromise window, reply to the SOC. GWS-specific additional checks happen even when the Recommendation only names the filter. Surface findings to the SOC."
     },
     {
       "id": "m365-vocab-mistake",
@@ -101,7 +101,7 @@
       "difficulty": "medium",
       "prompt": "Why is it a mistake to use M365 vocabulary in a GWS conversation with the customer's admin?",
       "choices": [
-        "\"Have you checked the Entra ID admin centre?\" makes no sense on GWS. Use the customer's vocabulary so the conversation lands.",
+        "\"Have you checked the Entra ID admin centre?\" makes no sense on GWS.",
         {
           "label": "Huntress only supports M365 vocabulary internally.",
           "rationale": "Internal vocabulary does not drive customer-facing language."
@@ -116,7 +116,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The customer hears \"this person does not know our platform\" when you use the wrong tooling vocabulary."
+      "explanation": "Use the customer's vocabulary so the conversation lands. The customer hears \"this person does not know our platform\" when you use the wrong tooling vocabulary."
     },
     {
       "id": "identical-assumption",
@@ -125,7 +125,7 @@
       "difficulty": "medium",
       "prompt": "\"The GWS playbook is identical to M365.\" What is the cleanest correction?",
       "choices": [
-        "Mostly is, but the forwarding-mechanisms and OAuth-visibility differences are real. Check the runbook's GWS-specific notes.",
+        "Mostly is, but the forwarding-mechanisms and OAuth-visibility differences are real.",
         {
           "label": "Completely identical. Same steps, same tools.",
           "rationale": "Tools differ."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Conceptually identical, divergent in specific mechanisms. The forwarding surface and OAuth visibility are the main differences."
+      "explanation": "Check the runbook's GWS-specific notes. Conceptually identical, divergent in specific mechanisms. The forwarding surface and OAuth visibility are the main differences."
     },
     {
       "id": "domain-wide-delegation",
@@ -173,7 +173,7 @@
       "difficulty": "medium",
       "prompt": "A genuine divergence: GWS's admin console aggregates OAuth grants by ___, not by ___.",
       "choices": [
-        "By app, not by user. Finding a specific user's grants takes a different path than M365's per-user view.",
+        "By app, not by user.",
         {
           "label": "By tenant, not by app.",
           "rationale": "Aggregation is by app."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "App-aggregated visibility in GWS versus user-aggregated in M365. Finding a specific user's grants requires a different navigation path."
+      "explanation": "Finding a specific user's grants takes a different path than M365's per-user view. App-aggregated visibility in GWS versus user-aggregated in M365. Finding a specific user's grants requires a different navigation path."
     },
     {
       "id": "runbook-silent",
@@ -197,7 +197,7 @@
       "difficulty": "medium",
       "prompt": "The GWS-specific runbook is silent on a step you need to perform. What does the lesson say?",
       "choices": [
-        "Bump rather than improvise. GWS has more API paths than the admin console exposes, and the right path matters.",
+        "Bump rather than improvise.",
         {
           "label": "Figure it out yourself by searching Google's documentation.",
           "rationale": "Wrong reflex during incident response. Bump."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Improvising on undocumented GWS paths during incident response is risky. Bump."
+      "explanation": "GWS has more API paths than the admin console exposes, and the right path matters. Improvising on undocumented GWS paths during incident response is risky. Bump."
     },
     {
       "id": "mfa-terminology",

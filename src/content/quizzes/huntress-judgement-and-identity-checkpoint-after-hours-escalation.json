@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "The lesson names two opposite failure modes for after-hours work. Which pair is correct?",
       "choices": [
-        "Over-escalating (waking the on-call senior for every High) and under-escalating (sitting on a Critical because \"the senior will see it in the morning\").",
+        "Over-escalating every High, and under-escalating Criticals until morning.",
         {
           "label": "Calling the wrong on-call number, and answering the wrong customer's incident.",
           "rationale": "Operational hazards but not the lesson's named failure-mode pair."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The two opposite failure modes: burning out the rotation with over-escalation, or creating real risk by under-escalating on Critical."
+      "explanation": "The two opposite failure modes: burning out the rotation with over-escalation (waking the on-call senior for every High), or creating real risk by under-escalating on Critical ('the senior will see it in the morning')."
     },
     {
       "id": "critical-wake",
@@ -39,9 +39,9 @@
       "choices": [
         {
           "label": "Queue for morning. The senior reviews at start of business.",
-          "rationale": "\"The senior will see it in the morning\" is the named under-escalation failure for Criticals."
+          "rationale": "'The senior will see it in the morning' is the named under-escalation failure for Criticals."
         },
-        "Wake the on-call senior immediately. Phone, walk the escalation chain. Containment proceeds in parallel.",
+        "Phone the on-call senior immediately, walk the chain.",
         {
           "label": "Email the senior. Phone only if they do not reply within 30 minutes.",
           "rationale": "Text and email are insufficient for Critical."
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Which factors drive whether a High wakes someone after hours?",
       "choices": [
-        "Customer tier, incident type, volume/clustering, and the customer's comms expectations.",
+        "Customer tier, incident type, volume/clustering, and comms expectations.",
         {
           "label": "The tech's tiredness and the time on the clock.",
           "rationale": "The matrix is documented and not based on the tech's mood."
@@ -71,8 +71,8 @@
           "rationale": "Not how the matrix is designed."
         },
         {
-          "label": "Whether the runbook is available.",
-          "rationale": "The runbook IS the matrix. Availability is not an input."
+          "label": "Whether the runbook is available and has been recently updated by the team.",
+          "rationale": "The runbook IS the matrix. Availability is not an input to the disposition decision."
         }
       ],
       "correct": 0,
@@ -85,9 +85,9 @@
       "difficulty": "medium",
       "prompt": "A Low lands at 03:00. What is the disposition, and what is the exception?",
       "choices": [
-        "Waits for next business day. Exception: if the Low has Critical-shaped Evidence, treat it as Critical. The severity tag is not gospel.",
+        "Waits for next business day. Exception: Critical-shaped Evidence overrides the tag.",
         {
-          "label": "Always wakes the senior. The after-hours load is on the senior.",
+          "label": "Always wakes the senior. The after-hours load is on the senior regardless of severity.",
           "rationale": "Low does not wake anyone in the default after-hours disposition."
         },
         {
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Low waits for next business day. The exception: pattern recognition overrides the severity tag when the Evidence looks Critical."
+      "explanation": "Low waits for next business day. The exception: pattern recognition overrides the severity tag when the Evidence looks Critical. The severity tag is not gospel."
     },
     {
       "id": "containment-parallel",
@@ -111,11 +111,11 @@
       "choices": [
         {
           "label": "Wait until the senior answers. They need to authorise containment.",
-          "rationale": "Containment is the tech's job and runs in parallel."
+          "rationale": "Containment is the tech's job and runs in parallel with the escalation."
         },
-        "Continue with containment per the playbook (isolation, comms-as-appropriate). Containment does not wait for the senior.",
+        "Continue containment per the playbook. Do not wait for the senior.",
         {
-          "label": "Email Huntress support to take over the response.",
+          "label": "Email Huntress support to take over the response on your behalf.",
           "rationale": "Huntress support is not an after-hours response service for the MSP."
         },
         {
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Containment and senior-escalation run in parallel. Neither waits for the other."
+      "explanation": "Containment and senior-escalation run in parallel. Neither waits for the other. Isolation and comms-as-appropriate proceed while you keep dialling."
     },
     {
       "id": "chain-walking",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "The primary on-call senior does not answer your Critical-level call within the runbook's documented timeframe. What is the next step?",
       "choices": [
-        "Phone the backup on-call number, documenting each call attempt with timestamps. Keep walking the chain until you reach someone.",
+        "Phone the backup on-call number, log timestamps, keep walking the chain.",
         {
           "label": "Stop the chain. The senior may be unreachable for a reason.",
           "rationale": "Stopping after one missed call is a named common mistake on Critical."
@@ -143,12 +143,12 @@
           "rationale": "Critical does not downgrade to next-day email because one call missed."
         },
         {
-          "label": "Call the customer's IT manager and ask them to escalate on your behalf.",
+          "label": "Call the customer's IT manager and ask them to escalate on your behalf instead.",
           "rationale": "The customer is not your MSP's internal escalation chain."
         }
       ],
       "correct": 0,
-      "explanation": "Primary, then backup, then secondary. Document timestamps. Walk the whole chain."
+      "explanation": "Primary, then backup, then secondary. Document each attempt with timestamps. Walk the whole chain until you reach someone."
     },
     {
       "id": "calibration-cue",
@@ -157,13 +157,13 @@
       "difficulty": "medium",
       "prompt": "A senior responds to your after-hours escalation with \"could have waited for morning, but appreciate the heads-up.\" What is the signal?",
       "choices": [
-        "Judgement was slightly off the matrix. Calibrate next time. The senior accepted the call but you over-escalated.",
+        "Calibration cue. You over-escalated slightly; adjust next time.",
         {
           "label": "The senior is annoyed. Stop calling them at night.",
           "rationale": "Inverts the reading. 'Appreciate the heads-up' preserves the surface while signalling calibration."
         },
         {
-          "label": "The runbook is wrong. Raise a ticket to update it.",
+          "label": "The runbook is wrong. Raise a ticket to update it based on this feedback from the senior.",
           "rationale": "One miscalibrated call is not enough to rewrite the runbook."
         },
         {
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "A calibration cue, not a chastisement. Adjust the judgement for next time."
+      "explanation": "A calibration cue, not a chastisement. The senior accepted the call but signalled the judgement was slightly off the matrix. Adjust next time."
     },
     {
       "id": "saturday-triage",
@@ -185,14 +185,14 @@
           "label": "Wake the on-call senior for all three because of the cluster.",
           "rationale": "The Low and the High at this hour are not waking-the-senior incidents. Calling for three when one warrants it inflates urgency."
         },
-        "Phone the on-call senior for the Critical. Continue containment in parallel. The High on the small-business customer waits for morning per matrix. The Low waits.",
+        "Phone for the Critical. High and Low wait per matrix.",
         {
-          "label": "Phone for the Critical only, ignore the other two until morning.",
+          "label": "Phone for the Critical only, ignore the other two completely until morning.",
           "rationale": "Half-right. The senior call is right, but document the others and watch the High for clustering."
         }
       ],
       "correct": 1,
-      "explanation": "Matrix followed. The Critical gets the call; the High and Low wait per their documented dispositions."
+      "explanation": "Matrix followed. The Critical gets the call and containment runs in parallel. The High on the small-business customer waits for morning per matrix. The Low waits."
     },
     {
       "id": "primary-missed",
@@ -201,9 +201,9 @@
       "difficulty": "medium",
       "prompt": "You phoned the primary on-call (Marcia). She did not answer. The backup answered and took the Critical. The backup asks: \"Did Marcia answer?\" What do you say?",
       "choices": [
-        "\"No, she did not pick up.\" Honest and matches the runbook's expectation. The backup needs to know to follow up with Marcia post-incident.",
+        "\"No, she did not pick up.\" Honest, matches the runbook.",
         {
-          "label": "Do not mention the missed call. Marcia might feel bad.",
+          "label": "Do not mention the missed call. Marcia might feel bad about not answering.",
           "rationale": "The backup needs to know the primary did not answer so they can check on her."
         },
         {
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The backup needs to confirm the primary is okay (welfare check). Hiding the missed call leaves a colleague potentially unwell."
+      "explanation": "The backup needs to know, for welfare-check and handover reasons. Hiding the missed call leaves a colleague potentially unwell."
     },
     {
       "id": "severity-disposition-order",

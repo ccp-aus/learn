@@ -59,17 +59,11 @@ If a vendor's setup instruction asks for an IP-as-MX, ask them for a hostname. R
 
 ## Decision walkthrough
 
-A client emails: *we moved to M365 last week but our mail still goes to the old server occasionally.* You query `dig MX example.com`:
-
-```text
-example.com.  3600  IN  MX  10 oldmail.example.com.
-example.com.  3600  IN  MX  20 example-com.mail.protection.outlook.com.
-```
-
 <DecisionTree
   client:load
   startId="diagnose"
   title="What's wrong and how do you fix it?"
+  description="A client emails: we moved to M365 last week but mail still goes to the old server occasionally. dig MX example.com returns two records: priority 10 oldmail.example.com and priority 20 example-com.mail.protection.outlook.com."
   nodes={[
     {
       type: "question",

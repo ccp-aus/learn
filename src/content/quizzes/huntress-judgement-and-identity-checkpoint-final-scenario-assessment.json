@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Which best describes the final assessment's shape?",
       "choices": [
-        "Fifteen scored scenarios spanning Courses 2 through 8, each multi-decision, designed to test calibration through realistic ticket choices.",
+        "Fifteen scored scenarios spanning Courses 2 through 8.",
         {
           "label": "A timed multiple-choice test on portal menu paths.",
           "rationale": "The lesson explicitly states menu paths are not tested (they change)."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Fifteen scenarios, multi-decision branching, calibration over memorisation."
+      "explanation": "Each multi-decision, designed to test calibration through realistic ticket choices. Fifteen scenarios, multi-decision branching, calibration over memorisation."
     },
     {
       "id": "weighted-categories",
@@ -73,10 +73,10 @@
           "label": "Familiarity with specific customers.",
           "rationale": "Explicitly out of scope (you do not have any yet)."
         },
-        "All three are out of scope. The assessment tests calibration of judgement instead."
+        "All three are out of scope."
       ],
       "correct": 3,
-      "explanation": "The assessment tests calibration via scenarios, not memorisation, runbook recall, or customer knowledge."
+      "explanation": "The assessment tests calibration of judgement instead. The assessment tests calibration via scenarios, not memorisation, runbook recall, or customer knowledge."
     },
     {
       "id": "sign-off-order",
@@ -100,7 +100,7 @@
       "difficulty": "hard",
       "prompt": "Assessment scenario: a customer's IT manager pushes for a host release the SOC has not approved. Options include release per customer request, escalate to senior, approve a modified remediation, and close as a customer-managed event. Which calibration test should you load?",
       "choices": [
-        "The two-question test: is this reversible? Do I understand why this is the right action? If either is no, the right option is usually escalate. This is also a clean category-6 trip.",
+        "The two-question test.",
         {
           "label": "The 'speed is the goal' test. Pick the fastest option.",
           "rationale": "Inverted lesson. Speed-is-the-goal is a misconception, not a test."
@@ -115,7 +115,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The two-question test loads throughout the assessment. Customer-versus-SOC tension is category 6: the senior owns it."
+      "explanation": "Is this reversible? Do I understand why this is the right action? If either is no, the right option is usually escalate. This is also a clean category-6 trip. The two-question test loads throughout the assessment. Customer-versus-SOC tension is category 6: the senior owns it."
     },
     {
       "id": "memorisation-misconception",
@@ -124,7 +124,7 @@
       "difficulty": "medium",
       "prompt": "\"If I memorise every lesson, I'll pass.\" What is the right correction?",
       "choices": [
-        "Memorisation helps; calibration matters more. The scenarios test how the lessons apply to new situations, not whether you remember the lesson text.",
+        "Memorisation helps; calibration matters more.",
         {
           "label": "Memorisation is sufficient; the assessment is mostly recall.",
           "rationale": "Inverts the lesson's framing."
@@ -139,7 +139,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Passing depends on the reflex landing under scenario pressure, not on recall under quiz pressure."
+      "explanation": "The scenarios test how the lessons apply to new situations, not whether you remember the lesson text. Passing depends on the reflex landing under scenario pressure, not on recall under quiz pressure."
     },
     {
       "id": "passing-scope",
@@ -148,7 +148,7 @@
       "difficulty": "medium",
       "prompt": "\"Passing means I'm ready for everything Huntress can throw at me.\" What is wrong with this?",
       "choices": [
-        "Passing means the LMS recommends you are ready for the boundary the course describes. Your MSP's sign-off and ongoing experience extend the boundary over time; passing does not grant scope beyond the course.",
+        "Passing means the LMS recommends you are ready for the boundary the course describes.",
         {
           "label": "Passing is meaningless. Only the senior's sign-off matters.",
           "rationale": "Over-corrects. The pass is meaningful; it is not the only gate."
@@ -163,7 +163,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The course teaches a bounded scope. Passing recommends readiness within that scope, not beyond it."
+      "explanation": "Your MSP's sign-off and ongoing experience extend the boundary over time; passing does not grant scope beyond the course. The course teaches a bounded scope. Passing recommends readiness within that scope, not beyond it."
     },
     {
       "id": "prep-lessons",
@@ -172,7 +172,7 @@
       "difficulty": "medium",
       "prompt": "Which set of lessons does 9.5 specifically recommend re-reading before the assessment?",
       "choices": [
-        "1.2 (managed-SOC keystone), 1.8 (recommendation vs context), 4.5 (when to isolate), 5.1 (Critical markers), 6.1 (identity blast-radius), 9.1 (mandatory escalation), 9.4 (common traps).",
+        "1.2 (managed-SOC keystone), 1.8 (recommendation vs context)",
         {
           "label": "Every lesson in Courses 0 through 9, in order.",
           "rationale": "Wrong scope. The lesson specifies pattern lessons, not the whole course."
@@ -187,7 +187,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Pattern lessons whose judgement shows up most across scenarios. These are the load-bearing lessons."
+      "explanation": "4.5 (when to isolate), 5.1 (Critical markers), 6.1 (identity blast-radius), 9.1 (mandatory escalation), 9.4 (common traps). Pattern lessons whose judgement shows up most across scenarios. These are the load-bearing lessons."
     },
     {
       "id": "in-doubt-instinct",
@@ -200,7 +200,7 @@
           "label": "Whichever option mentions Huntress support is probably correct.",
           "rationale": "Misuses support and inverts the course's discipline."
         },
-        "Trust the SOC's Recommendation, act on the action zone, surface context to the right body, escalate at the categories, and do not click-and-see.",
+        "Trust the SOC's Recommendation.",
         {
           "label": "The longest option is usually the right one.",
           "rationale": "Length is not a correctness signal."
@@ -211,7 +211,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The course's reflexes compressed into the in-doubt heuristic. When in doubt, trust the SOC, act on the action zone, surface context, and do not click-and-see."
+      "explanation": "Act on the action zone, surface context to the right body, escalate at the categories, and do not click-and-see. The course's reflexes compressed into the in-doubt heuristic. When in doubt, trust the SOC, act on the action zone, surface context, and do not click-and-see."
     },
     {
       "id": "unfamiliar-detection-scenario",

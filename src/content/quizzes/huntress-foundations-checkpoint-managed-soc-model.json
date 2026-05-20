@@ -13,18 +13,18 @@
       "difficulty": "easy",
       "prompt": "By the time an Incident Report reaches you, what has the SOC analyst already done?",
       "choices": [
-        "Triaged the signal, classified it, and written a recommendation.",
+        "Triaged, classified, and written a recommendation.",
         {
-          "label": "Run a vulnerability scan on the affected host.",
-          "rationale": "Wrong on the model. Vulnerability scanning is a different product class and not part of the SOC's pre-handoff work."
+          "label": "Run a vulnerability scan on the affected host to produce a remediation list.",
+          "rationale": "Vulnerability scanning is a different product class; not part of the SOC's pre-handoff work."
         },
         {
           "label": "Notified the customer directly.",
-          "rationale": "Wrong. Customer-facing comms are the MSP's job. The Incident Report comes to the MSP first."
+          "rationale": "Customer-facing comms are the MSP's job. The Incident Report comes to the MSP first."
         },
         {
           "label": "Patched the underlying vulnerability.",
-          "rationale": "Wrong. The SOC analyses and recommends; remediation is the actioning party's job."
+          "rationale": "The SOC analyses and recommends; remediation is the actioning party's job."
         }
       ],
       "correct": 0,
@@ -41,7 +41,7 @@
           "label": "Investigate first to confirm the alert is real, then act.",
           "rationale": "That's the AV/SIEM model. On Huntress the analyst has already done the \"is this real\" work."
         },
-        "Read the recommendation, verify the host or user matches, execute, document, close.",
+        "Read the recommendation, verify the host or user matches.",
         {
           "label": "Wait for a senior to confirm every action before taking it.",
           "rationale": "Wrong tempo. Most incidents don't need a senior; the recommendation is the green light."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The analyst answered \"is this real\" for you. Your work is executing the recommendation correctly on the right entity."
+      "explanation": "Execute, document, close. The analyst answered \"is this real\" for you. Your work is executing the recommendation correctly on the right entity."
     },
     {
       "id": "second-guessing-shapes",
@@ -65,7 +65,7 @@
           "label": "Closing an incident as benign because the activity \"looks legitimate\" to you, with no new signal.",
           "rationale": "This is exactly the cardinal mistake — unilateral disposition change without new information."
         },
-        "Replying to the analyst with a factual clarifying question because the recommendation didn't fit the customer context.",
+        "Replying to the analyst with a factual clarifying question.",
         {
           "label": "Doing part of the recommendation and skipping the part that worried you.",
           "rationale": "Softening the recommendation — same family of mistake."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Clarifying replies are the correct surface for doubt — they're welcomed, not discouraged. The rule is about unilateral override, not disagreement."
+      "explanation": "Because the recommendation didn't fit the customer context. Clarifying replies are the correct surface for doubt — they're welcomed, not discouraged. The rule is about unilateral override, not disagreement."
     },
     {
       "id": "new-signal",
@@ -117,14 +117,14 @@
           "label": "Approve the recommendation; the SOC's call stands.",
           "rationale": "Acts before clarifying. You'd run a remediation on a senior user's machine without letting the layer that decides weigh his new context."
         },
-        "Reply to the analyst with the new context, keep the incident open while you wait.",
+        "Reply to the analyst with the new context.",
         {
           "label": "Escalate to a senior because the customer disagrees with the SOC.",
           "rationale": "The right body is the analyst, not the senior. Customer disagreement on its own isn't a senior-escalation surface."
         }
       ],
       "correct": 2,
-      "explanation": "The IT manager's statement is new signal; the analyst is the right body to weigh it. Neither override nor blind execute."
+      "explanation": "Keep the incident open while you wait. The IT manager's statement is new signal; the analyst is the right body to weigh it. Neither override nor blind execute."
     },
     {
       "id": "withdrawn-recommendation",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "Continuing from the IT manager scenario: the analyst replies an hour later: \"Confirmed legitimate, no remediation required.\" What do you do next?",
       "choices": [
-        "Close the ticket on your side, document the back-and-forth, and call the IT manager to confirm.",
+        "Close the ticket on your side, document the back-and-forth.",
         {
           "label": "Approve the remediation anyway, to be safe.",
           "rationale": "Worst response. Approving \"to be safe\" against a withdrawn recommendation is second-guessing the SOC."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The analyst has given the disposition; your job is documentation and client comms."
+      "explanation": "Call the IT manager to confirm. The analyst has given the disposition; your job is documentation and client comms."
     },
     {
       "id": "soc-juniority",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "\"The SOC is a junior, I have local context they don't.\" Why is this misconception dangerous?",
       "choices": [
-        "Because the SOC has more context on the broader threat surface than you do; you have more context on this specific customer. The right tool for the delta is a clarifying reply, not an override.",
+        "Because the SOC has more context on the broader threat surface than you do;",
         {
           "label": "Because SOC analysts have direct access to senior management and will report you.",
           "rationale": "Misframes the issue as politics. The actual problem is technical."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Both sides have asymmetric context. Replies route the delta to the layer that can weigh it; overrides assume the asymmetry runs only one way."
+      "explanation": "You have more context on this specific customer. The right tool for the delta is a clarifying reply, not an override. Both sides have asymmetric context. Replies route the delta to the layer that can weigh it; overrides assume the asymmetry runs only one way."
     },
     {
       "id": "softening",
@@ -181,7 +181,7 @@
       "difficulty": "medium",
       "prompt": "An Incident Report's Recommendation has three actions: revoke the user's session, reset their password, and remove a malicious inbox rule. You do the first two but skip the inbox-rule removal because you \"want to look at it first.\" What's this called?",
       "choices": [
-        "Softening the recommendation — same family as second-guessing the SOC.",
+        "Softening the recommendation.",
         {
           "label": "Cautious response.",
           "rationale": "Misframes a defect as a virtue. \"Looking at it first\" without new signal is unilateral disagreement disguised as caution."
@@ -196,7 +196,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Doing part of the recommendation and skipping the part that worried you is the lesson's named shape of second-guessing."
+      "explanation": "Same family as second-guessing the SOC. Doing part of the recommendation and skipping the part that worried you is the lesson's named shape of second-guessing."
     },
     {
       "id": "disagreement-surface",
@@ -209,7 +209,7 @@
           "label": "Close the incident with a note explaining why you disagreed.",
           "rationale": "Unilateral closure on disagreement is the cardinal mistake."
         },
-        "A reply to the analyst on the Incident Report, phrased as a factual clarifying question, not as an argument.",
+        "A reply to the analyst on the Incident Report.",
         {
           "label": "A Slack message to your senior asking them to override the analyst.",
           "rationale": "Routes around the right body."
@@ -220,7 +220,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The analyst issued the recommendation; the reply goes to them, framed factually."
+      "explanation": "Phrased as a factual clarifying question, not as an argument. The analyst issued the recommendation; the reply goes to them, framed factually."
     },
     {
       "id": "senior-cue",

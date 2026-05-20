@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What are the four elements of a complete close-out communication?",
       "choices": [
-        "What happened, what was done, what the client should do (if anything), what was learned (when there is a real lesson).",
+        "What happened, what was done, what the client should do.",
         {
           "label": "Apology, summary, recommendation, signature.",
           "rationale": "Apologising is a named common mistake from the notification-writing lesson."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Four elements every time: what happened, what was done, what the client should do, what was learned."
+      "explanation": "(if anything), what was learned (when there is a real lesson). Four elements every time: what happened, what was done, what the client should do, what was learned."
     },
     {
       "id": "nothing-is-valid",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "\"What the client should do\" is the element new techs most often miss. Why does it matter even when the answer is \"nothing\"?",
       "choices": [
-        "Naming the next step (even \"none\") prevents the customer from wondering what they are missing. \"No action required from your side\" closes the loop.",
+        "Naming the next step (even \"none\") prevents the customer from wondering what they are missing.",
         {
           "label": "Huntress requires a customer-action line in every close-out.",
           "rationale": "No such requirement."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "\"We resolved everything\" leaves the customer unsure. \"No action required from your side\" says the same thing and closes the loop."
+      "explanation": "\"No action required from your side\" closes the loop. \"We resolved everything\" leaves the customer unsure. \"No action required from your side\" says the same thing and closes the loop."
     },
     {
       "id": "skip-learned",
@@ -65,7 +65,7 @@
           "label": "Always, even if you have to invent one.",
           "rationale": "Manufacturing a lesson learned when there is not one is a named common mistake."
         },
-        "When there is a real one-line takeaway for the customer or for your MSP. Skip when there is no useful lesson.",
+        "When there is a real one-line takeaway for the customer or for your MSP.",
         {
           "label": "Only on Critical incidents.",
           "rationale": "Severity is not the criterion. Whether there is a real takeaway is."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Skip elements that do not fit. Forcing one creates \"lessons\" that are not."
+      "explanation": "Skip when there is no useful lesson. Skip elements that do not fit. Forcing one creates \"lessons\" that are not."
     },
     {
       "id": "tone-properties",
@@ -93,14 +93,14 @@
           "label": "Maximally technical for full transparency.",
           "rationale": "\"Specific without overwhelming\" is the discipline. Deep technical detail waits for the deep-dive."
         },
-        "Confident without triumphalism; specific without overwhelming; customer-respecting.",
+        "Confident without triumphalism;",
         {
           "label": "Performative and self-congratulatory to reinforce value.",
           "rationale": "\"Using the close-out as a sales surface\" is a named common mistake."
         }
       ],
       "correct": 2,
-      "explanation": "Three tone properties: confident without triumphalism, specific without overwhelming, customer-respecting."
+      "explanation": "Specific without overwhelming; customer-respecting. Three tone properties: confident without triumphalism, specific without overwhelming, customer-respecting."
     },
     {
       "id": "sales-surface",
@@ -146,14 +146,14 @@
           "label": "\"We caught and contained an EDR incident on the machine today. All resolved. Let me know if you have questions.\"",
           "rationale": "Vague. No specifics, no actions named, no \"what next.\" Does not close the loop."
         },
-        "Brief close-out with timestamps and named actions: SOC flagged at 11:42, encoded PowerShell to a known-bad domain, remediation approved, task removed, user confirmed she did not run anything. No action required. Happy to walk through more.",
+        "Brief close-out with timestamps and named actions.",
         {
           "label": "Same as option B but adds \"you're lucky we caught this in time.\"",
           "rationale": "Triumphalism. Positions the MSP as rescuer rather than as the security team doing its job."
         }
       ],
       "correct": 1,
-      "explanation": "All four elements present, specific, calm tone. No triumphalism."
+      "explanation": "SOC flagged at 11:42, encoded PowerShell to a known-bad domain, remediation approved, task removed, user confirmed she did not run anything. No action required. Happy to walk through more. All four elements present, specific, calm tone. No triumphalism."
     },
     {
       "id": "trend-question",
@@ -166,14 +166,14 @@
           "label": "Answer with whatever you know about the broader Huntress customer base.",
           "rationale": "The SOC has portfolio-level data. You do not. Speculating from a single-customer seat is the wrong source."
         },
-        "\"Good question. I don't have direct visibility into trends across other Huntress customers. I can flag this to our account manager, who can pull the Huntress quarterly trend reports for you.\"",
+        "\"Good question. I don't have direct visibility into trends across other Huntress customers.",
         {
           "label": "\"Yes, attacks are increasing.\"",
           "rationale": "Plausible-sounding but unsupported. Answering from gut."
         }
       ],
       "correct": 1,
-      "explanation": "Honest about what you know. Useful next step. Routes to the right source."
+      "explanation": "I can flag this to our account manager, who can pull the Huntress quarterly trend reports for you.\" Honest about what you know. Useful next step. Routes to the right source."
     },
     {
       "id": "four-elements-order",
@@ -196,7 +196,7 @@
       "difficulty": "medium",
       "prompt": "When does a close-out route through a senior rather than the tech?",
       "choices": [
-        "Critical incidents, incidents with customer-relationship-sensitive findings, or close-outs on customers with tense relationships.",
+        "Critical incidents, incidents with customer-relationship-sensitive findings.",
         {
           "label": "Every close-out. Close-outs are always senior work.",
           "rationale": "The routine High close-out is the tech's job."
@@ -211,7 +211,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Three triggers: Critical, sensitive findings, tense customer relationships."
+      "explanation": "Or close-outs on customers with tense relationships. Three triggers: Critical, sensitive findings, tense customer relationships."
     }
   ]
 }

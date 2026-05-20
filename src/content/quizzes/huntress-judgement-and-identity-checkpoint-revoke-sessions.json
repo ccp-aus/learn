@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why is session revoke step 1 of the compromise playbook?",
       "choices": [
-        "It stops the active attacker immediately, does not depend on the password being changed, and is reversible without lasting impact on the legitimate user.",
+        "It stops the active attacker immediately.",
         {
           "label": "Because session revoke is the easiest action to undo if mistaken.",
           "rationale": "Reversibility is partly true but not the primary reason. Speed of containment is."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Three reasons: immediate containment, independence from the password change, and reversibility. Speed of stopping the active attacker is the primary driver."
+      "explanation": "Does not depend on the password being changed. Is reversible without lasting impact on the legitimate user. Three reasons: immediate containment, independence from the password change, and reversibility. Speed of stopping the active attacker is the primary driver."
     },
     {
       "id": "session-definition",
@@ -65,7 +65,7 @@
           "label": "The password reset takes longer than session revoke, so doing it first wastes time.",
           "rationale": "Speed is not the lesson's reason. Continued attacker action is."
         },
-        "The reset invalidates future authentications using the password. It does not end the current session. The attacker keeps acting through the live session until the session is revoked.",
+        "The reset invalidates future authentications using the password.",
         {
           "label": "Resetting the password before revoke crashes the identity provider.",
           "rationale": "Wrong on platform behaviour."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The reset closes the front door. The revoke kicks out the attacker who is already inside. Order matters because the attacker's current session survives a password change."
+      "explanation": "It does not end the current session. The attacker keeps acting through the live session until the session is revoked. The reset closes the front door. The revoke kicks out the attacker who is already inside. Order matters because the attacker's current session survives a password change."
     },
     {
       "id": "post-revoke-activity",
@@ -93,14 +93,14 @@
           "label": "Re-revoke sessions.",
           "rationale": "Sessions are already revoked. Re-revoking does not touch the OAuth path the attacker is still using."
         },
-        "Continue the playbook urgently. The OAuth-grant revoke is later in the sequence and probably explains the continued activity.",
+        "Continue the playbook urgently.",
         {
           "label": "Open a Huntress support ticket immediately.",
           "rationale": "OAuth-token persistence explains the pattern before support is needed."
         }
       ],
       "correct": 2,
-      "explanation": "OAuth tokens are separate from interactive sessions. The session revoke killed interactive sessions; an attacker-controlled OAuth app keeps authenticating. The playbook's later steps address what session revoke did not catch."
+      "explanation": "The OAuth-grant revoke is later in the sequence and probably explains the continued activity. OAuth tokens are separate from interactive sessions. The session revoke killed interactive sessions; an attacker-controlled OAuth app keeps authenticating. The playbook's later steps address what session revoke did not catch."
     },
     {
       "id": "verify-check",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "The affected identity is an admin or service account that other systems authenticate as. What does the lesson say?",
       "choices": [
-        "Bump to senior. Session revoke on an admin or service account has broader downstream impact; the senior may want to coordinate the revoke with the customer's IT.",
+        "Bump to senior. Session revoke on an admin or service account has broader downstream impact;",
         {
           "label": "Revoke as normal; the playbook is the same.",
           "rationale": "Downstream impact on dependent systems differs from a regular user account."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Admin and service-account revocations have broader downstream impact. The senior coordinates the timing with the customer's IT to manage dependent-system disruption."
+      "explanation": "The senior may want to coordinate the revoke with the customer's IT. Admin and service-account revocations have broader downstream impact. The senior coordinates the timing with the customer's IT to manage dependent-system disruption."
     },
     {
       "id": "skip-verify-mistake",
@@ -174,14 +174,14 @@
           "label": "\"You will need to factory reset your machine.\"",
           "rationale": "This is identity-side, not endpoint-side. Factory reset is overkill and inaccurate."
         },
-        "\"We revoked your active sign-ins to contain a security event on your account. You will see sign-out prompts on your devices. We will have you signed back in with new credentials shortly. Local files and your machine are fine.\"",
+        "\"We revoked your active sign-ins to contain a security event on your account.",
         {
           "label": "Tell the user nothing and let them figure it out.",
           "rationale": "The call is part of the playbook. Silence is not an option."
         }
       ],
       "correct": 2,
-      "explanation": "Plain-language framing names what happened, why, and what to expect. It distinguishes identity-side from endpoint-side so the user does not panic about their local machine."
+      "explanation": "You will see sign-out prompts on your devices. We will have you signed back in with new credentials shortly. Local files and your machine are fine.\" Plain-language framing names what happened, why, and what to expect. It distinguishes identity-side from endpoint-side so the user does not panic about their local machine."
     },
     {
       "id": "procedure-order",

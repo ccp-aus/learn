@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What does the lesson say about the helpdesk's role on a tenant-wide compromise?",
       "choices": [
-        "Contain the immediate user (steps 1 and 2), recognise the pattern, escalate. Do not continue the full single-identity playbook solo.",
+        "Contain the immediate user (steps 1 and 2), recognise the pattern, escalate.",
         {
           "label": "Run the full single-identity playbook on every affected user in sequence.",
           "rationale": "Solo per-user playbook lets the attacker keep moving."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Recognition plus immediate containment plus bump. The broader response is above the helpdesk ceiling."
+      "explanation": "Do not continue the full single-identity playbook solo. Recognition plus immediate containment plus bump. The broader response is above the helpdesk ceiling."
     },
     {
       "id": "signal-families",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "What are the two questions the lesson says to run on every ITDR incident?",
       "choices": [
-        "(1) Is the same incident type firing on other users in this tenant right now? (2) Does the incident or its Evidence involve admin actions, tenant-level grants, or app registrations?",
+        "(1) Is the same incident type firing on other users in this tenant right now?",
         {
           "label": "(1) Is the user reachable? (2) Is the user senior?",
           "rationale": "Reachability and seniority are not the recognition questions."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Either yes triggers tenant-wide handling: contain the immediate user and escalate."
+      "explanation": "(2) Does the incident or its Evidence involve admin actions, tenant-level grants, or app registrations? Either yes triggers tenant-wide handling: contain the immediate user and escalate."
     },
     {
       "id": "three-incidents-scenario",
@@ -89,14 +89,14 @@
           "label": "Continue Liu's playbook to completion; the other two are separate.",
           "rationale": "Three similar incidents in 25 minutes is the multi-user signal."
         },
-        "Complete steps 1 and 2 on Liu. Stop the playbook. Bump to senior naming the pattern.",
+        "Complete steps 1 and 2 on Liu. Stop the playbook.",
         {
           "label": "Stop everything and bump before completing any steps on Liu.",
           "rationale": "Misses immediate containment. Liu's session stays active during the bump."
         }
       ],
       "correct": 1,
-      "explanation": "Contain the immediate user (steps 1 and 2), then bump. The broader response belongs to the senior."
+      "explanation": "Bump to senior naming the pattern. Contain the immediate user (steps 1 and 2), then bump. The broader response belongs to the senior."
     },
     {
       "id": "senior-directs",
@@ -105,7 +105,7 @@
       "difficulty": "hard",
       "prompt": "The senior directs: \"Run steps 1 and 2 on Pat and Marie. Do not go further than step 2. Joel (customer IT) might call you.\" What do you do?",
       "choices": [
-        "Run steps 1 and 2 on Pat and Marie. If Joel calls, redirect him to the senior with the briefing framing.",
+        "Run steps 1 and 2 on Pat and Marie.",
         {
           "label": "Run the full playbook on Pat and Marie because they are the same pattern.",
           "rationale": "The senior explicitly said do not go further than step 2."
@@ -116,7 +116,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Clear scope from the senior. Steps 1 and 2 on the named users. Customer comms is the holding message."
+      "explanation": "If Joel calls, redirect him to the senior with the briefing framing. Clear scope from the senior. Steps 1 and 2 on the named users. Customer comms is the holding message."
     },
     {
       "id": "soc-tags-single",
@@ -134,7 +134,7 @@
       "difficulty": "medium",
       "prompt": "\"Tenant-wide is the senior's problem; I just hand it off.\" What is the cleanest correction?",
       "choices": [
-        "The user in front of you still needs containment (sessions and credentials). Hand off the rest, not the immediate user.",
+        "The user in front of you still needs containment (sessions and credentials).",
         {
           "label": "Correct. Full hand-off without any tech action.",
           "rationale": "The immediate user goes uncontained during the bump."
@@ -149,7 +149,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Steps 1 and 2 on the immediate user stay in scope. The broader response goes to the senior."
+      "explanation": "Hand off the rest, not the immediate user. Steps 1 and 2 on the immediate user stay in scope. The broader response goes to the senior."
     },
     {
       "id": "admin-actions-regular-user",
@@ -158,7 +158,7 @@
       "difficulty": "medium",
       "prompt": "\"Admin-credential involvement only matters if the admin user is the affected user.\" Why is this wrong?",
       "choices": [
-        "Admin actions performed during a regular user's compromise are the signal that the attacker has elevated, even if the affected-user account is regular.",
+        "Admin actions performed during a regular user's compromise are the signal that the attacker has elevated.",
         {
           "label": "Correct. Admin involvement only matters for admin accounts.",
           "rationale": "The admin signal travels with the activity, not the user's role label."
@@ -173,7 +173,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The admin signal travels with the activity in the Evidence, not with the affected user's role label."
+      "explanation": "Even if the affected-user account is regular. The admin signal travels with the activity in the Evidence, not with the affected user's role label."
     },
     {
       "id": "what-stops",
@@ -182,7 +182,7 @@
       "difficulty": "medium",
       "prompt": "Once you recognise tenant-wide, which playbook activities specifically STOP for the helpdesk?",
       "choices": [
-        "Continuing through inbox-rule, OAuth, MFA-device cleanup unilaterally; calling additional users; broader customer-comms coordination.",
+        "Continuing through inbox-rule, OAuth, MFA-device cleanup unilaterally;",
         {
           "label": "Everything. The helpdesk does nothing.",
           "rationale": "Steps 1 and 2 on the immediate user stay in scope."
@@ -197,7 +197,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Steps 3 through 5 unilaterally, additional-user comms, and broader customer coordination all stop. Steps 1 and 2 on the immediate user stay."
+      "explanation": "Calling additional users; broader customer-comms coordination. Steps 3 through 5 unilaterally, additional-user comms, and broader customer coordination all stop. Steps 1 and 2 on the immediate user stay."
     },
     {
       "id": "why-solo-fails",
@@ -206,7 +206,7 @@
       "difficulty": "hard",
       "prompt": "Why does running the full single-identity playbook on multiple affected users solo fail on a tenant-wide compromise?",
       "choices": [
-        "The attacker keeps moving through other users while you focus on one, AND some tenant-wide compromises involve admin or app-level grants where single-user remediations do not address the root cause.",
+        "The attacker keeps moving through other users while you focus on one.",
         {
           "label": "It does not fail; solo playbook on each user is correct.",
           "rationale": "The lesson is explicit that this fails."
@@ -221,7 +221,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two failure modes: the attacker keeps moving, and single-user remediations do not address tenant-level root causes like admin-consented apps."
+      "explanation": "AND some tenant-wide compromises involve admin or app-level grants where single-user remediations do not address the root cause. Two failure modes: the attacker keeps moving, and single-user remediations do not address tenant-level root causes like admin-consented apps."
     }
   ]
 }

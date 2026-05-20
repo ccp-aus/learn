@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "A senior walking past your desk says: \"Delete that old customer org while you're at it.\" Why is the senior's request not sufficient authorisation?",
       "choices": [
-        "Permanent organisation deletion is category 4, and a verbal passing instruction is not the documented form of delegation that category needs.",
+        "Permanent organisation deletion is category 4.",
         {
           "label": "Only your direct manager can authorise actions, never another senior.",
           "rationale": "The issue is the form of the authorisation, not the identity of the senior. Even your direct manager's casual verbal is the wrong form."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The category gates permanent commercial actions behind documented delegation. Ask for the runbook update or written delegation; do not refuse, but do not proceed on a corridor instruction."
+      "explanation": "A verbal passing instruction is not the documented form of delegation that category needs. The category gates permanent commercial actions behind documented delegation. Ask for the runbook update or written delegation; do not refuse, but do not proceed on a corridor instruction."
     },
     {
       "id": "customer-vs-soc",
@@ -69,14 +69,14 @@
           "label": "Category 3, a SIEM tuning request.",
           "rationale": "Wrong category. Releasing an isolated host is not a detection-rule change."
         },
-        "Category 6, customer-versus-SOC tension. The senior owns the conversation; the tech does not release unilaterally.",
+        "Category 6, customer-versus-SOC tension.",
         {
           "label": "Reply to the SOC and ask them to release on the customer's say-so.",
           "rationale": "Bypasses the senior. The customer-versus-SOC channel runs through the senior, not via the tech relaying customer preferences to the analyst."
         }
       ],
       "correct": 2,
-      "explanation": "Category 6 trips any time the customer's preference and the SOC's recommendation are in tension. The senior owns that call."
+      "explanation": "The senior owns the conversation; the tech does not release unilaterally. Category 6 trips any time the customer's preference and the SOC's recommendation are in tension. The senior owns that call."
     },
     {
       "id": "soc-tuning-in-recommendation",
@@ -89,7 +89,7 @@
           "label": "Tune the threshold yourself. The SOC suggested it and the portal exposes the surface.",
           "rationale": "Visibility into the surface is not authorisation to act on it. SIEM tuning is category 3 every time."
         },
-        "Approve the remediation (in scope). Bump the tuning portion to the senior (category 3, above the line).",
+        "Approve the remediation (in scope).",
         {
           "label": "Skip both the remediation and the tuning until a senior is free.",
           "rationale": "Over-escalates. The remediation portion is routine in-scope work."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The remediation is in scope; the tuning is category 3. Visibility is not authorisation. Split the Recommendation at the category line."
+      "explanation": "Bump the tuning portion to the senior (category 3, above the line). The remediation is in scope; the tuning is category 3. Visibility is not authorisation. Split the Recommendation at the category line."
     },
     {
       "id": "action-on-trip",
@@ -170,7 +170,7 @@
           "label": "Runbooks are deliberately incomplete to force escalations.",
           "rationale": "Runbooks are not booby-trapped; they are scoped."
         },
-        "Reading more carefully does not change the scope. The categories exist because the MSP has decided the tech-level decision lacks the full picture. They are points of structural authority, not knowledge gaps.",
+        "Reading more carefully does not change the scope.",
         {
           "label": "Runbooks are out of date and untrustworthy.",
           "rationale": "Some may be stale, but the structural argument stands regardless."
@@ -181,7 +181,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The categories are scope boundaries, not knowledge gaps. More careful reading does not change what the MSP has decided lives above the helpdesk line."
+      "explanation": "The categories exist because the MSP has decided the tech-level decision lacks the full picture. They are points of structural authority, not knowledge gaps. The categories are scope boundaries, not knowledge gaps. More careful reading does not change what the MSP has decided lives above the helpdesk line."
     },
     {
       "id": "bulk-un-isolate",
@@ -198,14 +198,14 @@
           "label": "Un-isolate one host as a test to see if anything trips.",
           "rationale": "Test un-isolation on hosts you do not understand is the click-and-see pattern applied to a category-5 action."
         },
-        "Name category 5 to the senior: you are happy to action this, but you lack the detail on each containment. Ask to walk through them or for the senior to run the bulk action themselves.",
+        "Name category 5 to the senior: you are happy to action this.",
         {
           "label": "Refuse outright with no path forward.",
           "rationale": "Half-right but unhelpful. The senior has real workload to move. Naming the category and offering a path is the calibrated response."
         }
       ],
       "correct": 2,
-      "explanation": "You are not refusing. You are putting the irreversible bulk action behind the gate the category puts it behind. Either the senior teaches you the detail or they action it themselves."
+      "explanation": "But you lack the detail on each containment. Ask to walk through them or for the senior to run the bulk action themselves. You are not refusing. You are putting the irreversible bulk action behind the gate the category puts it behind. Either the senior teaches you the detail or they action it themselves."
     },
     {
       "id": "senior-pushback-fix",
@@ -226,10 +226,10 @@
           "label": "Delete one as a test to see if anything breaks.",
           "rationale": "Test deletions on permanent actions combine click-and-see with a category-4 trip."
         },
-        "Name the underlying gap and propose a fix: if these really are stale, this is paperwork. Suggest updating the offboarding runbook to delegate permanent deletion for aged orgs, and wait until then."
+        "Name the underlying gap and propose a fix."
       ],
       "correct": 3,
-      "explanation": "Names the gap (runbook does not cover this), proposes a fix (delegation written down), does not compromise the category meanwhile. The senior gets the path forward; the category stays gated."
+      "explanation": "If these really are stale, this is paperwork. Suggest updating the offboarding runbook to delegate permanent deletion for aged orgs, and wait until then. Names the gap (runbook does not cover this), proposes a fix (delegation written down), does not compromise the category meanwhile. The senior gets the path forward; the category stays gated."
     }
   ]
 }

@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What are the two paths for moving an agent between organisations?",
       "choices": [
-        "Move in place (portal action that re-attaches the existing agent to a new org), or uninstall-and-re-install (clean break).",
+        "Move in place (portal action that re-attaches the existing agent to a new org).",
         {
           "label": "Edit the agent's hostname or change the customer's name.",
           "rationale": "Neither approach moves the agent's organisation attachment."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two paths with different telemetry-continuity and history-handling characteristics."
+      "explanation": "Or uninstall-and-re-install (clean break). Two paths with different telemetry-continuity and history-handling characteristics."
     },
     {
       "id": "when-move-in-place",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "When is move-in-place recommended?",
       "choices": [
-        "When telemetry continuity matters: active investigation, baseline-period customer where re-installing would re-trigger noise-window detections, or a high-touch endpoint where reboot/install churn is unwelcome.",
+        "When telemetry continuity matters.",
         {
           "label": "Whenever the runbook is unclear and the tech wants to be safe.",
           "rationale": "The runbook decides; if it's unclear, bump."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Continuity is the discriminator."
+      "explanation": "Active investigation, baseline-period customer where re-installing would re-trigger noise-window detections. Or a high-touch endpoint where reboot/install churn is unwelcome. Continuity is the discriminator."
     },
     {
       "id": "when-reinstall",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "When is uninstall-and-re-install recommended?",
       "choices": [
-        "Clean handover (customer split, organisational rename, fixing a wrong-org-key deployment), when the agent is in a degraded state already, or when the runbook specifies it.",
+        "Clean handover (customer split.",
         {
           "label": "Whenever the customer asks.",
           "rationale": "The runbook decides; the customer doesn't choose the path."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Clean break is the design intent for these cases."
+      "explanation": "Organisational rename, fixing a wrong-org-key deployment), when the agent is in a degraded state already. Or when the runbook specifies it. Clean break is the design intent for these cases."
     },
     {
       "id": "preflight-authorisation",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "What's the first pre-flight step?",
       "choices": [
-        "Confirm the move is authorised. Some MSPs reserve all agent moves for seniors because of billing-attribution implications; some delegate the routine wrong-org-key case to helpdesk.",
+        "Confirm the move is authorised.",
         {
           "label": "Click 'Move' immediately to see what dropdown options appear.",
           "rationale": "Click-first is the wrong reflex on a billing-sensitive action."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Authorisation comes first because the action has billing and incident-routing consequences."
+      "explanation": "Some MSPs reserve all agent moves for seniors because of billing-attribution implications; some delegate the routine wrong-org-key case to helpdesk. Authorisation comes first because the action has billing and incident-routing consequences."
     },
     {
       "id": "mid-incident-move",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "'Moving an agent that has an active incident open in the source organisation' — what's wrong with this?",
       "choices": [
-        "Splits ownership of the incident across two organisations, confuses the SOC, and leaves the next tech wondering which org the response is happening in. Resolve or hand off the incident first.",
+        "Splits ownership of the incident across two organisations.",
         {
           "label": "The portal blocks moves while incidents are open.",
           "rationale": "The lesson is explicit that the action is allowed but creates split ownership."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Mid-incident moves split ownership and confuse the SOC."
+      "explanation": "Confuses the SOC, and leaves the next tech wondering which org the response is happening in. Resolve or hand off the incident first. Mid-incident moves split ownership and confuse the SOC."
     },
     {
       "id": "wrong-org-key-fix",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "An agent enrolled in the wrong customer organisation (wrong key used). The senior says 'use the move-in-place path; runbook says so for these.' What's your first action?",
       "choices": [
-        "Run the move-in-place action from the source org's Agents view, targeting the correct organisation. Two-tab discipline applies; confirm source and target before clicking.",
+        "Run the move-in-place action from the source org's Agents view.",
         {
           "label": "Run uninstall on the source and re-install on the target.",
           "rationale": "The senior named move-in-place per the runbook; deviating without a reason creates inconsistency."
@@ -144,7 +144,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Senior has confirmed authorisation, path, and rationale. Confirm and proceed."
+      "explanation": "Targeting the correct organisation. Two-tab discipline applies; confirm source and target before clicking. Senior has confirmed authorisation, path, and rationale. Confirm and proceed."
     },
     {
       "id": "ambiguous-target",
@@ -153,7 +153,7 @@
       "difficulty": "hard",
       "prompt": "The dropdown shows three options whose names start with the customer's brand: a country-specific org, a different country-specific org, and a 'Group' parent org used for billing consolidation. The senior named one specific org. What do you do?",
       "choices": [
-        "Move to the org the senior named; confirm the spelling exactly. The dropdown ambiguity is the wrong-org slip waiting to happen.",
+        "Move to the org the senior named;",
         {
           "label": "Move to the Group parent because the agent will then be visible across the group.",
           "rationale": "Inferring from the parent name overrules the explicit instruction."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The senior named one of the three options on purpose; spelling-confirm and click."
+      "explanation": "Confirm the spelling exactly. The dropdown ambiguity is the wrong-org slip waiting to happen. The senior named one of the three options on purpose; spelling-confirm and click."
     },
     {
       "id": "move-in-place-order",
@@ -213,7 +213,7 @@
       "difficulty": "medium",
       "prompt": "Which set is the verify list for a completed move?",
       "choices": [
-        "Agent in the target org with expected hostname and online status; fully gone from the source org (or in the expected archived state); notification routing now goes to the target's contacts; PSA records timestamp, path used, and reason; no incidents split across the two orgs.",
+        "Agent in the target org with expected hostname and online status;",
         {
           "label": "Agent visible in the target org only.",
           "rationale": "Misses the source-org check, routing, documentation, and incident-ownership pieces."
@@ -228,7 +228,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Both ends of the move, plus comms-routing, plus documentation."
+      "explanation": "Fully gone from the source org (or in the expected archived state); notification routing now goes to the target's contacts; PSA records timestamp, path used, and reason; no incidents split across the two orgs. Both ends of the move, plus comms-routing, plus documentation."
     }
   ]
 }

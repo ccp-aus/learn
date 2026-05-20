@@ -54,6 +54,173 @@ The most common diagnostic split: **is the record correct at the authoritative s
 
 If the authoritative result is correct and the public-resolver result is stale: change is fine, propagation in flight. If the authoritative is also stale: change didn't save; check the panel.
 
+## Practice: staleness triage
+
+A client changed their A record 30 minutes ago. Their office still resolves to the old IP. Walk through the diagnostic sequence.
+
+<Console
+  client:load
+  title="dns-staleness-check"
+  steps={[
+    {
+      narration: "First move: confirm the change is live at the authoritative server.",
+      variants: {
+        bash: {
+          choices: [
+            "dig A example.com @ns1.example.com",
+            {
+              label: "dig A example.com",
+              rationale: "Without @server, dig uses your system resolver. You get whatever that resolver has cached, which might be the old value. You need the authoritative directly.",
+            },
+            {
+              label: "ping example.com",
+              rationale: "ping resolves the name to one IP and tests reachability. It hides multi-A records and tells you nothing about whether the authoritative has the new value.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    300    IN    A    198.51.100.42",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A -Server ns1.example.com",
+            {
+              label: "Resolve-DnsName example.com -Type A",
+              rationale: "Without -Server, this queries the system resolver. Same cached answer your machine already has.",
+            },
+            {
+              label: "Test-Connection example.com -Count 1",
+              rationale: "Test-Connection is PowerShell's ping. It resolves one IP and tests reachability. Doesn't tell you what the authoritative server holds.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 300\nIPAddress : 198.51.100.42",
+        },
+        cmd: {
+          choices: [
+            "nslookup -type=A example.com ns1.example.com",
+            {
+              label: "nslookup example.com",
+              rationale: "Without the second argument, nslookup queries the system resolver. You get whatever it cached, not the authoritative answer.",
+            },
+            {
+              label: "ping example.com",
+              rationale: "ping resolves one IP and checks reachability. It doesn't show you what the authoritative server holds.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  ns1.example.com\nAddress: 203.0.113.53\n\nName:    example.com\nAddress: 198.51.100.42",
+        },
+      },
+    },
+    {
+      narration: "Authoritative has the new IP. Now check what a public resolver sees, to confirm the staleness is downstream cache.",
+      variants: {
+        bash: {
+          choices: [
+            "dig +short A example.com @8.8.8.8",
+            {
+              label: "dig +short A example.com @192.168.1.1",
+              rationale: "192.168.1.1 is a private LAN address. You want a public resolver to see what the internet sees, not your local gateway.",
+            },
+            {
+              label: "ipconfig /flushdns",
+              rationale: "Flushing your local cache doesn't tell you what upstream resolvers hold. You need to query a public resolver and compare.",
+            },
+          ],
+          correctIndex: 0,
+          response: "192.0.2.10",
+          comment: "Still the old IP. The authoritative has the new value (198.51.100.42), but Google's cache is stale. Propagation in flight.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A -Server 8.8.8.8",
+            {
+              label: "Clear-DnsClientCache",
+              rationale: "Clears your local stub-resolver cache. Doesn't tell you what upstream public resolvers are serving.",
+            },
+            {
+              label: "Resolve-DnsName example.com -Type A -Server 192.168.1.1",
+              rationale: "192.168.1.1 is your LAN gateway. You want a public resolver (8.8.8.8, 1.1.1.1) to compare against the authoritative.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nType      : A\nTTL       : 1247\nIPAddress : 192.0.2.10",
+          comment: "Old IP with 1247 seconds of TTL left in Google's cache. The authoritative has the new value; this resolver hasn't re-queried yet.",
+        },
+        cmd: {
+          choices: [
+            "nslookup example.com 8.8.8.8",
+            {
+              label: "ipconfig /flushdns",
+              rationale: "Flushes the local stub-resolver cache. Tells you nothing about what public resolvers are serving.",
+            },
+            {
+              label: "nslookup example.com",
+              rationale: "Without the second argument, this queries the system resolver. You already know what that returns. You need a public resolver for comparison.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Server:  dns.google\nAddress: 8.8.8.8\n\nNon-authoritative answer:\nName:    example.com\nAddress: 192.0.2.10",
+          comment: "Old IP. Google's cache is stale; the authoritative already has the new value. Propagation in flight.",
+        },
+      },
+    },
+    {
+      narration: "How long until the stale cache expires? Pull the record with its TTL.",
+      variants: {
+        bash: {
+          choices: [
+            "dig example.com A +noall +answer",
+            {
+              label: "whois example.com",
+              rationale: "whois shows registrar metadata (registrant, nameservers, expiry date). It has nothing to do with DNS record TTLs.",
+            },
+            {
+              label: "host -v example.com",
+              rationale: "host -v resolves the address but doesn't reliably show the TTL in its output. dig surfaces TTL by default in the answer section.",
+            },
+          ],
+          correctIndex: 0,
+          response: "example.com.    1247    IN    A    192.0.2.10",
+          comment: "TTL 1247 seconds remaining. Worst case, the stale value clears in about 21 minutes.",
+        },
+        powershell: {
+          choices: [
+            "Resolve-DnsName example.com -Type A | Format-List",
+            {
+              label: "Get-DnsClientCache",
+              rationale: "Reads your local resolver cache. The TTLs there are remaining-TTL from your machine's perspective, not the upstream resolver's.",
+            },
+            {
+              label: "Resolve-DnsName example.com -Type A",
+              rationale: "Default table output is compact and can truncate columns. Format-List shows all fields including TTL.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Name      : example.com\nQueryType : A\nTTL       : 1247\nIPAddress : 192.0.2.10",
+          comment: "1247 seconds of TTL left. The stale answer clears in about 21 minutes.",
+        },
+        cmd: {
+          choices: [
+            "nslookup -debug example.com",
+            {
+              label: "nslookup example.com",
+              rationale: "Default nslookup hides TTL. The -debug flag dumps the full DNS response including TTL.",
+            },
+            {
+              label: "ipconfig /displaydns",
+              rationale: "Shows the local stub-resolver cache. Remaining-TTL from your machine, not the upstream resolver's.",
+            },
+          ],
+          correctIndex: 0,
+          response: "Got answer:\n    HEADER:\n        opcode = QUERY, id = 1, rcode = NOERROR\n    ANSWERS:\n    ->  example.com\n        internet address = 192.0.2.10\n        ttl = 1247 (20 mins 47 secs)",
+          comment: "1247 seconds left on the cached answer. The stale value clears in about 21 minutes.",
+        },
+      },
+    },
+  ]}
+/>
+
 ## When to use which tool
 
 | Tool | When |

@@ -17,7 +17,7 @@
           "label": "An anti-virus product that runs alongside Defender.",
           "rationale": "Conflates Huntress with AV. AV decides whether to block; Huntress collects telemetry, the SOC analyses, and the tech actions a recommendation. They are designed to run together."
         },
-        "A managed security platform combining endpoint, identity, and optional SIEM telemetry with a 24/7 human-and-AI SOC.",
+        "A managed security platform combining endpoint, identity.",
         {
           "label": "A standalone EDR product sold mainly to enterprise security teams.",
           "rationale": "Wrong on two counts. Huntress isn't standalone EDR — it includes ITDR and optional SIEM under one platform — and its target market is mostly MSPs."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Three current product surfaces (EDR, ITDR, optional SIEM), plus ransomware canaries under EDR, and a SOC that produces Incident Reports with recommendations."
+      "explanation": "Optional SIEM telemetry with a 24/7 human-and-AI SOC. Three current product surfaces (EDR, ITDR, optional SIEM), plus ransomware canaries under EDR, and a SOC that produces Incident Reports with recommendations."
     },
     {
       "id": "av-distinction",
@@ -41,7 +41,7 @@
           "label": "Huntress is more expensive than AV, so it must be better.",
           "rationale": "Price doesn't describe the model. The new tech will still treat Huntress like AV unless the SOC and recommendation flow get named."
         },
-        "AV blocks autonomously based on signatures; Huntress collects telemetry, a SOC analyst writes a recommendation, and the tech actions it.",
+        "AV blocks autonomously based on signatures;",
         {
           "label": "Huntress doesn't need an agent on the endpoint.",
           "rationale": "Wrong on the facts. Managed EDR runs an agent on Windows, macOS, and Linux endpoints."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The three differences — notify vs. block, graded vs. binary, named analyst vs. signatures — all hang off this core distinction."
+      "explanation": "Huntress collects telemetry, a SOC analyst writes a recommendation, and the tech actions it. The three differences — notify vs. block, graded vs. binary, named analyst vs. signatures — all hang off this core distinction."
     },
     {
       "id": "av-missed-it",
@@ -65,7 +65,7 @@
           "label": "AV never fails — it catches everything by definition.",
           "rationale": "Wrong on its own terms. AV does miss things. But the deeper issue is that AV and Huntress watch different things, so both being involved isn't a failure of either."
         },
-        "AV may have caught and quarantined the file; Huntress reports on the behaviour around it (autoruns, scheduled tasks, lateral signals). Both being involved is the design, not a failure.",
+        "AV may have caught and quarantined the file;",
         {
           "label": "Huntress only raises detections when AV is disabled.",
           "rationale": "Wrong on the facts. Huntress runs whether AV is active or not."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The two products watch different layers — AV blocks files, Huntress watches the behaviour around them."
+      "explanation": "Huntress reports on the behaviour around it (autoruns, scheduled tasks, lateral signals). Both being involved is the design, not a failure. The two products watch different layers — AV blocks files, Huntress watches the behaviour around them."
     },
     {
       "id": "huntress-will-block",
@@ -89,7 +89,7 @@
           "label": "Correct — once you enable auto-block in settings, Huntress acts on every incident.",
           "rationale": "There is no general auto-block setting. The default model is collect, analyse, recommend, action — the tech is the actioning party."
         },
-        "Mostly no — the default model is collect, analyse, recommend, action. ITDR has some auto-response actions, but EDR generally hands you a recommendation to execute.",
+        "Mostly no — the default model is collect, analyse, recommend, action.",
         {
           "label": "Wrong — Huntress never takes any action automatically under any circumstance.",
           "rationale": "Too absolute. ITDR has documented auto-response actions (lesson 15)."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "ITDR auto-response (covered in lesson 15) is the named exception. EDR is recommendation-driven."
+      "explanation": "ITDR has some auto-response actions, but EDR generally hands you a recommendation to execute. ITDR auto-response (covered in lesson 15) is the named exception. EDR is recommendation-driven."
     },
     {
       "id": "stack-position",

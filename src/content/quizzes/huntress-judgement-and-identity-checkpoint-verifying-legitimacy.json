@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "A user calls in about a security event two minutes after the incident lands. What is the right response?",
       "choices": [
-        "Treat the inbound call as untrusted. Initiate your own callback on a documented known-good number before discussing the incident.",
+        "Treat the inbound call as untrusted.",
         {
           "label": "Accept the call as the verification; it saves time.",
           "rationale": "Inbound calls can be the attacker. Never accept as the verification step."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Could be the legitimate user, could be the attacker calling first. Initiate the call yourself on a known-good channel."
+      "explanation": "Initiate your own callback on a documented known-good number before discussing the incident. Could be the legitimate user, could be the attacker calling first. Initiate the call yourself on a known-good channel."
     },
     {
       "id": "avoid-mailbox-leaking-identifiers",
@@ -97,10 +97,10 @@
           "label": "Ask the user to think harder and call back.",
           "rationale": "Delays without resolving the uncertainty."
         },
-        "Treat uncertainty as denial and proceed with the playbook. The cost of acting on a maybe-real compromise is lower than waiting on a real one."
+        "Treat uncertainty as denial and proceed with the playbook."
       ],
       "correct": 3,
-      "explanation": "Uncertainty is not confirmation. The cost asymmetry favours action."
+      "explanation": "The cost of acting on a maybe-real compromise is lower than waiting on a real one. Uncertainty is not confirmation. The cost asymmetry favours action."
     },
     {
       "id": "attacker-calling-scenario",
@@ -113,14 +113,14 @@
           "label": "\"Yes, you are clear, go to your meeting.\"",
           "rationale": "Skipping verification on a self-identifying call. If the caller is the attacker, you have given them confirmation."
         },
-        "Confirm the alert is being investigated, ask Daniel to stay on the line while you verify identity via the out-of-band path.",
+        "Confirm the alert is being investigated.",
         {
           "label": "\"I cannot talk to you on this call, please call me back on our documented number.\"",
           "rationale": "Right principle, wrong handling. You initiate the callback, not the caller."
         }
       ],
       "correct": 1,
-      "explanation": "The inbound call is suspicious by timing and tone. The out-of-band check is the test."
+      "explanation": "Ask Daniel to stay on the line while you verify identity via the out-of-band path. The inbound call is suspicious by timing and tone. The out-of-band check is the test."
     },
     {
       "id": "unreachable-exfiltration",
@@ -137,10 +137,10 @@
           "label": "Re-escalate to senior to make the call.",
           "rationale": "Defensible but slow. Verification attempts exhausted, pattern clear, playbook documented for the helpdesk."
         },
-        "Execute the compromise playbook, document verification attempts in detail, keep trying contacts, brief whoever picks up first."
+        "Execute the compromise playbook."
       ],
       "correct": 2,
-      "explanation": "Active exfiltration plus exhausted verification attempts. Proceed and document."
+      "explanation": "Document verification attempts in detail, keep trying contacts, brief whoever picks up first. Active exfiltration plus exhausted verification attempts. Proceed and document."
     },
     {
       "id": "it-manager-skip-verification",
@@ -185,10 +185,10 @@
           "label": "Verification is optional if the user objects.",
           "rationale": "It is not optional. It protects the customer."
         },
-        "The legitimate user, briefed correctly by their IT, will accept the verification step. Refusal is a red flag."
+        "The legitimate user, briefed correctly by their IT."
       ],
       "correct": 3,
-      "explanation": "Behaviour around the verification is itself a signal. Refusal raises the suspicion level."
+      "explanation": "Will accept the verification step. Refusal is a red flag. Behaviour around the verification is itself a signal. Refusal raises the suspicion level."
     },
     {
       "id": "timeline-mismatch-signal",
@@ -201,7 +201,7 @@
           "label": "The Timeline is wrong; trust the user.",
           "rationale": "Timeline is captured event data. User recollection under stress is less reliable."
         },
-        "Possible social engineering. The caller is fishing for details that do not match what actually happened. Treat with caution and reconfirm identity.",
+        "Possible social engineering.",
         {
           "label": "Close the incident; user has confirmed Bangkok activity.",
           "rationale": "The claim does not match the Timeline. That is a mismatch, not confirmation."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Timeline-vs-claim mismatch is a strong yellow flag for social engineering."
+      "explanation": "The caller is fishing for details that do not match what actually happened. Treat with caution and reconfirm identity. Timeline-vs-claim mismatch is a strong yellow flag for social engineering."
     },
     {
       "id": "escalation-bec-extortion",
@@ -229,14 +229,14 @@
           "label": "The user passes the out-of-band check and confirms the activity was theirs.",
           "rationale": "That is a clean false-positive close, not an escalation."
         },
-        "The verification call reveals the user is being socially engineered or extorted by the attacker, especially in BEC scenarios with financial targets.",
+        "The verification call reveals the user is being socially engineered or extorted by the attacker.",
         {
           "label": "The user denies the activity and is reachable.",
           "rationale": "That is a clean playbook-proceed case."
         }
       ],
       "correct": 2,
-      "explanation": "Active social engineering or extortion changes the response shape. Senior territory."
+      "explanation": "Especially in BEC scenarios with financial targets. Active social engineering or extortion changes the response shape. Senior territory."
     }
   ]
 }

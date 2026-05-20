@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "What three categories does this playbook step remove?",
       "choices": [
-        "Malicious inbox rules, mailbox-level forwarders (ForwardingSmtpAddress/ForwardingAddress), and routing to hidden folders (with the existing routed mail noted).",
+        "Malicious inbox rules, mailbox-level forwarders.",
         {
           "label": "Spam filters, signature blocks, and out-of-office replies.",
           "rationale": "Those are not the named categories."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Three categories: inbox rules, mailbox-level forwarders, and hidden-folder routing with documentation. The multi-mechanism check is the discipline."
+      "explanation": "(ForwardingSmtpAddress/ForwardingAddress). Routing to hidden folders (with the existing routed mail noted). Three categories: inbox rules, mailbox-level forwarders, and hidden-folder routing with documentation. The multi-mechanism check is the discipline."
     },
     {
       "id": "rule-not-forwarder",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "\"Removing the rule but not the forwarder\" leaves what risk?",
       "choices": [
-        "Both exfiltration paths need closing. The forwarder keeps sending mail externally even after the rule is removed.",
+        "Both exfiltration paths need closing.",
         {
           "label": "The rule re-creates itself if the forwarder is left in place.",
           "rationale": "Wrong on platform behaviour."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two mechanisms, two removals. The inbox rule and the mailbox-level forwarder are independent exfiltration paths."
+      "explanation": "The forwarder keeps sending mail externally even after the rule is removed. Two mechanisms, two removals. The inbox rule and the mailbox-level forwarder are independent exfiltration paths."
     },
     {
       "id": "scenario-multiple-rules",
@@ -65,14 +65,14 @@
           "label": "Remove all three rules to be thorough.",
           "rationale": "Acts beyond the Recommendation. The newsletter rule is legitimate; the manager-forward needs SOC review."
         },
-        "Remove \"AP Filter\" per the Recommendation. Note the newsletter rule as legitimate. Reply to the SOC about the manager-forward (set within the compromise window). Document what was checked.",
+        "Remove \"AP Filter\" per the Recommendation.",
         {
           "label": "Remove only \"AP Filter\" and do not mention the others.",
           "rationale": "Half-right. The 2-day-old forward is in the compromise window and worth flagging to the SOC."
         }
       ],
       "correct": 1,
-      "explanation": "Targeted action per the Recommendation. Ambiguous-in-window rules surface to the SOC. Documentation serves the next reader."
+      "explanation": "Note the newsletter rule as legitimate. Reply to the SOC about the manager-forward (set within the compromise window). Document what was checked. Targeted action per the Recommendation. Ambiguous-in-window rules surface to the SOC. Documentation serves the next reader."
     },
     {
       "id": "forwarder-not-in-rec",
@@ -85,14 +85,14 @@
           "label": "Remove the forwarder yourself because it is obviously malicious.",
           "rationale": "Acting on context the Recommendation did not include. The SOC owns the disposition."
         },
-        "Reply to the SOC: \"Mailbox-level ForwardingSmtpAddress also set to the attacker address. Should this be cleared?\" Continue the playbook.",
+        "Reply to the SOC: \"Mailbox-level ForwardingSmtpAddress also set to the attacker address.",
         {
           "label": "Stop the playbook until the SOC responds.",
           "rationale": "Sessions and password are already addressed. The rest of the playbook continues in parallel."
         }
       ],
       "correct": 1,
-      "explanation": "Surface to the SOC rather than act unilaterally. Continue the playbook while waiting for the SOC's response."
+      "explanation": "Should this be cleared?\" Continue the playbook. Surface to the SOC rather than act unilaterally. Continue the playbook while waiting for the SOC's response."
     },
     {
       "id": "tenant-wide-transport",
@@ -101,7 +101,7 @@
       "difficulty": "medium",
       "prompt": "The Recommendation mentions removing a tenant-wide transport rule. What does the lesson say?",
       "choices": [
-        "Tenant-wide transport rules are senior territory. This is a tenant-wide-compromise indicator. Bump.",
+        "Tenant-wide transport rules are senior territory.",
         {
           "label": "Remove the transport rule yourself.",
           "rationale": "Tenant-wide is above the helpdesk ceiling."
@@ -116,7 +116,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Tenant-wide transport rules sit above the helpdesk ceiling. Bump to senior."
+      "explanation": "This is a tenant-wide-compromise indicator. Bump. Tenant-wide transport rules sit above the helpdesk ceiling. Bump to senior."
     },
     {
       "id": "hidden-folder-volume",
@@ -129,7 +129,7 @@
           "label": "Delete the hidden folder and its contents.",
           "rationale": "The mail may be the only record of what the attacker read; deletion destroys evidence."
         },
-        "Note the folder and the volume so the customer can review what was there. The routed mail is a potential exfiltration trail.",
+        "Note the folder and the volume so the customer can review what was there.",
         {
           "label": "Ignore the routed mail. Only the rule itself matters.",
           "rationale": "The routed mail is part of the compromise impact."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The routed mail is a potential exfiltration trail. Document the folder and volume for the customer's record."
+      "explanation": "The routed mail is a potential exfiltration trail. The routed mail is a potential exfiltration trail. Document the folder and volume for the customer's record."
     },
     {
       "id": "delegated-internal",
@@ -157,14 +157,14 @@
           "label": "Leave it because internal forwarders are always safe.",
           "rationale": "Could be lateral attacker movement within the tenant."
         },
-        "Bump rather than remove without context. Could be legitimate delegation; could be lateral movement.",
+        "Bump rather than remove without context.",
         {
           "label": "Send a message to the delegated mailbox owner to ask.",
           "rationale": "Senior coordinates customer-side comms during an active incident."
         }
       ],
       "correct": 2,
-      "explanation": "Ambiguous internal-delegation patterns escalate. The senior or SOC provides context before action."
+      "explanation": "Could be legitimate delegation; could be lateral movement. Ambiguous internal-delegation patterns escalate. The senior or SOC provides context before action."
     },
     {
       "id": "verify-check",
@@ -177,7 +177,7 @@
           "label": "Portal shows the action complete; nothing else needed.",
           "rationale": "Action complete is not the full state check."
         },
-        "Named inbox rules no longer exist; forwarder fields are empty; Timeline shows no new rule-created or forwarder-set events post-remediation; documented in the Incident Report.",
+        "Named inbox rules no longer exist;",
         {
           "label": "Ask the user to confirm they no longer have the rule.",
           "rationale": "The platform state is the source of truth; users may not see the changes immediately."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Four checks: rules gone, forwarder fields empty, no new routing events, documented. Immediate verification catches silent failures."
+      "explanation": "Forwarder fields are empty; Timeline shows no new rule-created or forwarder-set events post-remediation; documented in the Incident Report. Four checks: rules gone, forwarder fields empty, no new routing events, documented. Immediate verification catches silent failures."
     },
     {
       "id": "unusual-rules-soc",

@@ -45,14 +45,14 @@
           "label": "It uses too many timestamps and concrete facts.",
           "rationale": "Specific facts are Version 3's strength, not Version 1's problem."
         },
-        "It inflates the threat, positions the MSP as a heroic rescuer, and sets the customer up to lose sleep when the response is already complete.",
+        "It inflates the threat, positions the MSP as a heroic rescuer.",
         {
           "label": "It contains technical errors about what Huntress does.",
           "rationale": "The facts are accurate. The framing is the problem."
         }
       ],
       "correct": 2,
-      "explanation": "Panic words for a finished response. The customer loses sleep they should not have to."
+      "explanation": "Sets the customer up to lose sleep when the response is already complete. Panic words for a finished response. The customer loses sleep they should not have to."
     },
     {
       "id": "vague-overcorrection",
@@ -89,7 +89,7 @@
           "label": "Apologetic, hedged, full of \"sorry for the disruption.\"",
           "rationale": "Apologising in the notification inflates the disruption. Named common mistake."
         },
-        "Specific timestamps, named actions, useful framing (attacker-active window, response time), actionable insight, calm and brief.",
+        "Specific timestamps, named actions, useful framing.",
         {
           "label": "Heavy on passive voice to keep the tone neutral.",
           "rationale": "Passive voice hides the work. Version 3 uses active voice."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Specific, calm, named actions, useful framing, actionable insight. About 80 words longer than the vague version; the work justifies the length."
+      "explanation": "(attacker-active window, response time), actionable insight, calm and brief. Specific, calm, named actions, useful framing, actionable insight. About 80 words longer than the vague version; the work justifies the length."
     },
     {
       "id": "common-thread",
@@ -113,7 +113,7 @@
           "label": "The same length and structure.",
           "rationale": "Length and structure differ. The facts are what stay constant."
         },
-        "The same facts. The framing is the choice; the facts do not change.",
+        "The same facts. The framing is the choice;",
         {
           "label": "Identical opening sentences.",
           "rationale": "The openings are different. That is part of what makes the three versions comparable."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Three versions, same facts, different framings, very different customer responses."
+      "explanation": "The facts do not change. Three versions, same facts, different framings, very different customer responses."
     },
     {
       "id": "passive-voice-mistake",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "Why is passive voice flagged as a common mistake in incident notifications?",
       "choices": [
-        "\"An incident was detected and resolved\" hides the work and the people. Active voice (\"our SOC detected, we contained\") owns the response.",
+        "\"An incident was detected and resolved\" hides the work and the people.",
         {
           "label": "Passive voice is grammatically incorrect.",
           "rationale": "Grammatically fine. The issue is that it hides agency."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Active voice names the people and the work. Passive voice hides both."
+      "explanation": "Active voice (\"our SOC detected, we contained\") owns the response. Active voice names the people and the work. Passive voice hides both."
     },
     {
       "id": "apology-trap",
@@ -174,10 +174,10 @@
           "label": "\"Resolved an event on the workstation, all good.\"",
           "rationale": "Leaves the IT manager without specifics to decide whether to brief the user."
         },
-        "\"At [time] our SOC flagged a scheduled task running encoded PowerShell that reached a known-bad domain. We approved the remediation; the scheduled task and its persistence are removed. No further action recommended.\""
+        "\"At [time] our SOC flagged a scheduled task running encoded PowerShell that reached a known-bad domain."
       ],
       "correct": 2,
-      "explanation": "Specific, calibrated to the severity, names what was done."
+      "explanation": "We approved the remediation; the scheduled task and its persistence are removed. No further action recommended.\" Specific, calibrated to the severity, names what was done."
     },
     {
       "id": "technical-translation",
@@ -190,14 +190,14 @@
           "label": "Replace with \"suspicious activity on the workstation.\"",
           "rationale": "Vague creep. The IT manager likely knows what a scheduled task and PowerShell are."
         },
-        "Keep the technical detail and pair it with the security outcome: \"the kind of mechanism attackers use to maintain quiet persistence on a host. We removed the task and its backing.\"",
+        "Keep the technical detail and pair it with the security outcome.",
         {
           "label": "Add more detail: process IDs, the encoded command, the destination IP.",
           "rationale": "Too much detail crowds the notification. Save it for the deep-dive."
         }
       ],
       "correct": 1,
-      "explanation": "Technical-but-translated. The IT manager learns what the mechanism does as a side-effect of reading the notification."
+      "explanation": "\"the kind of mechanism attackers use to maintain quiet persistence on a host. We removed the task and its backing.\" Technical-but-translated. The IT manager learns what the mechanism does as a side-effect of reading the notification."
     },
     {
       "id": "customer-response-match",
@@ -210,14 +210,14 @@
           "label": "Version 3 (correct). Specific facts overwhelmed the customer.",
           "rationale": "Version 3 produces \"thanks, no other questions,\" not panic."
         },
-        "Version 1 (dramatic). Panic words inflated the threat and produced escalation-by-panic.",
+        "Version 1 (dramatic).",
         {
           "label": "Version 2 (vague). The customer did not understand what happened.",
           "rationale": "Version 2 more often produces \"what does this email mean?\" as confusion, not panic. The \"are we under attack?\" framing is panic, which is Version 1."
         }
       ],
       "correct": 1,
-      "explanation": "The dramatic version inflates the threat. The customer panics and escalates."
+      "explanation": "Panic words inflated the threat and produced escalation-by-panic. The dramatic version inflates the threat. The customer panics and escalates."
     }
   ]
 }

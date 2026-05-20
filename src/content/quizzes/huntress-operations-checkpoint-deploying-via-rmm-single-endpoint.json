@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'pasting an org key from chat or memory' called out as a common mistake?",
       "choices": [
-        "Org keys go in runbook-managed installers or RMM jobs, not in ad-hoc commands. A wrong-customer key sends the new agent to the wrong organisation.",
+        "Org keys go in runbook-managed installers or RMM jobs, not in ad-hoc commands.",
         {
           "label": "Org keys are case-sensitive in chat clients.",
           "rationale": "Not a real concern. The issue is provenance, not chat formatting."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The runbook is the source of truth for the org key; chat history isn't."
+      "explanation": "A wrong-customer key sends the new agent to the wrong organisation. The runbook is the source of truth for the org key; chat history isn't."
     },
     {
       "id": "verify-four-checks",
@@ -85,7 +85,7 @@
       "difficulty": "easy",
       "prompt": "Which set is the four-check verify list before closing the ticket?",
       "choices": [
-        "RMM job completed (exit code zero); agent in the Agents view with the expected hostname; agent shows online with a current version; PSA record updated with timestamp and hostname.",
+        "RMM job completed (exit code zero);",
         {
           "label": "Customer signed off; reboot completed; AV scan clean; new agent in incident queue.",
           "rationale": "None of these are the lesson's verify steps."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Four ticks: RMM exit, agent appears in portal, agent online with current version, PSA updated."
+      "explanation": "Agent in the Agents view with the expected hostname; agent shows online with a current version; PSA record updated with timestamp and hostname. Four ticks: RMM exit, agent appears in portal, agent online with current version, PSA updated."
     },
     {
       "id": "two-laptops-where-to-start",
@@ -113,14 +113,14 @@
           "label": "Push the install from the RMM immediately.",
           "rationale": "You haven't confirmed which customer org's installer to use. Two minutes of pre-flight saves two hours of un-pushing."
         },
-        "Open the customer's organisation in Huntress, confirm the runbook's named installer for them, then push from the RMM targeted at the new laptop's hostname.",
+        "Open the customer's organisation in Huntress, confirm the runbook's named installer for them.",
         {
           "label": "Push the installer for the customer's most similar customer because 'it'll probably work.'",
           "rationale": "Wrong org key sends the agent to the wrong customer's portal."
         }
       ],
       "correct": 1,
-      "explanation": "Right org, right installer, right target. Three checks, one push."
+      "explanation": "Then push from the RMM targeted at the new laptop's hostname. Right org, right installer, right target. Three checks, one push."
     },
     {
       "id": "rmm-success-no-portal",
@@ -133,14 +133,14 @@
           "label": "Close the ticket; the RMM said it worked.",
           "rationale": "Worst response. This is the dormant-installed-not-registered state. The next tech finds a workstation with no telemetry."
         },
-        "Look at the agent locally on the endpoint, then check whether the org key bundled with your runbook's installer matches the customer's expected key.",
+        "Look at the agent locally on the endpoint.",
         {
           "label": "Re-push the install.",
           "rationale": "Premature. You don't yet know why registration didn't take. Re-pushing on the same misconfiguration repeats the same failure."
         }
       ],
       "correct": 1,
-      "explanation": "Pattern-first, action-second. Local logs lean you toward the blocked-outbound lesson or a wrong-key install you'll need to redo."
+      "explanation": "Then check whether the org key bundled with your runbook's installer matches the customer's expected key. Pattern-first, action-second. Local logs lean you toward the blocked-outbound lesson or a wrong-key install you'll need to redo."
     },
     {
       "id": "same-error-second-failure",
@@ -189,7 +189,7 @@
       "difficulty": "medium",
       "prompt": "What's the named defence against pushing to a similarly-named endpoint by mistake?",
       "choices": [
-        "Confirm the target in the RMM before kicking, and confirm the hostname in the portal after. Two checks, twenty seconds total.",
+        "Confirm the target in the RMM before kicking.",
         {
           "label": "Use a regex to validate hostnames before the push.",
           "rationale": "Not a real workflow; the runbook doesn't require this."
@@ -204,7 +204,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two cheap checks that bookend the action: RMM before, portal after."
+      "explanation": "Confirm the hostname in the portal after. Two checks, twenty seconds total. Two cheap checks that bookend the action: RMM before, portal after."
     },
     {
       "id": "unclear-customer",

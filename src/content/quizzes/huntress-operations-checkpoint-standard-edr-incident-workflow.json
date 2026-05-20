@@ -41,7 +41,7 @@
           "label": "Re-read the Incident Report to make sure you understood the Recommendation.",
           "rationale": "Verification is the endpoint-state check, not a re-read of the report. They're different checks."
         },
-        "Confirm the end state on the endpoint matches what the Recommendation aimed for — persistence object gone, no longer producing the same detection.",
+        "Confirm the end state on the endpoint matches what the Recommendation aimed for.",
         {
           "label": "Wait for the SOC analyst to confirm the remediation worked.",
           "rationale": "The SOC doesn't ratify the tech's verify step. The tech does the end-state check."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Verify is about endpoint state, not report content. The portal flipping to \"applied\" means the command ran; verifying the state is the \"did it work\" check."
+      "explanation": "Persistence object gone, no longer producing the same detection. Verify is about endpoint state, not report content. The portal flipping to \"applied\" means the command ran; verifying the state is the \"did it work\" check."
     },
     {
       "id": "misrouted-critical",
@@ -65,7 +65,7 @@
           "label": "Claim it and start working — it's in your queue.",
           "rationale": "A Critical misrouted to your queue is the moment to escalate, not to start working. Critical breaks the routine workflow."
         },
-        "Don't claim — escalate per the runbook so the right body picks it up. The claim step is also where you decide whether the incident belongs to you.",
+        "Don't claim — escalate per the runbook so the right body picks it up.",
         {
           "label": "Claim it but flag a senior in parallel; work it while you wait.",
           "rationale": "Working a Critical at the routine helpdesk level is the cardinal Critical-incidents mistake."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Claiming is also a routing decision. Misrouted Criticals get surfaced, not absorbed."
+      "explanation": "The claim step is also where you decide whether the incident belongs to you. Claiming is also a routing decision. Misrouted Criticals get surfaced, not absorbed."
     },
     {
       "id": "low-overkill",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "\"The six-step workflow is overkill for routine Lows.\" Why is that wrong?",
       "choices": [
-        "It looks like overhead until you skip a step and create a re-detection or PSA drift. The six steps are the minimum, not the maximum.",
+        "It looks like overhead until you skip a step and create a re-detection or PSA drift.",
         {
           "label": "Lows need a senior to sign them off, so all six steps gate that approval.",
           "rationale": "Lows don't need senior sign-off; that's not the reason."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Skipping verify creates re-detections; skipping the PSA close creates drift. The minimum-not-maximum framing is the point."
+      "explanation": "The six steps are the minimum, not the maximum. Skipping verify creates re-detections; skipping the PSA close creates drift. The minimum-not-maximum framing is the point."
     },
     {
       "id": "doc-timing",
@@ -109,7 +109,7 @@
       "difficulty": "easy",
       "prompt": "When should the incident note be written?",
       "choices": [
-        "While the context is fresh — during or immediately after the work.",
+        "While the context is fresh.",
         {
           "label": "After-the-fact, end-of-shift, in one batch.",
           "rationale": "Memory degrades; batch-writing produces vague notes that don't survive a cold read."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "By end-of-shift the day's incidents blur and the notes get vague."
+      "explanation": "During or immediately after the work. By end-of-shift the day's incidents blur and the notes get vague."
     },
     {
       "id": "severity-shift",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "How does the six-step workflow shift between Low and High severity?",
       "choices": [
-        "Same shape; tempo, SLA clock, and pairing with other actions (isolation, user verification) differ.",
+        "Same shape; tempo, SLA clock, and pairing with other actions.",
         {
           "label": "High adds two extra steps; Low has only four.",
           "rationale": "The six-step spine holds across Low and High; step count doesn't change."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Critical breaks the shape; Low and High share it. Tempo and pairing scale with severity."
+      "explanation": "(isolation, user verification) differ. Critical breaks the shape; Low and High share it. Tempo and pairing scale with severity."
     },
     {
       "id": "low-scenario",
@@ -161,14 +161,14 @@
           "label": "Investigate the autoruns entry to confirm it's malicious before approving.",
           "rationale": "The SOC has already triaged; re-doing the analysis is the second-guessing failure mode."
         },
-        "Claim, review the header and Recommendation, confirm the host is in example.com, approve the autoruns remediation, verify, close in both systems, document.",
+        "Claim, review the header and Recommendation.",
         {
           "label": "Approve the remediation, close the Huntress ticket, move on.",
           "rationale": "Worst response. Skips verification, PSA close, documentation."
         }
       ],
       "correct": 1,
-      "explanation": "Standard six-step workflow on a standard Low. Four to six minutes of work done cleanly."
+      "explanation": "Confirm the host is in example.com, approve the autoruns remediation, verify, close in both systems, document. Standard six-step workflow on a standard Low. Four to six minutes of work done cleanly."
     },
     {
       "id": "applied-vs-verified",
@@ -177,7 +177,7 @@
       "difficulty": "medium",
       "prompt": "You approved a remediation; the portal shows \"applied.\" What's the last check before you close?",
       "choices": [
-        "Confirm the persistence object no longer appears on the endpoint (re-scan in the portal or RMM remote-command).",
+        "Confirm the persistence object no longer appears on the endpoint.",
         {
           "label": "Skip the check; the portal said \"applied,\" so the work is done.",
           "rationale": "\"Applied\" means the command ran. Verifying the end state is the *did it work* check. The two are different."
@@ -192,7 +192,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The Recommendation aimed for the persistence to be gone; verifying the end state is the verify step."
+      "explanation": "(re-scan in the portal or RMM remote-command). The Recommendation aimed for the persistence to be gone; verifying the end state is the verify step."
     },
     {
       "id": "step-order",

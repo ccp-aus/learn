@@ -69,14 +69,14 @@
           "label": "Always calling the user first and never calling the user.",
           "rationale": "User verification is a tool, not the named failure-mode pair."
         },
-        "Treating every impossible-travel signal as Critical (burns customer relationships) and dismissing them all as 'probably a VPN' (misses real compromise).",
+        "Treating every impossible-travel signal as Critical.",
         {
           "label": "Acting before reading and reading without acting.",
           "rationale": "Generic. The specific named pair is over-react vs. dismiss."
         }
       ],
       "correct": 2,
-      "explanation": "The discipline is reading the SOC's classification, not pattern-matching your own reaction."
+      "explanation": "(burns customer relationships) and dismissing them all as 'probably a VPN' (misses real compromise). The discipline is reading the SOC's classification, not pattern-matching your own reaction."
     },
     {
       "id": "true-compromise-combination",
@@ -97,10 +97,10 @@
           "label": "Single sign-in from the user's home country at their normal time.",
           "rationale": "No anomaly at all. Would not fire impossible-travel."
         },
-        "Anomalous location with no prior history, IP on a residential-proxy list, follow-on inbox-rule creation within minutes."
+        "Anomalous location with no prior history."
       ],
       "correct": 3,
-      "explanation": "Anomalous location plus malicious IP plus immediate follow-on activity is the true-compromise marker set."
+      "explanation": "IP on a residential-proxy list, follow-on inbox-rule creation within minutes. Anomalous location plus malicious IP plus immediate follow-on activity is the true-compromise marker set."
     },
     {
       "id": "vpn-always-benign-misconception",
@@ -109,7 +109,7 @@
       "difficulty": "medium",
       "prompt": "\"VPN exits are always benign.\" Why is this wrong?",
       "choices": [
-        "Attackers also use VPNs. The SOC's classification weighs both possibilities. Do not blanket-dismiss based on the word 'VPN.'",
+        "Attackers also use VPNs.",
         {
           "label": "VPNs are always malicious.",
           "rationale": "Overcorrects in the opposite direction."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The SOC weighs both benign VPN and attacker VPN. The Recommendation tells you which case this is."
+      "explanation": "The SOC's classification weighs both possibilities. Do not blanket-dismiss based on the word 'VPN.' The SOC weighs both benign VPN and attacker VPN. The Recommendation tells you which case this is."
     },
     {
       "id": "true-compromise-first-move",
@@ -141,10 +141,10 @@
           "label": "Try Alex on his personal phone to verify the travel before acting.",
           "rationale": "Same delay cost. The SOC has classified. Act."
         },
-        "Execute the Recommendation: session revoke, password and MFA reset, inbox-rule removal, OAuth-grant revoke. Document. Reach the manager."
+        "Execute the Recommendation."
       ],
       "correct": 2,
-      "explanation": "Timeline confirms the compromise pattern. Execute per the playbook."
+      "explanation": "Session revoke, password and MFA reset, inbox-rule removal, OAuth-grant revoke. Document. Reach the manager. Timeline confirms the compromise pattern. Execute per the playbook."
     },
     {
       "id": "documented-travel-response",
@@ -153,7 +153,7 @@
       "difficulty": "medium",
       "prompt": "Impossible travel on Jordan. Only two sign-ins in Timeline, no follow-on. Recommendation: 'Documented travel pattern. Verify with user. No further action if confirmed.' What do you do?",
       "choices": [
-        "Call Jordan, verify the activity was theirs, close per the Recommendation if confirmed.",
+        "Call Jordan, verify the activity was theirs.",
         {
           "label": "Execute the full compromise playbook anyway, to be safe.",
           "rationale": "Ignores the SOC's Recommendation. Locks Jordan out for no reason. Damages the customer relationship."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The SOC has classified this as the cached-credential / known-travel pattern. Follow the Recommendation."
+      "explanation": "Close per the Recommendation if confirmed. The SOC has classified this as the cached-credential / known-travel pattern. Follow the Recommendation."
     },
     {
       "id": "imap-smtp-false-positives",
@@ -201,7 +201,7 @@
           "label": "IP addresses change too quickly to be useful.",
           "rationale": "Not the lesson's framing."
         },
-        "The SOC's classification weighs IP reputation, user pattern, client type, and follow-on activity together. Tech-seat IP lookups alone are less reliable than the SOC's combined call.",
+        "The SOC's classification weighs IP reputation.",
         {
           "label": "Tech accounts do not have access to IP-reputation tools.",
           "rationale": "Wrong on tooling access."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The SOC has more context than a single IP lookup. Trust the classification."
+      "explanation": "User pattern, client type. Follow-on activity together. Tech-seat IP lookups alone are less reliable than the SOC's combined call. The SOC has more context than a single IP lookup. Trust the classification."
     },
     {
       "id": "definitive-signal-misconception",
@@ -229,14 +229,14 @@
           "label": "Impossible travel is always benign.",
           "rationale": "Overcorrects in the opposite direction."
         },
-        "False-positive rate is real, especially with IMAP/SMTP cached credentials and corporate VPNs. The Recommendation does the discrimination.",
+        "False-positive rate is real, especially with IMAP/SMTP cached credentials and corporate VPNs.",
         {
           "label": "The user can override the impossible-travel signal.",
           "rationale": "Users do not override SOC classifications."
         }
       ],
       "correct": 2,
-      "explanation": "The signal alone is not the disposition. The Recommendation, informed by VPN patterns, travel history, and follow-on activity, is the disposition."
+      "explanation": "The Recommendation does the discrimination. The signal alone is not the disposition. The Recommendation, informed by VPN patterns, travel history, and follow-on activity, is the disposition."
     }
   ]
 }

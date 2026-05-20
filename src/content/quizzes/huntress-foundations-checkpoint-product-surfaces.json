@@ -17,7 +17,7 @@
           "label": "Microsoft 365 only.",
           "rationale": "True before the ITDR rename; not true today. ITDR broadened the old M365-only product to also cover Google Workspace."
         },
-        "Microsoft 365 and Google Workspace, in a single surface.",
+        "Microsoft 365 and Google Workspace.",
         {
           "label": "Microsoft 365, Google Workspace, and Okta.",
           "rationale": "Okta isn't named in the lesson's enumeration. Don't invent surfaces that aren't there."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "ITDR is the rename of the old MDR for Microsoft 365 product, broadened to also cover Google Workspace."
+      "explanation": "In a single surface. ITDR is the rename of the old MDR for Microsoft 365 product, broadened to also cover Google Workspace."
     },
     {
       "id": "itdr-misconception",
@@ -69,14 +69,14 @@
           "label": "High by default; the SOC reviews each trip and decides whether to escalate further.",
           "rationale": "Wrong severity."
         },
-        "Critical by default; the assumption is that the only thing tripping a canary is something the customer needs contained now.",
+        "Critical by default;.",
         {
           "label": "Critical by default; canaries are a separate subscription with their own SLA.",
           "rationale": "Half right on severity, wrong on the product model. Canaries ride under EDR."
         }
       ],
       "correct": 2,
-      "explanation": "Canary trips are Critical by default — the trip itself implies real ransomware activity."
+      "explanation": "The assumption is that the only thing tripping a canary is something the customer needs contained now. Canary trips are Critical by default — the trip itself implies real ransomware activity."
     },
     {
       "id": "canaries-product",
@@ -113,7 +113,7 @@
           "label": "SIEM is dead to you; skip those lessons forever.",
           "rationale": "Treats \"optional\" as \"deleted.\" If your MSP adds the product later, those lessons re-apply."
         },
-        "Optional today; if your MSP adds the product later, the lessons re-apply. Don't treat optional as deleted.",
+        "Optional today; if your MSP adds the product later, the lessons re-apply.",
         {
           "label": "Read the SIEM lessons anyway; SIEM might land on your queue without warning.",
           "rationale": "If the MSP doesn't subscribe, SIEM incidents don't land. Relearn when the product arrives."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Optional today doesn't mean deleted forever."
+      "explanation": "Don't treat optional as deleted. Optional today doesn't mean deleted forever."
     },
     {
       "id": "surface-identification",
@@ -137,7 +137,7 @@
           "label": "All three are EDR, since all involve customer assets.",
           "rationale": "Wrong. #1 is identity (UPN + sign-in = ITDR). #3 is a canary trip — under EDR but sharper."
         },
-        "1 is ITDR, 2 is EDR, 3 is a canary trip (under EDR, Critical by default).",
+        "1 is ITDR, 2 is EDR, 3 is a canary trip.",
         {
           "label": "1 is ITDR, 2 is SIEM, 3 is EDR.",
           "rationale": "Mistakes a scheduled-task process detection (agent-collected behavioural signal) for a SIEM log event."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "UPN vs. hostname is the easiest tell; canary names itself."
+      "explanation": "(under EDR, Critical by default). UPN vs. hostname is the easiest tell; canary names itself."
     },
     {
       "id": "queue-priority",
@@ -205,7 +205,7 @@
       "difficulty": "medium",
       "prompt": "A client asks: \"Can you set up the phishing-simulation campaigns we talked about?\" Which Huntress product does this map to?",
       "choices": [
-        "Managed SAT. Not covered in this course; if your MSP runs it, hand the request to whoever owns SAT internally.",
+        "Managed SAT. Not covered in this course;",
         {
           "label": "Managed ITDR. Phishing simulations are an identity surface in 2026.",
           "rationale": "ITDR watches real identity signals, not simulations."
@@ -220,7 +220,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "SAT is deliberately out of scope for this course and has its own portal areas and a separate course at MSPs that run it."
+      "explanation": "If your MSP runs it, hand the request to whoever owns SAT internally. SAT is deliberately out of scope for this course and has its own portal areas and a separate course at MSPs that run it."
     },
     {
       "id": "legacy-mdr-name",
@@ -237,14 +237,14 @@
           "label": "It's the current name for ransomware canaries.",
           "rationale": "Canaries are an EDR tripwire; the old name was the identity surface."
         },
-        "It's the pre-rename name for ITDR; the current product covers both M365 and Google Workspace.",
+        "It's the pre-rename name for ITDR;",
         {
           "label": "It's the pre-rename name for Managed SIEM.",
           "rationale": "SIEM launched April 2025 as a new product."
         }
       ],
       "correct": 2,
-      "explanation": "Same product, broader scope. ITDR is the post-rename, M365-plus-GWS version."
+      "explanation": "The current product covers both M365 and Google Workspace. Same product, broader scope. ITDR is the post-rename, M365-plus-GWS version."
     }
   ]
 }

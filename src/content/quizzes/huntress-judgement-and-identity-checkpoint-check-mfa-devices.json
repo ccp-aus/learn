@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why is the MFA-method audit a separate step after the password and MFA reset?",
       "choices": [
-        "Some identity providers preserve method history through resets, or the reset may have removed methods broadly when targeted removal was the intent. The audit reconciles.",
+        "Some identity providers preserve method history through resets.",
         {
           "label": "Because Huntress requires it by policy.",
           "rationale": "Not a documented policy."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The reset prompts re-enrolment but does not always clean up the existing method list. Audit the post-reset state rather than assuming."
+      "explanation": "Or the reset may have removed methods broadly when targeted removal was the intent. The audit reconciles. The reset prompts re-enrolment but does not always clean up the existing method list. Audit the post-reset state rather than assuming."
     },
     {
       "id": "targeted-removal-scenario",
@@ -41,14 +41,14 @@
           "label": "Remove all methods (the -7799 phone and the authenticator app) to be safe.",
           "rationale": "The authenticator app is 18 months old. Clearly legitimate. Removing it forces unnecessary re-enrolment."
         },
-        "Remove the phone ending -7799 (added in the compromise window). Leave the authenticator app. Brief Farah that the attacker removed her +61- phone and she will need to re-register if she wants SMS as backup.",
+        "Remove the phone ending -7799 (added in the compromise window).",
         {
           "label": "Remove the -7799 phone and re-add the +61- number yourself.",
           "rationale": "You do not add MFA methods on the user's behalf. The user re-enrols their own."
         }
       ],
       "correct": 1,
-      "explanation": "Targeted removal: remove the attacker-added method, preserve the legitimate one, brief the user on what is missing."
+      "explanation": "Leave the authenticator app. Brief Farah that the attacker removed her +61- phone and she will need to re-register if she wants SMS as backup. Targeted removal: remove the attacker-added method, preserve the legitimate one, brief the user on what is missing."
     },
     {
       "id": "user-recollection",
@@ -61,14 +61,14 @@
           "label": "Believe Farah and do not check the Timeline.",
           "rationale": "User recollection under stress is not reliable. Cross-reference with the Timeline."
         },
-        "Verify each method against the Timeline: authenticator (18 months) confirmed legitimate; +61- phone (removed by attacker) confirmed hers; iPad: check whether any tablet-shaped method has a pre-compromise timestamp.",
+        "Verify each method against the Timeline.",
         {
           "label": "Tell Farah to sort her own MFA out and end the conversation.",
           "rationale": "Wrong tone and substance. Customer comms is part of the close-out."
         }
       ],
       "correct": 1,
-      "explanation": "Triangulate user recollection with the Timeline. Trust neither alone. The Timeline is the truth-source; the user is the corroboration."
+      "explanation": "Authenticator (18 months) confirmed legitimate; +61- phone (removed by attacker) confirmed hers; iPad: check whether any tablet-shaped method has a pre-compromise timestamp. Triangulate user recollection with the Timeline. Trust neither alone. The Timeline is the truth-source; the user is the corroboration."
     },
     {
       "id": "remove-all-cost",
@@ -77,7 +77,7 @@
       "difficulty": "medium",
       "prompt": "\"Removing all MFA methods to be safe\" has what specific cost?",
       "choices": [
-        "Forces complete re-enrolment the user may not have time for. If they are not at their device, they cannot sign in until they get there.",
+        "Forces complete re-enrolment the user may not have time for.",
         {
           "label": "There is no cost; it is the safe default.",
           "rationale": "The lesson is explicit about the cost."
@@ -92,7 +92,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Operational cost: the user is locked out of MFA until they can re-enrol on their device. Targeted removal preserves what works."
+      "explanation": "If they are not at their device, they cannot sign in until they get there. Operational cost: the user is locked out of MFA until they can re-enrol on their device. Targeted removal preserves what works."
     },
     {
       "id": "verbal-trust",
@@ -110,7 +110,7 @@
       "difficulty": "medium",
       "prompt": "\"Skipping this step because the reset in step 2 handled MFA\" is wrong because:",
       "choices": [
-        "The reset prompts re-enrolment but does not always clean up the existing method list. Some identity providers retain method history through a reset. Audit rather than assume.",
+        "The reset prompts re-enrolment but does not always clean up the existing method list.",
         {
           "label": "Step 5 is optional and skipping is fine.",
           "rationale": "It is the targeted-cleanup step."
@@ -125,7 +125,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Trust-but-verify the post-reset state. Method history retention through resets is a real platform behaviour on some identity providers."
+      "explanation": "Some identity providers retain method history through a reset. Audit rather than assume. Trust-but-verify the post-reset state. Method history retention through resets is a real platform behaviour on some identity providers."
     },
     {
       "id": "unknown-method",
@@ -134,7 +134,7 @@
       "difficulty": "medium",
       "prompt": "The user has a method they cannot identify, and the Timeline does not conclusively map it to the attacker. What do you do?",
       "choices": [
-        "Bump for senior review of the user's full MFA history. Could be a legitimate method they forgot about; could be attacker-added from a prior compromise.",
+        "Bump for senior review of the user's full MFA history.",
         {
           "label": "Remove it as a precaution.",
           "rationale": "Could be legitimate. Targeted-removal discipline says do not act without identification."
@@ -149,7 +149,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Ambiguous-method patterns escalate. The senior reviews the user's full MFA history for context."
+      "explanation": "Could be a legitimate method they forgot about; could be attacker-added from a prior compromise. Ambiguous-method patterns escalate. The senior reviews the user's full MFA history for context."
     },
     {
       "id": "tenant-wide-mfa",

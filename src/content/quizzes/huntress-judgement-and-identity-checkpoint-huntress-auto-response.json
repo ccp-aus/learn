@@ -65,7 +65,7 @@
           "label": "Run the full playbook from step 1, including a re-revoke.",
           "rationale": "Re-revoking wastes effort and creates duplicate audit entries."
         },
-        "Skip step 1 (session revoke). Verify it applied cleanly. Proceed to step 2 (password and MFA reset).",
+        "Skip step 1 (session revoke). Verify it applied cleanly.",
         {
           "label": "Wait for the SOC to update the Recommendation.",
           "rationale": "Wrong delay. The Recommendation usually already accounts for auto-response."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Acknowledge the auto-response action. Verify it applied. Continue from where the platform left off."
+      "explanation": "Proceed to step 2 (password and MFA reset). Acknowledge the auto-response action. Verify it applied. Continue from where the platform left off."
     },
     {
       "id": "customer-pushback-scenario",
@@ -89,14 +89,14 @@
           "label": "Reverse the auto-response session revoke to restore his access.",
           "rationale": "Auto-response is the containment. Reversing puts Marcus back in the compromised state."
         },
-        "Stand your ground: explain the compromise, the platform's auto-action, and the rest of the response. Have the password handoff ready as the next step.",
+        "Stand your ground: explain the compromise.",
         {
           "label": "Tell Marcus the SOC made the call and you cannot reverse it.",
           "rationale": "Passes the buck. Own the action and explain the trade-off."
         }
       ],
       "correct": 1,
-      "explanation": "The action stands. Marcus hears the why, the timeline, and a forward-looking path. Owning the action builds trust."
+      "explanation": "The platform's auto-action, and the rest of the response. Have the password handoff ready as the next step. The action stands. Marcus hears the why, the timeline, and a forward-looking path. Owning the action builds trust."
     },
     {
       "id": "redo-cost",
@@ -105,7 +105,7 @@
       "difficulty": "medium",
       "prompt": "\"Re-doing actions auto-response already completed\" has what consequence?",
       "choices": [
-        "Wastes effort, can confuse the audit trail, and in some edge cases creates duplicate-action states the SOC has to untangle.",
+        "Wastes effort, can confuse the audit trail.",
         {
           "label": "There is no consequence. Re-running is safe.",
           "rationale": "The lesson names specific costs."
@@ -120,7 +120,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Three costs: wasted effort, confused audit trail, potential duplicate-action states."
+      "explanation": "In some edge cases creates duplicate-action states the SOC has to untangle. Three costs: wasted effort, confused audit trail, potential duplicate-action states."
     },
     {
       "id": "skip-verify-auto",
@@ -138,7 +138,7 @@
       "difficulty": "medium",
       "prompt": "A user calls to complain about the lockout. The tech restores the session without checking the Incident Report. What is the failure?",
       "choices": [
-        "Fighting auto-response. The auto-action was the containment. Reversing it puts the customer back in the compromise state.",
+        "Fighting auto-response. The auto-action was the containment.",
         {
           "label": "Fine. Customer-service reflex.",
           "rationale": "Customer complaint does not justify reversing a security containment action."
@@ -153,7 +153,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The auto-response action was the containment. Reversing it without context restores the compromise state."
+      "explanation": "Reversing it puts the customer back in the compromise state. The auto-response action was the containment. Reversing it without context restores the compromise state."
     },
     {
       "id": "failed-auto",
@@ -186,7 +186,7 @@
       "difficulty": "hard",
       "prompt": "Auto-response took an action that the Recommendation now contradicts. What is the right move?",
       "choices": [
-        "Surface the conflict to the SOC with the specifics. They own the disposition.",
+        "Surface the conflict to the SOC with the specifics.",
         {
           "label": "Reverse auto-response's action to match the Recommendation.",
           "rationale": "Reversing containment is the failure pattern. Surface to SOC instead."
@@ -201,7 +201,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Conflict between auto-action and current Recommendation is rare. Surface the specifics to the SOC and let them disposition."
+      "explanation": "They own the disposition. Conflict between auto-action and current Recommendation is rare. Surface the specifics to the SOC and let them disposition."
     },
     {
       "id": "auto-timing",
@@ -210,7 +210,7 @@
       "difficulty": "medium",
       "prompt": "Auto-response fired 6 minutes after the suspicious sign-in (instead of seconds). Why does the timing matter?",
       "choices": [
-        "Six minutes means the attacker had time to act before containment: create rules, grant OAuth, tamper with MFA. The remaining manual steps may address more artefacts than in a fast-response scenario.",
+        "Six minutes means the attacker had time to act before containment.",
         {
           "label": "It does not matter. Six seconds or six minutes, the response is the same.",
           "rationale": "The attacker's window of activity before containment determines what artefacts the playbook addresses."
@@ -225,7 +225,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The gap between attacker activity start and auto-response determines how much the attacker accomplished before containment. More time means more artefacts to clean up."
+      "explanation": "Create rules, grant OAuth, tamper with MFA. The remaining manual steps may address more artefacts than in a fast-response scenario. The gap between attacker activity start and auto-response determines how much the attacker accomplished before containment. More time means more artefacts to clean up."
     }
   ]
 }

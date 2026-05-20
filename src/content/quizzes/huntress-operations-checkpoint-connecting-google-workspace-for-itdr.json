@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "Which of these is a real divergence between the M365 and Workspace ITDR integration paths?",
       "choices": [
-        "Workspace uses Google's OAuth consent screen and may require a domain-wide-delegation step in the Admin console; M365 uses Azure AD enterprise-app consent and doesn't.",
+        "Workspace uses Google's OAuth consent screen and may require a domain-wide-delegation step in the Admin console;",
         {
           "label": "Workspace ingests events instantly; M365 has a baseline period.",
           "rationale": "Inverts what the lesson says. Workspace baseline can actually be longer than M365 for customers with large mailbox histories."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The detection model is unified on the back end; the integration paths diverge at the customer's end."
+      "explanation": "M365 uses Azure AD enterprise-app consent and doesn't. The detection model is unified on the back end; the integration paths diverge at the customer's end."
     },
     {
       "id": "m365-mirror",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "\"Assuming the Workspace flow will mirror M365\" is named as a common mistake. What's the specific risk?",
       "choices": [
-        "You run the M365 runbook with names swapped, miss the domain-wide-delegation step, and end up with a 'Connected' integration that's silently missing parts of the telemetry.",
+        "You run the M365 runbook with names swapped, miss the domain-wide-delegation step.",
         {
           "label": "Google will refuse to authorise any integration based on M365 patterns.",
           "rationale": "Google doesn't know what the M365 flow looked like; the failure isn't a deliberate Google rejection."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same partial-state problem as M365 partial consent: looks fine, isn't."
+      "explanation": "End up with a 'Connected' integration that's silently missing parts of the telemetry. Same partial-state problem as M365 partial consent: looks fine, isn't."
     },
     {
       "id": "role-check",
@@ -89,14 +89,14 @@
           "label": "Run the wizard. If their admin role isn't enough, the wizard will tell you.",
           "rationale": "You'll start the flow, the super-admin role check fails partway, and you risk a half-configured integration if some scopes were granted before the failure."
         },
-        "Confirm they're specifically a super-admin, not a delegated or user-management admin, before starting the wizard.",
+        "Confirm they're specifically a super-admin.",
         {
           "label": "Tell them you need a \"Global Admin\", same as the M365 flow.",
           "rationale": "Wrong vocabulary. 'Global Admin' is the M365 term; Workspace uses 'super-admin'."
         }
       ],
       "correct": 1,
-      "explanation": "The role check costs 30 seconds and prevents the second-failure path."
+      "explanation": "Not a delegated or user-management admin, before starting the wizard. The role check costs 30 seconds and prevents the second-failure path."
     },
     {
       "id": "domain-wide-delegation",
@@ -109,14 +109,14 @@
           "label": "Yes, you're done. The wizard says Connected.",
           "rationale": "Half the integration is in place. Without domain-wide delegation, parts of the telemetry the SOC expects won't flow."
         },
-        "\"Two more minutes, there's one step in the Google Admin console to enable domain-wide delegation, then we're done. Otherwise the telemetry won't be complete.\"",
+        "\"Two more minutes, there's one step in the Google Admin console to enable domain-wide delegation, then we're done.",
         {
           "label": "\"Don't worry about it, I'll book another call to finish off.\"",
           "rationale": "Booked-but-not-done is where half-installed integrations live for weeks."
         }
       ],
       "correct": 1,
-      "explanation": "You're respecting the super-admin's time and being explicit about why the extra step matters. Most super-admins will give you the two minutes."
+      "explanation": "Otherwise the telemetry won't be complete.\" You're respecting the super-admin's time and being explicit about why the extra step matters. Most super-admins will give you the two minutes."
     },
     {
       "id": "verify-gws",
@@ -125,7 +125,7 @@
       "difficulty": "medium",
       "prompt": "Which is the right verify check after the Workspace ITDR wizard reports Connected?",
       "choices": [
-        "Confirm Identity → Google Workspace reads Connected with green status, and that the last-sync timestamp updates within an hour.",
+        "Confirm Identity → Google Workspace reads Connected with green status.",
         {
           "label": "Confirm the customer has more than one super-admin so you have a backup contact.",
           "rationale": "Reasonable customer hygiene, but not the lesson's verify step."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Green status is necessary but the moving last-sync is what tells you the pipeline activated, not just the registration."
+      "explanation": "That the last-sync timestamp updates within an hour. Green status is necessary but the moving last-sync is what tells you the pipeline activated, not just the registration."
     },
     {
       "id": "tenant-restrictions",
@@ -173,7 +173,7 @@
       "difficulty": "medium",
       "prompt": "A customer with a large historic mailbox volume asks \"how long until we see real identity incidents?\" What do you tell them?",
       "choices": [
-        "Set the expectation that baseline can take longer on Workspace than M365, typically 24 to 72 hours before identity incidents start landing in earnest.",
+        "Set the expectation that baseline can take longer on Workspace than M365.",
         {
           "label": "Tell them incidents land within minutes of the green status appearing.",
           "rationale": "Confuses ingested events with identity incidents. Events flow inside an hour; incidents take the baseline window."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Set the window so the customer can stand down for that long; they ring you on day one without the expectation set."
+      "explanation": "Typically 24 to 72 hours before identity incidents start landing in earnest. Set the window so the customer can stand down for that long; they ring you on day one without the expectation set."
     },
     {
       "id": "mixed-tenant",

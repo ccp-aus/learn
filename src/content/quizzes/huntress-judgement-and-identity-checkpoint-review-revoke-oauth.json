@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Why is OAuth-grant review a separate playbook step from session revoke and password reset?",
       "choices": [
-        "OAuth tokens are persistent and independent of the password and interactive sessions. Skipping this step leaves an attacker-controlled app authenticated while the user looks secure.",
+        "OAuth tokens are persistent and independent of the password and interactive sessions.",
         {
           "label": "Because OAuth grants take 24 hours to expire on their own.",
           "rationale": "They do not expire automatically in a timeframe useful for response."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "OAuth tokens survive session revoke and password reset. The attacker's app keeps authenticating independently until the grant is explicitly revoked."
+      "explanation": "Skipping this step leaves an attacker-controlled app authenticated while the user looks secure. OAuth tokens survive session revoke and password reset. The attacker's app keeps authenticating independently until the grant is explicitly revoked."
     },
     {
       "id": "targeted-revoke",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "The targeted-revoke discipline says you revoke:",
       "choices": [
-        "The grants from the compromise window, not all grants. Long-standing legitimate integrations stay intact.",
+        "The grants from the compromise window, not all grants.",
         {
           "label": "All grants the user has, to be safe.",
           "rationale": "Blanket revoke disrupts legitimate integrations."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Compromise-window targeting beats blanket revoke. Grants from before the window are legitimate-by-context."
+      "explanation": "Long-standing legitimate integrations stay intact. Compromise-window targeting beats blanket revoke. Grants from before the window are legitimate-by-context."
     },
     {
       "id": "three-grants-scenario",
@@ -61,7 +61,7 @@
       "difficulty": "hard",
       "prompt": "Step 4 on Kira. Recommendation: revoke MailSync-Free (granted 11 minutes after suspicious sign-in). Grants list: (a) MailSync-Free (malicious); (b) Trello (6 months old, verified publisher, Calendars.Read); (c) OneDriveDirector (3 days old, unverified publisher, Files.ReadWrite). What do you do?",
       "choices": [
-        "Revoke MailSync-Free per the Recommendation. Reply to the SOC about OneDriveDirector (3 days old, unverified publisher, broad scope, in compromise window). Leave Trello alone.",
+        "Revoke MailSync-Free per the Recommendation.",
         {
           "label": "Revoke all three to be thorough.",
           "rationale": "Trello is verified-publisher and long-standing. Disrupts the user's workflow."
@@ -72,7 +72,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Targeted revoke per the Recommendation. Ambiguous-in-window finding surfaces to the SOC. Legitimate long-standing grant stays."
+      "explanation": "Reply to the SOC about OneDriveDirector (3 days old, unverified publisher, broad scope, in compromise window). Leave Trello alone. Targeted revoke per the Recommendation. Ambiguous-in-window finding surfaces to the SOC. Legitimate long-standing grant stays."
     },
     {
       "id": "re-grant-signal",
@@ -85,14 +85,14 @@
           "label": "Re-revoke and close.",
           "rationale": "A new grant event means someone re-authorised it. Whack-a-mole revocation hides the cause."
         },
-        "Check whether the user re-granted in confusion or whether the attacker has another path. Bump to senior given the recurring pattern.",
+        "Check whether the user re-granted in confusion or whether the attacker has another path.",
         {
           "label": "The revoke did not work; re-revoke.",
           "rationale": "The first revoke worked. A new grant event is a new authorisation, not a failed revoke."
         }
       ],
       "correct": 1,
-      "explanation": "Re-grant post-revoke is a signal. Either user confusion or incomplete remediation. Investigate the pattern rather than re-revoking in a loop."
+      "explanation": "Bump to senior given the recurring pattern. Re-grant post-revoke is a signal. Either user confusion or incomplete remediation. Investigate the pattern rather than re-revoking in a loop."
     },
     {
       "id": "blanket-revoke-cost",
@@ -101,7 +101,7 @@
       "difficulty": "medium",
       "prompt": "\"Revoking all OAuth grants to clean up\" has what consequence?",
       "choices": [
-        "Disrupts legitimate integrations the user actively relies on, and trains them to be paranoid about granting any access in the future.",
+        "Disrupts legitimate integrations the user actively relies on.",
         {
           "label": "Nothing. Blanket revoke is the safe default.",
           "rationale": "The lesson is explicit about both costs."
@@ -116,7 +116,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Blanket revoke breaks working integrations and erodes user trust in OAuth consent. The targeted discipline preserves legitimate grants."
+      "explanation": "Trains them to be paranoid about granting any access in the future. Blanket revoke breaks working integrations and erodes user trust in OAuth consent. The targeted discipline preserves legitimate grants."
     },
     {
       "id": "tenant-consented",
@@ -182,7 +182,7 @@
       "difficulty": "medium",
       "prompt": "The user has many grants from the compromise window (more than two or three). What does the lesson say?",
       "choices": [
-        "Surface to senior. Could indicate the attacker was granting multiple apps to maximise persistence; the response scope may need to widen.",
+        "Surface to senior.",
         {
           "label": "Revoke all of them and close.",
           "rationale": "Without senior review the multi-grant pattern is missed."
@@ -197,7 +197,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Multi-grant pattern in the compromise window is itself a signal worth escalating. The attacker may be establishing redundant persistence."
+      "explanation": "Could indicate the attacker was granting multiple apps to maximise persistence; The response scope may need to widen. Multi-grant pattern in the compromise window is itself a signal worth escalating. The attacker may be establishing redundant persistence."
     },
     {
       "id": "grant-attributes",

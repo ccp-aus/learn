@@ -28,13 +28,22 @@
       "topic": "contacts",
       "prompt": "An audit on a newly-onboarded client domain shows the registrant is 'Previous MSP Pty Ltd' rather than the client. What's the priority fix?",
       "choices": [
-        "Cosmetic; update it next time you do other work.",
-        "Change of registrant is the priority. The process triggers a 60-day outbound-transfer lock at most registrars; do it now while there's no time pressure.",
-        "Email the previous MSP and ask them to delete the domain so you can re-register.",
-        "Privacy services hide the registrant anyway."
+        {
+          "label": "Cosmetic; fold it into the next batch of admin work on that domain.",
+          "rationale": "The registrant is the legal owner of the domain. Leaving the previous MSP as registrant means they legally own the client's domain."
+        },
+        "Change of registrant now, while there's no time pressure.",
+        {
+          "label": "Email the previous MSP and ask them to initiate the registrant change from their side, since they're the current registrant of record.",
+          "rationale": "The gaining MSP initiates the change. Asking the losing MSP creates a dependency on someone who may not cooperate or respond."
+        },
+        {
+          "label": "Privacy services hide the registrant, so it doesn't matter operationally.",
+          "rationale": "Privacy services mask WHOIS display. The underlying legal ownership at the registry is unchanged."
+        }
       ],
       "correct": 1,
-      "explanation": "Until the registrant is changed, the previous MSP is the legal owner. The 60-day post-change lock means do it during calm, not mid-incident."
+      "explanation": "Until the registrant is changed, the previous MSP is the legal owner. The process triggers a 60-day outbound-transfer lock at most registrars, so do it during calm, not mid-incident."
     },
     {
       "id": "qf-redemption-action",
@@ -43,13 +52,22 @@
       "topic": "lifecycle",
       "prompt": "WHOIS shows status `redemptionPeriod` and expiry was 38 days ago. What do you do?",
       "choices": [
-        "Click 'renew' in the registrar panel; the standard renewal will bring it back.",
-        "Escalate; redemption recovery requires the registrar's special restore process and a significantly higher fee.",
-        "Tell the client the domain is lost and recommend a new one.",
-        "Wait until pending delete starts; recovery is easier from there."
+        {
+          "label": "Click 'renew' in the registrar panel. The domain expired recently enough that standard renewal should work.",
+          "rationale": "Redemption is past the renewal grace period. The renew button typically errors or silently fails at this stage."
+        },
+        "Escalate. Redemption requires the registrar's restore process and a higher fee.",
+        {
+          "label": "Tell the client the domain is gone and start sourcing a replacement.",
+          "rationale": "Redemption means recoverable. The domain isn't gone until pending delete finishes."
+        },
+        {
+          "label": "Wait for pending delete. Recovery is cheaper once the domain drops back to the general pool.",
+          "rationale": "Pending delete is past the recovery window. Once it drops, anyone can register it."
+        }
       ],
       "correct": 1,
-      "explanation": "Redemption is past the standard renewal grace; the renew button typically returns an error or quietly fails. Redemption recovery is a different process at the registry and a different fee. Pending delete is past the recovery window."
+      "explanation": "Redemption is past the standard renewal grace. Recovery at this stage is a registry-level restore process with a higher fee. Waiting for pending delete means losing the domain entirely."
     },
     {
       "id": "qf-auth-code-terminology",
@@ -58,13 +76,22 @@
       "topic": "transfers",
       "prompt": "A gaining registrar asks the client for the 'EPP code.' The losing registrar's panel shows a field labelled 'Authorization Key.' What's the relationship?",
       "choices": [
-        "They're different things; you need both.",
-        "Same thing. Auth code, EPP code, transfer code, and authorization key are interchangeable terms for the per-domain transfer secret.",
-        "EPP code is a newer standard; authorization key is being phased out.",
-        "The authorization key is encrypted; the EPP code is the decrypted form."
+        {
+          "label": "Different values. The EPP code authenticates at the registry level; the Authorization Key authenticates at the registrar level.",
+          "rationale": "There's only one transfer secret. Registrars use different labels for the same value."
+        },
+        "Same value. Registrars label it differently.",
+        {
+          "label": "EPP code is a newer standard replacing Authorization Key. Both work during the transition period.",
+          "rationale": "No transition is happening. Both labels have coexisted for years."
+        },
+        {
+          "label": "The Authorization Key is the encrypted form. You decrypt it to get the EPP code to give to the gaining registrar.",
+          "rationale": "No encryption relationship. One secret, multiple labels."
+        }
       ],
       "correct": 1,
-      "explanation": "The terminology drifts across registrars but the underlying value is one secret. Treat any of these terms as a synonym."
+      "explanation": "Auth code, EPP code, transfer code, authorization key are all names for the same per-domain transfer secret. The terminology drifts across registrars."
     },
     {
       "id": "qf-cctld-au-eligibility",
@@ -73,13 +100,22 @@
       "topic": "cctlds",
       "prompt": "A client emails: 'register myshop.com.au for us. We're a sole trader without an ABN.' What do you do?",
       "choices": [
-        "Submit and let auDA reject it after the fact.",
-        "Tell the client .com.au requires an ABN or ACN. They can register an ABN via the Australian Business Register first. Surface the gap now.",
-        "Refuse to register .com.au for any sole trader on principle.",
-        "Suggest a .com instead without mentioning the requirement."
+        {
+          "label": "Submit the registration request. auDA validates eligibility automatically and will reject if there's an issue.",
+          "rationale": "The rejection wastes time and confuses the client. Surface the constraint before submitting."
+        },
+        "Tell the client .com.au requires an ABN or ACN. Surface the gap now.",
+        {
+          "label": "Sole traders can't hold .com.au domains. Redirect the client to .com and explain that ccTLDs are for companies only.",
+          "rationale": "Sole traders with an ABN can register .com.au. The issue is the missing ABN, not the business structure."
+        },
+        {
+          "label": "Register a .com for them instead and explain that .com has better global reach than .com.au for most businesses.",
+          "rationale": "The client asked for .com.au specifically. Switching TLDs without surfacing the actual requirement skips the real conversation."
+        }
       ],
       "correct": 1,
-      "explanation": "The eligibility dimension applies; surface the constraint before taking the order so the client decides whether to fix the gap or pick a different TLD. Sole traders with an ABN can register .com.au."
+      "explanation": ".com.au requires an ABN or ACN. Sole traders with an ABN can register. Surface the constraint so the client decides whether to get an ABN or pick a different TLD."
     },
     {
       "id": "qf-cname-apex",
@@ -88,13 +124,22 @@
       "topic": "cname",
       "prompt": "A vendor's setup instructions say 'point your apex (example.com) at our hostname.' Your DNS host's panel rejects the apex CNAME. What's the workaround?",
       "choices": [
-        "Apex CNAMEs work everywhere; file a support ticket about the panel bug.",
-        "DNS doesn't allow a CNAME at the apex. Use ALIAS / ANAME / CNAME flattening if your DNS host supports it, or redirect the apex to www at the web layer.",
-        "Add the CNAME at www and ignore the apex.",
-        "Always add an A record at the apex pointing at the vendor's IP, regardless of host capability."
+        {
+          "label": "Apex CNAMEs work everywhere. The panel has a bug; file a support ticket with the DNS host and ask them to fix the record-type restriction.",
+          "rationale": "The panel is enforcing the RFC correctly. CNAME at the apex conflicts with SOA and NS records that must exist there."
+        },
+        "Use ALIAS / ANAME / CNAME flattening if the DNS host supports it, or redirect the apex to www at the web layer.",
+        {
+          "label": "Add the CNAME at www and skip the apex entirely. Users type www anyway, and search engines treat them the same.",
+          "rationale": "Abandoning the apex means anyone typing example.com gets nothing. Search engines treat apex and www as separate unless you set a canonical."
+        },
+        {
+          "label": "Ask the vendor for the IP behind their hostname and create an A record instead. That always works at the apex.",
+          "rationale": "A records work at the apex, but hardcoding a vendor IP breaks when the vendor changes infrastructure. ALIAS/ANAME track the hostname dynamically."
+        }
       ],
       "correct": 1,
-      "explanation": "RFCs 1034 / 2181 prohibit a CNAME at the zone apex. ALIAS / ANAME / flattening resolve the target server-side and publish A/AAAA at the apex, which is standards-compliant."
+      "explanation": "RFCs 1034 / 2181 prohibit a CNAME at the zone apex because it conflicts with the mandatory SOA and NS records. ALIAS / ANAME / flattening resolve the target server-side and publish A/AAAA at the apex, staying standards-compliant."
     },
     {
       "id": "qf-mx-priority",
@@ -127,13 +172,22 @@
       "topic": "ttl",
       "prompt": "A planned A-record change is scheduled for Friday at 9pm. Current TTL is 86400. It's Tuesday morning. What do you do today?",
       "choices": [
-        "Wait until Friday at 9pm and make the change.",
-        "Lower the TTL to 300 today, so the lower TTL has time to spread to downstream caches before the cutover.",
-        "Lower the TTL on Friday morning.",
-        "Lower the TTL on Friday at 8:55pm, five minutes before the change."
+        {
+          "label": "Wait until Friday at 9pm and make both changes at once: lower the TTL and update the A record in the same maintenance window.",
+          "rationale": "The old 86400 TTL is already cached everywhere. Lowering TTL at the same time as the value change means resolvers with the cached 86400 TTL won't re-query for up to a day."
+        },
+        "Lower the TTL to 300 today so it propagates before the cutover.",
+        {
+          "label": "Lower the TTL on Friday morning, giving it the full business day to propagate before the 9pm change.",
+          "rationale": "Friday morning is only ~9 hours of lead time against an 86400-second (24-hour) TTL. Caches that refreshed Thursday night still hold the old TTL until Saturday morning."
+        },
+        {
+          "label": "Lower the TTL on Friday at 8:55pm, five minutes before the change, so the new TTL applies to the new value immediately.",
+          "rationale": "The new TTL applies to new queries, but existing caches still hold the old value with the old 86400 TTL. Five minutes of lead gives no time for the lower TTL to replace cached entries."
+        }
       ],
       "correct": 1,
-      "explanation": "Pre-flight TTL drop with enough lead time is the difference between a 5-minute cutover and a day of inconsistent state. Dropping TTL at the same time as (or just before) the value change doesn't help; downstream caches with the old TTL still hold the old answer."
+      "explanation": "Pre-flight TTL drop with enough lead time is the difference between a 5-minute cutover and a day of inconsistent state. Tuesday to Friday gives the lower TTL three full days to replace cached 86400 entries at downstream resolvers."
     },
     {
       "id": "qf-propagation-calibrated",
@@ -142,13 +196,22 @@
       "topic": "propagation",
       "prompt": "A client asks 'how long for DNS propagation?' before a planned A-record change. The current TTL is 300 (you pre-flighted last week). What's the calibrated answer?",
       "choices": [
-        "24 to 48 hours, standard for any DNS change.",
-        "Most users will see the new value within 5 minutes; some may take a bit longer if their resolver cached just before the change.",
-        "Instant for everyone; the authoritative serves the new value immediately.",
-        "Up to a week, depending on resolver behaviour."
+        {
+          "label": "24 to 48 hours, the standard window for any DNS change. ISP resolvers are slow to refresh regardless of TTL, so always set this expectation with clients.",
+          "rationale": "The 24-48 hour answer is the uncalibrated stock response. With a 300-second TTL already in place, most resolvers re-query within 5 minutes. ISP resolvers honour TTL."
+        },
+        "Within about 5 minutes for most users. The pre-flighted TTL of 300 means caches expire fast.",
+        {
+          "label": "Instant. The authoritative server returns the new value the moment you save it, so every query gets the update immediately.",
+          "rationale": "The authoritative server does return the new value immediately, but downstream resolvers serve their cached copy until the TTL expires. Users query resolvers, not the authoritative directly."
+        },
+        {
+          "label": "Depends on the record type. A records propagate in minutes, but MX and TXT records can take up to a week because mail servers cache more aggressively.",
+          "rationale": "Propagation speed depends on the TTL of the previous record, not the record type. Mail servers re-query MX on the same TTL schedule as anything else."
+        }
       ],
       "correct": 1,
-      "explanation": "The previous TTL is what determines propagation tail. At TTL 300, most caches have re-queried within 5 minutes. The 24-48 hours stock answer is uncalibrated. Saying 'instant' ignores cached state at downstream resolvers."
+      "explanation": "The previous TTL determines the propagation tail. At TTL 300, most resolver caches expire within 5 minutes of the change. The stock '24-48 hours' answer ignores the TTL you already set."
     },
     {
       "id": "qf-zone-audit-order",

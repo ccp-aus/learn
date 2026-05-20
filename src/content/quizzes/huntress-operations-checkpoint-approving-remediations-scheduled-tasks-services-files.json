@@ -13,7 +13,7 @@
       "difficulty": "medium",
       "prompt": "You approve a scheduled-task remediation while the task is currently running. What happens?",
       "choices": [
-        "The remediation removes the task entry. The currently-running instance finishes its current iteration; the task doesn't re-fire.",
+        "The remediation removes the task entry.",
         {
           "label": "The remediation kills the running process and removes the task entry simultaneously.",
           "rationale": "The remediation doesn't kill the running instance. That would need a separate process-kill or isolation."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Bounded blast radius. Entry removed; running instance finishes; no re-fire."
+      "explanation": "The currently-running instance finishes its current iteration; the task doesn't re-fire. Bounded blast radius. Entry removed; running instance finishes; no re-fire."
     },
     {
       "id": "service-new-signal",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "The \"new signal\" case (customer's IT contact recognising the affected object as legitimate) shows up MORE often with which remediation type, and why?",
       "choices": [
-        "Services — because services tend to be deliberately set up by IT, so someone in the customer's organisation knew about it. Verify before approving in environments rich with custom tooling.",
+        "Services — because services tend to be deliberately set up by IT.",
         {
           "label": "Scheduled tasks — every task is set up by a customer admin.",
           "rationale": "Scheduled tasks more often have a documented business purpose someone forgot to flag, but services are the more frequent new-signal case because they're more deliberate."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Services are deliberately installed by IT more often than scheduled tasks; the customer-recognises-it case is more frequent."
+      "explanation": "So someone in the customer's organisation knew about it. Verify before approving in environments rich with custom tooling. Services are deliberately installed by IT more often than scheduled tasks; the customer-recognises-it case is more frequent."
     },
     {
       "id": "interchangeable",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "A tech approves a service remediation with the same speed and inattention as an autoruns remediation, and is surprised when it takes longer or breaks something. What's the failure?",
       "choices": [
-        "Treating all three remediation types as interchangeable. The blast-radius spectrum is the thing to carry.",
+        "Treating all three remediation types as interchangeable.",
         {
           "label": "Failing to read the Recommendation.",
           "rationale": "The tech did read it; the failure is treating the types as interchangeable."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Each remediation type has a different blast radius. Same workflow shape; different diligence on review and verify."
+      "explanation": "The blast-radius spectrum is the thing to carry. Each remediation type has a different blast radius. Same workflow shape; different diligence on review and verify."
     },
     {
       "id": "server-service-pause",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "The Recommendation includes a service remediation on a server, but the customer hasn't confirmed it's safe to stop the service. What's the right move?",
       "choices": [
-        "Bump rather than approve blind. The \"verify with user\" pairing matters more on services on servers than on most workstations.",
+        "Bump rather than approve blind.",
         {
           "label": "Approve immediately; the SOC's Recommendation overrides server-impact concerns.",
           "rationale": "The SOC usually accounts for server impact; when customer confirmation is part of the pattern and you can't reach them, bumping is the call."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Server-side service has the largest blast radius. Confirm or bump; don't approve blind."
+      "explanation": "The \"verify with user\" pairing matters more on services on servers than on most workstations. Server-side service has the largest blast radius. Confirm or bump; don't approve blind."
     },
     {
       "id": "server-decision",
@@ -113,14 +113,14 @@
           "label": "Approve the service remediation, document, close. The SOC has triaged.",
           "rationale": "Service remediation on a server has the largest blast radius; the five-second sanity check is worth doing even with SOC triage."
         },
-        "Hold the incident open with a note, reach the IT manager via documented backup contact, then approve once confirmed unknown / not legitimate.",
+        "Hold the incident open with a note.",
         {
           "label": "Escalate to a senior immediately.",
           "rationale": "Premature. The Recommendation is in the standard helpdesk workflow; you just need user confirmation before clicking."
         }
       ],
       "correct": 1,
-      "explanation": "Service on server + unfamiliar service name + customer unreachable = pause-and-confirm via the backup contact."
+      "explanation": "Reach the IT manager via documented backup contact. Then approve once confirmed unknown / not legitimate. Service on server + unfamiliar service name + customer unreachable = pause-and-confirm via the backup contact."
     },
     {
       "id": "re-detection-services",
@@ -133,14 +133,14 @@
           "label": "Approve the remediation again; it worked the first time.",
           "rationale": "Same pattern as autoruns Decision 2: the remediation removed it, something on the endpoint re-installed it. Re-approving is whack-a-mole."
         },
-        "Recognise the pattern (clean removal, re-establishment within an hour), isolate the host, escalate to senior in parallel.",
+        "Recognise the pattern.",
         {
           "label": "Re-approve the service remediation and approve any new remediation that lands in the next hour.",
           "rationale": "Worst response. Playing whack-a-mole on persistence being actively re-established."
         }
       ],
       "correct": 1,
-      "explanation": "Same containment-and-escalate trigger as autoruns re-detection. The remediation type doesn't matter; the pattern does."
+      "explanation": "(clean removal, re-establishment within an hour), isolate the host, escalate to senior in parallel. Same containment-and-escalate trigger as autoruns re-detection. The remediation type doesn't matter; the pattern does."
     },
     {
       "id": "file-lob-check",
@@ -149,7 +149,7 @@
       "difficulty": "medium",
       "prompt": "The lesson recommends a quick check before approving a file remediation. What is it?",
       "choices": [
-        "Does the affected file path look like part of a customer's line-of-business application? Five-second sanity check; if it looks LOB-shaped, bump.",
+        "Does the affected file path look like part of a customer's line-of-business application? Five-second sanity check;.",
         {
           "label": "Has Huntress support approved the file remediation in writing?",
           "rationale": "Misuses support and isn't the lesson's check."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "LOB-shaped file path → bump. Five-second check, cheap to do, catches the misclassified-DLL case."
+      "explanation": "If it looks LOB-shaped, bump. LOB-shaped file path → bump. Five-second check, cheap to do, catches the misclassified-DLL case."
     },
     {
       "id": "diligence-scales",
@@ -173,7 +173,7 @@
       "difficulty": "medium",
       "prompt": "Across the three remediation types, where should diligence on review and verify scale MOST sharply?",
       "choices": [
-        "With the blast radius. Scheduled tasks are easiest to approve confidently; services need user verification more often; files need a sanity check for LOB shape.",
+        "With the blast radius. Scheduled tasks are easiest to approve confidently;",
         {
           "label": "With the severity tag. High needs more diligence; Low needs less.",
           "rationale": "Severity drives tempo; blast radius drives diligence. A server-side Low can have a larger blast radius than a workstation High."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same workflow, scaling diligence. The blast radius is what scales it."
+      "explanation": "Services need user verification more often; files need a sanity check for LOB shape. Same workflow, scaling diligence. The blast radius is what scales it."
     },
     {
       "id": "watch-window",

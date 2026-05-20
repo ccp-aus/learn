@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "Coverage verification covers how many distinct surfaces, and what are they?",
       "choices": [
-        "Three: endpoints (EDR agents), identity (ITDR), and SIEM data sources (if applicable).",
+        "Three: endpoints (EDR agents), identity (ITDR).",
         {
           "label": "One: the EDR agent count against the RMM inventory.",
           "rationale": "Verifying only the agent count and trusting the ITDR/SIEM green lights is the named common-mistake shortcut."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Three surfaces, not one. The most common new-tech shortcut is verifying only the first."
+      "explanation": "SIEM data sources (if applicable). Three surfaces, not one. The most common new-tech shortcut is verifying only the first."
     },
     {
       "id": "green-vs-flowing",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "The ITDR connection shows Connected with green status. Why is that not enough for the verify step?",
       "choices": [
-        "Green status only confirms the integration registered. Events flowing is a separate check that confirms the telemetry pipeline activated.",
+        "Green confirms registration, not event flow. Those are separate checks.",
         {
           "label": "Green status means the integration is connected and producing events; no further check is needed.",
           "rationale": "Inverts the lesson. This is the exact shortcut to avoid."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Connected without a moving last-sync is the early sign that the integration registered but the pipeline didn't activate cleanly."
+      "explanation": "Connected without a moving last-sync is the early sign that the integration registered but the pipeline didn't activate cleanly. Events flowing is the separate verification step."
     },
     {
       "id": "when-to-verify",
@@ -86,12 +86,12 @@
       "prompt": "24 hours after the push: RMM has 198 endpoints, portal shows 191 agents, AD has 247 computer objects. ITDR connected (green). Customer mentions four director laptops aren't on the domain but read company email. What's the shape of what you're looking at?",
       "choices": [
         {
-          "label": "191 of 198 is 96%, ITDR is green, sign off the onboarding.",
+          "label": "191 of 198 is 96% and ITDR is green, so sign off the onboarding and note the gap for later.",
           "rationale": "You've ignored the AD gap (49 endpoints), the director-laptop disclosure, and you haven't verified ITDR is producing events. Three missed checks dressed as one sign-off."
         },
-        "Seven in RMM not in Huntress (re-push), 49 in AD not in RMM (senior bump), four director laptops disclosed and unaccounted-for, and an ITDR event-flow check still owed before sign-off.",
+        "Four gaps: 7 re-push, 49 senior-bump, 4 director laptops unaccounted-for, and ITDR event-flow unverified.",
         {
-          "label": "49 endpoints missing; push to all of them.",
+          "label": "49 endpoints missing from the RMM; push the agent to all of them so coverage reaches the AD count.",
           "rationale": "You'd be adding 49 unmanaged endpoints into the rollout without senior sign-off. Deployment-strategy decision, bump."
         }
       ],
@@ -106,17 +106,17 @@
       "prompt": "You check ITDR for the customer. M365 reads Connected with green status, but the events feed shows zero ingested events in 24 hours and the last-sync timestamp hasn't moved since the initial connection. What do you do?",
       "choices": [
         {
-          "label": "Wait another 24 hours, the portal said baseline can take time.",
+          "label": "Wait another 24 hours; the portal said baseline can take time to complete after initial setup.",
           "rationale": "Baseline applies to identity incidents; ingested events should flow within the first hour."
         },
-        "Surface to the senior who connected ITDR: \"Connected yesterday, green, but last-sync hasn't moved in 24 hours and zero events ingested. Looks like the integration registered but the pipeline didn't activate.\"",
+        "Surface to the senior: green but last-sync stale and zero events in 24 hours. Pipeline didn't activate.",
         {
-          "label": "Disconnect and reconnect the integration to \"kick it.\"",
+          "label": "Disconnect and reconnect the integration to kick the pipeline into working order.",
           "rationale": "The connection step is often above the helpdesk floor at MSPs using GDAP/CSP. Re-running it is doubly above the line and could lose state."
         }
       ],
       "correct": 1,
-      "explanation": "Name the specific symptom and route it to the layer that owns the connection. Senior either knows the next step or opens Huntress support."
+      "explanation": "Name the specific symptom (green, stale last-sync, zero events) and route it to the layer that owns the connection. Senior either knows the next step or opens Huntress support."
     },
     {
       "id": "siem-stale",
@@ -129,7 +129,7 @@
           "label": "Wait another day; Active means it's working.",
           "rationale": "SIEM coverage gaps escalate faster than agent gaps. A source flagged Active but with a 2-day-old last-event has stopped silently."
         },
-        "Don't sit on it; bump per the SIEM runbook or escalate to the senior who connected it.",
+        "Don't sit on it;.",
         {
           "label": "Open a Huntress support ticket directly.",
           "rationale": "Bypasses the senior who owns the integration."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "A stalled SIEM source hides the whole detection class that source was supposed to cover. Don't sit on it."
+      "explanation": "Bump per the SIEM runbook or escalate to the senior who connected it. A stalled SIEM source hides the whole detection class that source was supposed to cover. Don't sit on it."
     },
     {
       "id": "late-enrolment",
@@ -149,7 +149,7 @@
       "difficulty": "easy",
       "prompt": "Why is running reconciliation immediately after the push a named common mistake?",
       "choices": [
-        "Agents that were off, asleep, or on a slow network the night of the push will phone home over the next 24 hours; running at 8:01pm gives a long list of \"missing\" endpoints that aren't missing.",
+        "Agents that were off, asleep.",
         {
           "label": "The portal doesn't update agent counts until the next business day.",
           "rationale": "Counts update near-real-time as agents enrol."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Late-enrolling agents are slow, not missing. The 24-hour wait avoids chasing ghosts."
+      "explanation": "On a slow network the night of the push will phone home over the next 24 hours; Running at 8:01pm gives a long list of \"missing\" endpoints that aren't missing. Late-enrolling agents are slow, not missing. The 24-hour wait avoids chasing ghosts."
     },
     {
       "id": "customer-handoff",
@@ -177,7 +177,7 @@
           "label": "\"We're 96% covered, good enough to sign off the onboarding.\"",
           "rationale": "Vague and skips the specifics. The deliverable is a clean count across all three surfaces, plus what was bumped."
         },
-        "\"Agents on 198 of 198 managed endpoints. AD shows 49 additional computer objects we don't currently manage; we've flagged those to your account manager. ITDR is connected for your M365 tenant and is producing identity events normally. SIEM ingestion is healthy on the four sources we set up.\"",
+        "\"Agents on 198 of 198 managed endpoints.",
         {
           "label": "\"Everything's green, you're good.\"",
           "rationale": "Same problem as A but worse, no numbers, no surfaces named, and 'green' is the green-status trap."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Clean count across all three surfaces, plus what was bumped to the senior, plus the customer's-IT-manager-friendly summary."
+      "explanation": "AD shows 49 additional computer objects we don't currently manage; we've flagged those to your account manager. ITDR is connected for your M365 tenant and is producing identity events normally. SIEM ingestion is healthy on the four sources we set up.\" Clean count across all three surfaces, plus what was bumped to the senior, plus the customer's-IT-manager-friendly summary."
     },
     {
       "id": "ad-not-in-rmm",
@@ -197,7 +197,7 @@
       "difficulty": "medium",
       "prompt": "The \"In AD, not in RMM\" bucket has 49 endpoints. Why is this a senior escalation rather than a tech action?",
       "choices": [
-        "It's a deployment-strategy question, which endpoints the MSP manages is a commercial and scope decision, not a tech-scope problem.",
+        "It's a deployment-strategy question.",
         {
           "label": "Only seniors have permission to view the RMM.",
           "rationale": "Techs view the RMM routinely; the issue isn't visibility but authority over scope."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same commercial-decisions boundary as lesson 1. Surface the count cleanly with the framing 'AD has 247, RMM has 198, so 49 are unmanaged.'"
+      "explanation": "Which endpoints the MSP manages is a commercial and scope decision, not a tech-scope problem. Same commercial-decisions boundary as lesson 1. Surface the count cleanly with the framing 'AD has 247, RMM has 198, so 49 are unmanaged.'"
     },
     {
       "id": "green-sufficient",

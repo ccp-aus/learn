@@ -13,7 +13,7 @@
       "difficulty": "medium",
       "prompt": "Policy blocks and AV blocks both produce 'access denied' symptoms. Which diagnostic separates them?",
       "choices": [
-        "Reading the install logs and the system event log together. Policy mechanisms fire identifiable events around the install timestamp.",
+        "Reading the install logs and the system event log together.",
         {
           "label": "Checking the endpoint's hostname pattern.",
           "rationale": "Hostnames don't discriminate failure modes."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The event log names the mechanism; the install log alone can mislead."
+      "explanation": "Policy mechanisms fire identifiable events around the install timestamp. The event log names the mechanism; the install log alone can mislead."
     },
     {
       "id": "applocker-channel",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Why is 'asking for a blanket allow-all rule for the Huntress installer' called out as wrong?",
       "choices": [
-        "Wrong direction. The runbook lists the specific objects (paths, certificates, hashes) to allow. Blanket allows expand the policy's attack surface unnecessarily.",
+        "Wrong direction.",
         {
           "label": "Blanket allows make the install slower.",
           "rationale": "Not the lesson's reason; performance isn't the framing."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Specific allow rules are the contract; blanket allows weaken the policy the customer set up on purpose."
+      "explanation": "The runbook lists the specific objects (paths, certificates, hashes) to allow. Blanket allows expand the policy's attack surface unnecessarily. Specific allow rules are the contract; blanket allows weaken the policy the customer set up on purpose."
     },
     {
       "id": "av-confirmed-still-fails",
@@ -129,7 +129,7 @@
       "difficulty": "hard",
       "prompt": "The event log shows AppLocker firing against the Huntress installer binary. The customer's IT confirms AppLocker is GPO-managed on this OU because executives have a tighter policy. What do you do?",
       "choices": [
-        "Ask the customer's IT to add the Huntress installer, agent binary, and signed certificate to the AppLocker allow-list at the GPO level, then push and wait for refresh.",
+        "Ask the customer's IT to add the Huntress installer, agent binary.",
         {
           "label": "Ask the customer to remove this endpoint from the executive OU temporarily.",
           "rationale": "You'd be asking the customer to weaken a policy they configured for a reason."
@@ -140,7 +140,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Identify the mechanism (AppLocker via GPO), use the right scope (GPO not local), and add the right allow-list contents per the runbook's canonical list."
+      "explanation": "Signed certificate to the AppLocker allow-list at the GPO level, then push and wait for refresh. Identify the mechanism (AppLocker via GPO), use the right scope (GPO not local), and add the right allow-list contents per the runbook's canonical list."
     },
     {
       "id": "local-fix-evaporates",
@@ -149,7 +149,7 @@
       "difficulty": "medium",
       "prompt": "'Applying the fix locally on the endpoint rather than at the policy mechanism' — why is this wrong?",
       "choices": [
-        "Survives until the next refresh, then evaporates. Push at the policy level.",
+        "Survives until the next refresh, then evaporates.",
         {
           "label": "Local fixes corrupt the GPO database.",
           "rationale": "Not a real failure mode."
@@ -164,7 +164,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Same mirror as the AV-local-exclusions mistake from lesson 14."
+      "explanation": "Push at the policy level. Same mirror as the AV-local-exclusions mistake from lesson 14."
     },
     {
       "id": "escalation-unknown-mechanism",
@@ -173,7 +173,7 @@
       "difficulty": "medium",
       "prompt": "Which escalation surface does the lesson name for policy-blocked installs?",
       "choices": [
-        "The policy mechanism is one neither your MSP nor the customer's IT recognises (a third-party endpoint hardening product, an older legacy mechanism).",
+        "The policy mechanism is one neither your MSP nor the customer's IT recognises.",
         {
           "label": "The endpoint is running a current supported Windows version.",
           "rationale": "Routine, not an escalation trigger."
@@ -188,7 +188,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "If neither side can name it, escalate before guessing."
+      "explanation": "(a third-party endpoint hardening product, an older legacy mechanism). If neither side can name it, escalate before guessing."
     },
     {
       "id": "verify-policy-level",
@@ -197,7 +197,7 @@
       "difficulty": "medium",
       "prompt": "Which verify check confirms a policy fix is durable?",
       "choices": [
-        "The policy allow-rule is in place at the policy-management level, not just locally on the endpoint.",
+        "The policy allow-rule is in place at the policy-management level.",
         {
           "label": "The endpoint has been rebooted three times since the rule push.",
           "rationale": "Reboots aren't the verification mechanism."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Local-only fixes evaporate at next refresh; the discipline is to push at the right management layer."
+      "explanation": "Not just locally on the endpoint. Local-only fixes evaporate at next refresh; the discipline is to push at the right management layer."
     },
     {
       "id": "tf-mechanism-identification",

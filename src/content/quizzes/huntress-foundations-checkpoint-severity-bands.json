@@ -13,7 +13,7 @@
       "difficulty": "easy",
       "prompt": "A new tech says: \"This incident looks Low to me, not High. I'll re-grade it.\" What's the right correction?",
       "choices": [
-        "Re-grading is the SOC's call. Asking the analyst to revisit is fine; doing it yourself unilaterally is second-guessing the recommendation.",
+        "Re-grading is the SOC's call. Asking the analyst to revisit is fine;",
         {
           "label": "Re-grading is encouraged when the tech has more local context than the SOC.",
           "rationale": "Customer context goes back to the analyst in a reply; it doesn't justify unilateral re-grading."
@@ -28,7 +28,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Severity is the SOC's call. Ask, don't override."
+      "explanation": "Doing it yourself unilaterally is second-guessing the recommendation. Severity is the SOC's call. Ask, don't override."
     },
     {
       "id": "low-isnt-ignore",
@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "\"Low severity means I can ignore it.\" Why is that misconception harmful?",
       "choices": [
-        "Low means the SOC confirmed it as worth your time, just not at the Critical tempo; ignoring Low is how queues become backlogs.",
+        "Low means the SOC confirmed it as worth your time.",
         {
           "label": "Because the SLA on Low is tighter than on High.",
           "rationale": "Wrong on the SLA shape. Low's SLA is typically the most permissive."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Low is normal tempo, not ignore."
+      "explanation": "Just not at the Critical tempo; Ignoring Low is how queues become backlogs. Low is normal tempo, not ignore."
     },
     {
       "id": "high-after-hours",
@@ -65,7 +65,7 @@
           "label": "Wake the senior; High is always wake-the-senior after-hours.",
           "rationale": "Wrong. Critical wakes someone; High waits for the morning at most MSPs."
         },
-        "Note the incident; action it in the morning unless your MSP's after-hours policy says otherwise.",
+        "Note the incident;.",
         {
           "label": "Action it immediately yourself, regardless of the time.",
           "rationale": "High doesn't have an immediate-action requirement; it has a customer-SLA clock."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Typical pattern: High waits for the morning. Check your MSP's policy for the exact rule."
+      "explanation": "Action it in the morning unless your MSP's after-hours policy says otherwise. Typical pattern: High waits for the morning. Check your MSP's policy for the exact rule."
     },
     {
       "id": "critical-response-shape",
@@ -85,7 +85,7 @@
       "difficulty": "medium",
       "prompt": "Critical incidents have a \"different response model from Low and High.\" What's the difference?",
       "choices": [
-        "Contain first (isolate or run the compromise playbook), escalate in parallel, do NOT investigate.",
+        "Contain first (isolate or run the compromise playbook), escalate in parallel.",
         {
           "label": "Investigate first to confirm severity, then contain.",
           "rationale": "Investigation before containment on a Critical is exactly what the lesson prevents."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Forensics and persistence-hunting are above the helpdesk ceiling. Contain and escalate; don't investigate."
+      "explanation": "Do NOT investigate. Forensics and persistence-hunting are above the helpdesk ceiling. Contain and escalate; don't investigate."
     },
     {
       "id": "friday-queue",
@@ -137,7 +137,7 @@
           "label": "Close as benign on the customer's word and move on.",
           "rationale": "The customer's context is new signal, not a disposition. Same family as second-guessing the SOC."
         },
-        "Reply to the analyst with the new context, leave the incident open, finish your shift, hand to on-call with a note.",
+        "Reply to the analyst with the new context.",
         {
           "label": "Reduce the severity from High to Low yourself, given the customer's confidence.",
           "rationale": "Re-grading on a customer claim is two mistakes in one click."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Signal goes to the layer that decides; the ticket doesn't get dropped on the floor."
+      "explanation": "Leave the incident open, finish your shift, hand to on-call with a note. Signal goes to the layer that decides; the ticket doesn't get dropped on the floor."
     },
     {
       "id": "sla-source",
@@ -161,7 +161,7 @@
           "label": "Huntress sets and enforces them globally.",
           "rationale": "Huntress doesn't enforce an SLA on your side."
         },
-        "Your MSP's contract with each customer, with after-hours rules set by your MSP's policy.",
+        "Your MSP's contract with each customer.",
         {
           "label": "The customer sets them at onboarding.",
           "rationale": "The customer agrees at contract; they aren't unilaterally set per ticket."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "SLAs are partner-specific. Read your MSP's document at least once."
+      "explanation": "With after-hours rules set by your MSP's policy. SLAs are partner-specific. Read your MSP's document at least once."
     },
     {
       "id": "tag-text-mismatch",
@@ -185,7 +185,7 @@
           "label": "Ignore the recommendation; if it's Low, you don't isolate.",
           "rationale": "Ignoring the Recommendation is the cardinal mistake."
         },
-        "Send a clarifying reply to the analyst — the tag and the text don't match, and it's worth confirming before acting.",
+        "Send a clarifying reply to the analyst.",
         {
           "label": "Isolate immediately because the Recommendation says so, ignore the mismatch.",
           "rationale": "You should not just act; a 30-second reply costs nothing before something irreversible."
@@ -196,7 +196,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Mismatch between tag and text is information. The right surface is a clarifying reply."
+      "explanation": "The tag and the text don't match, and it's worth confirming before acting. Mismatch between tag and text is information. The right surface is a clarifying reply."
     },
     {
       "id": "high-example",

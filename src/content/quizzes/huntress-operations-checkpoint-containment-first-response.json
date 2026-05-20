@@ -37,7 +37,7 @@
       "difficulty": "medium",
       "prompt": "\"Escalate in parallel\", what does the lesson say this looks like in practice?",
       "choices": [
-        "Phone the on-call senior, hit the dedicated chat channel with an @-mention, and set the PSA priority flag. All three on a Critical isn't excessive, it's standard.",
+        "Phone the on-call senior, hit the dedicated chat channel with an @-mention.",
         {
           "label": "Email the senior with full context and await acknowledgement before continuing.",
           "rationale": "Wrong channel and wrong sequencing. Email is too slow; awaiting acknowledgement is sequenced, not parallel."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Phone first (highest signal), chat as backup, PSA flag as durable record."
+      "explanation": "Set the PSA priority flag. All three on a Critical isn't excessive, it's standard. Phone first (highest signal), chat as backup, PSA flag as durable record."
     },
     {
       "id": "bump-message",
@@ -61,7 +61,7 @@
       "difficulty": "medium",
       "prompt": "Which bump message shape does the lesson endorse for a Critical?",
       "choices": [
-        "\"Critical canary trip on SRV-EXAMPLE-FILE-01, isolated at 03:14, on the line, who's available?\", short, specific, action-oriented.",
+        "\"Critical canary trip on SRV-EXAMPLE-FILE-01.",
         {
           "label": "\"I have something I'd like to discuss when you have a moment.\"",
           "rationale": "Named anti-example. Hedging on a Critical wastes time and signals the wrong tempo."
@@ -76,7 +76,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Short, specific, action-oriented. The detailed timeline goes in the PSA, not the bump."
+      "explanation": "Isolated at 03:14, on the line, who's available?\", short, specific, action-oriented. Short, specific, action-oriented. The detailed timeline goes in the PSA, not the bump."
     },
     {
       "id": "multi-host-order",
@@ -89,7 +89,7 @@
           "label": "Isolate A (DC, higher blast radius), then call the senior, then isolate B.",
           "rationale": "Half right. A-first by blast radius is correct, but stretching the escalation to 'after I isolate A' leaves a minute or more before the senior knows."
         },
-        "Isolate A. While the agent processes A, phone the senior with the full picture: \"two Criticals on Northwind, A is DC LSASS, B is Mimikatz on IT workstation, isolating A now, B next.\" Then isolate B.",
+        "Isolate A. While the agent processes A, phone the senior with the full picture.",
         {
           "label": "Call the senior first, ask which to isolate first, then act on their direction.",
           "rationale": "Wrong reflex. Both are Critical with isolate-immediately Recommendations; asking permission delays both."
@@ -100,7 +100,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Containment of A first (DC blast radius), escalation in the seconds-long gap, B follows immediately. Senior is fully aware before either containment finishes."
+      "explanation": "\"two Criticals on Northwind, A is DC LSASS, B is Mimikatz on IT workstation, isolating A now, B next.\" Then isolate B. Containment of A first (DC blast radius), escalation in the seconds-long gap, B follows immediately. Senior is fully aware before either containment finishes."
     },
     {
       "id": "customer-call-mid-response",
@@ -113,7 +113,7 @@
           "label": "Tell them the situation in full: \"we're handling an active incident, two of your machines are contained, our senior is investigating, more soon.\"",
           "rationale": "Half right. Phrasing is fine but you haven't checked with the senior on what to disclose at this stage."
         },
-        "Tell the IT manager you're handling an active security event, two systems are intentionally contained as a protective measure, the senior will brief them within 10 minutes. Then bridge to the senior: \"What do you want me to tell them?\"",
+        "Tell the IT manager you're handling an active security event, two systems are intentionally contained as a protective measure, the senior will brief them within 10 minutes.",
         {
           "label": "Tell them you can't comment, the senior will call them back.",
           "rationale": "Wrong tone. 'Can't comment' frames the MSP as guarded at a moment the customer needs reassurance."
@@ -124,7 +124,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "Hold the immediate line (customer knows it's deliberate, knows a senior is involved, expects a callback) without freelancing the deeper message the senior will want to control."
+      "explanation": "Then bridge to the senior: \"What do you want me to tell them?\" Hold the immediate line (customer knows it's deliberate, knows a senior is involved, expects a callback) without freelancing the deeper message the senior will want to control."
     },
     {
       "id": "investigating-in-the-gap",
@@ -133,7 +133,7 @@
       "difficulty": "medium",
       "prompt": "\"I've contained the host. The senior is on their way. I might as well investigate while I wait.\" What's wrong with this?",
       "choices": [
-        "Named common mistake, investigating in the gap is the failure mode the lesson is built to prevent. Document timestamps; stand by; don't dig.",
+        "Named common mistake, investigating in the gap is the failure mode the lesson is built to prevent.",
         {
           "label": "Nothing, the senior will appreciate a head start on the investigation.",
           "rationale": "Wrong. The senior wants you contained-and-paused. Tech-seat investigation has order-of-volatility costs."
@@ -148,7 +148,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "The 'I'm waiting anyway' rationalisation is exactly the named overstep."
+      "explanation": "Document timestamps; stand by; don't dig. The 'I'm waiting anyway' rationalisation is exactly the named overstep."
     },
     {
       "id": "sequencing-multi-host",
@@ -157,7 +157,7 @@
       "difficulty": "medium",
       "prompt": "Why is \"let me contain both hosts and then call the senior\" the wrong sequencing for a multi-host Critical?",
       "choices": [
-        "The senior wants to know there's a multi-host Critical event in flight from the moment the second one lands, sequencing escalation after full containment of multiple hosts is a named mistake.",
+        "The senior wants to know there's a multi-host Critical event in flight from the moment the second one lands.",
         {
           "label": "Containing two hosts takes too long.",
           "rationale": "Containing takes seconds; situational awareness is the real issue."
@@ -172,7 +172,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Two Criticals firing means escalation on the first, in parallel with containment, not after."
+      "explanation": "Sequencing escalation after full containment of multiple hosts is a named mistake. Two Criticals firing means escalation on the first, in parallel with containment, not after."
     },
     {
       "id": "scenario-action-pair",
@@ -181,7 +181,7 @@
       "difficulty": "medium",
       "prompt": "Which containment action matches the \"identity Critical\" scenario from the lesson?",
       "choices": [
-        "Run the ITDR compromise playbook on the affected identity, escalate immediately because identity has wider blast radius than endpoint.",
+        "Run the ITDR compromise playbook on the affected identity, escalate immediately.",
         {
           "label": "Isolate the workstation the identity last signed in from, then escalate.",
           "rationale": "Endpoint response on an identity incident. The identity surface needs the identity-side playbook, not a host isolation."
@@ -196,7 +196,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "Identity Criticals tend to have wider blast radius than endpoint. The compromise playbook is the containment action; Course 6 details it."
+      "explanation": "Because identity has wider blast radius than endpoint. Identity Criticals tend to have wider blast radius than endpoint. The compromise playbook is the containment action; Course 6 details it."
     },
     {
       "id": "further-escalation-siem",
@@ -205,7 +205,7 @@
       "difficulty": "medium",
       "prompt": "Which of these is named in the lesson as a reason to escalate FURTHER, beyond the standard senior bump?",
       "choices": [
-        "The Critical is on a customer whose product mix includes Managed SIEM and the SIEM is showing related signals you can see in the portal. Surface this to the senior as a correlation signal.",
+        "The Critical is on a customer whose product mix includes Managed SIEM and the SIEM is showing related signals you can see in the portal.",
         {
           "label": "The customer's account manager is on holiday.",
           "rationale": "Not a named further-escalation trigger."
@@ -220,7 +220,7 @@
         }
       ],
       "correct": 0,
-      "explanation": "SIEM correlation is the kind of signal that drives the senior's next decision."
+      "explanation": "Surface this to the senior as a correlation signal. SIEM correlation is the kind of signal that drives the senior's next decision."
     },
     {
       "id": "in-scope-after-contain",
@@ -236,7 +236,12 @@
         "Check the endpoint's recent process tree to see what spawned the activity.",
         "Handle customer comms when the senior gives the go-ahead."
       ],
-      "correct": [0, 1, 2, 5],
+      "correct": [
+        0,
+        1,
+        2,
+        5
+      ],
       "explanation": "The 'you do' list after containment is document, stand by, isolate further hosts as Criticals land, and handle customer comms under senior direction. Reading Evidence and checking process trees are named overstep."
     }
   ]

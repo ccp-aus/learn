@@ -41,7 +41,7 @@
           "label": "Huntress only flags MFA changes that are 100% confirmed compromises.",
           "rationale": "Classification still considers false positives."
         },
-        "Legitimate MFA changes follow a specific shape (user-initiated, during documented onboarding events); attacker-driven changes do not match that shape.",
+        "Legitimate MFA changes follow a specific shape.",
         {
           "label": "Legitimate MFA changes are impossible without IT involvement.",
           "rationale": "Users register their own MFA methods on first sign-in."
@@ -52,7 +52,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The pattern of legitimate vs. attacker MFA changes is distinct. That distinction makes the signal strong."
+      "explanation": "(user-initiated, during documented onboarding events); Attacker-driven changes do not match that shape. The pattern of legitimate vs. attacker MFA changes is distinct. That distinction makes the signal strong."
     },
     {
       "id": "targeted-vs-all-removal",
@@ -69,14 +69,14 @@
           "label": "Removing all methods would crash the identity provider.",
           "rationale": "Not a real platform behaviour."
         },
-        "Removing all forces the legitimate user through full re-enrolment, which creates friction. The Timeline usually identifies which methods are attacker-added.",
+        "Removing all forces the legitimate user through full re-enrolment.",
         {
           "label": "Targeted removal is faster; that is the only reason.",
           "rationale": "Speed is not the framing. User friction is."
         }
       ],
       "correct": 2,
-      "explanation": "Targeted removal preserves the user's legitimate methods while eliminating the attacker's persistent foothold."
+      "explanation": "Which creates friction. The Timeline usually identifies which methods are attacker-added. Targeted removal preserves the user's legitimate methods while eliminating the attacker's persistent foothold."
     },
     {
       "id": "legitimate-mfa-marker",
@@ -97,10 +97,10 @@
           "label": "Removes the user's existing method without adding a replacement.",
           "rationale": "That is the attacker shape."
         },
-        "Happens during user onboarding, during a documented device replacement, or matches the customer's IT support process timing."
+        "Happens during user onboarding, during a documented device replacement."
       ],
       "correct": 3,
-      "explanation": "Legitimate changes have specific context: onboarding timing, documented device replacement, IT support process, and no co-occurring malicious activity."
+      "explanation": "Or matches the customer's IT support process timing. Legitimate changes have specific context: onboarding timing, documented device replacement, IT support process, and no co-occurring malicious activity."
     },
     {
       "id": "helena-vacation-interpretation",
@@ -113,14 +113,14 @@
           "label": "Trust the IT manager's input and pause the playbook until Helena is reachable.",
           "rationale": "The Timeline shows the attacker pattern, not a user updating their travel phone. The IT manager has incomplete information."
         },
-        "Execute the Recommendation per the compromise playbook. The IT manager has incomplete information; the Timeline tells the story.",
+        "Execute the Recommendation per the compromise playbook.",
         {
           "label": "Confirm with the IT manager which methods to remove.",
           "rationale": "The IT manager does not have Timeline visibility. Wrong person to decide."
         }
       ],
       "correct": 1,
-      "explanation": "Vacation overseas would not generate a new-method, remove-legitimate-method, inbox-rule sequence in six minutes."
+      "explanation": "The IT manager has incomplete information; the Timeline tells the story. Vacation overseas would not generate a new-method, remove-legitimate-method, inbox-rule sequence in six minutes."
     },
     {
       "id": "helena-callback-framing",
@@ -137,10 +137,10 @@
           "label": "Apologise and say you wish you could have verified before acting.",
           "rationale": "Waiting would have been worse. Do not frame a correct action as a mistake."
         },
-        "Explain that the Timeline showed the number added immediately after a suspicious sign-in and before an inbox rule. Help her register fresh under reset credentials."
+        "Explain that the Timeline showed the number added immediately after a suspicious sign-in and before an inbox rule."
       ],
       "correct": 2,
-      "explanation": "Honest about the pattern, no apology for a correct action, and a clear path forward for Helena."
+      "explanation": "Help her register fresh under reset credentials. Honest about the pattern, no apology for a correct action, and a clear path forward for Helena."
     },
     {
       "id": "remove-all-safer-misconception",
@@ -157,14 +157,14 @@
           "label": "All-method removal damages the identity provider.",
           "rationale": "Wrong on the platform behaviour."
         },
-        "Removing all forces the legitimate user through full re-enrolment with its own friction. Targeted removal preserves their legitimate methods.",
+        "Removing all forces the legitimate user through full re-enrolment with its own friction.",
         {
           "label": "All-method removal triggers a tenant-wide alert.",
           "rationale": "Not a real platform behaviour."
         }
       ],
       "correct": 2,
-      "explanation": "Lesson 13's discipline: target specifically when the Timeline identifies the attacker's methods."
+      "explanation": "Targeted removal preserves their legitimate methods. Lesson 13's discipline: target specifically when the Timeline identifies the attacker's methods."
     },
     {
       "id": "reset-vs-method-review",
@@ -185,10 +185,10 @@
           "label": "The reset is automated; the method review is manual. Otherwise identical.",
           "rationale": "They address different artefacts."
         },
-        "The reset re-establishes the password and prompts re-enrolment; the method review removes the attacker's persistent method-list entries that the reset may not have cleared."
+        "The reset re-establishes the password and prompts re-enrolment;"
       ],
       "correct": 3,
-      "explanation": "Related but distinct steps. The reset re-establishes credentials. The method review removes the attacker's persistent MFA foothold."
+      "explanation": "The method review removes the attacker's persistent method-list entries that the reset may not have cleared. Related but distinct steps. The reset re-establishes credentials. The method review removes the attacker's persistent MFA foothold."
     },
     {
       "id": "recovery-detail-change-severity",
@@ -201,7 +201,7 @@
           "label": "It only affects audit logs, not account access.",
           "rationale": "It changes who controls recovery flows."
         },
-        "Modifying recovery channels moves the 'I forgot my password' flow to an inbox or number the attacker controls. They can reset the password without the user's involvement.",
+        "Modifying recovery channels moves the 'I forgot my password' flow to an inbox or number the attacker controls.",
         {
           "label": "Recovery details are not used for anything material.",
           "rationale": "Wrong. They control password-reset flows."
@@ -212,7 +212,7 @@
         }
       ],
       "correct": 1,
-      "explanation": "The attacker hijacks the recovery flow. The user can no longer recover their own account."
+      "explanation": "They can reset the password without the user's involvement. The attacker hijacks the recovery flow. The user can no longer recover their own account."
     },
     {
       "id": "password-must-be-compromised",
@@ -229,14 +229,14 @@
           "label": "Always; the password is the only way to register MFA.",
           "rationale": "Overstates. Attackers may bypass via session-token theft or OAuth grants."
         },
-        "Usually yes, and the compromise playbook covers both. The MFA tampering is its own signal worth recognising even before the broader playbook runs.",
+        "Usually yes, and the compromise playbook covers both.",
         {
           "label": "Only on M365, not Google Workspace.",
           "rationale": "Not a platform-specific distinction."
         }
       ],
       "correct": 2,
-      "explanation": "Usually true, but MFA tampering itself is the signal that drives the response regardless of password status."
+      "explanation": "The MFA tampering is its own signal worth recognising even before the broader playbook runs. Usually true, but MFA tampering itself is the signal that drives the response regardless of password status."
     }
   ]
 }
