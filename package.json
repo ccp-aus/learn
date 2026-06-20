@@ -27,7 +27,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/vite": "~4.2.4",
-    "astro": "^6.3.1",
+    "astro": "^6.4.8",
     "astro-pagefind": "^1.8.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
