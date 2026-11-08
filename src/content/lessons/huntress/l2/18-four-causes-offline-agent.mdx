@@ -4,14 +4,14 @@ vendor: huntress
 level: l2
 title: The four causes of an offline agent
 summary: Agent offline is one status hiding four different problems with four different fixes. A two-question diagnostic separates them in under a minute. Skipping it is the most common reason offline-agent work takes an hour instead of ten minutes.
-estimatedMinutes: 8
+estimatedMinutes: 9
 order: 18
 topics:
   - agent
   - offline
   - diagnostics
   - keystone
-updated: 2026-05-20
+updated: 2026-11-07
 ---
 
 *Agent offline* is a single status in the portal that hides four different problems with four different fixes. The tech who treats every offline the same way (re-push the install, reboot, escalate) burns hours getting nowhere on three of the four causes. The skill is recognising which cause this offline is, in under two minutes, so the right diagnostic path opens immediately.
@@ -53,6 +53,21 @@ The whole diagnostic is a minute of work. Doing it before reaching for any fix s
 - A 24/7 production server that shows offline despite showing online in the RMM. Service stopped or network blocked; check the service first.
 - A workstation that shows offline a day after an OS or AV update. Could be service-stopped (the update killed the service) or uninstalled (the AV update removed the agent). The service entry tells you which.
 - A whole site showing offline at once. Network-blocked at the site level (firewall change, ISP outage) until proven otherwise. Mass simultaneous offline rarely means mass simultaneous uninstall.
+
+## Preserve the branch evidence
+
+The decision tree identifies the next path; it does not preserve the evidence that put the endpoint on that path. Before a restart, repair, or reinstall changes the state, record:
+
+- the durable device identifier, organisation, last Huntress check-in, RMM state, observation time, and time zone;
+- whether the Huntress services exist and are running, the agent version, and the first relevant log error in the failure window;
+- the result of the documented DNS, port, certificate, and Huntress-service checks, plus whether the failure affects one endpoint or a wider cohort; and
+- the action taken, its result, the validation time, and the next owner when the agent still does not check in.
+
+That record keeps a fast triage from turning into an evidence-free escalation. It also lets the receiving technician distinguish a verified branch from a guess without repeating every check.
+
+<Callout type="info">
+  Need a reusable field list? The free [RMM agent offline troubleshooting checklist](https://izikipizi.github.io/nizlo-msp-operations-resources/rmm-agent-offline-troubleshooting-checklist.html?utm_source=learn_msp_au&utm_medium=contributor_reference&utm_campaign=offline_agent_checklist) and [CSV record](https://izikipizi.github.io/nizlo-msp-operations-resources/templates/rmm-agent-offline-troubleshooting-checklist.csv?utm_source=learn_msp_au&utm_medium=contributor_reference&utm_campaign=offline_agent_checklist) are vendor-neutral, CC BY 4.0 resources maintained by Nizlo. They are not Huntress documentation; use only the fields that fit your authorised workflow and current vendor guidance.
+</Callout>
 
 ## Misconceptions to drop
 
